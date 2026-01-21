@@ -18,7 +18,7 @@ class Viewprofilerepository{
       final token= pref.getString("token");
       print("The token is :$token");
       final response = await http.get(
-        Uri.parse(Apis.MateProfile+"/$id"),
+        Uri.parse("${Apis.MateProfile}/$id"),
         headers: {
           "Content-Type": "application/json",
           "Authorization":"Bearer $token"

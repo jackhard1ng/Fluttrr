@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
-import 'package:tripmates/Constants/Apis_Constants.dart';
-import 'package:tripmates/Constants/custom_appbar.dart';
-import 'package:tripmates/Constants/listdata.dart';
-import 'package:tripmates/Constants/utils.dart';
-import 'package:tripmates/Controller/BussinessPageController.dart';
-import 'package:tripmates/Models/BussinessModel/AnalyticsModel.dart';
+import 'package:fluttrr/Constants/Apis_Constants.dart';
+import 'package:fluttrr/Constants/custom_appbar.dart';
+import 'package:fluttrr/Controller/BussinessPageController.dart';
+import 'package:fluttrr/Models/BussinessModel/AnalyticsModel.dart';
 
 import '../Constants/drawer_screen.dart';
 
@@ -53,8 +51,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     required Color backgroundColor,
   }) {
     final icon = isPositive ? Icons.arrow_upward : Icons.arrow_downward;
-    final color = isPositive ? const Color(0xff339003) : const Color(0xffE53636);
-    final percentageText = isPositive ? '10%' : '5%'; // Replace with actual API data
+    final color =
+        isPositive ? const Color(0xff339003) : const Color(0xffE53636);
+    final percentageText =
+        isPositive ? '10%' : '5%'; // Replace with actual API data
 
     return Container(
       height: 85,
@@ -121,6 +121,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       ),
     );
   }
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -130,7 +131,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       drawer: const DrawerScreen(),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(83),
-        child: Businessappbar(scaffoldKey:  _scaffoldKey, ),
+        child: Businessappbar(
+          scaffoldKey: _scaffoldKey,
+        ),
       ),
       body: Obx(() {
         final analytics = getCurrentAnalytics();
@@ -174,23 +177,23 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           },
                           child: selectedIndex == index
                               ? GradientText(
-                            analyticsPeriods[index],
-                            colors: const [
-                              Color(0xff007BFD),
-                              Color(0xff20235A),
-                            ],
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          )
+                                  analyticsPeriods[index],
+                                  colors: const [
+                                    Color(0xff007BFD),
+                                    Color(0xff20235A),
+                                  ],
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
                               : Text(
-                            analyticsPeriods[index],
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                                  analyticsPeriods[index],
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                         ),
                       );
                     },
@@ -272,176 +275,184 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     ),
                   ),
                 ),
+                ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount:
+                      businessController.topEventModel?.data?.length ?? 0,
+                  itemBuilder: (BuildContext context, int index) {
+                    var event = businessController.topEventModel?.data?[index];
 
-          ListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: businessController.topEventModel?.data?.length ?? 0,
-            itemBuilder: (BuildContext context, int index) {
-              var event = businessController.topEventModel?.data?[index];
-
-              return Padding(
-                padding: const EdgeInsets.only(top: 13, left: 20, right: 20),
-                child: Stack(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      height: 183,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: NetworkImage("${Apis.ip}${event?.image}" ?? 'https://via.placeholder.com/150'),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 10, right: 10),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 27,
-                                  backgroundImage: NetworkImage(
-                                      'https://via.placeholder.com/50'), // Replace with actual profile image if available
-                                ),
-                                const SizedBox(width: 10),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      width: 170,
-                                      child: Text(
-                                        event?.name ?? 'Event Name',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
+                    return Padding(
+                      padding:
+                          const EdgeInsets.only(top: 13, left: 20, right: 20),
+                      child: Stack(
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            height: 183,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: NetworkImage(
+                                    "${Apis.ip}${event?.image}" ??
+                                        'https://via.placeholder.com/150'),
+                              ),
+                            ),
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 10, right: 10),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Row(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 27,
+                                        backgroundImage: NetworkImage(
+                                            'https://via.placeholder.com/50'), // Replace with actual profile image if available
                                       ),
-                                    ),
-                                    const SizedBox(height: 7),
-                                    Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        SvgPicture.asset(
-                                          'assets/pin.svg',
-                                          height: 14,
-                                        ),
-                                        const SizedBox(width: 7),
-                                        SizedBox(
-                                          width: 160,
-                                          child: Text(
-                                            event?.location ?? 'Event Location',
+                                      const SizedBox(width: 10),
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(
+                                            width: 170,
+                                            child: Text(
+                                              event?.name ?? 'Event Name',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 7),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              SvgPicture.asset(
+                                                'assets/pin.svg',
+                                                height: 14,
+                                              ),
+                                              const SizedBox(width: 7),
+                                              SizedBox(
+                                                width: 160,
+                                                child: Text(
+                                                  event?.location ??
+                                                      'Event Location',
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 3),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                'Event Date:', // Replace with actual date
+                                                style: TextStyle(
+                                                  fontSize: 9,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Color(0xff00D4BD),
+                                                ),
+                                              ),
+                                              Text(
+                                                ' at Event Time', // Replace with actual time
+                                                style: TextStyle(
+                                                  fontSize: 9,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Color(0xff00D4BD),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 3),
+                                          SizedBox(
+                                            width: 279,
+                                            child: Text(
+                                              event?.description ??
+                                                  'No description available.',
+                                              style: TextStyle(
+                                                fontSize: 9,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 15),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Stack(
+                                            children: [
+                                              Container(
+                                                height: 26,
+                                                width: 26,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: Color(0xff5A5A5A),
+                                                ),
+                                                child: Center(
+                                                  child: Icon(
+                                                    Icons.add,
+                                                    size: 26,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(width: 7),
+                                          Text(
+                                            '${event?.remainingSlots ?? 0}/${event?.totalSlots ?? 0} Joined',
                                             style: TextStyle(
-                                              fontSize: 11,
+                                              fontSize: 10,
                                               fontWeight: FontWeight.w500,
                                               color: Colors.white,
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 3),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          'Event Date:', // Replace with actual date
-                                          style: TextStyle(
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.w500,
-                                            color: Color(0xff00D4BD),
-                                          ),
-                                        ),
-                                        Text(
-                                          ' at Event Time', // Replace with actual time
-                                          style: TextStyle(
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.w500,
-                                            color: Color(0xff00D4BD),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 3),
-                                    SizedBox(
-                                      width: 279,
-                                      child: Text(
-                                        event?.description ??
-                                            'No description available.',
-                                        style: TextStyle(
-                                          fontSize: 9,
-                                          color: Colors.white,
-                                        ),
+                                        ],
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                            const SizedBox(height: 15),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(17.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                Row(
-                                  children: [
-                                    Stack(
-                                      children: [
-                                        Container(
-                                          height: 26,
-                                          width: 26,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Color(0xff5A5A5A),
-                                          ),
-                                          child: Center(
-                                            child: Icon(
-                                              Icons.add,
-                                              size: 26,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(width: 7),
-                                    Text(
-                                      '${event?.remainingSlots ?? 0}/${event?.totalSlots ?? 0} Joined',
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
+                                SvgPicture.asset(
+                                  'assets/Group 48096067.svg',
+                                  height: 27,
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(17.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/Group 48096067.svg',
-                            height: 27,
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          )
-
-          ],
+                    );
+                  },
+                )
+              ],
             ),
           ),
         );

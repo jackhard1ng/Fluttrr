@@ -7,15 +7,15 @@ class UpComingActivitiesModel {
     if (json['activities'] != null) {
       activities = <Activities>[];
       json['activities'].forEach((v) {
-        activities!.add(new Activities.fromJson(v));
+        activities!.add(Activities.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.activities != null) {
-      data['activities'] = this.activities!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (activities != null) {
+      data['activities'] = activities!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -34,50 +34,56 @@ class Activities {
   int? totalSlots;
   List<int>? savedBy;
   bool? joined;
+  List<String>? creatorImage; // ✅ Add this line
 
-  Activities(
-      {this.activityID,
-        this.name,
-        this.dateTime,
-        this.participants,
-        this.images,
-        this.location,
-        this.description,
-        this.totalTime,
-        this.slots,
-        this.totalSlots,
-        this.savedBy,
-        this.joined});
+  Activities({
+    this.activityID,
+    this.name,
+    this.dateTime,
+    this.participants,
+    this.images,
+    this.location,
+    this.description,
+    this.totalTime,
+    this.slots,
+    this.totalSlots,
+    this.savedBy,
+    this.joined,
+    this.creatorImage, // ✅ Add this line
+  });
 
   Activities.fromJson(Map<String, dynamic> json) {
     activityID = json['activityID'];
     name = json['name'];
     dateTime = json['date_time'];
-    participants = json['participants'].cast<int>();
-    images = json['images'].cast<String>();
+    participants = json['participants']?.cast<int>();
+    images = json['images']?.cast<String>();
     location = json['location'];
     description = json['description'];
     totalTime = json['total_time'];
     slots = json['slots'];
     totalSlots = json['totalSlots'];
-    savedBy = json['saved_by'].cast<int>();
+    savedBy = json['saved_by']?.cast<int>();
     joined = json['joined'];
+    creatorImage = json['creatorImage']?.cast<String>(); // ✅ Add this line
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['activityID'] = this.activityID;
-    data['name'] = this.name;
-    data['date_time'] = this.dateTime;
-    data['participants'] = this.participants;
-    data['images'] = this.images;
-    data['location'] = this.location;
-    data['description'] = this.description;
-    data['total_time'] = this.totalTime;
-    data['slots'] = this.slots;
-    data['totalSlots'] = this.totalSlots;
-    data['saved_by'] = this.savedBy;
-    data['joined'] = this.joined;
+    final Map<String, dynamic> data = {};
+    data['activityID'] = activityID;
+    data['name'] = name;
+    data['date_time'] = dateTime;
+    data['participants'] = participants;
+    data['images'] = images;
+    data['location'] = location;
+    data['description'] = description;
+    data['total_time'] = totalTime;
+    data['slots'] = slots;
+    data['totalSlots'] = totalSlots;
+    data['saved_by'] = savedBy;
+    data['joined'] = joined;
+    data['creatorImage'] = creatorImage; // ✅ Add this line
     return data;
   }
 }
+

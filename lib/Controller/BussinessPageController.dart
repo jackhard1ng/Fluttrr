@@ -1,108 +1,120 @@
 import 'dart:io';
 
 import 'package:get/get.dart';
-import 'package:tripmates/Models/BussinessModel/AnalyticsModel.dart';
-import 'package:tripmates/Models/BussinessModel/BusinessEventListModel.dart';
-import 'package:tripmates/Models/BussinessModel/BusinessPageModel.dart';
-import 'package:tripmates/Models/BussinessModel/BusinessStatusModel.dart';
-import 'package:tripmates/Models/BussinessModel/TopEventsModel.dart';
-import 'package:tripmates/Repository/BussinessPageRepository.dart';
+import 'package:fluttrr/Models/BussinessModel/AnalyticsModel.dart';
+import 'package:fluttrr/Models/BussinessModel/BusinessEventListModel.dart';
+import 'package:fluttrr/Models/BussinessModel/BusinessPageModel.dart';
+import 'package:fluttrr/Models/BussinessModel/BusinessStatusModel.dart';
+import 'package:fluttrr/Models/BussinessModel/TopEventsModel.dart';
+import 'package:fluttrr/Repository/BussinessPageRepository.dart';
 
+import '../Models/BussinessModel/BusinessChatModel.dart';
 import '../Models/BussinessModel/MyBusinessEventModel.dart';
 
-class BusinessController extends GetxController{
-
-BusinessPageModel? businessPageModel;
-BusinessEventListModel?businessEventListModel;
-AnalyticsModel?analyticsModel;
-MYEventsDetailsModel?myEventsDetailsModel;
-final RxBool isLoading = false.obs;
-BusinessstatusModel?businessstatusModel;
-TopEventModel?topEventModel;
+class BusinessController extends GetxController {
+  BusinessPageModel? businessPageModel;
+  BusinessEventListModel? businessEventListModel;
+  AnalyticsModel? analyticsModel;
+  MYEventsDetailsModel? myEventsDetailsModel;
+  final RxBool isLoading = false.obs;
+  BusinessstatusModel? businessstatusModel;
+  TopEventModel? topEventModel;
+  BusinessChatList? businessChatList;
 
 //.................................SendOtp User.................................
-  Future<bool> SendOtp(
-       String email
-      )async{
-    final SendOtp= await BusinessRepository().SendOtp(email);
+  Future<bool> SendOtp(String email) async {
+    final SendOtp = await BusinessRepository().SendOtp(email);
     print("SendOtp Fatch is : $SendOtp");
-    if(SendOtp==null){
+    if (SendOtp == null) {
       return false;
-    }else{
+    } else {
       // menutypeModel=MenutypeModel.fromJson(Menutype);
       return true;
     }
-
   }
 
 //.................................VerifyOtp User.................................
-  Future<bool> VerifyOtp(
-      String otp,
-      String email
-      )async{
-    final VerifyOtp= await BusinessRepository().VerifyOtp(otp, email);
+  Future<bool> VerifyOtp(String otp, String email) async {
+    final VerifyOtp = await BusinessRepository().VerifyOtp(otp, email);
     print("VerifyOtp Fatch is : $VerifyOtp");
-    if(VerifyOtp==null){
+    if (VerifyOtp == null) {
       return false;
-    }else{
+    } else {
       // menutypeModel=MenutypeModel.fromJson(Menutype);
       return true;
     }
-
   }
-
-
 
 //...............................Create Event ..................................
   Future<bool> CreateEvent(
-       String businessId,
-       String name,
-       String dateTime,
-      String EndTime,
-       String eventPrivacy,
-       String attendeesLimit,
-       String latitude,
-       String longitude,
-       String details,
-       String eventType,
-       String ticketingWebsite,
-       String price,
-       String location,
-       File images,
-      )async{
-    final VerifyOtp= await BusinessRepository().createEvent(businessId: businessId, name: name, dateTime: dateTime, eventPrivacy: eventPrivacy, attendeesLimit: attendeesLimit, latitude: latitude, longitude: longitude, details: details, eventType: eventType, ticketingWebsite: ticketingWebsite, price: price, location: location, images: images,endTime:EndTime );
+    String businessId,
+    String name,
+    String dateTime,
+    String EndTime,
+    String eventPrivacy,
+    String attendeesLimit,
+    String latitude,
+    String longitude,
+    String details,
+    String eventType,
+    String ticketingWebsite,
+    String price,
+    String location,
+    File images,
+  ) async {
+    final VerifyOtp = await BusinessRepository().createEvent(
+        businessId: businessId,
+        name: name,
+        dateTime: dateTime,
+        eventPrivacy: eventPrivacy,
+        attendeesLimit: attendeesLimit,
+        latitude: latitude,
+        longitude: longitude,
+        details: details,
+        eventType: eventType,
+        ticketingWebsite: ticketingWebsite,
+        price: price,
+        location: location,
+        images: images,
+        endTime: EndTime);
     print("Form Response is : $VerifyOtp");
-    if(VerifyOtp==null){
+    if (VerifyOtp == null) {
       return false;
-    }else{
+    } else {
       // menutypeModel=MenutypeModel.fromJson(Menutype);
       return true;
     }
-
   }
-
 
 //.................................Create Business Page.................................
   Future<bool> CreateBussinessPage(
-       String name,
-       String description,
-       String email,
-       String phoneNumber,
-       String websiteLink,
-       String facebookLink,
-       String instagramLink,
-       File logo,
-       File image,
-      )async{
-    final VerifyOtp= await BusinessRepository().createBusinessPage(name: name, description: description, email: email, phoneNumber: phoneNumber, websiteLink: websiteLink, facebookLink: facebookLink, instagramLink: instagramLink, logo: logo, image: image);
+    String name,
+    String description,
+    String email,
+    String phoneNumber,
+    String websiteLink,
+    String facebookLink,
+    String instagramLink,
+    File logo,
+    File image,
+  ) async {
+    final VerifyOtp = await BusinessRepository().createBusinessPage(
+        name: name,
+        description: description,
+        email: email,
+        phoneNumber: phoneNumber,
+        websiteLink: websiteLink,
+        facebookLink: facebookLink,
+        instagramLink: instagramLink,
+        logo: logo,
+        image: image);
     print("VerifyOtp Fatch is : $VerifyOtp");
-    if(VerifyOtp==null){
+    if (VerifyOtp == null) {
       return false;
-    }else{
+    } else {
       // menutypeModel=MenutypeModel.fromJson(Menutype);
       return true;
     }
-
   }
 
 //...................................Get Business page ....................
@@ -119,7 +131,6 @@ TopEventModel?topEventModel;
     }
   }
 
-
 //...................................Get Business Events ....................
 
   Future<bool> GetMYEvents() async {
@@ -134,65 +145,82 @@ TopEventModel?topEventModel;
     }
   }
 
-
-
 //................................Update Business Page......................
 
-
   Future<bool> updateBusinessPage(
-      String id,
-      String name,
-      String description,
-      String email,
-      String phoneNumber,
-      String websiteLink,
-      String facebookLink,
-      String instagramLink,
-      File? logo,
-      File? image,
-      )async{
-    final VerifyOtp= await BusinessRepository().EditeBusinessPage(name: name, description: description, email: email, phoneNumber: phoneNumber, websiteLink: websiteLink, facebookLink: facebookLink, instagramLink: instagramLink, logo: logo, image: image,id: id);
+    String id,
+    String name,
+    String description,
+    String email,
+    String phoneNumber,
+    String websiteLink,
+    String facebookLink,
+    String instagramLink,
+    File? logo,
+    File? image,
+  ) async {
+    final VerifyOtp = await BusinessRepository().EditeBusinessPage(
+        name: name,
+        description: description,
+        email: email,
+        phoneNumber: phoneNumber,
+        websiteLink: websiteLink,
+        facebookLink: facebookLink,
+        instagramLink: instagramLink,
+        logo: logo,
+        image: image,
+        id: id);
     print("VerifyOtp Fatch is : $VerifyOtp");
-    if(VerifyOtp==null){
+    if (VerifyOtp == null) {
       return false;
-    }else{
+    } else {
       // menutypeModel=MenutypeModel.fromJson(Menutype);
       return true;
     }
-
   }
-
-
 
 //...............................Update Event ..................................
   Future<bool> updateEvent(
-      String id,
-      String businessId,
-      String name,
-      String dateTime,
-      String EndTime,
-      String eventPrivacy,
-      String attendeesLimit,
-      String latitude,
-      String longitude,
-      String details,
-      String eventType,
-      String ticketingWebsite,
-      String price,
-      String location,
-      File? images,
-      )async{
-    final VerifyOtp= await BusinessRepository().EditeEvent(businessId: businessId, name: name, dateTime: dateTime, eventPrivacy: eventPrivacy, attendeesLimit: attendeesLimit, latitude: latitude, longitude: longitude, details: details, eventType: eventType, ticketingWebsite: ticketingWebsite, price: price, location: location, images: images,endTime:EndTime ,id: id);
+    String id,
+    String businessId,
+    String name,
+    String dateTime,
+    String EndTime,
+    String eventPrivacy,
+    String attendeesLimit,
+    String latitude,
+    String longitude,
+    String details,
+    String eventType,
+    String ticketingWebsite,
+    String price,
+    String location,
+    File? images,
+  ) async {
+    final VerifyOtp = await BusinessRepository().EditeEvent(
+        businessId: businessId,
+        name: name,
+        dateTime: dateTime,
+        eventPrivacy: eventPrivacy,
+        attendeesLimit: attendeesLimit,
+        latitude: latitude,
+        longitude: longitude,
+        details: details,
+        eventType: eventType,
+        ticketingWebsite: ticketingWebsite,
+        price: price,
+        location: location,
+        images: images,
+        endTime: EndTime,
+        id: id);
     print("VerifyOtp Fatch is : $VerifyOtp");
-    if(VerifyOtp==null){
+    if (VerifyOtp == null) {
       return false;
-    }else{
+    } else {
       // menutypeModel=MenutypeModel.fromJson(Menutype);
       return true;
     }
-
   }
-
 
 //...................................Get Business Analytics ....................
 
@@ -207,7 +235,6 @@ TopEventModel?topEventModel;
       return true;
     }
   }
-
 
 //...................................Get Business Details ....................
 
@@ -251,7 +278,6 @@ TopEventModel?topEventModel;
     }
   }
 
-
 //...................................Business Status  ....................
 
   Future<bool> BusinessStatus() async {
@@ -280,5 +306,33 @@ TopEventModel?topEventModel;
     }
   }
 
+  //................................Business chats ...........................
 
+  Future<bool> BusinessChats(String id, String type) async {
+    final activity = await BusinessRepository().BusinessChatList(id, type);
+    print("Profile Fatch is : $activity");
+    if (activity == null) {
+      return false;
+    } else {
+      businessChatList = BusinessChatList.fromJson(activity);
+      update(["Activity_update"]);
+      return true;
+    }
+  }
+
+//.............................BusinessStartChat..........................
+
+  Future<bool> StartBusinessChats(
+      String senderid, String businesid, String message) async {
+    final activity = await BusinessRepository()
+        .StartBusinessChatSend(senderid, businesid, message);
+    print("Profile Fatch is : $activity");
+    if (activity == null) {
+      return false;
+    } else {
+      businessChatList = BusinessChatList.fromJson(activity);
+      update(["Activity_update"]);
+      return true;
+    }
+  }
 }

@@ -8,8 +8,8 @@ class TotalMatchCount {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['totalMates'] = this.totalMates;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['totalMates'] = totalMates;
     return data;
   }
 }

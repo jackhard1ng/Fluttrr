@@ -6,12 +6,12 @@ import 'package:get/get.dart';
 import 'package:gradient_borders/box_borders/gradient_box_border.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:tripmates/Constants/Apis_Constants.dart';
-import 'package:tripmates/Constants/all_textfields.dart';
-import 'package:tripmates/Constants/button.dart';
-import 'package:tripmates/Constants/utils.dart';
-import 'package:tripmates/Controller/BussinessPageController.dart';
-import 'package:tripmates/Models/BussinessModel/BusinessEventListModel.dart';
+import 'package:fluttrr/Constants/Apis_Constants.dart';
+import 'package:fluttrr/Constants/all_textfields.dart';
+import 'package:fluttrr/Constants/button.dart';
+import 'package:fluttrr/Constants/utils.dart';
+import 'package:fluttrr/Controller/BussinessPageController.dart';
+import 'package:fluttrr/Models/BussinessModel/BusinessEventListModel.dart';
 
 class EditEventScreen extends StatefulWidget {
   final Event event;
@@ -55,11 +55,14 @@ class _EditEventScreenState extends State<EditEventScreen> {
         text: widget.event.endTime != null
             ? DateFormat('MMM d, y h:mm a').format(widget.event.endTime!)
             : '');
-    privacyController = TextEditingController(text: widget.event.eventPrivacy ?? 'Public');
-    attendeesController = TextEditingController(text: widget.event.totalSlots?.toString() ?? '0');
+    privacyController =
+        TextEditingController(text: widget.event.eventPrivacy ?? 'Public');
+    attendeesController =
+        TextEditingController(text: widget.event.totalSlots?.toString() ?? '0');
     locationController = TextEditingController(text: widget.event.location);
     detailsController = TextEditingController(text: widget.event.description);
-    ticketingController = TextEditingController(text: widget.event.ticketingWebsite ?? '');
+    ticketingController =
+        TextEditingController(text: widget.event.ticketingWebsite ?? '');
     selectedEventType = widget.event.eventType;
     _startDate = widget.event.dateTime;
     _endDate = widget.event.endTime;
@@ -112,7 +115,8 @@ class _EditEventScreenState extends State<EditEventScreen> {
             time.hour,
             time.minute,
           );
-          startDateController.text = DateFormat('MMM d, y h:mm a').format(_startDate!);
+          startDateController.text =
+              DateFormat('MMM d, y h:mm a').format(_startDate!);
         });
       }
     }
@@ -121,14 +125,16 @@ class _EditEventScreenState extends State<EditEventScreen> {
   Future<void> _selectEndDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _endDate ?? (_startDate ?? DateTime.now()).add(Duration(days: 1)),
+      initialDate:
+          _endDate ?? (_startDate ?? DateTime.now()).add(Duration(days: 1)),
       firstDate: _startDate ?? DateTime.now(),
       lastDate: DateTime(2100),
     );
     if (picked != null) {
       final TimeOfDay? time = await showTimePicker(
         context: context,
-        initialTime: TimeOfDay.fromDateTime(_endDate ?? (_startDate ?? DateTime.now()).add(Duration(hours: 1))),
+        initialTime: TimeOfDay.fromDateTime(
+            _endDate ?? (_startDate ?? DateTime.now()).add(Duration(hours: 1))),
       );
       if (time != null) {
         setState(() {
@@ -139,7 +145,8 @@ class _EditEventScreenState extends State<EditEventScreen> {
             time.hour,
             time.minute,
           );
-          endDateController.text = DateFormat('MMM d, y h:mm a').format(_endDate!);
+          endDateController.text =
+              DateFormat('MMM d, y h:mm a').format(_endDate!);
         });
       }
     }
@@ -171,7 +178,9 @@ class _EditEventScreenState extends State<EditEventScreen> {
   void _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (_endDate != null && _startDate != null && _endDate!.isBefore(_startDate!)) {
+    if (_endDate != null &&
+        _startDate != null &&
+        _endDate!.isBefore(_startDate!)) {
       Get.snackbar('Error', 'End date must be after start date');
       return;
     }
@@ -179,20 +188,20 @@ class _EditEventScreenState extends State<EditEventScreen> {
     // Call update event API
     final success = await businessController.updateEvent(
       widget.event.eventId.toString(),
-       widget.event.eventId.toString(),
-       nameController.text,
-       _startDate.toString(),
-       _endDate.toString(),
-       privacyController.text,
-       attendeesController.text,
-       widget.event.latitude ?? '0',
-       widget.event.longitude ?? '0',
-       detailsController.text,
-       selectedEventType.toString(),
-       ticketingController.text,
-       '0', // Update if your event has price
-       locationController.text,
-       _selectedImage, // Pass null to keep existing image
+      widget.event.eventId.toString(),
+      nameController.text,
+      _startDate.toString(),
+      _endDate.toString(),
+      privacyController.text,
+      attendeesController.text,
+      widget.event.latitude ?? '0',
+      widget.event.longitude ?? '0',
+      detailsController.text,
+      selectedEventType.toString(),
+      ticketingController.text,
+      '0', // Update if your event has price
+      locationController.text,
+      _selectedImage, // Pass null to keep existing image
     );
 
     if (success) {
@@ -244,11 +253,12 @@ class _EditEventScreenState extends State<EditEventScreen> {
                   child: _selectedImage != null
                       ? Image.file(_selectedImage!, fit: BoxFit.cover)
                       : widget.event.image != null
-                      ? Image.network("${Apis.ip}${widget.event.image!}", fit: BoxFit.cover)
-                      : Padding(
-                    padding: const EdgeInsets.all(25.0),
-                    child: Image.asset('assets/eve.png'),
-                  ),
+                          ? Image.network("${Apis.ip}${widget.event.image!}",
+                              fit: BoxFit.cover)
+                          : Padding(
+                              padding: const EdgeInsets.all(25.0),
+                              child: Image.asset('assets/eve.png'),
+                            ),
                 ),
               ),
               Padding(
@@ -267,7 +277,8 @@ class _EditEventScreenState extends State<EditEventScreen> {
                     Business_TextField(
                       controller: nameController,
                       hintText: 'Event Name',
-                      validator: (value) => _validateRequired(value, 'event name'),
+                      validator: (value) =>
+                          _validateRequired(value, 'event name'),
                     ),
                     const SizedBox(height: 15),
                     const Text(
@@ -284,7 +295,8 @@ class _EditEventScreenState extends State<EditEventScreen> {
                         child: Business_TextField(
                           controller: startDateController,
                           hintText: 'Select start date',
-                          validator: (value) => _validateDate(value, 'start date'),
+                          validator: (value) =>
+                              _validateDate(value, 'start date'),
                         ),
                       ),
                     ),
@@ -303,7 +315,8 @@ class _EditEventScreenState extends State<EditEventScreen> {
                         child: Business_TextField(
                           controller: endDateController,
                           hintText: 'Select end date',
-                          validator: (value) => _validateDate(value, 'end date'),
+                          validator: (value) =>
+                              _validateDate(value, 'end date'),
                         ),
                       ),
                     ),
@@ -319,7 +332,8 @@ class _EditEventScreenState extends State<EditEventScreen> {
                     Business_TextField(
                       controller: privacyController,
                       hintText: 'Event privacy',
-                      validator: (value) => _validateRequired(value, 'event privacy'),
+                      validator: (value) =>
+                          _validateRequired(value, 'event privacy'),
                     ),
                     const SizedBox(height: 15),
                     const Text(
@@ -334,7 +348,8 @@ class _EditEventScreenState extends State<EditEventScreen> {
                       controller: attendeesController,
                       hintText: 'Max attendees',
                       keyboardType: TextInputType.number,
-                      validator: (value) => _validateRequired(value, 'number of attendees'),
+                      validator: (value) =>
+                          _validateRequired(value, 'number of attendees'),
                     ),
                     const SizedBox(height: 15),
                     const Text(
@@ -348,7 +363,8 @@ class _EditEventScreenState extends State<EditEventScreen> {
                     Business_TextField(
                       controller: locationController,
                       hintText: 'Event location',
-                      validator: (value) => _validateRequired(value, 'location'),
+                      validator: (value) =>
+                          _validateRequired(value, 'location'),
                     ),
                     const SizedBox(height: 15),
                     const Text(
@@ -363,7 +379,8 @@ class _EditEventScreenState extends State<EditEventScreen> {
                       controller: detailsController,
                       maxLines: 3,
                       hintText: 'Event details',
-                      validator: (value) => _validateRequired(value, 'event details'),
+                      validator: (value) =>
+                          _validateRequired(value, 'event details'),
                     ),
                     const SizedBox(height: 15),
                     const Text(
@@ -401,20 +418,20 @@ class _EditEventScreenState extends State<EditEventScreen> {
                         ),
                         items: eventTypes
                             .map((String item) => DropdownMenuItem<String>(
-                          value: item,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 7),
-                            child: Text(
-                              item,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.black,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ))
+                                  value: item,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 7),
+                                    child: Text(
+                                      item,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.black,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ))
                             .toList(),
                         value: selectedEventType,
                         onChanged: (value) {

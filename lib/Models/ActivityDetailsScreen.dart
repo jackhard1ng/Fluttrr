@@ -6,12 +6,12 @@ class ActivityDetailsModel {
 
   ActivityDetailsModel.fromJson(Map<String, dynamic> json) {
     message = json['message'];
-    data = json['data'] != null ? new Data.fromJson(json['data']) : null;
+    data = json['data'] != null ? Data.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.toJson();
     }
@@ -28,7 +28,7 @@ class Data {
   String? description;
   String? dateTime;
   String? totalTime;
-  Null? eventType;
+  Null eventType;
   List<String>? image;
   int? remainingSlots;
   int? totalSlots;
@@ -65,27 +65,27 @@ class Data {
     if (json['attendees'] != null) {
       attendees = <Attendees>[];
       json['attendees'].forEach((v) {
-        attendees!.add(new Attendees.fromJson(v));
+        attendees!.add(Attendees.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['activity_id'] = this.activityId;
-    data['name'] = this.name;
-    data['location'] = this.location;
-    data['latitude'] = this.latitude;
-    data['longitude'] = this.longitude;
-    data['description'] = this.description;
-    data['date_time'] = this.dateTime;
-    data['total_time'] = this.totalTime;
-    data['event_type'] = this.eventType;
-    data['image'] = this.image;
-    data['remaining_slots'] = this.remainingSlots;
-    data['total_slots'] = this.totalSlots;
-    if (this.attendees != null) {
-      data['attendees'] = this.attendees!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['activity_id'] = activityId;
+    data['name'] = name;
+    data['location'] = location;
+    data['latitude'] = latitude;
+    data['longitude'] = longitude;
+    data['description'] = description;
+    data['date_time'] = dateTime;
+    data['total_time'] = totalTime;
+    data['event_type'] = eventType;
+    data['image'] = image;
+    data['remaining_slots'] = remainingSlots;
+    data['total_slots'] = totalSlots;
+    if (attendees != null) {
+      data['attendees'] = attendees!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -107,11 +107,11 @@ class Attendees {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['user_id'] = this.userId;
-    data['name'] = this.name;
-    data['images'] = this.images;
-    data['guests'] = this.guests;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['user_id'] = userId;
+    data['name'] = name;
+    data['images'] = images;
+    data['guests'] = guests;
     return data;
   }
 }

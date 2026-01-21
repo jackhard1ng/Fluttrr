@@ -2,29 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:simple_gradient_text/simple_gradient_text.dart';
-import 'package:tripmates/Activities_Screens/EditeActivity.dart';
-import 'package:tripmates/Activities_Screens/createactivity_screen.dart';
-import 'package:tripmates/Constants/custom_appbar.dart';
-import 'package:tripmates/Constants/utils.dart';
-import 'package:tripmates/Controller/ProfileController.dart';
+import 'package:fluttrr/Controller/ProfileController.dart';
 
 import '../Activities_Screens/eventsdetails_screen.dart';
 import '../Constants/Apis_Constants.dart';
-import '../Constants/bottombar.dart';
 import '../Controller/AcitivityController.dart';
 
-
 class JoinedactivitiesScreen extends StatefulWidget {
-  JoinedactivitiesScreen({super.key});
+  const JoinedactivitiesScreen({super.key});
 
   @override
   State<JoinedactivitiesScreen> createState() => _JoinedactivitiesScreenState();
 }
 
 class _JoinedactivitiesScreenState extends State<JoinedactivitiesScreen> {
- ProfileController profileController=Get.put(ProfileController());
- Acitivitycontroller  acitivitycontroller=Get.put(Acitivitycontroller());
+  ProfileController profileController = Get.put(ProfileController());
+  Acitivitycontroller acitivitycontroller = Get.put(Acitivitycontroller());
   @override
   void initState() {
     // TODO: implement initState
@@ -40,6 +33,7 @@ class _JoinedactivitiesScreenState extends State<JoinedactivitiesScreen> {
       return ""; // Return empty string if parsing fails
     }
   }
+
   final _fromTop = true;
 
   @override
@@ -76,7 +70,7 @@ class _JoinedactivitiesScreenState extends State<JoinedactivitiesScreen> {
         title: Text("Total Activites"),
       ),
       body: Padding(
-        padding: const EdgeInsets.only(top: 20,left: 20,right: 20),
+        padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
         child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
           child: GetBuilder<ProfileController>(
@@ -91,23 +85,61 @@ class _JoinedactivitiesScreenState extends State<JoinedactivitiesScreen> {
                         return ListView.builder(
                           physics: NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
-                          itemCount: profileController.joinedActivitesModel?.activities?.length ?? 0,
+                          itemCount: profileController
+                                  .joinedActivitesModel?.activities?.length ??
+                              0,
                           itemBuilder: (BuildContext context, int index) {
-                            final name = profileController.joinedActivitesModel?.activities?[index].name ?? "No Name";
-                            final location = profileController.joinedActivitesModel?.activities?[index].location ?? "No specific location";
-                            final description = profileController.joinedActivitesModel?.activities?[index].description ?? "No Description";
-                            final imageList = profileController.joinedActivitesModel?.activities?[index].image;
-                            final image = (imageList != null && imageList.isNotEmpty) ? imageList[0] : "No image";
-                            final totalSlots =  profileController.joinedActivitesModel?.activities?[index].slot.toString() ?? "0";
-                            final date =  profileController.joinedActivitesModel?.activities?[index].dateTime?.toString() ?? "0";
+                            final name = profileController.joinedActivitesModel
+                                    ?.activities?[index].name ??
+                                "No Name";
+                            final location = profileController
+                                    .joinedActivitesModel
+                                    ?.activities?[index]
+                                    .location ??
+                                "No specific location";
+                            final description = profileController
+                                    .joinedActivitesModel
+                                    ?.activities?[index]
+                                    .description ??
+                                "No Description";
+                            final imageList = profileController
+                                .joinedActivitesModel?.activities?[index].image;
+                            final image =
+                                (imageList != null && imageList.isNotEmpty)
+                                    ? imageList[0]
+                                    : "No image";
+                            final totalSlots = profileController
+                                    .joinedActivitesModel
+                                    ?.activities?[index]
+                                    .slot
+                                    .toString() ??
+                                "0";
+                            final date = profileController.joinedActivitesModel
+                                    ?.activities?[index].dateTime
+                                    ?.toString() ??
+                                "0";
                             // final time =  acitivitycontroller.myActivityModel?.activities?[index].time?.toString() ?? "0";
                             // final paid = acitivitycontroller.myActivityModel?.activities?[index].;
-                            final remainingSlots = profileController.joinedActivitesModel?.activities?[index].remainingSlots?.toString() ?? "0";
-                            final id = profileController.joinedActivitesModel?.activities?[index].activityId?.toString() ?? "0";
+                            final remainingSlots = profileController
+                                    .joinedActivitesModel
+                                    ?.activities?[index]
+                                    .remainingSlots
+                                    ?.toString() ??
+                                "0";
+                            final id = profileController.joinedActivitesModel
+                                    ?.activities?[index].activityId
+                                    ?.toString() ??
+                                "0";
 
                             return InkWell(
                               onTap: () {
-                                Get.to(() => EventsdetailsScreen(id: id,event: false,datetime: date,joined:false,));
+                                Get.to(() => EventsdetailsScreen(
+                                      id: id,
+                                      event: false,
+                                      datetime: date,
+                                      joined: false,
+                                      like: false,
+                                    ));
                               },
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 13),
@@ -121,35 +153,42 @@ class _JoinedactivitiesScreenState extends State<JoinedactivitiesScreen> {
                                         borderRadius: BorderRadius.circular(10),
                                         image: DecorationImage(
                                           fit: BoxFit.cover,
-                                          image: NetworkImage("${Apis.ip}$image"),
+                                          image:
+                                              NetworkImage("${Apis.ip}$image"),
                                         ),
                                       ),
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(10),
-                                          color: Colors.black.withOpacity(0.4), // Dark overlay for readability
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          color: Colors.black.withOpacity(
+                                              0.4), // Dark overlay for readability
                                         ),
                                         padding: const EdgeInsets.all(10),
                                         child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: [
                                             Row(
                                               children: [
                                                 CircleAvatar(
                                                   radius: 27,
-                                                  backgroundImage: AssetImage("assets/Group 48095849.png"),
+                                                  backgroundImage: AssetImage(
+                                                      "assets/Group 48095849.png"),
                                                 ),
                                                 SizedBox(width: 10),
                                                 Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
-                                                    Container(
+                                                    SizedBox(
                                                       width: 170,
                                                       child: Text(
                                                         name,
                                                         style: TextStyle(
                                                           fontSize: 12,
-                                                          fontWeight: FontWeight.bold,
+                                                          fontWeight:
+                                                              FontWeight.bold,
                                                           color: Colors.white,
                                                         ),
                                                       ),
@@ -157,16 +196,21 @@ class _JoinedactivitiesScreenState extends State<JoinedactivitiesScreen> {
                                                     SizedBox(height: 7),
                                                     Row(
                                                       children: [
-                                                        SvgPicture.asset('assets/pin.svg', height: 14),
+                                                        SvgPicture.asset(
+                                                            'assets/pin.svg',
+                                                            height: 14),
                                                         SizedBox(width: 7),
-                                                        Container(
+                                                        SizedBox(
                                                           width: 160,
                                                           child: Text(
                                                             location,
                                                             style: TextStyle(
                                                               fontSize: 11,
-                                                              fontWeight: FontWeight.w500,
-                                                              color: Colors.white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              color:
+                                                                  Colors.white,
                                                             ),
                                                           ),
                                                         ),
@@ -174,19 +218,24 @@ class _JoinedactivitiesScreenState extends State<JoinedactivitiesScreen> {
                                                     ),
                                                     SizedBox(height: 3),
                                                     Text(
-                                                      formatDateTime("$date"),
+                                                      formatDateTime(date),
                                                       style: TextStyle(
                                                         fontSize: 9,
-                                                        fontWeight: FontWeight.w500,
-                                                        color: Color(0xff00D4BD),
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color:
+                                                            Color(0xff00D4BD),
                                                       ),
                                                     ),
                                                     SizedBox(height: 3),
-                                                    Container(
+                                                    SizedBox(
                                                       width: 279,
                                                       child: Text(
                                                         description,
-                                                        style: TextStyle(fontSize: 9, color: Colors.white),
+                                                        style: TextStyle(
+                                                            fontSize: 9,
+                                                            color:
+                                                                Colors.white),
                                                       ),
                                                     ),
                                                   ],
@@ -195,7 +244,9 @@ class _JoinedactivitiesScreenState extends State<JoinedactivitiesScreen> {
                                             ),
                                             SizedBox(height: 15),
                                             Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
                                                 Row(
                                                   children: [
@@ -204,10 +255,14 @@ class _JoinedactivitiesScreenState extends State<JoinedactivitiesScreen> {
                                                       width: 26,
                                                       decoration: BoxDecoration(
                                                         shape: BoxShape.circle,
-                                                        color: Color(0xff5A5A5A),
+                                                        color:
+                                                            Color(0xff5A5A5A),
                                                       ),
                                                       child: Center(
-                                                        child: Icon(Icons.add, size: 26, color: Colors.white),
+                                                        child: Icon(Icons.add,
+                                                            size: 26,
+                                                            color:
+                                                                Colors.white),
                                                       ),
                                                     ),
                                                     SizedBox(width: 7),
@@ -215,7 +270,8 @@ class _JoinedactivitiesScreenState extends State<JoinedactivitiesScreen> {
                                                       '${int.parse(totalSlots) - int.parse(remainingSlots)}/$totalSlots Joined',
                                                       style: TextStyle(
                                                         fontSize: 10,
-                                                        fontWeight: FontWeight.w500,
+                                                        fontWeight:
+                                                            FontWeight.w500,
                                                         color: Colors.white,
                                                       ),
                                                     ),
@@ -224,20 +280,23 @@ class _JoinedactivitiesScreenState extends State<JoinedactivitiesScreen> {
                                                 Row(
                                                   children: [
                                                     InkWell(
-                                                        onTap: ()async{
-
-                                                            await acitivitycontroller.LeaveActivity(id);
-                                                            await acitivitycontroller.ActivitieList();
-
-
+                                                        onTap: () async {
+                                                          await acitivitycontroller
+                                                              .LeaveActivity(
+                                                                  id);
+                                                          await acitivitycontroller
+                                                              .ActivitieList();
                                                         },
-                                                        child: _buildButton("Leave", Colors.red)),
+                                                        child: _buildButton(
+                                                            "Leave",
+                                                            Colors.red)),
                                                     SizedBox(width: 10),
                                                     InkWell(
-                                                        onTap: ()async{
-
-                                                        },
-                                                        child: _buildButtonWithIcon("Joined", Colors.green)),
+                                                        onTap: () async {},
+                                                        child:
+                                                            _buildButtonWithIcon(
+                                                                "Joined",
+                                                                Colors.green)),
                                                   ],
                                                 )
                                                 // Row(
@@ -284,9 +343,11 @@ class _JoinedactivitiesScreenState extends State<JoinedactivitiesScreen> {
                                       right: 13,
                                       child: Row(
                                         children: [
-                                          _buildIcon('assets/Group 48095897.svg'),
+                                          _buildIcon(
+                                              'assets/Group 48095897.svg'),
                                           SizedBox(width: 16),
-                                          _buildIcon('assets/Group 48095896.svg'),
+                                          _buildIcon(
+                                              'assets/Group 48095896.svg'),
                                           SizedBox(width: 16),
                                           _buildIcon('assets/Group.svg'),
                                         ],
@@ -302,8 +363,7 @@ class _JoinedactivitiesScreenState extends State<JoinedactivitiesScreen> {
                     ),
                   ],
                 );
-              }
-          ),
+              }),
         ),
       ),
     );
@@ -320,7 +380,8 @@ class _JoinedactivitiesScreenState extends State<JoinedactivitiesScreen> {
       child: Center(
         child: Text(
           text,
-          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+          style: TextStyle(
+              fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
     );
@@ -339,7 +400,8 @@ class _JoinedactivitiesScreenState extends State<JoinedactivitiesScreen> {
         children: [
           Text(
             text,
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+            style: TextStyle(
+                fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           SizedBox(width: 5),
           SvgPicture.asset('assets/Group 48096111.svg'),
@@ -351,5 +413,4 @@ class _JoinedactivitiesScreenState extends State<JoinedactivitiesScreen> {
   Widget _buildIcon(String assetPath) {
     return SvgPicture.asset(assetPath, height: 21);
   }
-
 }

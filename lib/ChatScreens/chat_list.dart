@@ -3,8 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
-import 'package:tripmates/Constants/Apis_Constants.dart';
-import 'package:tripmates/Controller/ChatsListController.dart';
+import 'package:fluttrr/Constants/Apis_Constants.dart';
+import 'package:fluttrr/Controller/ChatsListController.dart';
 
 import '../Controller/ProfileController.dart';
 import 'chat_screen.dart';
@@ -18,7 +18,7 @@ class ChatList extends StatefulWidget {
 
 class _ChatListState extends State<ChatList> {
   final ChatsListController controller = Get.put(ChatsListController());
-  ProfileController profileController=Get.put(ProfileController());
+  ProfileController profileController = Get.put(ProfileController());
 
   @override
   void initState() {
@@ -30,7 +30,7 @@ class _ChatListState extends State<ChatList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body:  GetBuilder<ChatsListController>(
+      body: GetBuilder<ChatsListController>(
           id: "updateChats",
           builder: (context) {
             return ListView.builder(
@@ -41,27 +41,24 @@ class _ChatListState extends State<ChatList> {
 
                 if (chat == null) return const SizedBox.shrink();
 
-                return _buildChatCard(
-                  context,
-                  name: chat.userName ?? "",
-                  currentuserid: profileController.profile?.userId.toString()??"",
-                  lastMessage: chat.lastMessage ?? "",
-                  time: _formatTime(chat.lastMessageTime),
-                  conversationid:chat.conversationId.toString(),
-                  status: chat.isOnline ?? false ? "Active" : "Expired",
-                  imageUrl: chat.profileImage?.isNotEmpty == true
-                      ? '${Apis.ip}${chat.profileImage![0]}'
-                      : "",
-                  unreadMessages: chat.unreadMessages.toString(),
-                  id: chat.userID.toString()
-                );
+                return _buildChatCard(context,
+                    name: chat.userName ?? "",
+                    currentuserid:
+                        profileController.profile?.userId.toString() ?? "",
+                    lastMessage: chat.lastMessage ?? "",
+                    time: _formatTime(chat.lastMessageTime),
+                    conversationid: chat.conversationId.toString(),
+                    status: chat.isOnline ?? false ? "Active" : "Expired",
+                    imageUrl: chat.profileImage?.isNotEmpty == true
+                        ? '${Apis.ip}${chat.profileImage![0]}'
+                        : "",
+                    unreadMessages: chat.unreadMessages.toString(),
+                    id: chat.userID.toString());
               },
             );
-          }
-        ),
+          }),
     );
   }
-
 
   String _formatTime(String? timestamp) {
     if (timestamp == null || timestamp.isEmpty) return "";
@@ -88,21 +85,22 @@ class _ChatListState extends State<ChatList> {
   }
 
   Widget _buildChatCard(
-      BuildContext context, {
-        required String imageUrl,
-        required String id,
-        required String unreadMessages,
-        required String conversationid,
-        required String currentuserid,
-        required String name,
-        required String lastMessage,
-        required String time,
-        required String status,
-      }) {
+    BuildContext context, {
+    required String imageUrl,
+    required String id,
+    required String unreadMessages,
+    required String conversationid,
+    required String currentuserid,
+    required String name,
+    required String lastMessage,
+    required String time,
+    required String status,
+  }) {
     return Column(
       children: [
         ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
           leading: Stack(
             alignment: Alignment.bottomRight,
             children: [
@@ -186,11 +184,17 @@ class _ChatListState extends State<ChatList> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    ChatScreen(providerName: name, conversationId: conversationid,reciverid: id,currentuserid: currentuserid,image: imageUrl,online:status == "Active"? true:false ,)
-                    // ChatScreen(providerName: name, receiverId: id,Image:imageUrl ,Online:status ,CurrentUser: "17",Conversationid:conversationid ,),
-                // ChatScreen(Image: imageUrl, Name: name, converstaionid: conversationid, isonline: status,reciverid: id,)
-              ),
+                  builder: (context) => ChatScreen(
+                        providerName: name,
+                        conversationId: conversationid,
+                        reciverid: id,
+                        currentuserid: currentuserid,
+                        image: imageUrl,
+                        online: status == "Active" ? true : false,
+                      )
+                  // ChatScreen(providerName: name, receiverId: id,Image:imageUrl ,Online:status ,CurrentUser: "17",Conversationid:conversationid ,),
+                  // ChatScreen(Image: imageUrl, Name: name, converstaionid: conversationid, isonline: status,reciverid: id,)
+                  ),
             );
           },
         ),

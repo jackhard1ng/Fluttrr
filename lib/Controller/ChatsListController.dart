@@ -1,17 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
-import 'package:tripmates/Models/ChatListModel.dart';
-import 'package:tripmates/Repository/ChatRespository.dart';
+import 'package:fluttrr/Models/ChatListModel.dart';
+import 'package:fluttrr/Repository/ChatRespository.dart';
 
 import '../Models/GroupChatList.dart';
 
 class ChatsListController extends GetxController {
   ChatListModel? chatListModel; // Removed Rxn
-  GroupChatList?groupChatList;
-
+  GroupChatList? groupChatList;
 
   // Add this method to get unread message count
-  Future<int> getUnreadMessageCount(String conversationId, String currentUserId) async {
+  Future<int> getUnreadMessageCount(
+      String conversationId, String currentUserId) async {
     try {
       final snapshot = await FirebaseFirestore.instance
           .collection('chats')
@@ -37,7 +37,7 @@ class ChatsListController extends GetxController {
       return false;
     } else {
       chatListModel = ChatListModel.fromJson(profile); // Directly assign value
-      update(["updateChats"]) ;// Notify GetX listeners
+      update(["updateChats"]); // Notify GetX listeners
       return true;
     }
   }
@@ -51,7 +51,7 @@ class ChatsListController extends GetxController {
       return false;
     } else {
       groupChatList = GroupChatList.fromJson(profile); // Directly assign value
-      update(["updateChats"]) ;// Notify GetX listeners
+      update(["updateChats"]); // Notify GetX listeners
       return true;
     }
   }
@@ -65,11 +65,8 @@ class ChatsListController extends GetxController {
       return false;
     } else {
       // chatListModel = ChatListModel.fromJson(profile); // Directly assign value
-      update(["updateChats"]) ;// Notify GetX listeners
+      update(["updateChats"]); // Notify GetX listeners
       return true;
     }
   }
-
-
-
 }

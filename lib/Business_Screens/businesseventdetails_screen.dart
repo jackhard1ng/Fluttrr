@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:tripmates/Constants/Apis_Constants.dart';
-import 'package:tripmates/Constants/utils.dart';
-import 'package:tripmates/Controller/BussinessPageController.dart';
+import 'package:fluttrr/Constants/Apis_Constants.dart';
+import 'package:fluttrr/Constants/utils.dart';
+import 'package:fluttrr/Controller/BussinessPageController.dart';
 import 'package:intl/intl.dart';
+import 'package:fluttrr/Models/BussinessModel/BusinessEventListModel.dart';
+
+import 'EditeEventScreen.dart';
 
 class BusinesseventdetailsScreen extends StatefulWidget {
+  final Event event;
   final String id;
-  const BusinesseventdetailsScreen({super.key, required this.id});
+  const BusinesseventdetailsScreen(
+      {super.key, required this.id, required this.event});
 
   @override
   State<BusinesseventdetailsScreen> createState() =>
@@ -136,7 +141,7 @@ class _BusinesseventdetailsScreenState
                             image: event.image != null
                                 ? NetworkImage("${Apis.ip}${event.image!}")
                                 : const AssetImage('assets/tourists-forest.png')
-                            as ImageProvider,
+                                    as ImageProvider,
                           ),
                         ),
                         child: Padding(
@@ -145,16 +150,23 @@ class _BusinesseventdetailsScreenState
                             mainAxisAlignment: MainAxisAlignment.end,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SvgPicture.asset(
-                                'assets/Group 48096067.svg',
-                                height: 35,
+                              InkWell(
+                                onTap: () {
+                                  Get.to(() =>
+                                      EditEventScreen(event: widget.event));
+                                },
+                                child: SvgPicture.asset(
+                                  'assets/Group 48096067.svg',
+                                  height: 35,
+                                ),
                               ),
                             ],
                           ),
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
+                        padding:
+                            const EdgeInsets.only(left: 20, right: 20, top: 20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -233,19 +245,35 @@ class _BusinesseventdetailsScreenState
                               children: [
                                 Row(
                                   children: [
-                                    if (event.attendees != null && event.attendees!.isNotEmpty)
+                                    if (event.attendees != null &&
+                                        event.attendees!.isNotEmpty)
                                       Stack(
                                         children: [
-                                          for (var i = 0; i < (event.attendees!.length > 3 ? 3 : event.attendees!.length); i++)
+                                          for (var i = 0;
+                                              i <
+                                                  (event.attendees!.length > 3
+                                                      ? 3
+                                                      : event
+                                                          .attendees!.length);
+                                              i++)
                                             Padding(
-                                              padding: EdgeInsets.only(left: i * 17.0),
+                                              padding: EdgeInsets.only(
+                                                  left: i * 17.0),
                                               child: CircleAvatar(
                                                 radius: 15,
-                                                backgroundImage: event.attendees![i].images != null &&
-                                                    event.attendees![i].images!.isNotEmpty
-                                                    ? NetworkImage(event.attendees![i].images!.first)
-                                                    : const AssetImage('assets/default_profile.png')
-                                                as ImageProvider,
+                                                backgroundImage: event
+                                                                .attendees![i]
+                                                                .images !=
+                                                            null &&
+                                                        event.attendees![i]
+                                                            .images!.isNotEmpty
+                                                    ? NetworkImage(event
+                                                        .attendees![i]
+                                                        .images!
+                                                        .first)
+                                                    : const AssetImage(
+                                                            'assets/default_profile.png')
+                                                        as ImageProvider,
                                               ),
                                             ),
                                         ],
@@ -284,7 +312,8 @@ class _BusinesseventdetailsScreenState
                               thickness: 6,
                               color: Color(0xffF1F1F1),
                             ),
-                            if (event.comments != null && event.comments!.isNotEmpty)
+                            if (event.comments != null &&
+                                event.comments!.isNotEmpty)
                               ListView.builder(
                                 physics: const NeverScrollableScrollPhysics(),
                                 padding: const EdgeInsets.only(top: 10),
@@ -297,61 +326,87 @@ class _BusinesseventdetailsScreenState
                                     child: Column(
                                       children: [
                                         Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             CircleAvatar(
                                               radius: 20,
-                                              backgroundImage: comment.userImage != null &&
-                                                  comment.userImage!.isNotEmpty
-                                                  ? NetworkImage(comment.userImage!.first)
-                                                  : const AssetImage('assets/default_profile.png')
-                                              as ImageProvider,
+                                              backgroundImage: comment
+                                                              .userImage !=
+                                                          null &&
+                                                      comment
+                                                          .userImage!.isNotEmpty
+                                                  ? NetworkImage(
+                                                      comment.userImage!.first)
+                                                  : const AssetImage(
+                                                          'assets/default_profile.png')
+                                                      as ImageProvider,
                                             ),
                                             Expanded(
                                               child: Stack(
                                                 children: [
-                                                  SvgPicture.asset('assets/Rectangle 230.svg'),
+                                                  SvgPicture.asset(
+                                                      'assets/Rectangle 230.svg'),
                                                   Container(
-                                                    margin: const EdgeInsets.only(left: 7),
+                                                    margin:
+                                                        const EdgeInsets.only(
+                                                            left: 7),
                                                     decoration: BoxDecoration(
-                                                      borderRadius: BorderRadius.circular(10),
-                                                      color: const Color(0xffC6C6C6),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      color: const Color(
+                                                          0xffC6C6C6),
                                                     ),
                                                     child: Padding(
-                                                      padding: const EdgeInsets.symmetric(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
                                                         horizontal: 17,
                                                         vertical: 4,
                                                       ),
                                                       child: Column(
                                                         crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
+                                                            CrossAxisAlignment
+                                                                .start,
                                                         mainAxisAlignment:
-                                                        MainAxisAlignment.center,
+                                                            MainAxisAlignment
+                                                                .center,
                                                         children: [
-                                                          const SizedBox(height: 5),
+                                                          const SizedBox(
+                                                              height: 5),
                                                           Row(
                                                             children: [
                                                               Text(
-                                                                comment.userName ?? 'Anonymous',
-                                                                style: const TextStyle(
+                                                                comment.userName ??
+                                                                    'Anonymous',
+                                                                style:
+                                                                    const TextStyle(
                                                                   fontSize: 14,
-                                                                  fontWeight: FontWeight.bold,
-                                                                  color: Colors.black,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Colors
+                                                                      .black,
                                                                 ),
                                                               ),
-                                                              const SizedBox(width: 7),
+                                                              const SizedBox(
+                                                                  width: 7),
                                                               SvgPicture.asset(
                                                                 'assets/verify.svg',
                                                                 height: 12,
                                                               ),
                                                             ],
                                                           ),
-                                                          const SizedBox(height: 3),
+                                                          const SizedBox(
+                                                              height: 3),
                                                           Text(
-                                                            comment.content ?? 'No content',
-                                                            style: const TextStyle(
+                                                            comment.content ??
+                                                                'No content',
+                                                            style:
+                                                                const TextStyle(
                                                               fontSize: 13,
-                                                              color: Colors.black,
+                                                              color:
+                                                                  Colors.black,
                                                             ),
                                                           ),
                                                         ],
@@ -364,7 +419,8 @@ class _BusinesseventdetailsScreenState
                                           ],
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.only(left: 49, top: 3),
+                                          padding: const EdgeInsets.only(
+                                              left: 49, top: 3),
                                           child: Row(
                                             children: [
                                               Text(
@@ -391,9 +447,12 @@ class _BusinesseventdetailsScreenState
                                               GestureDetector(
                                                 onTap: () {
                                                   setState(() {
-                                                    _replyingToCommentId = _replyingToCommentId == comment.commentId
-                                                        ? null
-                                                        : comment.commentId;
+                                                    _replyingToCommentId =
+                                                        _replyingToCommentId ==
+                                                                comment
+                                                                    .commentId
+                                                            ? null
+                                                            : comment.commentId;
                                                   });
                                                 },
                                                 child: Text(
@@ -401,29 +460,41 @@ class _BusinesseventdetailsScreenState
                                                   style: TextStyle(
                                                     fontSize: 13,
                                                     fontWeight: FontWeight.w500,
-                                                    color: _replyingToCommentId == comment.commentId
-                                                        ? Colors.blue
-                                                        : Colors.black,
+                                                    color:
+                                                        _replyingToCommentId ==
+                                                                comment
+                                                                    .commentId
+                                                            ? Colors.blue
+                                                            : Colors.black,
                                                   ),
                                                 ),
                                               ),
                                             ],
                                           ),
                                         ),
-                                        if (_replyingToCommentId == comment.commentId)
+                                        if (_replyingToCommentId ==
+                                            comment.commentId)
                                           Padding(
-                                            padding: const EdgeInsets.only(left: 49, top: 8),
+                                            padding: const EdgeInsets.only(
+                                                left: 49, top: 8),
                                             child: Row(
                                               children: [
                                                 Expanded(
                                                   child: TextField(
-                                                    controller: _replyController,
+                                                    controller:
+                                                        _replyController,
                                                     decoration: InputDecoration(
-                                                      hintText: 'Write a reply...',
-                                                      border: OutlineInputBorder(
-                                                        borderRadius: BorderRadius.circular(20),
+                                                      hintText:
+                                                          'Write a reply...',
+                                                      border:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(20),
                                                       ),
-                                                      contentPadding: const EdgeInsets.symmetric(
+                                                      contentPadding:
+                                                          const EdgeInsets
+                                                              .symmetric(
                                                         horizontal: 16,
                                                         vertical: 8,
                                                       ),
@@ -432,19 +503,25 @@ class _BusinesseventdetailsScreenState
                                                 ),
                                                 IconButton(
                                                   icon: const Icon(Icons.send),
-                                                  onPressed: () => _submitReply(comment.commentId!),
+                                                  onPressed: () => _submitReply(
+                                                      comment.commentId!),
                                                 ),
                                               ],
                                             ),
                                           ),
-                                        if (comment.replies != null && comment.replies!.isNotEmpty)
+                                        if (comment.replies != null &&
+                                            comment.replies!.isNotEmpty)
                                           Padding(
-                                            padding: const EdgeInsets.only(left: 49, top: 8),
+                                            padding: const EdgeInsets.only(
+                                                left: 49, top: 8),
                                             child: ListView.builder(
                                               shrinkWrap: true,
-                                              physics: const NeverScrollableScrollPhysics(),
-                                              itemCount: comment.replies!.length,
-                                              itemBuilder: (context, replyIndex) {
+                                              physics:
+                                                  const NeverScrollableScrollPhysics(),
+                                              itemCount:
+                                                  comment.replies!.length,
+                                              itemBuilder:
+                                                  (context, replyIndex) {
                                                 return const SizedBox();
                                               },
                                             ),

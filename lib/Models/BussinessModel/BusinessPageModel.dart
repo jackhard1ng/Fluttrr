@@ -10,19 +10,19 @@ class BusinessPageModel {
   BusinessPageModel.fromJson(Map<String, dynamic> json) {
     message = json['message'];
     profile =
-    json['profile'] != null ? new Profile.fromJson(json['profile']) : null;
+    json['profile'] != null ? Profile.fromJson(json['profile']) : null;
     totalEventsCreated = json['totalEventsCreated'];
     isPremium = json['isPremium'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['message'] = this.message;
-    if (this.profile != null) {
-      data['profile'] = this.profile!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['message'] = message;
+    if (profile != null) {
+      data['profile'] = profile!.toJson();
     }
-    data['totalEventsCreated'] = this.totalEventsCreated;
-    data['isPremium'] = this.isPremium;
+    data['totalEventsCreated'] = totalEventsCreated;
+    data['isPremium'] = isPremium;
     return data;
   }
 }
@@ -32,7 +32,7 @@ class Profile {
   String? name;
   String? email;
   String? phoneNumber;
-  Null? location;
+  Null location;
   String? websiteLink;
   String? facebookLink;
   String? instagramLink;
@@ -68,18 +68,18 @@ class Profile {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['name'] = this.name;
-    data['email'] = this.email;
-    data['phoneNumber'] = this.phoneNumber;
-    data['location'] = this.location;
-    data['website_link'] = this.websiteLink;
-    data['facebook_link'] = this.facebookLink;
-    data['instagram_link'] = this.instagramLink;
-    data['logo'] = this.logo;
-    data['image'] = this.image;
-    data['description'] = this.description;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['name'] = name;
+    data['email'] = email;
+    data['phoneNumber'] = phoneNumber;
+    data['location'] = location;
+    data['website_link'] = websiteLink;
+    data['facebook_link'] = facebookLink;
+    data['instagram_link'] = instagramLink;
+    data['logo'] = logo;
+    data['image'] = image;
+    data['description'] = description;
     return data;
   }
 }

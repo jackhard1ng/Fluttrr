@@ -9,10 +9,10 @@ import 'package:gradient_progress_indicator/widget/gradient_progress_indicator_w
 import 'package:image_picker/image_picker.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
-import 'package:tripmates/Constants/all_textfields.dart';
-import 'package:tripmates/Constants/button.dart';
-import 'package:tripmates/Constants/utils.dart';
-import 'package:tripmates/Controller/BussinessPageController.dart';
+import 'package:fluttrr/Constants/all_textfields.dart';
+import 'package:fluttrr/Constants/button.dart';
+import 'package:fluttrr/Constants/utils.dart';
+import 'package:fluttrr/Controller/BussinessPageController.dart';
 
 import 'businessevents_screen.dart';
 
@@ -30,7 +30,7 @@ class _BusinesscreateprofileScreenState
   BusinessController businessController = Get.put(BusinessController());
   bool isEmailVerified = false;
   bool showOtpField = false;
-  bool loading=false;
+  bool loading = false;
   File? profileImageFile;
   File? coverImageFile;
   final TextEditingController _emailController = TextEditingController();
@@ -212,12 +212,12 @@ class _BusinesscreateprofileScreenState
     });
   }
 
-  void _createProfile()async {
+  void _createProfile() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
     setState(() {
-      loading=true;
+      loading = true;
     });
 
     if (!isEmailVerified) {
@@ -251,11 +251,20 @@ class _BusinesscreateprofileScreenState
     }
 
     // All validations passed, proceed with profile creation
-  final profile = await businessController.CreateBussinessPage(NameController.text, DescriptionController.text, _emailController.text, PhoneNumberController.text, WebSiteLinkController.text, FacebookController.text, InstagramController.text, profileImageFile!, coverImageFile!);
+    final profile = await businessController.CreateBussinessPage(
+        NameController.text,
+        DescriptionController.text,
+        _emailController.text,
+        PhoneNumberController.text,
+        WebSiteLinkController.text,
+        FacebookController.text,
+        InstagramController.text,
+        profileImageFile!,
+        coverImageFile!);
     // Add your profile creation logic here
-    if(profile){
+    if (profile) {
       setState(() {
-        loading=false;
+        loading = false;
       });
       showTopSnackBar(
         Overlay.of(context),
@@ -263,10 +272,10 @@ class _BusinesscreateprofileScreenState
           message: "Profile created successfully!",
         ),
       );
-      Get.to(()=> BusinesseventsScreen());
-    }else{
+      Get.to(() => BusinesseventsScreen());
+    } else {
       setState(() {
-        loading=false;
+        loading = false;
       });
       showTopSnackBar(
         Overlay.of(context),
@@ -311,7 +320,7 @@ class _BusinesscreateprofileScreenState
       return null; // Optional field
     }
     if (!RegExp(
-        r'^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$')
+            r'^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$')
         .hasMatch(value)) {
       return 'Please enter a valid URL for $fieldName';
     }
@@ -367,12 +376,14 @@ class _BusinesscreateprofileScreenState
                                 image: coverImageFile != null
                                     ? FileImage(coverImageFile!)
                                     : AssetImage(
-                                    'assets/fantasy-shooting-star-landscape-night (1).png')
-                                as ImageProvider,
+                                            'assets/fantasy-shooting-star-landscape-night (1).png')
+                                        as ImageProvider,
                               ),
                             ),
                             child: coverImageFile == null
-                                ? Center(child: SvgPicture.asset('assets/Add Photo.svg'))
+                                ? Center(
+                                    child: SvgPicture.asset(
+                                        'assets/Add Photo.svg'))
                                 : null,
                           ),
                         ),
@@ -400,14 +411,15 @@ class _BusinesscreateprofileScreenState
                                   backgroundImage: profileImageFile != null
                                       ? FileImage(profileImageFile!)
                                       : AssetImage('assets/Group 48096083.png')
-                                  as ImageProvider,
+                                          as ImageProvider,
                                 ),
                                 if (profileImageFile != null)
                                   Positioned(
                                     top: 0,
                                     right: 0,
                                     child: IconButton(
-                                      icon: Icon(Icons.delete, color: Colors.white),
+                                      icon: Icon(Icons.delete,
+                                          color: Colors.white),
                                       onPressed: _deleteProfileImage,
                                     ),
                                   ),
@@ -442,7 +454,8 @@ class _BusinesscreateprofileScreenState
                     Business_TextField(
                       controller: NameController,
                       hintText: 'Enter Profile Name',
-                      validator: (value) => _validateRequired(value, 'profile name'),
+                      validator: (value) =>
+                          _validateRequired(value, 'profile name'),
                     ),
                     SizedBox(height: 15),
                     Text(
@@ -476,14 +489,15 @@ class _BusinesscreateprofileScreenState
                           Business_TextField(
                             controller: _otpController,
                             hintText: 'Enter OTP',
-                            validator: (value) => _validateRequired(value, 'OTP'),
+                            validator: (value) =>
+                                _validateRequired(value, 'OTP'),
                             suffix: Padding(
                               padding: const EdgeInsets.only(right: 10),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    '${_countdown.toString().padLeft(2, '0')}',
+                                    _countdown.toString().padLeft(2, '0'),
                                     style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -567,7 +581,7 @@ class _BusinesscreateprofileScreenState
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      '${_countdown.toString().padLeft(2, '0')}',
+                                      _countdown.toString().padLeft(2, '0'),
                                       style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
@@ -626,7 +640,8 @@ class _BusinesscreateprofileScreenState
                     Business_TextField(
                       controller: LocationController,
                       hintText: 'USA',
-                      validator: (value) => _validateRequired(value, 'location'),
+                      validator: (value) =>
+                          _validateRequired(value, 'location'),
                     ),
                     SizedBox(height: 15),
                     Text(
@@ -681,52 +696,55 @@ class _BusinesscreateprofileScreenState
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
                                   border: GradientBoxBorder(
-                                      gradient: lefttorightgradient, width: 2.3)),
+                                      gradient: lefttorightgradient,
+                                      width: 2.3)),
                               child: Center(
                                   child: Text(
-                                    'Back',
-                                    style: TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  )),
+                                'Back',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              )),
                             ),
                           ),
                         ),
                         SizedBox(width: 30),
                         Expanded(
-                          child:loading? GradientProgressIndicator(
-                            radius: 21,
-                            duration: 3,
-                            strokeWidth: 7,
-                            backgroundColor: Colors.white,
-                            gradientStops: const [
-                              0.2,
-                              0.7,
-                              0.3,
-                              0.3,
-                            ],
-                            gradientColors: const [
-                              Color(0xff007BFD),
-                              Color(0xff20235A),
-                              Color(0xff007BFD),
-                              Colors.white
-                            ],
-                            child: Text(''),
-                          ) :Button(
-                            borderRadius: BorderRadius.circular(10),
-                            height: 60,
-                            width: double.infinity,
-                            onTap: _createProfile,
-                            child: const Center(
-                                child: Text(
-                                  'Create Now',
-                                  style: TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white),
-                                )),
-                          ),
+                          child: loading
+                              ? GradientProgressIndicator(
+                                  radius: 21,
+                                  duration: 3,
+                                  strokeWidth: 7,
+                                  backgroundColor: Colors.white,
+                                  gradientStops: const [
+                                    0.2,
+                                    0.7,
+                                    0.3,
+                                    0.3,
+                                  ],
+                                  gradientColors: const [
+                                    Color(0xff007BFD),
+                                    Color(0xff20235A),
+                                    Color(0xff007BFD),
+                                    Colors.white
+                                  ],
+                                  child: Text(''),
+                                )
+                              : Button(
+                                  borderRadius: BorderRadius.circular(10),
+                                  height: 60,
+                                  width: double.infinity,
+                                  onTap: _createProfile,
+                                  child: const Center(
+                                      child: Text(
+                                    'Create Now',
+                                    style: TextStyle(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white),
+                                  )),
+                                ),
                         ),
                       ],
                     ),

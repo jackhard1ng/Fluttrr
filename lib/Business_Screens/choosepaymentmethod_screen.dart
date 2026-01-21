@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:gradient_borders/box_borders/gradient_box_border.dart';
-import 'package:tripmates/Constants/button.dart';
-import 'package:tripmates/Constants/drawer_screen.dart';
-import 'package:tripmates/Constants/listdata.dart';
-import 'package:tripmates/Constants/utils.dart';
+import 'package:fluttrr/Constants/button.dart';
+import 'package:fluttrr/Constants/drawer_screen.dart';
+import 'package:fluttrr/Constants/listdata.dart';
+import 'package:fluttrr/Constants/utils.dart';
 
 import '../Services/StripePayment.dart';
 
@@ -46,7 +44,7 @@ class _ChoosepaymentmethodScreenState extends State<ChoosepaymentmethodScreen> {
         backgroundColor: Theme.of(context).cardColor,
         toolbarHeight: 70,
         leading: InkWell(
-          onTap: (){
+          onTap: () {
             Get.back();
           },
           child: Icon(
@@ -153,8 +151,10 @@ class _ChoosepaymentmethodScreenState extends State<ChoosepaymentmethodScreen> {
                           color: whiteColor),
                     ),
                   ),
-                  onTap: () async{
-                    final stripeService = StripeServiceNew(stripePublishableKey: 'pk_test_51R5suzGjraIK7CHERf44ONvZRfXCtzWTqEdmvVz55tAmjAb3HT1BuZETQOVVOWtxjz1PHECbShsgCSoBkDuWFOUd001fCbmWtt');
+                  onTap: () async {
+                    final stripeService = StripeServiceNew(
+                        stripePublishableKey:
+                            'pk_test_51R5suzGjraIK7CHERf44ONvZRfXCtzWTqEdmvVz55tAmjAb3HT1BuZETQOVVOWtxjz1PHECbShsgCSoBkDuWFOUd001fCbmWtt');
                     final result = await stripeService.completePaymentFlow(
                       amount: 9999, // $10.00 in cents
                       currency: 'usd',
@@ -164,17 +164,13 @@ class _ChoosepaymentmethodScreenState extends State<ChoosepaymentmethodScreen> {
                     if (result['success']) {
                       // Payment successful
                       ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Payment successful!'))
-                      );
+                          SnackBar(content: Text('Payment successful!')));
                     } else {
                       // Show error
                       ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error: ${result['error']}'))
-                      );
+                          SnackBar(content: Text('Error: ${result['error']}')));
                     }
-
-                  }
-                  ),
+                  }),
             ),
             SizedBox(
               height: 16,

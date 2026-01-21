@@ -1,48 +1,56 @@
-
-
-
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:tripmates/Constants/listdata.dart';
-import 'package:tripmates/Models/BadgesModel/BadgesModel.dart';
-import 'package:tripmates/Models/BadgesModel/LeaderBoardModel.dart';
-import 'package:tripmates/Models/GalleryDataModel.dart';
-import 'package:tripmates/Models/Notifications/NotificationsModel.dart';
-import 'package:tripmates/Models/ProfileModel.dart';
-import 'package:tripmates/Models/TotalActivityCount.dart';
-import 'package:tripmates/Models/TotalJoinedActivitesModel.dart';
-import 'package:tripmates/Models/TotalMatchCount.dart';
-import 'package:tripmates/Models/TotalMatchListModel.dart';
-import 'package:tripmates/Repository/ProfileRespository.dart';
+import 'package:fluttrr/Models/BadgesModel/BadgesModel.dart';
+import 'package:fluttrr/Models/BadgesModel/LeaderBoardModel.dart';
+import 'package:fluttrr/Models/GalleryDataModel.dart';
+import 'package:fluttrr/Models/Notifications/NotificationsModel.dart';
+import 'package:fluttrr/Models/Percentages.dart';
+import 'package:fluttrr/Models/ProfileModel.dart';
+import 'package:fluttrr/Models/TotalActivityCount.dart';
+import 'package:fluttrr/Models/TotalJoinedActivitesModel.dart';
+import 'package:fluttrr/Models/TotalMatchCount.dart';
+import 'package:fluttrr/Models/TotalMatchListModel.dart';
+import 'package:fluttrr/Repository/ProfileRespository.dart';
 
 import '../Models/JoinedActivityModel.dart';
 
-class ProfileController extends GetxController{
-
+class ProfileController extends GetxController {
   profileModel? profile;
-  GalleryDataModel?galleryDataModel;
-  TotalActivityCount?totalActivityCount;
-  TotalJoinedActivitesCount?totalJoinedActivitesCount;
-  TotalMatchCount?totalMatchCount;
-  JoinedActivitesModel?joinedActivitesModel;
-  TotalMatchListModel?totalMatchListModel;
-  BadgesModel?badgesModel;
-LeaderBoardModel?leaderBoardModel;
-NotificationsModel?notificationsModel;
-
+  GalleryDataModel? galleryDataModel;
+  TotalActivityCount? totalActivityCount;
+  TotalJoinedActivitesCount? totalJoinedActivitesCount;
+  TotalMatchCount? totalMatchCount;
+  JoinedActivitesModel? joinedActivitesModel;
+  TotalMatchListModel? totalMatchListModel;
+  BadgesModel? badgesModel;
+  LeaderBoardModel? leaderBoardModel;
+  NotificationsModel? notificationsModel;
+  Percentage? percentage;
 
 //.............................Get the profile...........................
 
-  Future<bool> GetProfile()async{
-    final Profile= await ProfileRepository().GetProfile();
+  Future<bool> GetProfile() async {
+    final Profile = await ProfileRepository().GetProfile();
     print("Profile Fatch is : $Profile");
-    if(Profile==null){
+    if (Profile == null) {
       return false;
-    }else{
+    } else {
       profile = profileModel.fromJson(Profile);
+      update(["Profile_update"]);
+      return true;
+    }
+  }
+
+  Future<bool> GetPrcentage() async {
+    final Profile = await ProfileRepository().GetPercentage();
+    print("Profile Fatch is : $Profile");
+    if (Profile == null) {
+      return false;
+    } else {
+      percentage = Percentage.fromJson(Profile);
       update(["Profile_update"]);
       return true;
     }
@@ -50,46 +58,44 @@ NotificationsModel?notificationsModel;
 
 //.............................Get Gallery List...........................
 
-  Future<bool> GetGalleryList()async{
-    final Profile= await ProfileRepository().GetGallery();
+  Future<bool> GetGalleryList() async {
+    final Profile = await ProfileRepository().GetGallery();
     print("Profile Fatch is : $Profile");
-    if(Profile==null){
+    if (Profile == null) {
       return false;
-    }else{
+    } else {
       galleryDataModel = GalleryDataModel.fromJson(Profile);
       update(["Profile_update"]);
       return true;
     }
   }
 
-
-
   //.............................Upload Gallery List...........................
 
   Future<bool> UploadGallery(
-     String description, // ID of the activity to update
-      File? image, // Image is optional
-      )async{
-    final Profile= await ProfileRepository().UploadGallery(description: description,image: image);
+    String description, // ID of the activity to update
+    File? image, // Image is optional
+  ) async {
+    final Profile = await ProfileRepository()
+        .UploadGallery(description: description, image: image);
     print("Profile Fatch is : $Profile");
-    if(Profile==null){
+    if (Profile == null) {
       return false;
-    }else{
+    } else {
       profile = profileModel.fromJson(Profile);
       update(["Profile_update"]);
       return true;
     }
   }
 
-
   //.............................Get Total Activities...........................
 
-  Future<bool> TotalActivites()async{
-    final Profile= await ProfileRepository().GetTotalActivites();
+  Future<bool> TotalActivites() async {
+    final Profile = await ProfileRepository().GetTotalActivites();
     print("Profile Fatch is : $Profile");
-    if(Profile==null){
+    if (Profile == null) {
       return false;
-    }else{
+    } else {
       totalActivityCount = TotalActivityCount.fromJson(Profile);
       update(["Profile_update"]);
       return true;
@@ -98,12 +104,12 @@ NotificationsModel?notificationsModel;
 
   //.............................Get Total Matcehs...........................
 
-  Future<bool> TotalMatches()async{
-    final Profile= await ProfileRepository().GetTotalMatches();
+  Future<bool> TotalMatches() async {
+    final Profile = await ProfileRepository().GetTotalMatches();
     print("Profile Fatch is : $Profile");
-    if(Profile==null){
+    if (Profile == null) {
       return false;
-    }else{
+    } else {
       totalMatchCount = TotalMatchCount.fromJson(Profile);
       update(["Profile_update"]);
       return true;
@@ -112,27 +118,26 @@ NotificationsModel?notificationsModel;
 
   //.............................Get Total joined Activities...........................
 
-  Future<bool> JoinedActivites()async{
-    final Profile= await ProfileRepository().GetTotalJoinedActivites();
+  Future<bool> JoinedActivites() async {
+    final Profile = await ProfileRepository().GetTotalJoinedActivites();
     print("Profile Fatch is : $Profile");
-    if(Profile==null){
+    if (Profile == null) {
       return false;
-    }else{
+    } else {
       totalJoinedActivitesCount = TotalJoinedActivitesCount.fromJson(Profile);
       update(["Profile_update"]);
       return true;
     }
   }
 
-
   //.............................Get Total Matcehs List...........................
 
-  Future<bool> TotalMatchesList()async{
-    final Profile= await ProfileRepository().GetTotalMatchesList();
+  Future<bool> TotalMatchesList() async {
+    final Profile = await ProfileRepository().GetTotalMatchesList();
     print("Profile Fatch is : $Profile");
-    if(Profile==null){
+    if (Profile == null) {
       return false;
-    }else{
+    } else {
       totalMatchListModel = TotalMatchListModel.fromJson(Profile);
       update(["Profile_update"]);
       return true;
@@ -141,21 +146,19 @@ NotificationsModel?notificationsModel;
 
   //.............................Get Total joined Activities List...........................
 
-  Future<bool> JoinedActivitesList()async{
-    final Profile= await ProfileRepository().GetTotalJoinedActivitesList();
+  Future<bool> JoinedActivitesList() async {
+    final Profile = await ProfileRepository().GetTotalJoinedActivitesList();
     print("Profile Fatch is : $Profile");
-    if(Profile==null){
+    if (Profile == null) {
       return false;
-    }else{
+    } else {
       joinedActivitesModel = JoinedActivitesModel.fromJson(Profile);
       update(["Profile_update"]);
       return true;
     }
   }
 
-
 //................................Edite Profile.........................
-
 
   Future<bool> editProfile({
     required String age,
@@ -234,37 +237,30 @@ NotificationsModel?notificationsModel;
     );
 
     // Send location to API
-    await ProfileRepository().UpdateLocation(position.latitude, position.longitude);
+    await ProfileRepository()
+        .UpdateLocation(position.latitude, position.longitude);
 
     return position;
   }
 
-
 //....................................Update FCM Token ...............................
-
 
   Future<void> updateFcmToken() async {
     try {
       // Get the FCM token
       String? fcmToken = await FirebaseMessaging.instance.getToken();
 
-      if (fcmToken != null) {
-        // Send FCM token to the API
-        await ProfileRepository().UpdateFCMToken(fcmToken);
-        print("FCM Token updated successfully: $fcmToken");
-      } else {
-        print("Failed to retrieve FCM token.");
-      }
+      // Send FCM token to the API
+      await ProfileRepository().UpdateFCMToken(fcmToken);
+      print("FCM Token updated successfully: $fcmToken");
     } catch (e) {
       print("Error updating FCM token: $e");
     }
   }
 
-
 //........................Setup Profile Screen ............................
 
   Future<bool> setupProfile({
-
     required int age,
     required String gender,
     required String status,
@@ -280,18 +276,30 @@ NotificationsModel?notificationsModel;
     required String location,
   }) async {
     try {
-     final ok= await ProfileRepository().setupProfile( age: age, gender: gender,username:username , status: status, bio: bio, country: country, interests: interests, image: image, coverImage: coverImage, latitude: latitude, longitude: longitude, languages: languages, location: location);
-     if(ok){
-       return true;
-     }else{
-       return false;
-     }
+      final ok = await ProfileRepository().setupProfile(
+          age: age,
+          gender: gender,
+          username: username,
+          status: status,
+          bio: bio,
+          country: country,
+          interests: interests,
+          image: image,
+          coverImage: coverImage,
+          latitude: latitude,
+          longitude: longitude,
+          languages: languages,
+          location: location);
+      if (ok) {
+        return true;
+      } else {
+        return false;
+      }
     } catch (e) {
       print("Error in profile setup: $e");
       return false;
     }
   }
-
 
 //...............................Badges.......................
 
@@ -321,9 +329,7 @@ NotificationsModel?notificationsModel;
     }
   }
 
- //...................... leaderBoard...........................
-
-
+  //...................... leaderBoard...........................
 
   Future<bool> LeaderBoard() async {
     final activity = await ProfileRepository().LeaderBoard();
@@ -378,7 +384,4 @@ NotificationsModel?notificationsModel;
       return true;
     }
   }
-
-
-
 }

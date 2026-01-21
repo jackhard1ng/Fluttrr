@@ -4,9 +4,9 @@ import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:get/get.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
-import 'package:tripmates/Auth_Screens/login_screen.dart';
-import 'package:tripmates/Constants/button.dart';
-import 'package:tripmates/Controller/AuthenticationController.dart';
+import 'package:fluttrr/Auth_Screens/login_screen.dart';
+import 'package:fluttrr/Constants/button.dart';
+import 'package:fluttrr/Controller/AuthenticationController.dart';
 
 class OtpScreen extends StatefulWidget {
   final String username;

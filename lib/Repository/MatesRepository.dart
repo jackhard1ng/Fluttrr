@@ -260,7 +260,7 @@ class Matesrepository{
       // "interests": interests
     };
 
-    print("the send data : ${requestData}");
+    print("the send data : $requestData");
     try {
       final response = await http.post(
         Uri.parse(Apis.NearbyFilter),

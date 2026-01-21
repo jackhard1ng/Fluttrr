@@ -7,15 +7,15 @@ class AnalyticsModel {
   AnalyticsModel.fromJson(Map<String, dynamic> json) {
     message = json['message'];
     analytics = json['analytics'] != null
-        ? new Analytics.fromJson(json['analytics'])
+        ? Analytics.fromJson(json['analytics'])
         : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['message'] = this.message;
-    if (this.analytics != null) {
-      data['analytics'] = this.analytics!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['message'] = message;
+    if (analytics != null) {
+      data['analytics'] = analytics!.toJson();
     }
     return data;
   }
@@ -30,26 +30,26 @@ class Analytics {
   Analytics({this.total, this.daily, this.weekly, this.monthly});
 
   Analytics.fromJson(Map<String, dynamic> json) {
-    total = json['total'] != null ? new Total.fromJson(json['total']) : null;
-    daily = json['daily'] != null ? new Total.fromJson(json['daily']) : null;
-    weekly = json['weekly'] != null ? new Total.fromJson(json['weekly']) : null;
+    total = json['total'] != null ? Total.fromJson(json['total']) : null;
+    daily = json['daily'] != null ? Total.fromJson(json['daily']) : null;
+    weekly = json['weekly'] != null ? Total.fromJson(json['weekly']) : null;
     monthly =
-    json['monthly'] != null ? new Total.fromJson(json['monthly']) : null;
+    json['monthly'] != null ? Total.fromJson(json['monthly']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.total != null) {
-      data['total'] = this.total!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (total != null) {
+      data['total'] = total!.toJson();
     }
-    if (this.daily != null) {
-      data['daily'] = this.daily!.toJson();
+    if (daily != null) {
+      data['daily'] = daily!.toJson();
     }
-    if (this.weekly != null) {
-      data['weekly'] = this.weekly!.toJson();
+    if (weekly != null) {
+      data['weekly'] = weekly!.toJson();
     }
-    if (this.monthly != null) {
-      data['monthly'] = this.monthly!.toJson();
+    if (monthly != null) {
+      data['monthly'] = monthly!.toJson();
     }
     return data;
   }
@@ -71,11 +71,11 @@ class Total {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['views'] = this.views;
-    data['clicks'] = this.clicks;
-    data['joins'] = this.joins;
-    data['followers'] = this.followers;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['views'] = views;
+    data['clicks'] = clicks;
+    data['joins'] = joins;
+    data['followers'] = followers;
     return data;
   }
 }

@@ -5,6 +5,7 @@ class Apis{
 
 // static String ip="https://fluttrr.com";
 static String ip="http://82.180.139.134:3001";
+// static String ip="http://192.168.1.5:3001";
 // BaseUrl
 static String baseurl="$ip/api";
 
@@ -14,6 +15,9 @@ static String baseurl="$ip/api";
   static  String googlelogin="$baseurl/user/google-login";
   static  String sendotp="$baseurl/user/send-otp";
   static  String changepassword="$baseurl/user/change-password";
+  static  String ForgetPassword="$baseurl/user/reset-password";
+  static  String ForgetSendOTp="$baseurl/user/request-otp";
+  static  String ForgetVerifyOtp="$baseurl/user/verifys-otp";
 
 //.........................Profile..............................
   static String Profile="$baseurl/user/profile";
@@ -30,6 +34,7 @@ static String baseurl="$ip/api";
   static String SetupProfile="$baseurl/user/create-profile";
   static String online="$baseurl/user/online";
   static String offline="$baseurl/user/offline";
+  static String percentage="$baseurl/user/monitring";
 
 
 
@@ -85,6 +90,9 @@ static String baseurl="$ip/api";
   static String GetChatsList="$baseurl/message/cheatlist";
   static String grouplist="$baseurl/message/grouplist";
   static String Markasread="$baseurl/message/markAsRead";
+  static String GetBusinessChats="$baseurl/message/getChatList";
+  static String StartBusinesschat="$baseurl/message/sendB";
+
 
 
 
@@ -119,6 +127,11 @@ static String baseurl="$ip/api";
 //..............................Notifications..............................
 
   static String NotificationScreen="$baseurl/mate/list_notifications";
+
+
+  //..............................Notifications..............................
+
+  static String Compalin="$baseurl/admin/complain";
 
 
 

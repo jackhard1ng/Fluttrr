@@ -4,7 +4,6 @@ import "dart:io";
 
 import "package:flutter/material.dart";
 import "package:get/get.dart";
-import "package:get/get_core/src/get_main.dart";
 import "package:http/http.dart" as http;
 import "package:shared_preferences/shared_preferences.dart";
 
@@ -250,7 +249,7 @@ class Activityrepository{
       // };
 
       // Constructing the URI with query parameters
-      Uri uri = Uri.parse(Apis.DetailActivity+"/$id");
+      Uri uri = Uri.parse("${Apis.DetailActivity}/$id");
       print("The URl is : $uri");
 
       final response = await http.get(
@@ -290,7 +289,7 @@ class Activityrepository{
       // };
 
       // Constructing the URI with query parameters
-      Uri uri = Uri.parse(Apis.EventDetails+"/$id");
+      Uri uri = Uri.parse("${Apis.EventDetails}/$id");
       print("The URl is : $uri");
 
       final response = await http.get(
@@ -439,7 +438,7 @@ class Activityrepository{
     Map<String, dynamic> requestData = {};
     try {
       final response = await http.post(
-        Uri.parse(Apis.saveActivity+"/$activityid"),
+        Uri.parse("${Apis.saveActivity}/$activityid"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token", // Add if required
@@ -472,7 +471,7 @@ class Activityrepository{
     Map<String, dynamic> requestData = {};
     try {
       final response = await http.post(
-        Uri.parse(Apis.saveEvent+"/$Eventid"),
+        Uri.parse("${Apis.saveEvent}/$Eventid"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token", // Add if required
@@ -673,7 +672,7 @@ class Activityrepository{
     };
     try {
       final response = await http.delete(
-        Uri.parse(Apis.DeleteActivity+"/$Activityid"),
+        Uri.parse("${Apis.DeleteActivity}/$Activityid"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token", // Add if required
@@ -748,7 +747,7 @@ class Activityrepository{
 
     try {
       final response = await http.post(
-        Uri.parse(Apis.followBusiness+"/$bussinessid"),
+        Uri.parse("${Apis.followBusiness}/$bussinessid"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token", // Add if required
@@ -781,7 +780,7 @@ class Activityrepository{
 
     try {
       final response = await http.post(
-        Uri.parse(Apis.unfollowbusiness+"/$bussinessid"),
+        Uri.parse("${Apis.unfollowbusiness}/$bussinessid"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token", // Add if required
@@ -814,7 +813,7 @@ class Activityrepository{
     };
     try {
       final response = await http.put(
-        Uri.parse(Apis.eventClicks+"/$eventid/click"),
+        Uri.parse("${Apis.eventClicks}/$eventid/click"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token", // Add if required
@@ -848,7 +847,7 @@ class Activityrepository{
     };
     try {
       final response = await http.put(
-        Uri.parse(Apis.eventview+"/$eventid/view"),
+        Uri.parse("${Apis.eventview}/$eventid/view"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token", // Add if required

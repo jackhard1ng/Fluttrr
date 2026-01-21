@@ -2,14 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:gradient_borders/box_borders/gradient_box_border.dart';
-import 'package:tripmates/Constants/Apis_Constants.dart';
-import 'package:tripmates/Constants/bottombar.dart';
-import 'package:tripmates/Constants/custom_appbar.dart';
-import 'package:tripmates/Constants/utils.dart';
-import 'package:tripmates/Controller/ProfileController.dart';
-import 'package:tripmates/Mates_Screens/mateswhoisaround_screen.dart';
-
-import '../Controller/MatesController.dart';
+import 'package:fluttrr/Constants/Apis_Constants.dart';
+import 'package:fluttrr/Constants/custom_appbar.dart';
+import 'package:fluttrr/Constants/utils.dart';
+import 'package:fluttrr/Controller/ProfileController.dart';
 
 class Totalmatcheslistscreen extends StatefulWidget {
   const Totalmatcheslistscreen({super.key});
@@ -19,13 +15,13 @@ class Totalmatcheslistscreen extends StatefulWidget {
 }
 
 class _TotalmatcheslistscreenState extends State<Totalmatcheslistscreen> {
-  ProfileController controller=Get.put(ProfileController());
+  ProfileController controller = Get.put(ProfileController());
   int selectedIndex = 2;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-   controller.TotalMatchesList();
+    controller.TotalMatchesList();
   }
 
   @override
@@ -43,47 +39,37 @@ class _TotalmatcheslistscreenState extends State<Totalmatcheslistscreen> {
                       physics: NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
                       itemCount:
-                     controller.totalMatchListModel?.likedMates?.length ?? 0,
+                          controller.totalMatchListModel?.likedMates?.length ??
+                              0,
                       itemBuilder: (BuildContext context, int index) {
                         final image = (controller
-                            .totalMatchListModel
-                            ?.likedMates?[index]
-                            .liked
-                            ?.userProfile?.images
-                            ?.isNotEmpty ??
-                            false)
-                            ? controller.totalMatchListModel!.likedMates![index].liked
-                            !.userProfile?.images![0]
+                                    .totalMatchListModel
+                                    ?.likedMates?[index]
+                                    .liked
+                                    ?.userProfile
+                                    ?.images
+                                    ?.isNotEmpty ??
+                                false)
+                            ? controller.totalMatchListModel!.likedMates![index]
+                                .liked!.userProfile?.images![0]
                             : "";
 
-                        final name = controller
-                            .totalMatchListModel
-                            ?.likedMates?[index]
-                            .liked
-                            ?.userName;
-                        final age = controller
-                            .totalMatchListModel
-                            ?.likedMates?[index]
-                            .liked
-                            ?.userProfile?.age;
-                        final online = controller
-                            .totalMatchListModel
-                            ?.likedMates?[index]
-                            .liked
-                            ?.onlineStatus;
-                        final usertype = controller
-                            .totalMatchListModel
-                            ?.likedMates?[index]
-                            .liked
-                            ?.onlineStatus;
+                        final name = controller.totalMatchListModel
+                            ?.likedMates?[index].liked?.userName;
+                        final age = controller.totalMatchListModel
+                            ?.likedMates?[index].liked?.userProfile?.age;
+                        final online = controller.totalMatchListModel
+                            ?.likedMates?[index].liked?.onlineStatus;
+                        final usertype = controller.totalMatchListModel
+                            ?.likedMates?[index].liked?.onlineStatus;
                         final interest = controller
                             .totalMatchListModel
                             ?.likedMates?[index]
-                            .liked?.userProfile?.interests?[0];
-                        final verified = controller
-                            .totalMatchListModel
-                            ?.likedMates?[index]
-                            .liked?.userProfile?.status;
+                            .liked
+                            ?.userProfile
+                            ?.interests?[0];
+                        final verified = controller.totalMatchListModel
+                            ?.likedMates?[index].liked?.userProfile?.status;
 
                         return Padding(
                           padding: const EdgeInsets.only(
@@ -110,16 +96,16 @@ class _TotalmatcheslistscreenState extends State<Totalmatcheslistscreen> {
                                     CircleAvatar(
                                       radius: 33,
                                       backgroundImage:
-                                      NetworkImage('${Apis.ip}${image}'),
+                                          NetworkImage('${Apis.ip}$image'),
                                     ),
                                     SizedBox(
                                       width: 10,
                                     ),
                                     Column(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       mainAxisAlignment:
-                                      MainAxisAlignment.center,
+                                          MainAxisAlignment.center,
                                       children: [
                                         Row(
                                           children: [
@@ -127,21 +113,21 @@ class _TotalmatcheslistscreenState extends State<Totalmatcheslistscreen> {
                                               height: 17,
                                               decoration: BoxDecoration(
                                                   borderRadius:
-                                                  BorderRadius.circular(30),
+                                                      BorderRadius.circular(30),
                                                   color: whiteColor),
                                               child: Padding(
                                                 padding:
-                                                const EdgeInsets.symmetric(
-                                                    horizontal: 5),
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 5),
                                                 child: Center(
                                                     child: Text(
-                                                      '${interest}',
-                                                      style: TextStyle(
-                                                          fontSize: 9,
-                                                          fontWeight:
+                                                  '$interest',
+                                                  style: TextStyle(
+                                                      fontSize: 9,
+                                                      fontWeight:
                                                           FontWeight.bold,
-                                                          color: Color(0xff930000)),
-                                                    )),
+                                                      color: Color(0xff930000)),
+                                                )),
                                               ),
                                             ),
                                             Text(
@@ -161,7 +147,7 @@ class _TotalmatcheslistscreenState extends State<Totalmatcheslistscreen> {
                                         Row(
                                           children: [
                                             Text(
-                                              '${name}, ${age}',
+                                              '$name, $age',
                                               style: TextStyle(
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.bold,
@@ -172,9 +158,9 @@ class _TotalmatcheslistscreenState extends State<Totalmatcheslistscreen> {
                                             ),
                                             verified == true
                                                 ? SvgPicture.asset(
-                                              'assets/verify.svg',
-                                              height: 19,
-                                            )
+                                                    'assets/verify.svg',
+                                                    height: 19,
+                                                  )
                                                 : SizedBox(),
                                           ],
                                         ),
@@ -185,7 +171,7 @@ class _TotalmatcheslistscreenState extends State<Totalmatcheslistscreen> {
                                           height: 27,
                                           decoration: BoxDecoration(
                                             borderRadius:
-                                            BorderRadius.circular(30),
+                                                BorderRadius.circular(30),
                                             color: Color(0xff339003),
                                           ),
                                           child: Padding(
@@ -193,7 +179,7 @@ class _TotalmatcheslistscreenState extends State<Totalmatcheslistscreen> {
                                                 horizontal: 10),
                                             child: Row(
                                               mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                                  MainAxisAlignment.center,
                                               children: [
                                                 SvgPicture.asset(
                                                   'assets/Vector (3).svg',
@@ -207,7 +193,7 @@ class _TotalmatcheslistscreenState extends State<Totalmatcheslistscreen> {
                                                   style: TextStyle(
                                                       fontSize: 11,
                                                       fontWeight:
-                                                      FontWeight.w500,
+                                                          FontWeight.w500,
                                                       color: whiteColor),
                                                 ),
                                               ],

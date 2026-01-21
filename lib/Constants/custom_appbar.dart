@@ -3,13 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:tripmates/Auth_Screens/login_screen.dart';
-import 'package:tripmates/Constants/drawer_screen.dart';
-import 'package:tripmates/Constants/utils.dart';
-import 'package:tripmates/Controller/MatesController.dart';
+import 'package:fluttrr/Constants/utils.dart';
+import 'package:fluttrr/Controller/MatesController.dart';
 
 import '../Business_Screens/premiumwelcome_screen.dart';
 import '../Controller/BussinessPageController.dart';
+import '../CutomerSupport/CustomerSupport.dart';
 import '../Models/MatesFilterModel.dart';
 import '../NotificationScreen/NotificationScreen.dart';
 import 'Apis_Constants.dart';
@@ -83,10 +82,9 @@ class _CustomAppbarState extends State<CustomAppbar> {
 
       setState(() {
         _searchResults = matescontroller.matesFilterModel?.mates
-            ?.where((mate) => mate.userName!
-            .toLowerCase()
-            .contains(query.toLowerCase()))
-            .toList() ??
+                ?.where((mate) =>
+                    mate.userName!.toLowerCase().contains(query.toLowerCase()))
+                .toList() ??
             [];
       });
     } catch (e) {
@@ -160,12 +158,14 @@ class _CustomAppbarState extends State<CustomAppbar> {
           ],
         ),
       ),
-      title: Container(
+      title: SizedBox(
         height: 38,
         child: TextFormField(
           controller: _searchController,
           focusNode: _searchFocusNode,
-          style: TextStyle(fontSize: 13, color: Theme.of(context).textTheme.bodyLarge?.color),
+          style: TextStyle(
+              fontSize: 13,
+              color: Theme.of(context).textTheme.bodyLarge?.color),
           cursorHeight: 15,
           decoration: InputDecoration(
             filled: true,
@@ -196,14 +196,14 @@ class _CustomAppbarState extends State<CustomAppbar> {
             contentPadding: EdgeInsets.symmetric(vertical: 0),
             suffixIcon: _searchController.text.isNotEmpty
                 ? IconButton(
-              icon: Icon(Icons.close, size: 18),
-              onPressed: () {
-                _searchController.clear();
-                _searchResults.clear();
-                _searchFocusNode.unfocus();
-                _removeOverlay();
-              },
-            )
+                    icon: Icon(Icons.close, size: 18),
+                    onPressed: () {
+                      _searchController.clear();
+                      _searchResults.clear();
+                      _searchFocusNode.unfocus();
+                      _removeOverlay();
+                    },
+                  )
                 : null,
           ),
         ),
@@ -215,7 +215,9 @@ class _CustomAppbarState extends State<CustomAppbar> {
             height: 25,
             color: Theme.of(context).primaryColor,
           ),
-          onPressed: () {},
+          onPressed: () {
+            Get.to(() => HelpCenterScreen());
+          },
         ),
         IconButton(
           onPressed: () {
@@ -335,13 +337,6 @@ class _UserSearchTile extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
 
 class Businessappbar extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -484,5 +479,3 @@ class _BusinessappbarState extends State<Businessappbar> {
     );
   }
 }
-
-

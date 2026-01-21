@@ -11,17 +11,17 @@ class TotalMatchListModel {
     if (json['likedMates'] != null) {
       likedMates = <LikedMates>[];
       json['likedMates'].forEach((v) {
-        likedMates!.add(new LikedMates.fromJson(v));
+        likedMates!.add(LikedMates.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    data['message'] = this.message;
-    if (this.likedMates != null) {
-      data['likedMates'] = this.likedMates!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['success'] = success;
+    data['message'] = message;
+    if (likedMates != null) {
+      data['likedMates'] = likedMates!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -41,17 +41,17 @@ class LikedMates {
     likerId = json['likerId'];
     likedId = json['likedId'];
     createdAt = json['createdAt'];
-    liked = json['liked'] != null ? new Liked.fromJson(json['liked']) : null;
+    liked = json['liked'] != null ? Liked.fromJson(json['liked']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['likerId'] = this.likerId;
-    data['likedId'] = this.likedId;
-    data['createdAt'] = this.createdAt;
-    if (this.liked != null) {
-      data['liked'] = this.liked!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['likerId'] = likerId;
+    data['likedId'] = likedId;
+    data['createdAt'] = createdAt;
+    if (liked != null) {
+      data['liked'] = liked!.toJson();
     }
     return data;
   }
@@ -77,18 +77,18 @@ class Liked {
     email = json['email'];
     onlineStatus = json['onlineStatus'];
     userProfile = json['userProfile'] != null
-        ? new UserProfile.fromJson(json['userProfile'])
+        ? UserProfile.fromJson(json['userProfile'])
         : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['userID'] = this.userID;
-    data['userName'] = this.userName;
-    data['email'] = this.email;
-    data['onlineStatus'] = this.onlineStatus;
-    if (this.userProfile != null) {
-      data['userProfile'] = this.userProfile!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['userID'] = userID;
+    data['userName'] = userName;
+    data['email'] = email;
+    data['onlineStatus'] = onlineStatus;
+    if (userProfile != null) {
+      data['userProfile'] = userProfile!.toJson();
     }
     return data;
   }
@@ -110,11 +110,11 @@ class UserProfile {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['interests'] = this.interests;
-    data['status'] = this.status;
-    data['images'] = this.images;
-    data['age'] = this.age;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['interests'] = interests;
+    data['status'] = status;
+    data['images'] = images;
+    data['age'] = age;
     return data;
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:tripmates/Constants/listdata.dart';
+import 'package:fluttrr/Constants/listdata.dart';
 
 class LinkedaccountsScreen extends StatefulWidget {
   const LinkedaccountsScreen({super.key});

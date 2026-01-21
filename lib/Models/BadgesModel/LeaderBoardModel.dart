@@ -9,16 +9,16 @@ class LeaderBoardModel {
     if (json['rankedUsers'] != null) {
       rankedUsers = <RankedUsers>[];
       json['rankedUsers'].forEach((v) {
-        rankedUsers!.add(new RankedUsers.fromJson(v));
+        rankedUsers!.add(RankedUsers.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    if (this.rankedUsers != null) {
-      data['rankedUsers'] = this.rankedUsers!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['success'] = success;
+    if (rankedUsers != null) {
+      data['rankedUsers'] = rankedUsers!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -40,11 +40,11 @@ class RankedUsers {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['rank'] = this.rank;
-    data['userId'] = this.userId;
-    data['name'] = this.name;
-    data['images'] = this.images;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['rank'] = rank;
+    data['userId'] = userId;
+    data['name'] = name;
+    data['images'] = images;
     return data;
   }
 }

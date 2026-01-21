@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:gradient_progress_indicator/widget/gradient_progress_indicator_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tripmates/Auth_Screens/login_screen.dart';
-import 'package:tripmates/Constants/bottombar.dart';
+import 'package:fluttrr/Auth_Screens/login_screen.dart';
+import 'package:fluttrr/Constants/bottombar.dart';
 
 import '../Controller/ProfileController.dart';
 import '../ProfileScreens/ProfileSetupScreen.dart';
@@ -18,42 +17,33 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  ProfileController profileController=Get.put(ProfileController());
+  ProfileController profileController = Get.put(ProfileController());
   Timer? timer;
 
   @override
   void initState() {
     timer = Timer(const Duration(seconds: 3), () async {
       SharedPreferences pref = await SharedPreferences.getInstance();
-      final token = await pref.getString("token");
+      final token = pref.getString("token");
       if (token == null) {
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => LoginScreen()));
       } else {
-
-        final profile= await profileController.GetProfile();
-        if(profile){
-
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      BottomBar(screen: 0)));
-        }else{
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      ProfileSetupScreen()));
+        final profile = await profileController.GetProfile();
+        if (profile) {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => BottomBar(screen: 0)));
+        } else {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => ProfileSetupScreen()));
         }
-
-
       }
     });
 
     super.initState();
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,

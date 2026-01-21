@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_svg/svg.dart';
@@ -6,12 +5,13 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
-import 'package:http/http.dart' as http;
-import 'package:tripmates/Constants/Apis_Constants.dart';
+import 'package:fluttrr/Constants/Apis_Constants.dart';
 import '../Constants/utils.dart';
 import '../Controller/AcitivityController.dart';
 
 class ActivityMapScreen extends StatefulWidget {
+  const ActivityMapScreen({super.key});
+
   @override
   _ActivityMapScreenState createState() => _ActivityMapScreenState();
 }
@@ -20,7 +20,7 @@ class _ActivityMapScreenState extends State<ActivityMapScreen> {
   Acitivitycontroller controller = Get.put(Acitivitycontroller());
   LatLng? _currentLocation;
   final MapController _mapController = MapController();
-  List<Marker> _markers = [];
+  final List<Marker> _markers = [];
   final _fromTop = true;
   final String mapboxAccessToken =
       "pk.eyJ1IjoiamFja2hhcmRpbmcxNyIsImEiOiJjbTdzbXNlNzAxYzkxMmpvYWJuZXZoc3E2In0.v3vDy9EOl55cy_5V3oShlQ";
@@ -32,7 +32,8 @@ class _ActivityMapScreenState extends State<ActivityMapScreen> {
   }
 
   String formatDateTime(String dateTimeString) {
-    DateTime dateTime = DateTime.parse(dateTimeString).toLocal(); // Convert to local time
+    DateTime dateTime =
+        DateTime.parse(dateTimeString).toLocal(); // Convert to local time
     String formattedDate = DateFormat("MMMM d, y 'at' h:mm a").format(dateTime);
     return formattedDate;
   }
@@ -101,9 +102,10 @@ class _ActivityMapScreenState extends State<ActivityMapScreen> {
         String? remaingslot = activity.remainingSlots.toString();
         String? description = activity.description;
         String? imageUrl =
-        (activity.image.isNotEmpty) ? activity.image[0] : null;
+            (activity.image.isNotEmpty) ? activity.image[0] : null;
 
-        print("Activity: $name, Lat: $latitude, Lng: $longitude, Image: $imageUrl");
+        print(
+            "Activity: $name, Lat: $latitude, Lng: $longitude, Image: $imageUrl");
 
         if (latitude != null && longitude != null) {
           LatLng position = LatLng(latitude, longitude);
@@ -115,12 +117,20 @@ class _ActivityMapScreenState extends State<ActivityMapScreen> {
                 height: 50,
                 child: GestureDetector(
                   onTap: () {
-                    alertBox(imageUrl.toString(), name.toString(),date.toString() , description.toString(), totalslot, remaingslot,location);
+                    alertBox(
+                        imageUrl.toString(),
+                        name.toString(),
+                        date.toString(),
+                        description.toString(),
+                        totalslot,
+                        remaingslot,
+                        location);
                     // _showActivityDetails(name ?? "Activity", description ?? "No description", imageUrl);
                   },
                   child: ClipOval(
                     child: imageUrl != null
-                        ? Image.network("${Apis.ip}$imageUrl", fit: BoxFit.cover)
+                        ? Image.network("${Apis.ip}$imageUrl",
+                            fit: BoxFit.cover)
                         : Icon(Icons.location_on, color: Colors.red, size: 40),
                   ),
                 ),
@@ -136,24 +146,17 @@ class _ActivityMapScreenState extends State<ActivityMapScreen> {
     }
   }
 
-  alertBox(
-      String image,
-      String name,
-      String date,
-      String descrption,
-      String totalslots,
-      String remaing,
-      String location
-      ) {
+  alertBox(String image, String name, String date, String descrption,
+      String totalslots, String remaing, String location) {
     showGeneralDialog(
         barrierDismissible: true,
         barrierLabel:
-        MaterialLocalizations.of(context).modalBarrierDismissLabel,
+            MaterialLocalizations.of(context).modalBarrierDismissLabel,
         transitionBuilder: (context, anim1, anim2, child) {
           return SlideTransition(
             position: Tween(
-                begin: Offset(0, _fromTop ? -1 : 1),
-                end: const Offset(0, 0))
+                    begin: Offset(0, _fromTop ? -1 : 1),
+                    end: const Offset(0, 0))
                 .animate(anim1),
             child: child,
           );
@@ -228,10 +231,10 @@ class _ActivityMapScreenState extends State<ActivityMapScreen> {
                                 children: [
                                   Row(
                                     mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        formatDateTime("$date") ,
+                                        formatDateTime(date),
                                         style: TextStyle(
                                           fontSize: 11,
                                           color: Color(0xff339003),
@@ -258,7 +261,7 @@ class _ActivityMapScreenState extends State<ActivityMapScreen> {
                                     height: 3,
                                   ),
                                   Text(
-                                    '$name',
+                                    name,
                                     style: TextStyle(
                                       fontSize: 19,
                                       fontWeight: FontWeight.bold,
@@ -277,7 +280,7 @@ class _ActivityMapScreenState extends State<ActivityMapScreen> {
                                         width: 4,
                                       ),
                                       Text(
-                                        '$location',
+                                        location,
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
@@ -290,7 +293,7 @@ class _ActivityMapScreenState extends State<ActivityMapScreen> {
                                     height: 3,
                                   ),
                                   Text(
-                                    '$descrption',
+                                    descrption,
                                     style: TextStyle(
                                       color: Theme.of(context).indicatorColor,
                                     ),
@@ -310,7 +313,7 @@ class _ActivityMapScreenState extends State<ActivityMapScreen> {
                                   ),
                                   Row(
                                     mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Row(
                                         children: [
@@ -325,7 +328,7 @@ class _ActivityMapScreenState extends State<ActivityMapScreen> {
                                                 child: CircleAvatar(
                                                   radius: 17,
                                                   backgroundColor:
-                                                  Colors.purple,
+                                                      Colors.purple,
                                                 ),
                                               ),
                                               Padding(
@@ -347,7 +350,7 @@ class _ActivityMapScreenState extends State<ActivityMapScreen> {
                                             ],
                                           ),
                                           Text(
-                                            ' ${remaing}/${totalslots} Joined',
+                                            ' $remaing/$totalslots Joined',
                                             style: TextStyle(
                                               fontSize: 11,
                                               fontWeight: FontWeight.bold,
@@ -360,7 +363,7 @@ class _ActivityMapScreenState extends State<ActivityMapScreen> {
                                         width: 80,
                                         decoration: BoxDecoration(
                                             borderRadius:
-                                            BorderRadius.circular(30),
+                                                BorderRadius.circular(30),
                                             color: lightBlue),
                                         child: Center(
                                           child: Text(
@@ -406,24 +409,24 @@ class _ActivityMapScreenState extends State<ActivityMapScreen> {
       body: _currentLocation == null
           ? Center(child: CircularProgressIndicator())
           : Stack(
-        children: [
-          FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              initialCenter: _currentLocation!,
-              initialZoom: 12,
+              children: [
+                FlutterMap(
+                  mapController: _mapController,
+                  options: MapOptions(
+                    initialCenter: _currentLocation!,
+                    initialZoom: 12,
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken",
+                      additionalOptions: {"access_token": mapboxAccessToken},
+                    ),
+                    MarkerLayer(markers: _markers),
+                  ],
+                ),
+              ],
             ),
-            children: [
-              TileLayer(
-                urlTemplate:
-                "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=$mapboxAccessToken",
-                additionalOptions: {"access_token": mapboxAccessToken},
-              ),
-              MarkerLayer(markers: _markers),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }

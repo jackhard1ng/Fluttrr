@@ -7,14 +7,14 @@ class privacyModel {
   privacyModel.fromJson(Map<String, dynamic> json) {
     message = json['message'];
     privacy =
-    json['privacy'] != null ? new Privacy.fromJson(json['privacy']) : null;
+    json['privacy'] != null ? Privacy.fromJson(json['privacy']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['message'] = this.message;
-    if (this.privacy != null) {
-      data['privacy'] = this.privacy!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['message'] = message;
+    if (privacy != null) {
+      data['privacy'] = privacy!.toJson();
     }
     return data;
   }
@@ -55,16 +55,16 @@ class Privacy {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['traveller'] = this.traveller;
-    data['local'] = this.local;
-    data['male'] = this.male;
-    data['female'] = this.female;
-    data['non_binary'] = this.nonBinary;
-    data['everyone'] = this.everyone;
-    data['private_mode'] = this.privateMode;
-    data['age_range_min'] = this.ageRangeMin;
-    data['age_range_max'] = this.ageRangeMax;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['traveller'] = traveller;
+    data['local'] = local;
+    data['male'] = male;
+    data['female'] = female;
+    data['non_binary'] = nonBinary;
+    data['everyone'] = everyone;
+    data['private_mode'] = privateMode;
+    data['age_range_min'] = ageRangeMin;
+    data['age_range_max'] = ageRangeMax;
     return data;
   }
 }

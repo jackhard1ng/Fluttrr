@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gradient_slider/gradient_slider.dart';
-import 'package:tripmates/Constants/utils.dart';
+import 'package:fluttrr/Constants/utils.dart';
 
 class Matesetslocationscreen extends StatefulWidget {
   const Matesetslocationscreen({super.key});

@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:gradient_progress_indicator/widget/gradient_progress_indicator_widget.dart';
-import 'package:tripmates/Business_Screens/businesscreateprofile_screen.dart';
-import 'package:tripmates/Constants/button.dart';
-import 'package:tripmates/Constants/utils.dart';
-import 'package:tripmates/Controller/BussinessPageController.dart';
-
-import 'businessevents_screen.dart';
+import 'package:fluttrr/Business_Screens/businesscreateprofile_screen.dart';
+import 'package:fluttrr/Constants/button.dart';
+import 'package:fluttrr/Constants/utils.dart';
+import 'package:fluttrr/Controller/BussinessPageController.dart';
 
 class WelcomeScreen extends StatelessWidget {
-  BusinessController businessController=Get.put(BusinessController());
-   WelcomeScreen({super.key});
+  BusinessController businessController = Get.put(BusinessController());
+  WelcomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -73,9 +70,9 @@ class WelcomeScreen extends StatelessWidget {
                                   color: whiteColor),
                             ),
                           ),
-                          onTap: ()async {
+                          onTap: () async {
                             await businessController.Subscription();
-                            Get.to(()=> BusinesscreateprofileScreen());
+                            Get.to(() => BusinesscreateprofileScreen());
                           }),
                     )
                   ],

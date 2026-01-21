@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tripmates/Constants/Apis_Constants.dart';
-import 'package:tripmates/Constants/utils.dart';
+import 'package:fluttrr/Constants/Apis_Constants.dart';
+import 'package:fluttrr/Constants/utils.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:timeago/timeago.dart' as timeago;
@@ -20,8 +20,8 @@ class CommentsScreen extends StatefulWidget {
 
 class _CommentsScreenState extends State<CommentsScreen> {
   List<Comment> comments = [];
-  TextEditingController _replyController = TextEditingController();
-  TextEditingController _postController = TextEditingController();
+  final TextEditingController _replyController = TextEditingController();
+  final TextEditingController _postController = TextEditingController();
   int? replyingToCommentId;
 
   @override
@@ -31,7 +31,9 @@ class _CommentsScreenState extends State<CommentsScreen> {
   }
 
   Future<void> _fetchComments() async {
-    Uri urievent=widget.event==false? Uri.parse("${Apis.baseurl}/comment/${widget.id}") :Uri.parse("${Apis.baseurl}/comment/event/${widget.id}");
+    Uri urievent = widget.event == false
+        ? Uri.parse("${Apis.baseurl}/comment/${widget.id}")
+        : Uri.parse("${Apis.baseurl}/comment/event/${widget.id}");
     // Uri uriactivity=Uri.parse("${Apis.baseurl}/comment/${widget.id}");
 
     final response = await http.get(urievent);
@@ -59,7 +61,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
         "Authorization": "Bearer $token",
       },
       body: jsonEncode({
-        "activityId":widget.id,
+        "activityId": widget.id,
         'parentCommentId': parentCommentId,
         'content': content
       }),
@@ -86,16 +88,14 @@ class _CommentsScreenState extends State<CommentsScreen> {
         "Authorization": "Bearer $token",
       },
       body: jsonEncode({
-        if(widget.event==false)
-        "activityId":widget.id,
-        if(widget.event)
-        "eventId":widget.id,
+        if (widget.event == false) "activityId": widget.id,
+        if (widget.event) "eventId": widget.id,
         'content': content
       }),
     );
     print(response.body);
 
-    if (response.statusCode == 200 || response.statusCode == 201 ) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       _fetchComments();
       setState(() {
         replyingToCommentId = null;
@@ -114,9 +114,9 @@ class _CommentsScreenState extends State<CommentsScreen> {
             child: Row(
               children: [
                 InkWell(
-                  onTap:(){
-                    Get.back();
-    },
+                    onTap: () {
+                      Get.back();
+                    },
                     child: Icon(Icons.arrow_back)),
                 SizedBox(width: 30),
                 Text(
@@ -167,19 +167,25 @@ class _CommentsScreenState extends State<CommentsScreen> {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundImage: comment.user?.userProfile?.images?.isNotEmpty == true
-                    ? NetworkImage("${Apis.ip}${comment.user!.userProfile!.images!.first}")
-                    : AssetImage('assets/default_avatar.png') as ImageProvider, // Fallback image
+                backgroundImage: comment
+                            .user?.userProfile?.images?.isNotEmpty ==
+                        true
+                    ? NetworkImage(
+                        "${Apis.ip}${comment.user!.userProfile!.images!.first}")
+                    : AssetImage('assets/default_avatar.png')
+                        as ImageProvider, // Fallback image
               ),
               Expanded(
                 child: Container(
                   margin: EdgeInsets.only(left: 7),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: Colors.grey[300], // Softer color for better readability
+                    color:
+                        Colors.grey[300], // Softer color for better readability
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -212,17 +218,29 @@ class _CommentsScreenState extends State<CommentsScreen> {
               spacing: 20,
               children: [
                 Text(
-                  timeago.format(DateTime.parse(comment.createdAt ?? DateTime.now().toIso8601String())),
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.black54),
+                  timeago.format(DateTime.parse(
+                      comment.createdAt ?? DateTime.now().toIso8601String())),
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black54),
                 ),
-                Text('Like', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.blue)),
+                Text('Like',
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.blue)),
                 GestureDetector(
                   onTap: () {
                     setState(() {
                       replyingToCommentId = comment.commentID;
                     });
                   },
-                  child: Text('Reply', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.blue)),
+                  child: Text('Reply',
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.blue)),
                 ),
               ],
             ),
@@ -241,7 +259,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
               padding: EdgeInsets.only(left: 30, top: 5),
               child: Column(
                 children: comment.replies!
-                    .map((reply) => _buildCommentItem(reply, leftPadding: leftPadding + 20))
+                    .map((reply) =>
+                        _buildCommentItem(reply, leftPadding: leftPadding + 20))
                     .toList(),
               ),
             ),
@@ -249,7 +268,6 @@ class _CommentsScreenState extends State<CommentsScreen> {
       ),
     );
   }
-
 
   Widget _buildCommentInput() {
     return Container(
@@ -268,7 +286,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
         children: [
           Expanded(
             child: TextField(
-              controller:_postController ,
+              controller: _postController,
               decoration: InputDecoration(
                 hintText: 'Write a comment...',
                 border: OutlineInputBorder(
@@ -277,7 +295,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
                 ),
                 fillColor: Colors.grey[200],
                 filled: true,
-                contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
             ),
           ),
@@ -286,8 +305,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
             icon: Icon(Icons.send, color: Colors.blue),
             onPressed: () {
               if (_postController.text.isNotEmpty) {
-                _postComment( _postController.text);
-
+                _postComment(_postController.text);
               }
             },
           ),
@@ -312,7 +330,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
                 ),
                 fillColor: Colors.grey[200],
                 filled: true,
-                contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
             ),
           ),

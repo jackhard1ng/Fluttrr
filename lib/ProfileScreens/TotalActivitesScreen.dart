@@ -2,33 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:simple_gradient_text/simple_gradient_text.dart';
-import 'package:tripmates/Activities_Screens/EditeActivity.dart';
-import 'package:tripmates/Activities_Screens/createactivity_screen.dart';
-import 'package:tripmates/Constants/custom_appbar.dart';
-import 'package:tripmates/Constants/utils.dart';
+import 'package:fluttrr/Activities_Screens/EditeActivity.dart';
 
 import '../Activities_Screens/eventsdetails_screen.dart';
 import '../Constants/Apis_Constants.dart';
-import '../Constants/bottombar.dart';
 import '../Controller/AcitivityController.dart';
 
-
 class Totalactivitesscreen extends StatefulWidget {
-  Totalactivitesscreen({super.key});
+  const Totalactivitesscreen({super.key});
 
   @override
   State<Totalactivitesscreen> createState() => _TotalactivitesscreenState();
 }
 
 class _TotalactivitesscreenState extends State<Totalactivitesscreen> {
-  Acitivitycontroller  acitivitycontroller=Get.put(Acitivitycontroller());
+  Acitivitycontroller acitivitycontroller = Get.put(Acitivitycontroller());
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     acitivitycontroller.MyActivitie();
   }
+
   String formatDateTime(String dateTimeString) {
     try {
       DateTime dateTime = DateTime.parse(dateTimeString).toLocal();
@@ -37,6 +32,7 @@ class _TotalactivitesscreenState extends State<Totalactivitesscreen> {
       return ""; // Return empty string if parsing fails
     }
   }
+
   final _fromTop = true;
 
   @override
@@ -73,7 +69,7 @@ class _TotalactivitesscreenState extends State<Totalactivitesscreen> {
         title: Text("Total Activites"),
       ),
       body: Padding(
-        padding: const EdgeInsets.only(top: 20,left: 20,right: 20),
+        padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
         child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
           child: GetBuilder<Acitivitycontroller>(
@@ -88,23 +84,57 @@ class _TotalactivitesscreenState extends State<Totalactivitesscreen> {
                         return ListView.builder(
                           physics: NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
-                          itemCount: acitivitycontroller.myActivityModel?.activities?.length ?? 0,
+                          itemCount: acitivitycontroller
+                                  .myActivityModel?.activities?.length ??
+                              0,
                           itemBuilder: (BuildContext context, int index) {
-                            final name = acitivitycontroller.myActivityModel?.activities?[index].name ?? "No Name";
-                            final location = acitivitycontroller.myActivityModel?.activities?[index].location ?? "No specific location";
-                            final description = acitivitycontroller.myActivityModel?.activities?[index].description ?? "No Description";
-                            final imageList = acitivitycontroller.myActivityModel?.activities?[index].images;
-                            final image = (imageList != null && imageList.isNotEmpty) ? imageList[0] : "No image";
-                            final totalSlots =  acitivitycontroller.myActivityModel?.activities?[index].totalSlots?.toString() ?? "0";
-                            final date =  acitivitycontroller.myActivityModel?.activities?[index].dateTime?.toString() ?? "0";
+                            final name = acitivitycontroller
+                                    .myActivityModel?.activities?[index].name ??
+                                "No Name";
+                            final location = acitivitycontroller.myActivityModel
+                                    ?.activities?[index].location ??
+                                "No specific location";
+                            final description = acitivitycontroller
+                                    .myActivityModel
+                                    ?.activities?[index]
+                                    .description ??
+                                "No Description";
+                            final imageList = acitivitycontroller
+                                .myActivityModel?.activities?[index].images;
+                            final image =
+                                (imageList != null && imageList.isNotEmpty)
+                                    ? imageList[0]
+                                    : "No image";
+                            final totalSlots = acitivitycontroller
+                                    .myActivityModel
+                                    ?.activities?[index]
+                                    .totalSlots
+                                    ?.toString() ??
+                                "0";
+                            final date = acitivitycontroller.myActivityModel
+                                    ?.activities?[index].dateTime
+                                    ?.toString() ??
+                                "0";
                             // final time =  acitivitycontroller.myActivityModel?.activities?[index].time?.toString() ?? "0";
                             // final paid = acitivitycontroller.myActivityModel?.activities?[index].;
-                            final remainingSlots = acitivitycontroller.myActivityModel?.activities?[index].slots?.toString() ?? "0";
-                            final id = acitivitycontroller.myActivityModel?.activities?[index].activityID?.toString() ?? "0";
+                            final remainingSlots = acitivitycontroller
+                                    .myActivityModel?.activities?[index].slots
+                                    ?.toString() ??
+                                "0";
+                            final id = acitivitycontroller.myActivityModel
+                                    ?.activities?[index].activityID
+                                    ?.toString() ??
+                                "0";
 
                             return InkWell(
                               onTap: () {
-                                Get.to(() => EventsdetailsScreen(id: id,event: false,datetime: date,joined:false,));
+                                Get.to(() => EventsdetailsScreen(
+                                      id: id,
+                                      event: false,
+                                      datetime: date,
+                                      joined: false,
+                                      like: false,
+                                    ));
                               },
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 13),
@@ -118,35 +148,42 @@ class _TotalactivitesscreenState extends State<Totalactivitesscreen> {
                                         borderRadius: BorderRadius.circular(10),
                                         image: DecorationImage(
                                           fit: BoxFit.cover,
-                                          image: NetworkImage("${Apis.ip}$image"),
+                                          image:
+                                              NetworkImage("${Apis.ip}$image"),
                                         ),
                                       ),
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(10),
-                                          color: Colors.black.withOpacity(0.4), // Dark overlay for readability
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          color: Colors.black.withOpacity(
+                                              0.4), // Dark overlay for readability
                                         ),
                                         padding: const EdgeInsets.all(10),
                                         child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: [
                                             Row(
                                               children: [
                                                 CircleAvatar(
                                                   radius: 27,
-                                                  backgroundImage: AssetImage("assets/Group 48095849.png"),
+                                                  backgroundImage: AssetImage(
+                                                      "assets/Group 48095849.png"),
                                                 ),
                                                 SizedBox(width: 10),
                                                 Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
-                                                    Container(
+                                                    SizedBox(
                                                       width: 170,
                                                       child: Text(
                                                         name,
                                                         style: TextStyle(
                                                           fontSize: 12,
-                                                          fontWeight: FontWeight.bold,
+                                                          fontWeight:
+                                                              FontWeight.bold,
                                                           color: Colors.white,
                                                         ),
                                                       ),
@@ -154,16 +191,21 @@ class _TotalactivitesscreenState extends State<Totalactivitesscreen> {
                                                     SizedBox(height: 7),
                                                     Row(
                                                       children: [
-                                                        SvgPicture.asset('assets/pin.svg', height: 14),
+                                                        SvgPicture.asset(
+                                                            'assets/pin.svg',
+                                                            height: 14),
                                                         SizedBox(width: 7),
-                                                        Container(
+                                                        SizedBox(
                                                           width: 160,
                                                           child: Text(
                                                             location,
                                                             style: TextStyle(
                                                               fontSize: 11,
-                                                              fontWeight: FontWeight.w500,
-                                                              color: Colors.white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              color:
+                                                                  Colors.white,
                                                             ),
                                                           ),
                                                         ),
@@ -171,19 +213,24 @@ class _TotalactivitesscreenState extends State<Totalactivitesscreen> {
                                                     ),
                                                     SizedBox(height: 3),
                                                     Text(
-                                                      formatDateTime("$date"),
+                                                      formatDateTime(date),
                                                       style: TextStyle(
                                                         fontSize: 9,
-                                                        fontWeight: FontWeight.w500,
-                                                        color: Color(0xff00D4BD),
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color:
+                                                            Color(0xff00D4BD),
                                                       ),
                                                     ),
                                                     SizedBox(height: 3),
-                                                    Container(
+                                                    SizedBox(
                                                       width: 279,
                                                       child: Text(
                                                         description,
-                                                        style: TextStyle(fontSize: 9, color: Colors.white),
+                                                        style: TextStyle(
+                                                            fontSize: 9,
+                                                            color:
+                                                                Colors.white),
                                                       ),
                                                     ),
                                                   ],
@@ -192,7 +239,9 @@ class _TotalactivitesscreenState extends State<Totalactivitesscreen> {
                                             ),
                                             SizedBox(height: 15),
                                             Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
                                                 Row(
                                                   children: [
@@ -201,10 +250,14 @@ class _TotalactivitesscreenState extends State<Totalactivitesscreen> {
                                                       width: 26,
                                                       decoration: BoxDecoration(
                                                         shape: BoxShape.circle,
-                                                        color: Color(0xff5A5A5A),
+                                                        color:
+                                                            Color(0xff5A5A5A),
                                                       ),
                                                       child: Center(
-                                                        child: Icon(Icons.add, size: 26, color: Colors.white),
+                                                        child: Icon(Icons.add,
+                                                            size: 26,
+                                                            color:
+                                                                Colors.white),
                                                       ),
                                                     ),
                                                     SizedBox(width: 7),
@@ -212,7 +265,8 @@ class _TotalactivitesscreenState extends State<Totalactivitesscreen> {
                                                       '${int.parse(totalSlots) - int.parse(remainingSlots)}/$totalSlots Joined',
                                                       style: TextStyle(
                                                         fontSize: 10,
-                                                        fontWeight: FontWeight.w500,
+                                                        fontWeight:
+                                                            FontWeight.w500,
                                                         color: Colors.white,
                                                       ),
                                                     ),
@@ -221,28 +275,41 @@ class _TotalactivitesscreenState extends State<Totalactivitesscreen> {
                                                 Row(
                                                   children: [
                                                     InkWell(
-                                                        onTap: ()async{
-                                                          await acitivitycontroller.DeleteActivity(id);
-                                                          await acitivitycontroller.MyActivitie();
-
+                                                        onTap: () async {
+                                                          await acitivitycontroller
+                                                              .DeleteActivity(
+                                                                  id);
+                                                          await acitivitycontroller
+                                                              .MyActivitie();
                                                         },
-                                                        child: _buildButton("Delete", Colors.red)),
+                                                        child: _buildButton(
+                                                            "Delete",
+                                                            Colors.red)),
                                                     SizedBox(width: 10),
                                                     InkWell(
-                                                        onTap: ()async{
-                                                          Get.to(()=> Editeactivity(
-                                                            ActivityType: name,
-                                                            Description: description,
-                                                            image: image,
-                                                            Dateandtime: date,
-                                                            location: location,
-                                                            numberofPeople: totalSlots,
-                                                            TotalTime: "2",
-                                                            id: id,
-
-                                                          ));
+                                                        onTap: () async {
+                                                          Get.to(() =>
+                                                              Editeactivity(
+                                                                ActivityType:
+                                                                    name,
+                                                                Description:
+                                                                    description,
+                                                                image: image,
+                                                                Dateandtime:
+                                                                    date,
+                                                                location:
+                                                                    location,
+                                                                numberofPeople:
+                                                                    totalSlots,
+                                                                TotalTime: "2",
+                                                                id: id,
+                                                              ));
                                                         },
-                                                        child: _buildButtonWithIcon("Edite", Color(0xff007BFD))),
+                                                        child:
+                                                            _buildButtonWithIcon(
+                                                                "Edite",
+                                                                Color(
+                                                                    0xff007BFD))),
                                                   ],
                                                 )
                                                 // Row(
@@ -289,9 +356,11 @@ class _TotalactivitesscreenState extends State<Totalactivitesscreen> {
                                       right: 13,
                                       child: Row(
                                         children: [
-                                          _buildIcon('assets/Group 48095897.svg'),
+                                          _buildIcon(
+                                              'assets/Group 48095897.svg'),
                                           SizedBox(width: 16),
-                                          _buildIcon('assets/Group 48095896.svg'),
+                                          _buildIcon(
+                                              'assets/Group 48095896.svg'),
                                           SizedBox(width: 16),
                                           _buildIcon('assets/Group.svg'),
                                         ],
@@ -307,8 +376,7 @@ class _TotalactivitesscreenState extends State<Totalactivitesscreen> {
                     ),
                   ],
                 );
-              }
-          ),
+              }),
         ),
       ),
     );
@@ -325,7 +393,8 @@ class _TotalactivitesscreenState extends State<Totalactivitesscreen> {
       child: Center(
         child: Text(
           text,
-          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+          style: TextStyle(
+              fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
     );
@@ -344,7 +413,8 @@ class _TotalactivitesscreenState extends State<Totalactivitesscreen> {
         children: [
           Text(
             text,
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+            style: TextStyle(
+                fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           SizedBox(width: 5),
           SvgPicture.asset('assets/Group 48096111.svg'),
@@ -356,5 +426,4 @@ class _TotalactivitesscreenState extends State<Totalactivitesscreen> {
   Widget _buildIcon(String assetPath) {
     return SvgPicture.asset(assetPath, height: 21);
   }
-
 }

@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tripmates/Constants/Apis_Constants.dart';
+import 'package:fluttrr/Constants/Apis_Constants.dart';
 
 class StripeServiceNew {
-  static String _baseUrl = '${Apis.baseurl}/paymet';
+  static final String _baseUrl = '${Apis.baseurl}/paymet';
   final String? stripePublishableKey;
 
   StripeServiceNew({this.stripePublishableKey}) {

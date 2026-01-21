@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:tripmates/Constants/Apis_Constants.dart';
+import 'package:fluttrr/Constants/Apis_Constants.dart';
 import '../Constants/utils.dart';
 import '../Repository/ChatRespository.dart';
 
@@ -15,13 +15,13 @@ class Groupmessagescreen extends StatefulWidget {
   final String conversationId;
 
   const Groupmessagescreen({
-    Key? key,
+    super.key,
     required this.providerName,
     required this.conversationId,
     required this.currentuserid,
     required this.reciverid,
     required this.image,
-  }) : super(key: key);
+  });
 
   @override
   _GroupmessagescreenState createState() => _GroupmessagescreenState();
@@ -32,7 +32,7 @@ class _GroupmessagescreenState extends State<Groupmessagescreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final List<Map<String, dynamic>> _pendingMessages = [];
   final Box _deletedMessagesBox = Hive.box('deleted_messages');
-  List<String> _selectedMessages = [];
+  final List<String> _selectedMessages = [];
   bool _isSelecting = false;
   bool _isDeletingAll = false;
 
@@ -158,10 +158,13 @@ class _GroupmessagescreenState extends State<Groupmessagescreen> {
                       });
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _isDeletingAll ? Colors.blue : Colors.grey,
+                      backgroundColor:
+                          _isDeletingAll ? Colors.blue : Colors.grey,
                     ),
                     child: Text(
-                      _isDeletingAll ? 'Deleting All Messages' : 'Deleting Only Mine',
+                      _isDeletingAll
+                          ? 'Deleting All Messages'
+                          : 'Deleting Only Mine',
                       style: const TextStyle(color: Colors.white),
                     ),
                   ),
@@ -183,21 +186,24 @@ class _GroupmessagescreenState extends State<Groupmessagescreen> {
 
                 final firestoreMessages = snapshot.data!.docs
                     .map((doc) {
-                  final data = doc.data() as Map<String, dynamic>;
-                  return {
-                    ...data,
-                    'messageId': doc.id,
-                  };
-                })
-                    .where((message) => !_isMessageDeleted(message['messageId']))
+                      final data = doc.data() as Map<String, dynamic>;
+                      return {
+                        ...data,
+                        'messageId': doc.id,
+                      };
+                    })
+                    .where(
+                        (message) => !_isMessageDeleted(message['messageId']))
                     .toList();
 
                 final pendingMessages = _pendingMessages.where((pending) {
                   return !firestoreMessages.any((firestore) =>
-                  firestore['message'] == pending['message'] &&
+                      firestore['message'] == pending['message'] &&
                       firestore['senderId'] == pending['senderId'] &&
-                      (firestore['timestamp'] as Timestamp).millisecondsSinceEpoch >=
-                          (pending['timestamp'] as Timestamp).millisecondsSinceEpoch);
+                      (firestore['timestamp'] as Timestamp)
+                              .millisecondsSinceEpoch >=
+                          (pending['timestamp'] as Timestamp)
+                              .millisecondsSinceEpoch);
                 }).toList();
 
                 final allMessages = [...firestoreMessages, ...pendingMessages];
@@ -214,8 +220,10 @@ class _GroupmessagescreenState extends State<Groupmessagescreen> {
                   itemBuilder: (context, index) {
                     final message = allMessages[index];
                     final isPending = pendingMessages.contains(message);
-                    final isCurrentUser = message['senderId'] == widget.currentuserid;
-                    final isSelected = _selectedMessages.contains(message['messageId'] ?? message['tempId']);
+                    final isCurrentUser =
+                        message['senderId'] == widget.currentuserid;
+                    final isSelected = _selectedMessages
+                        .contains(message['messageId'] ?? message['tempId']);
 
                     return GestureDetector(
                       onLongPress: () => _handleLongPress(message),
@@ -228,7 +236,9 @@ class _GroupmessagescreenState extends State<Groupmessagescreen> {
                         message: message,
                         isSentByMe: isCurrentUser,
                         isTemp: isPending,
-                        senderName: isCurrentUser ? 'You' : message['senderName'] ?? 'Unknown',
+                        senderName: isCurrentUser
+                            ? 'You'
+                            : message['senderName'] ?? 'Unknown',
                         showSenderName: !isCurrentUser,
                         isSelected: isSelected,
                         isSelecting: _isSelecting,
@@ -248,7 +258,8 @@ class _GroupmessagescreenState extends State<Groupmessagescreen> {
   }
 
   bool _isMessageDeleted(String messageId) {
-    return _deletedMessagesBox.get('${widget.currentuserid}_$messageId', defaultValue: false);
+    return _deletedMessagesBox.get('${widget.currentuserid}_$messageId',
+        defaultValue: false);
   }
 
   void _handleLongPress(Map<String, dynamic> message) {
@@ -309,7 +320,8 @@ class _GroupmessagescreenState extends State<Groupmessagescreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Clear All Chat'),
-        content: const Text('Are you sure you want to delete all messages from your device?'),
+        content: const Text(
+            'Are you sure you want to delete all messages from your device?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -451,7 +463,8 @@ class _GroupmessagescreenState extends State<Groupmessagescreen> {
     _messageController.clear();
 
     try {
-      await Chatrespository().StartConversation2(widget.conversationId, messageText);
+      await Chatrespository()
+          .StartConversation2(widget.conversationId, messageText);
     } catch (e) {
       print("❌ Error sending message: $e");
       setState(() {
@@ -473,7 +486,7 @@ class MessageBubble extends StatelessWidget {
   final VoidCallback onDelete;
 
   const MessageBubble({
-    Key? key,
+    super.key,
     required this.message,
     required this.isSentByMe,
     required this.isTemp,
@@ -483,7 +496,7 @@ class MessageBubble extends StatelessWidget {
     this.isSelecting = false,
     this.isDeletingAll = false,
     required this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -501,7 +514,7 @@ class MessageBubble extends StatelessWidget {
             gradient: isSentByMe
                 ? lefttorightgradient.withOpacity(0.4)
                 : const LinearGradient(
-                colors: [Color(0xffC6C6C6), Color(0xffC6C6C6)]),
+                    colors: [Color(0xffC6C6C6), Color(0xffC6C6C6)]),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Column(
@@ -564,7 +577,8 @@ class MessageBubble extends StatelessWidget {
   String _formatTimestamp(Timestamp? timestamp) {
     if (timestamp == null) return 'Unknown';
     DateTime date = timestamp.toDate();
-    String hour = date.hour > 12 ? (date.hour - 12).toString() : date.hour.toString();
+    String hour =
+        date.hour > 12 ? (date.hour - 12).toString() : date.hour.toString();
     String minute = date.minute.toString().padLeft(2, '0');
     String period = date.hour >= 12 ? 'PM' : 'AM';
     return "$hour:$minute $period";

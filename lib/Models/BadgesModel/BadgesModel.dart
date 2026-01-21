@@ -9,16 +9,16 @@ class BadgesModel {
     if (json['achievements'] != null) {
       achievements = <Achievements>[];
       json['achievements'].forEach((v) {
-        achievements!.add(new Achievements.fromJson(v));
+        achievements!.add(Achievements.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    if (this.achievements != null) {
-      data['achievements'] = this.achievements!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['success'] = success;
+    if (achievements != null) {
+      data['achievements'] = achievements!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -53,14 +53,14 @@ class Achievements {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['name'] = this.name;
-    data['description'] = this.description;
-    data['icon'] = this.icon;
-    data['hasClaimed'] = this.hasClaimed;
-    data['unlocked'] = this.unlocked;
-    data['progress'] = this.progress;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['name'] = name;
+    data['description'] = description;
+    data['icon'] = icon;
+    data['hasClaimed'] = hasClaimed;
+    data['unlocked'] = unlocked;
+    data['progress'] = progress;
     return data;
   }
 }

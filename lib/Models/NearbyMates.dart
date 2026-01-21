@@ -5,20 +5,26 @@ class NearbyMates {
   NearbyMates({this.message, this.users});
 
   NearbyMates.fromJson(Map<String, dynamic> json) {
-    message = json['message'];
-    if (json['users'] != null) {
-      users = <Users>[];
-      json['users'].forEach((v) {
-        users!.add(new Users.fromJson(v));
-      });
+    try {
+      message = json['message']?.toString();
+      if (json['users'] != null && json['users'] is List) {
+        users = (json['users'] as List).map((v) {
+          if (v is Map<String, dynamic>) {
+            return Users.fromJson(v);
+          }
+          return Users(); // fallback
+        }).toList();
+      }
+    } catch (e) {
+      print('Error parsing NearbyMates: $e');
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['message'] = this.message;
-    if (this.users != null) {
-      data['users'] = this.users!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = {};
+    data['message'] = message;
+    if (users != null) {
+      data['users'] = users!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -40,59 +46,76 @@ class Users {
   String? distance;
   bool? hasLiked;
 
-  Users(
-      {this.profileID,
-        this.userID,
-        this.images,
-        this.bio,
-        this.countryFlag,
-        this.gender,
-        this.interests,
-        this.latitude,
-        this.longitude,
-        this.status,
-        this.age,
-        this.user,
-        this.distance,
-        this.hasLiked = false,
-      });
+  Users({
+    this.profileID,
+    this.userID,
+    this.images,
+    this.bio,
+    this.countryFlag,
+    this.gender,
+    this.interests,
+    this.latitude,
+    this.longitude,
+    this.status,
+    this.age,
+    this.user,
+    this.distance,
+    this.hasLiked = false,
+  });
 
   Users.fromJson(Map<String, dynamic> json) {
-    profileID = json['profileID'];
-    userID = json['userID'];
-    images = json['images'].cast<String>();
-    bio = json['bio'];
-    countryFlag = json['countryFlag'];
-    gender = json['gender'];
-    interests = json['interests'].cast<String>();
-    latitude = json['latitude'];
-    longitude = json['longitude'];
-    status = json['status'];
-    age = json['age'];
-    user = json['User'] != null ? new User.fromJson(json['User']) : null;
-    distance = json['distance'];
-    hasLiked = json['hasLiked'] ?? false;
+    try {
+      profileID = _toInt(json['profileID']);
+      userID = _toInt(json['userID']);
+      images = _toStringList(json['images']);
+      bio = json['bio']?.toString();
+      countryFlag = json['countryFlag']?.toString();
+      gender = json['gender']?.toString();
+      interests = _toStringList(json['interests']);
+      latitude = json['latitude']?.toString();
+      longitude = json['longitude']?.toString();
+      status = json['status']?.toString();
+      age = _toInt(json['age']);
+      user = json['User'] is Map<String, dynamic> ? User.fromJson(json['User']) : null;
+      distance = json['distance']?.toString();
+      hasLiked = json['hasLiked'] is bool ? json['hasLiked'] : false;
+    } catch (e) {
+      print('Error parsing Users: $e');
+    }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['profileID'] = this.profileID;
-    data['userID'] = this.userID;
-    data['images'] = this.images;
-    data['bio'] = this.bio;
-    data['countryFlag'] = this.countryFlag;
-    data['gender'] = this.gender;
-    data['interests'] = this.interests;
-    data['latitude'] = this.latitude;
-    data['longitude'] = this.longitude;
-    data['status'] = this.status;
-    data['age'] = this.age;
-    if (this.user != null) {
-      data['User'] = this.user!.toJson();
+    final Map<String, dynamic> data = {};
+    data['profileID'] = profileID;
+    data['userID'] = userID;
+    data['images'] = images;
+    data['bio'] = bio;
+    data['countryFlag'] = countryFlag;
+    data['gender'] = gender;
+    data['interests'] = interests;
+    data['latitude'] = latitude;
+    data['longitude'] = longitude;
+    data['status'] = status;
+    data['age'] = age;
+    if (user != null) {
+      data['User'] = user!.toJson();
     }
-    data['distance'] = this.distance;
-    data['hasLiked'] = this.hasLiked;
+    data['distance'] = distance;
+    data['hasLiked'] = hasLiked;
     return data;
+  }
+
+  int? _toInt(dynamic value) {
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value);
+    return null;
+  }
+
+  List<String>? _toStringList(dynamic value) {
+    if (value is List) {
+      return value.map((e) => e.toString()).toList();
+    }
+    return null;
   }
 }
 
@@ -102,12 +125,16 @@ class User {
   User({this.userName});
 
   User.fromJson(Map<String, dynamic> json) {
-    userName = json['userName'];
+    try {
+      userName = json['userName']?.toString();
+    } catch (e) {
+      print('Error parsing User: $e');
+    }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['userName'] = this.userName;
+    final Map<String, dynamic> data = {};
+    data['userName'] = userName;
     return data;
   }
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:tripmates/Constants/button.dart';
-import 'package:tripmates/Constants/utils.dart';
+import 'package:fluttrr/Constants/button.dart';
+import 'package:fluttrr/Constants/utils.dart';
 
 import 'chooseyourplan_screen.dart';
 
@@ -185,7 +185,7 @@ class PremiumwelcomeScreen extends StatelessWidget {
                     ),
                   ),
                   onTap: () {
-                    Get.to(()=> ChooseyourplanScreen());
+                    Get.to(() => ChooseyourplanScreen());
                   }),
               SizedBox(
                 height: 16,

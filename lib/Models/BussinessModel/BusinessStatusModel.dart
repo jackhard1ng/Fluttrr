@@ -10,9 +10,9 @@ class BusinessstatusModel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    data['hasBusinessProfile'] = this.hasBusinessProfile;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['success'] = success;
+    data['hasBusinessProfile'] = hasBusinessProfile;
     return data;
   }
 }

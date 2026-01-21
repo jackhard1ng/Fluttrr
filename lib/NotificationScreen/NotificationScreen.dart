@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
-import 'package:tripmates/Controller/ProfileController.dart';
+import 'package:fluttrr/Controller/ProfileController.dart';
 
 import '../Models/Notifications/NotificationsModel.dart';
-
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -41,15 +40,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
       body: GetBuilder<ProfileController>(
         id: "Activity_update",
         builder: (controller) {
-
-
           return RefreshIndicator(
             onRefresh: _loadNotifications,
             child: ListView.builder(
               itemCount: controller.notificationsModel!.notifications!.length,
               itemBuilder: (context, index) {
                 final notification =
-                controller.notificationsModel!.notifications![index];
+                    controller.notificationsModel!.notifications![index];
                 return _buildNotificationItem(notification);
               },
             ),

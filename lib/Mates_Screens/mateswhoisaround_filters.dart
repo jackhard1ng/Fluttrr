@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:tripmates/Constants/button.dart';
-import 'package:tripmates/Constants/utils.dart';
-import 'package:tripmates/Controller/MatesController.dart';
+import 'package:fluttrr/Constants/button.dart';
+import 'package:fluttrr/Constants/utils.dart';
+import 'package:fluttrr/Controller/MatesController.dart';
 
 GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -18,12 +18,12 @@ class MateswhoisaroundFilters extends StatefulWidget {
 }
 
 class _MateswhoisaroundFiltersState extends State<MateswhoisaroundFilters> {
-  Matescontroller matescontroller= Get.put(Matescontroller());
+  Matescontroller matescontroller = Get.put(Matescontroller());
   ValueChanged<int>? onDeleted;
-  String?SelectedGender;
-  String?SelectedStatus;
-  String?Maxage;
-  String?Minage;
+  String? SelectedGender;
+  String? SelectedStatus;
+  String? Maxage;
+  String? Minage;
 
   double value = 0;
   int selectedIndex = 3;
@@ -41,9 +41,9 @@ class _MateswhoisaroundFiltersState extends State<MateswhoisaroundFilters> {
   ];
   double start = 30.0;
   double end = 50.0;
-  List<String> _taglist = [];
+  final List<String> _taglist = [];
   final TextEditingController _tagController = TextEditingController();
-  List<String> _taglisthobbies = [];
+  final List<String> _taglisthobbies = [];
   final TextEditingController _taghobbiesController = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -115,8 +115,8 @@ class _MateswhoisaroundFiltersState extends State<MateswhoisaroundFilters> {
                             setState(() {
                               selectedIndex = index;
                             });
-                            SelectedGender=gender[selectedIndex];
-                            print("Selected Gender: ${SelectedGender}");
+                            SelectedGender = gender[selectedIndex];
+                            print("Selected Gender: $SelectedGender");
                           },
                           child: Container(
                             decoration: BoxDecoration(
@@ -183,9 +183,8 @@ class _MateswhoisaroundFiltersState extends State<MateswhoisaroundFilters> {
                             setState(() {
                               statusIndex = index;
                             });
-                            SelectedStatus=travelerAndLocalStatus[index];
-                            print("Selected Gender: ${SelectedStatus}");
-
+                            SelectedStatus = travelerAndLocalStatus[index];
+                            print("Selected Gender: $SelectedStatus");
                           },
                           child: Container(
                             decoration: BoxDecoration(
@@ -241,10 +240,7 @@ class _MateswhoisaroundFiltersState extends State<MateswhoisaroundFilters> {
                       Padding(
                         padding: const EdgeInsets.only(left: 21),
                         child: Text(
-                          "Between " +
-                              start.toStringAsFixed(0) +
-                              " to " +
-                              end.toStringAsFixed(0),
+                          "Between ${start.toStringAsFixed(0)} to ${end.toStringAsFixed(0)}",
                           style: TextStyle(
                             fontSize: 14,
                             color: discriptionColor,
@@ -474,8 +470,15 @@ class _MateswhoisaroundFiltersState extends State<MateswhoisaroundFilters> {
                     borderRadius: BorderRadius.circular(10),
                     height: 60,
                     width: 130,
-                    onTap: ()async {
-                      await matescontroller.MatesFilter(start.toString(), end.toString(), SelectedStatus.toString(), SelectedGender.toString(), _taglist, "",_taglisthobbies);
+                    onTap: () async {
+                      await matescontroller.MatesFilter(
+                          start.toString(),
+                          end.toString(),
+                          SelectedStatus.toString(),
+                          SelectedGender.toString(),
+                          _taglist,
+                          "",
+                          _taglisthobbies);
                       Get.back();
                     },
                     child: const Center(

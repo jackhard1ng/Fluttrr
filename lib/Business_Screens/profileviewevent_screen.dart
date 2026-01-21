@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:gradient_borders/box_borders/gradient_box_border.dart';
-import 'package:tripmates/Constants/all_textfields.dart';
-import 'package:tripmates/Constants/button.dart';
-import 'package:tripmates/Constants/drawer_screen.dart';
-import 'package:tripmates/Constants/listdata.dart';
-import 'package:tripmates/Constants/utils.dart';
+import 'package:fluttrr/Constants/drawer_screen.dart';
+import 'package:fluttrr/Constants/listdata.dart';
+import 'package:fluttrr/Constants/utils.dart';
 
 class ProfilevieweventScreen extends StatelessWidget {
   const ProfilevieweventScreen({super.key});
@@ -201,7 +198,7 @@ class ProfilevieweventScreen extends StatelessWidget {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              Container(
+                                              SizedBox(
                                                 width: 170,
                                                 child: Text(
                                                   'Sunrise Yoga in the Park',
@@ -226,7 +223,7 @@ class ProfilevieweventScreen extends StatelessWidget {
                                                   SizedBox(
                                                     width: 7,
                                                   ),
-                                                  Container(
+                                                  SizedBox(
                                                     width: 160,
                                                     child: Text(
                                                       'Central Park, Meadow Area',
@@ -267,7 +264,7 @@ class ProfilevieweventScreen extends StatelessWidget {
                                               SizedBox(
                                                 height: 3,
                                               ),
-                                              Container(
+                                              SizedBox(
                                                 width: 279,
                                                 child: Text(
                                                   'Start your day with a rejuvenatingyoga session surrounded by nature.',

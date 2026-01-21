@@ -3,11 +3,11 @@ import 'package:get/get.dart';
 import 'package:gradient_progress_indicator/widget/gradient_progress_indicator_widget.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
-import 'package:tripmates/Auth_Screens/login_screen.dart';
-import 'package:tripmates/Auth_Screens/otp_screen.dart';
-import 'package:tripmates/Constants/all_textfields.dart';
-import 'package:tripmates/Constants/button.dart';
-import 'package:tripmates/Controller/AuthenticationController.dart';
+import 'package:fluttrr/Auth_Screens/login_screen.dart';
+import 'package:fluttrr/Auth_Screens/otp_screen.dart';
+import 'package:fluttrr/Constants/all_textfields.dart';
+import 'package:fluttrr/Constants/button.dart';
+import 'package:fluttrr/Controller/AuthenticationController.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -240,6 +240,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             setState(() {
                               isloading = true;
                             });
+
                             print(authenticationController.username.text);
                             print(authenticationController.email.text);
                             print(authenticationController.password.text);
@@ -274,6 +275,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ),
                               );
                             } else {
+                              if (isChecked == false) {
+                                showTopSnackBar(
+                                  Overlay.of(context),
+                                  CustomSnackBar.info(
+                                    message: "Please accept the policy.",
+                                  ),
+                                );
+                                setState(() {
+                                  isloading = false;
+                                });
+                                return; // ✅ This is important to stop the operation
+                              }
+
                               final sendOtp =
                                   await authenticationController.SendOtp(
                                 authenticationController.username.text,

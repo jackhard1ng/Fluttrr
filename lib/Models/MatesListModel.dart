@@ -9,16 +9,16 @@ class MateListModel {
     if (json['users'] != null) {
       users = <Users>[];
       json['users'].forEach((v) {
-        users!.add(new Users.fromJson(v));
+        users!.add(Users.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['message'] = this.message;
-    if (this.users != null) {
-      data['users'] = this.users!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['message'] = message;
+    if (users != null) {
+      data['users'] = users!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -65,25 +65,25 @@ class Users {
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
     userProfile = json['userProfile'] != null
-        ? new UserProfile.fromJson(json['userProfile'])
+        ? UserProfile.fromJson(json['userProfile'])
         : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['userID'] = this.userID;
-    data['userName'] = this.userName;
-    data['email'] = this.email;
-    data['password'] = this.password;
-    data['verified'] = this.verified;
-    data['onlineStatus'] = this.onlineStatus;
-    data['fcmToken'] = this.fcmToken;
-    data['blockedUsers'] = this.blockedUsers;
-    data['likedActivities'] = this.likedActivities;
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    if (this.userProfile != null) {
-      data['userProfile'] = this.userProfile!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['userID'] = userID;
+    data['userName'] = userName;
+    data['email'] = email;
+    data['password'] = password;
+    data['verified'] = verified;
+    data['onlineStatus'] = onlineStatus;
+    data['fcmToken'] = fcmToken;
+    data['blockedUsers'] = blockedUsers;
+    data['likedActivities'] = likedActivities;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    if (userProfile != null) {
+      data['userProfile'] = userProfile!.toJson();
     }
     return data;
   }
@@ -115,13 +115,13 @@ class UserProfile {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['images'] = this.images;
-    data['age'] = this.age;
-    data['bio'] = this.bio;
-    data['interests'] = this.interests;
-    data['longitude'] = this.longitude;
-    data['latitude'] = this.latitude;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['images'] = images;
+    data['age'] = age;
+    data['bio'] = bio;
+    data['interests'] = interests;
+    data['longitude'] = longitude;
+    data['latitude'] = latitude;
     return data;
   }
 }

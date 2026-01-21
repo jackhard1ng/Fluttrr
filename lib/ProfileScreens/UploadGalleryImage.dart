@@ -3,20 +3,23 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-import 'package:tripmates/Controller/ProfileController.dart';
+import 'package:fluttrr/Controller/ProfileController.dart';
 
 class ImageUploadScreen extends StatefulWidget {
+  const ImageUploadScreen({super.key});
+
   @override
   _ImageUploadScreenState createState() => _ImageUploadScreenState();
 }
 
 class _ImageUploadScreenState extends State<ImageUploadScreen> {
-  ProfileController controller =Get.put(ProfileController());
+  ProfileController controller = Get.put(ProfileController());
   File? _image;
   final TextEditingController _descriptionController = TextEditingController();
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _image = File(pickedFile.path);
@@ -24,18 +27,19 @@ class _ImageUploadScreenState extends State<ImageUploadScreen> {
     }
   }
 
-  void _uploadPost()async {
+  void _uploadPost() async {
     if (_descriptionController.text.isNotEmpty && _image != null) {
-   final upload=  await  controller.UploadGallery(_descriptionController.text, _image);
+      final upload =
+          await controller.UploadGallery(_descriptionController.text, _image);
       // Implement upload logic here
-      if(upload){
+      if (upload) {
         await controller.GetGalleryList();
         await controller.GetProfile();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Post uploaded successfully!")),
         );
         Get.back();
-      }else{
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Post uploaded successfully!")),
         );
@@ -51,8 +55,7 @@ class _ImageUploadScreenState extends State<ImageUploadScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text("Create Post"),
-        
+        title: Text("Create Post"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -71,24 +74,27 @@ class _ImageUploadScreenState extends State<ImageUploadScreen> {
             GestureDetector(
               onTap: _pickImage,
               child: _image != null
-                  ? Image.file(_image!, height: 200, width: double.infinity, fit: BoxFit.cover)
+                  ? Image.file(_image!,
+                      height: 200, width: double.infinity, fit: BoxFit.cover)
                   : Container(
-                height: 200,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Center(child: Text("Tap to upload image")),
-              ),
+                      height: 200,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Center(child: Text("Tap to upload image")),
+                    ),
             ),
             SizedBox(height: 16),
             ElevatedButton(
               style: ButtonStyle(
-                backgroundColor: WidgetStatePropertyAll(Colors.blueAccent)
-              ),
+                  backgroundColor: WidgetStatePropertyAll(Colors.blueAccent)),
               onPressed: _uploadPost,
-              child: Text("Post",style: TextStyle(color: Colors.white),),
+              child: Text(
+                "Post",
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),

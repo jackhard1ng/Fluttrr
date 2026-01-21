@@ -19,25 +19,25 @@ class profileModel {
     userId = json['userId'];
     onlineStatus = json['onlineStatus'];
     profile =
-    json['profile'] != null ? new Profile.fromJson(json['profile']) : null;
+    json['profile'] != null ? Profile.fromJson(json['profile']) : null;
     activities = json['activities'] != null
-        ? new Activities.fromJson(json['activities'])
+        ? Activities.fromJson(json['activities'])
         : null;
     completionPercentage = json['completionPercentage'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['userName'] = this.userName;
-    data['userId'] = this.userId;
-    data['onlineStatus'] = this.onlineStatus;
-    if (this.profile != null) {
-      data['profile'] = this.profile!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['userName'] = userName;
+    data['userId'] = userId;
+    data['onlineStatus'] = onlineStatus;
+    if (profile != null) {
+      data['profile'] = profile!.toJson();
     }
-    if (this.activities != null) {
-      data['activities'] = this.activities!.toJson();
+    if (activities != null) {
+      data['activities'] = activities!.toJson();
     }
-    data['completionPercentage'] = this.completionPercentage;
+    data['completionPercentage'] = completionPercentage;
     return data;
   }
 }
@@ -106,9 +106,9 @@ class Activities {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['created'] = this.created;
-    data['joined'] = this.joined;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['created'] = created;
+    data['joined'] = joined;
     return data;
   }
 }

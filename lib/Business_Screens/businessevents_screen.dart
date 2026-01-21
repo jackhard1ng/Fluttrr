@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
-import 'package:tripmates/Business_Screens/EditeEventScreen.dart';
-import 'package:tripmates/Business_Screens/createevent_screen.dart';
-import 'package:tripmates/Constants/Apis_Constants.dart';
-import 'package:tripmates/Constants/custom_appbar.dart';
-import 'package:tripmates/Constants/drawer_screen.dart';
-import 'package:tripmates/Constants/utils.dart';
-import 'package:tripmates/Controller/BussinessPageController.dart';
+import 'package:fluttrr/Business_Screens/EditeEventScreen.dart';
+import 'package:fluttrr/Business_Screens/createevent_screen.dart';
+import 'package:fluttrr/Constants/Apis_Constants.dart';
+import 'package:fluttrr/Constants/custom_appbar.dart';
+import 'package:fluttrr/Constants/drawer_screen.dart';
+import 'package:fluttrr/Controller/BussinessPageController.dart';
 
 import '../Models/BussinessModel/BusinessEventListModel.dart';
 import 'businesseventdetails_screen.dart';
@@ -84,7 +83,10 @@ class _BusinesseventsScreenState extends State<BusinesseventsScreen> {
         ),
       ),
       appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(83), child: Businessappbar(scaffoldKey: _scaffoldKey,)),
+          preferredSize: const Size.fromHeight(83),
+          child: Businessappbar(
+            scaffoldKey: _scaffoldKey,
+          )),
       body: Obx(() {
         if (businessController.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
@@ -93,67 +95,71 @@ class _BusinesseventsScreenState extends State<BusinesseventsScreen> {
         return SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.only(top: 20),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 20, right: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: GetBuilder<BusinessController>(
+                id: "Activity_update",
+                builder: (context) {
+                  return Column(
                     children: [
-                      const Text(
-                        'Events',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20, right: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Events',
+                              style: TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            // SvgPicture.asset('assets/gha.svg')
+                          ],
                         ),
                       ),
-                      SvgPicture.asset('assets/gha.svg')
-                    ],
-                  ),
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: List.generate(events.length, (index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(left: 19),
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedIndex = index;
-                            });
-                          },
-                          child: selectedIndex == index
-                              ? GradientText(
-                            events[index],
-                            colors: const [
-                              Color(0xff007BFD),
-                              Color(0xff20235A),
-                            ],
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          )
-                              : Text(
-                            events[index],
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: List.generate(events.length, (index) {
+                            return Padding(
+                              padding: const EdgeInsets.only(left: 19),
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    selectedIndex = index;
+                                  });
+                                },
+                                child: selectedIndex == index
+                                    ? GradientText(
+                                        events[index],
+                                        colors: const [
+                                          Color(0xff007BFD),
+                                          Color(0xff20235A),
+                                        ],
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      )
+                                    : Text(
+                                        events[index],
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                              ),
+                            );
+                          }),
                         ),
-                      );
-                    }),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                _buildEventsList(),
-              ],
-            ),
+                      ),
+                      const SizedBox(height: 20),
+                      _buildEventsList(),
+                    ],
+                  );
+                }),
           ),
         );
       }),
@@ -186,8 +192,11 @@ class _BusinesseventsScreenState extends State<BusinesseventsScreen> {
       itemBuilder: (BuildContext context, int index) {
         final event = eventsList[index];
         return InkWell(
-          onTap: (){
-            Get.to(()=> BusinesseventdetailsScreen(id: event.eventId.toString(),));
+          onTap: () {
+            Get.to(() => BusinesseventdetailsScreen(
+                  id: event.eventId.toString(),
+                  event: event,
+                ));
           },
           child: Padding(
             padding: const EdgeInsets.only(top: 13, left: 20, right: 20),
@@ -200,7 +209,8 @@ class _BusinesseventsScreenState extends State<BusinesseventsScreen> {
                     borderRadius: BorderRadius.circular(10),
                     image: DecorationImage(
                       fit: BoxFit.cover,
-                      image: NetworkImage("${Apis.ip}${event.image.toString()}"),
+                      image:
+                          NetworkImage("${Apis.ip}${event.image.toString()}"),
                     ),
                   ),
                   child: Padding(
@@ -210,9 +220,10 @@ class _BusinesseventsScreenState extends State<BusinesseventsScreen> {
                       children: [
                         Row(
                           children: [
-                             CircleAvatar(
+                            CircleAvatar(
                               radius: 27,
-                              backgroundImage: NetworkImage('${Apis.ip}${event.creatorImage.toString()}'),
+                              backgroundImage: NetworkImage(
+                                  '${Apis.ip}${event.creatorImage.toString()}'),
                             ),
                             const SizedBox(width: 10),
                             Column(
@@ -335,14 +346,14 @@ class _BusinesseventsScreenState extends State<BusinesseventsScreen> {
                   ),
                 ),
                 Padding(
-                  padding:  EdgeInsets.all(17.0),
+                  padding: EdgeInsets.all(17.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       InkWell(
-                        onTap:(){
-                          Get.to(()=> EditEventScreen(event: event));
-                },
+                        onTap: () {
+                          Get.to(() => EditEventScreen(event: event));
+                        },
                         child: SvgPicture.asset(
                           'assets/Group 48096067.svg',
                           height: 27,
@@ -371,32 +382,53 @@ class _BusinesseventsScreenState extends State<BusinesseventsScreen> {
 
   String _getWeekday(int weekday) {
     switch (weekday) {
-      case 1: return 'Monday';
-      case 2: return 'Tuesday';
-      case 3: return 'Wednesday';
-      case 4: return 'Thursday';
-      case 5: return 'Friday';
-      case 6: return 'Saturday';
-      case 7: return 'Sunday';
-      default: return '';
+      case 1:
+        return 'Monday';
+      case 2:
+        return 'Tuesday';
+      case 3:
+        return 'Wednesday';
+      case 4:
+        return 'Thursday';
+      case 5:
+        return 'Friday';
+      case 6:
+        return 'Saturday';
+      case 7:
+        return 'Sunday';
+      default:
+        return '';
     }
   }
 
   String _getMonth(int month) {
     switch (month) {
-      case 1: return 'January';
-      case 2: return 'February';
-      case 3: return 'March';
-      case 4: return 'April';
-      case 5: return 'May';
-      case 6: return 'June';
-      case 7: return 'July';
-      case 8: return 'August';
-      case 9: return 'September';
-      case 10: return 'October';
-      case 11: return 'November';
-      case 12: return 'December';
-      default: return '';
+      case 1:
+        return 'January';
+      case 2:
+        return 'February';
+      case 3:
+        return 'March';
+      case 4:
+        return 'April';
+      case 5:
+        return 'May';
+      case 6:
+        return 'June';
+      case 7:
+        return 'July';
+      case 8:
+        return 'August';
+      case 9:
+        return 'September';
+      case 10:
+        return 'October';
+      case 11:
+        return 'November';
+      case 12:
+        return 'December';
+      default:
+        return '';
     }
   }
 }

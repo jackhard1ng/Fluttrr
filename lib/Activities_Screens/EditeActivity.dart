@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:date_time_picker/date_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
@@ -8,12 +7,13 @@ import 'package:get/get.dart';
 import 'package:gradient_borders/box_borders/gradient_box_border.dart';
 
 import 'package:flutter_map/flutter_map.dart';
+import 'package:gradient_progress_indicator/widget/gradient_progress_indicator_widget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geocode/geocode.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
-import 'package:tripmates/Constants/Apis_Constants.dart';
+import 'package:fluttrr/Constants/Apis_Constants.dart';
 
 import '../Constants/button.dart';
 import '../Constants/utils.dart';
@@ -29,14 +29,24 @@ class Editeactivity extends StatefulWidget {
   final String numberofPeople;
   final String TotalTime;
 
-  const Editeactivity({super.key, required this.ActivityType, required this.Description, required this.location, required this.Dateandtime, required this.image, required this.numberofPeople, required this.TotalTime, required this.id});
+  const Editeactivity(
+      {super.key,
+      required this.ActivityType,
+      required this.Description,
+      required this.location,
+      required this.Dateandtime,
+      required this.image,
+      required this.numberofPeople,
+      required this.TotalTime,
+      required this.id});
 
   @override
   State<Editeactivity> createState() => _EditeactivityState();
 }
 
 class _EditeactivityState extends State<Editeactivity> {
-  Acitivitycontroller acitivitycontroller=Get.put(Acitivitycontroller());
+  Acitivitycontroller acitivitycontroller = Get.put(Acitivitycontroller());
+  bool loading = false;
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
   final TextEditingController _locationController = TextEditingController();
@@ -54,33 +64,29 @@ class _EditeactivityState extends State<Editeactivity> {
     _activitytype.text = widget.ActivityType;
     _description.text = widget.Description;
     acitivitycontroller.location.value = widget.location;
-    _totalslots.text=widget.numberofPeople;
-    _totaltime.text=widget.TotalTime;
+    _totalslots.text = widget.numberofPeople;
+    _totaltime.text = widget.TotalTime;
     print("Date and time: ${widget.Dateandtime}");
 
     // Parse the string to DateTime
-    if (widget.Dateandtime is String) {
-      selectedDate = DateTime.tryParse(widget.Dateandtime);
-    } else if (widget.Dateandtime is DateTime) {
-      selectedDate = widget.Dateandtime as DateTime?;
-    }
+    selectedDate = DateTime.tryParse(widget.Dateandtime);
 
     // Update selectedTime from selectedDate
     if (selectedDate != null) {
-      selectedTime = TimeOfDay(hour: selectedDate!.hour, minute: selectedDate!.minute);
+      selectedTime =
+          TimeOfDay(hour: selectedDate!.hour, minute: selectedDate!.minute);
     }
 
-    print("Selected Date: $selectedDate");  // Example: 2025-03-14 20:41:06.000Z
-    print("Selected Time: ${selectedTime?.format(Get.context!)}");  // Example: 8:41 PM
+    print("Selected Date: $selectedDate"); // Example: 2025-03-14 20:41:06.000Z
+    print(
+        "Selected Time: ${selectedTime?.format(Get.context!)}"); // Example: 8:41 PM
   }
-
-
 
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
   Future<void> _pickImage() async {
     final XFile? pickedFile =
-    await _picker.pickImage(source: ImageSource.gallery);
+        await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _selectedImage = File(pickedFile.path);
@@ -92,7 +98,8 @@ class _EditeactivityState extends State<Editeactivity> {
     // Ensure initial date is a valid weekday
     DateTime initialDate = selectedDate ?? DateTime.now();
 
-    while (initialDate.weekday == DateTime.saturday || initialDate.weekday == DateTime.sunday) {
+    while (initialDate.weekday == DateTime.saturday ||
+        initialDate.weekday == DateTime.sunday) {
       initialDate = initialDate.add(Duration(days: 1)); // Move to next day
     }
 
@@ -104,7 +111,8 @@ class _EditeactivityState extends State<Editeactivity> {
       lastDate: DateTime(2100),
       selectableDayPredicate: (date) {
         // Disable weekends (Saturday & Sunday)
-        return date.weekday != DateTime.saturday && date.weekday != DateTime.sunday;
+        return date.weekday != DateTime.saturday &&
+            date.weekday != DateTime.sunday;
       },
     ).then((pickedDate) async {
       if (pickedDate == null) return null; // User canceled date picker
@@ -127,13 +135,11 @@ class _EditeactivityState extends State<Editeactivity> {
       );
     });
 
-    if (pickedDateTime != null) {
-      setState(() {
-        selectedDate = pickedDateTime; // Store complete DateTime
-      });
+    setState(() {
+      selectedDate = pickedDateTime; // Store complete DateTime
+    });
 
-      print("Selected DateTime: $pickedDateTime");
-    }
+    print("Selected DateTime: $pickedDateTime");
   }
 
   Future<void> _initializeUserLocation() async {
@@ -161,7 +167,8 @@ class _EditeactivityState extends State<Editeactivity> {
         throw Exception("Location permission denied forever.");
       }
     }
-    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
   }
 
   Future<String> _convertLatLngToAddress(LatLng location) async {
@@ -251,12 +258,12 @@ class _EditeactivityState extends State<Editeactivity> {
                       controller: _activitytype,
                       decoration: InputDecoration(
                         contentPadding:
-                        EdgeInsets.symmetric(vertical: 16, horizontal: 13),
+                            EdgeInsets.symmetric(vertical: 16, horizontal: 13),
                         filled: true,
                         fillColor: Color(0xffF1F1F1),
                         hintText: 'activities type',
                         hintStyle:
-                        TextStyle(fontSize: 14, color: discriptionColor),
+                            TextStyle(fontSize: 14, color: discriptionColor),
                         border: InputBorder.none,
                       ),
                     ),
@@ -282,12 +289,12 @@ class _EditeactivityState extends State<Editeactivity> {
                       controller: _description,
                       decoration: InputDecoration(
                         contentPadding:
-                        EdgeInsets.symmetric(vertical: 16, horizontal: 13),
+                            EdgeInsets.symmetric(vertical: 16, horizontal: 13),
                         filled: true,
                         fillColor: Color(0xffF1F1F1),
                         hintText: 'activities description',
                         hintStyle:
-                        TextStyle(fontSize: 14, color: discriptionColor),
+                            TextStyle(fontSize: 14, color: discriptionColor),
                         border: InputBorder.none,
                       ),
                     ),
@@ -307,45 +314,50 @@ class _EditeactivityState extends State<Editeactivity> {
                   ),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child:  Obx(() => acitivitycontroller.location.value.isNotEmpty?
-                    TextFormField(
-                      decoration: InputDecoration(
-                        contentPadding:
-                        EdgeInsets.symmetric(vertical: 16, horizontal: 13),
-                        filled: true,
-                        fillColor: Color(0xffF1F1F1),
-                        border: InputBorder.none,
-                        suffixIcon: IconButton(
-                          icon: Icon(Icons.map, color: Colors.blue),
-                          onPressed: _openMap,
-                        ),
-                        hintText: 'Enter address or pick from map',
-                        // border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                      controller: TextEditingController(text:acitivitycontroller.location.value), // Update controller
-                      onChanged: (value) {
-                        acitivitycontroller.location.value = value; // Sync user input
-                      },
-                    ) :
-                    TextFormField(
-                      decoration: InputDecoration(
-                        contentPadding:
-                        EdgeInsets.symmetric(vertical: 16, horizontal: 13),
-                        filled: true,
-                        fillColor: Color(0xffF1F1F1),
-                        border: InputBorder.none,
-                        suffixIcon: IconButton(
-                          icon: Icon(Icons.map, color: Colors.blue),
-                          onPressed: _openMap,
-                        ),
-                        hintText: 'Enter address or pick from map',
-                        // border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                      controller: TextEditingController(), // Update controller
-                      // onChanged: (value) {
-                      //   acitivitycontroller.location.value = value; // Sync user input
-                      // },
-                    )),
+                    child:
+                        Obx(() => acitivitycontroller.location.value.isNotEmpty
+                            ? TextFormField(
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 16, horizontal: 13),
+                                  filled: true,
+                                  fillColor: Color(0xffF1F1F1),
+                                  border: InputBorder.none,
+                                  suffixIcon: IconButton(
+                                    icon: Icon(Icons.map, color: Colors.blue),
+                                    onPressed: _openMap,
+                                  ),
+                                  hintText: 'Enter address or pick from map',
+                                  // border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                                controller: TextEditingController(
+                                    text: acitivitycontroller
+                                        .location.value), // Update controller
+                                onChanged: (value) {
+                                  acitivitycontroller.location.value =
+                                      value; // Sync user input
+                                },
+                              )
+                            : TextFormField(
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 16, horizontal: 13),
+                                  filled: true,
+                                  fillColor: Color(0xffF1F1F1),
+                                  border: InputBorder.none,
+                                  suffixIcon: IconButton(
+                                    icon: Icon(Icons.map, color: Colors.blue),
+                                    onPressed: _openMap,
+                                  ),
+                                  hintText: 'Enter address or pick from map',
+                                  // border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                                controller:
+                                    TextEditingController(), // Update controller
+                                // onChanged: (value) {
+                                //   acitivitycontroller.location.value = value; // Sync user input
+                                // },
+                              )),
                   ),
                   SizedBox(height: 19),
                   Text(
@@ -360,7 +372,8 @@ class _EditeactivityState extends State<Editeactivity> {
                   GestureDetector(
                     onTap: () => _selectDateTime(context),
                     child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 15, horizontal: 10),
                       decoration: BoxDecoration(
                         color: Color(0xffF1F1F1),
                         borderRadius: BorderRadius.circular(10),
@@ -370,7 +383,7 @@ class _EditeactivityState extends State<Editeactivity> {
                         children: [
                           Text(
                             selectedDate != null
-                                ? "${selectedDate}"
+                                ? "$selectedDate"
                                 : "Select Date",
                             style: TextStyle(color: Colors.black),
                           ),
@@ -443,15 +456,12 @@ class _EditeactivityState extends State<Editeactivity> {
                     height: 20,
                   ),
                   SizedBox(
-
                     child: Image.network(
-                        "${Apis.ip}${widget.image}",
+                      "${Apis.ip}${widget.image}",
                       height: 200,
                       // width: 80,
                     ),
                   ),
-
-
 
                   SizedBox(
                     height: 19,
@@ -473,12 +483,12 @@ class _EditeactivityState extends State<Editeactivity> {
                       controller: _totalslots,
                       decoration: InputDecoration(
                         contentPadding:
-                        EdgeInsets.symmetric(vertical: 16, horizontal: 13),
+                            EdgeInsets.symmetric(vertical: 16, horizontal: 13),
                         filled: true,
                         fillColor: Color(0xffF1F1F1),
                         hintText: 'number of people',
                         hintStyle:
-                        TextStyle(fontSize: 14, color: discriptionColor),
+                            TextStyle(fontSize: 14, color: discriptionColor),
                         border: InputBorder.none,
                       ),
                     ),
@@ -499,18 +509,17 @@ class _EditeactivityState extends State<Editeactivity> {
                   ),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-
                     child: TextFormField(
                       controller: _totaltime,
                       style: TextStyle(color: Colors.black),
                       decoration: InputDecoration(
                         contentPadding:
-                        EdgeInsets.symmetric(vertical: 16, horizontal: 13),
+                            EdgeInsets.symmetric(vertical: 16, horizontal: 13),
                         filled: true,
                         fillColor: Color(0xffF1F1F1),
                         hintText: 'Total Time',
                         hintStyle:
-                        TextStyle(fontSize: 14, color: discriptionColor),
+                            TextStyle(fontSize: 14, color: discriptionColor),
                         border: InputBorder.none,
                       ),
                     ),
@@ -522,58 +531,100 @@ class _EditeactivityState extends State<Editeactivity> {
                     children: [
                       Expanded(
                           child: Container(
-                            height: 56,
-                            decoration: BoxDecoration(
-                              color: whiteColor,
-                              borderRadius: BorderRadius.circular(10),
-                              border: GradientBoxBorder(
-                                  width: 1.3, gradient: lefttorightgradient),
-                            ),
-                            child: Center(
-                                child: Text(
-                                  'Preview',
-                                  style: TextStyle(
-                                      fontSize: 19,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black),
-                                )),
-                          )),
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: whiteColor,
+                          borderRadius: BorderRadius.circular(10),
+                          border: GradientBoxBorder(
+                              width: 1.3, gradient: lefttorightgradient),
+                        ),
+                        child: Center(
+                            child: Text(
+                          'Preview',
+                          style: TextStyle(
+                              fontSize: 19,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black),
+                        )),
+                      )),
                       SizedBox(
                         width: 30,
                       ),
                       Expanded(
-                        child: Button(
-                          borderRadius: BorderRadius.circular(10),
-                          height: 56,
-                          width: double.infinity,
-                          onTap: ()async {
-                            final location=  await acitivitycontroller.getCoordinatesFromGeoCode(_locationController.text);
-                            print("the langitude is :${location["longitude"]}");
-                            print("the Latitude is   :${location["latitude"]}");
-                            final create=  await acitivitycontroller.UpdateActivity(widget.id, _selectedImage, _activitytype.text, location["longitude"].toString(), location["latitude"].toString(), _description.text, _totalslots.text, selectedTime.toString(), selectedDate.toString(),acitivitycontroller.location.value, _totaltime.text);
-                            if(create){
-                              Get.back();
-                            }else{
-                              showTopSnackBar(
-                                Overlay.of(context),
-                                CustomSnackBar.error(
-                                  message: "Failed to Create Activity!.",
-                                ),
-                              );
-                            }
-
-
-
-                          },
-                          child: const Center(
-                              child: Text(
-                                'Update',
-                                style: TextStyle(
-                                    fontSize: 19,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white),
-                              )),
-                        ),
+                        child: loading
+                            ? GradientProgressIndicator(
+                                radius: 21,
+                                duration: 3,
+                                strokeWidth: 7,
+                                backgroundColor: Colors.white,
+                                gradientStops: const [
+                                  0.2,
+                                  0.7,
+                                  0.3,
+                                  0.3,
+                                ],
+                                gradientColors: const [
+                                  Color(0xff007BFD),
+                                  Color(0xff20235A),
+                                  Color(0xff007BFD),
+                                  Colors.white
+                                ],
+                                child: Text(''),
+                              )
+                            : Button(
+                                borderRadius: BorderRadius.circular(10),
+                                height: 56,
+                                width: double.infinity,
+                                onTap: () async {
+                                  setState(() {
+                                    loading = true;
+                                  });
+                                  final location = await acitivitycontroller
+                                      .getCoordinatesFromGeoCode(
+                                          _locationController.text);
+                                  print(
+                                      "the langitude is :${location["longitude"]}");
+                                  print(
+                                      "the Latitude is   :${location["latitude"]}");
+                                  final create =
+                                      await acitivitycontroller.UpdateActivity(
+                                          widget.id,
+                                          _selectedImage,
+                                          _activitytype.text,
+                                          location["longitude"].toString(),
+                                          location["latitude"].toString(),
+                                          _description.text,
+                                          _totalslots.text,
+                                          selectedTime.toString(),
+                                          selectedDate.toString(),
+                                          acitivitycontroller.location.value,
+                                          _totaltime.text);
+                                  if (create) {
+                                    setState(() {
+                                      loading = false;
+                                    });
+                                    Get.back();
+                                  } else {
+                                    setState(() {
+                                      loading = false;
+                                    });
+                                    showTopSnackBar(
+                                      Overlay.of(context),
+                                      CustomSnackBar.error(
+                                        message: "Failed to Create Activity!.",
+                                      ),
+                                    );
+                                  }
+                                },
+                                child: const Center(
+                                    child: Text(
+                                  'Update',
+                                  style: TextStyle(
+                                      fontSize: 19,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white),
+                                )),
+                              ),
                       )
                     ],
                   ),
@@ -583,7 +634,6 @@ class _EditeactivityState extends State<Editeactivity> {
                 ],
               ),
             ),
-
           ],
         ),
       ),
@@ -600,10 +650,11 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  Acitivitycontroller acitivitycontroller=Get.put(Acitivitycontroller());
+  Acitivitycontroller acitivitycontroller = Get.put(Acitivitycontroller());
   LatLng? _pickedLocation;
   late final MapController _mapController;
-  String mapboxApiKey = "pk.eyJ1IjoiamFja2hhcmRpbmcxNyIsImEiOiJjbTdzbXNlNzAxYzkxMmpvYWJuZXZoc3E2In0.v3vDy9EOl55cy_5V3oShlQ";
+  String mapboxApiKey =
+      "pk.eyJ1IjoiamFja2hhcmRpbmcxNyIsImEiOiJjbTdzbXNlNzAxYzkxMmpvYWJuZXZoc3E2In0.v3vDy9EOl55cy_5V3oShlQ";
 
   @override
   void initState() {
@@ -646,11 +697,11 @@ class _MapScreenState extends State<MapScreen> {
             initialZoom: 13.0,
             onTap: (tapPosition, latLng) async {
               setState(() {
-                _pickedLocation = latLng;  // Update location immediately
+                _pickedLocation = latLng; // Update location immediately
               });
 
               String address = await _convertLatLngToAddress(latLng);
-              acitivitycontroller.location.value=address.toString() ;
+              acitivitycontroller.location.value = address.toString();
 
               print("${acitivitycontroller.location}");
 
@@ -659,13 +710,11 @@ class _MapScreenState extends State<MapScreen> {
                   SnackBar(content: Text("Selected: $address")),
                 );
               });
-            }
-
-        ),
+            }),
         children: [
           TileLayer(
             urlTemplate:
-            "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=$mapboxApiKey",
+                "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=$mapboxApiKey",
             userAgentPackageName: 'com.example.yourapp',
           ),
           MarkerLayer(

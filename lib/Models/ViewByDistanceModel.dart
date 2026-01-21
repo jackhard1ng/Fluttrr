@@ -9,16 +9,16 @@ class ViewByDistanceModel {
     if (json['users'] != null) {
       users = <Users>[];
       json['users'].forEach((v) {
-        users!.add(new Users.fromJson(v));
+        users!.add(Users.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    if (this.users != null) {
-      data['users'] = this.users!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['success'] = success;
+    if (users != null) {
+      data['users'] = users!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -57,24 +57,24 @@ class Users {
     interests = json['interests'].cast<String>();
     latitude = json['latitude'];
     longitude = json['longitude'];
-    user = json['User'] != null ? new User.fromJson(json['User']) : null;
+    user = json['User'] != null ? User.fromJson(json['User']) : null;
     distance = json['distance'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['profileID'] = this.profileID;
-    data['userID'] = this.userID;
-    data['images'] = this.images;
-    data['bio'] = this.bio;
-    data['gender'] = this.gender;
-    data['interests'] = this.interests;
-    data['latitude'] = this.latitude;
-    data['longitude'] = this.longitude;
-    if (this.user != null) {
-      data['User'] = this.user!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['profileID'] = profileID;
+    data['userID'] = userID;
+    data['images'] = images;
+    data['bio'] = bio;
+    data['gender'] = gender;
+    data['interests'] = interests;
+    data['latitude'] = latitude;
+    data['longitude'] = longitude;
+    if (user != null) {
+      data['User'] = user!.toJson();
     }
-    data['distance'] = this.distance;
+    data['distance'] = distance;
     return data;
   }
 }
@@ -89,8 +89,8 @@ class User {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['userName'] = this.userName;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['userName'] = userName;
     return data;
   }
 }

@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:simple_gradient_text/simple_gradient_text.dart';
-import 'package:tripmates/Constants/Apis_Constants.dart';
-import 'package:tripmates/Constants/button.dart';
-import 'package:tripmates/Constants/listdata.dart';
-import 'package:tripmates/Constants/utils.dart';
-import 'package:tripmates/Controller/ProfileController.dart';
-import 'package:tripmates/ProfileScreens/badges_screen.dart';
+import 'package:fluttrr/Constants/Apis_Constants.dart';
+import 'package:fluttrr/Constants/listdata.dart';
+import 'package:fluttrr/Constants/utils.dart';
+import 'package:fluttrr/Controller/ProfileController.dart';
+import 'package:fluttrr/ProfileScreens/badges_screen.dart';
 
 class LeaderboardScreen extends StatefulWidget {
   const LeaderboardScreen({super.key});
@@ -17,7 +14,7 @@ class LeaderboardScreen extends StatefulWidget {
 }
 
 class _LeaderboardScreenState extends State<LeaderboardScreen> {
-  ProfileController profileController=Get.put(ProfileController());
+  ProfileController profileController = Get.put(ProfileController());
   int selectedIndex1 = 1;
   List status = [
     'Badges',
@@ -80,7 +77,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                           itemBuilder: (_, index) => GestureDetector(
                             onTap: () {
                               setState(() {
-                                Get.to(()=> BadgesScreen());
+                                Get.to(() => BadgesScreen());
                               });
                             },
                             child: Container(
@@ -128,107 +125,115 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                   height: 10,
                 ),
                 GetBuilder<ProfileController>(
-                  id: "Activity_update",
-                  builder: (_) {
-                    return ListView.builder(
-                        physics: NeverScrollableScrollPhysics(),
-                        padding: EdgeInsets.zero,
-                        shrinkWrap: true,
-                        itemCount: profileController.leaderBoardModel?.rankedUsers?.length ??0,
-                        itemBuilder: (BuildContext context, int index) {
-                          final leader= profileController.leaderBoardModel?.rankedUsers?[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 13),
-                            child: Stack(
-                              alignment: Alignment.centerLeft,
-                              children: [
-                                Container(
-                                  height: 83,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: leaderboardData[index].color),
-                                  child: Padding(
+                    id: "Activity_update",
+                    builder: (_) {
+                      return ListView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          padding: EdgeInsets.zero,
+                          shrinkWrap: true,
+                          itemCount: profileController
+                                  .leaderBoardModel?.rankedUsers?.length ??
+                              0,
+                          itemBuilder: (BuildContext context, int index) {
+                            final leader = profileController
+                                .leaderBoardModel?.rankedUsers?[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 13),
+                              child: Stack(
+                                alignment: Alignment.centerLeft,
+                                children: [
+                                  Container(
+                                    height: 83,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: leaderboardData[index].color),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 4,
+                                          right: 16,
+                                          top: 3,
+                                          bottom: 3),
+                                      child: Row(
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 26,
+                                            backgroundImage: NetworkImage(
+                                              "${Apis.ip}${leader?.images?[0]}",
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 13,
+                                          ),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  leader?.name ?? "Unknown",
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: Colors.black),
+                                                ),
+                                                SizedBox(
+                                                  height: 7,
+                                                ),
+                                                Text(
+                                                  "",
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 20,
+                                          ),
+                                          Image.asset(
+                                            leaderboardData[index].leaderboard,
+                                            height: 46,
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
                                     padding: const EdgeInsets.only(
-                                        left: 4, right: 16, top: 3, bottom: 3),
+                                        left: 23, top: 48),
                                     child: Row(
                                       children: [
-                                        CircleAvatar(
-                                          radius: 26,
-                                          backgroundImage: NetworkImage(
-                                            "${Apis.ip}${leader?.images?[0]}",
+                                        Container(
+                                          decoration: BoxDecoration(
+                                              border:
+                                                  Border.all(color: whiteColor),
+                                              shape: BoxShape.circle,
+                                              color: Color(0xff4F78DA)),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(6.0),
+                                            child: Center(
+                                                child: Text(
+                                              '${leader?.rank}',
+                                              style: TextStyle(
+                                                  fontSize: 9,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: whiteColor),
+                                            )),
                                           ),
-                                        ),
-                                        SizedBox(
-                                          width: 13,
-                                        ),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                leader?.name??"Unknown",
-                                                style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: Colors.black),
-                                              ),
-                                              SizedBox(
-                                                height: 7,
-                                              ),
-                                              Text(
-                                                "",
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 20,
-                                        ),
-                                        Image.asset(
-                                          leaderboardData[index].leaderboard,
-                                          height: 46,
                                         )
                                       ],
                                     ),
                                   ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 23, top: 48),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            border: Border.all(color: whiteColor),
-                                            shape: BoxShape.circle,
-                                            color: Color(0xff4F78DA)),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(6.0),
-                                          child: Center(
-                                              child: Text(
-                                            '${leader?.rank}',
-                                            style: TextStyle(
-                                                fontSize: 9,
-                                                fontWeight: FontWeight.bold,
-                                                color: whiteColor),
-                                          )),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        });
-                  }
-                ),
+                                ],
+                              ),
+                            );
+                          });
+                    }),
                 SizedBox(
                   height: 15,
                 ),

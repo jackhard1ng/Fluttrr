@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:date_time_picker/date_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
@@ -13,7 +12,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:geocode/geocode.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
-import 'package:tripmates/Repository/ActivityRepository.dart';
 
 import '../Constants/button.dart';
 import '../Constants/utils.dart';
@@ -95,14 +93,12 @@ class _CreateactivityScreenState extends State<CreateactivityScreen> {
       );
     });
 
-    if (pickedDateTime != null) {
-      setState(() {
-        selectedDate = pickedDateTime; // Store complete DateTime
-      });
+    setState(() {
+      selectedDate = pickedDateTime; // Store complete DateTime
+    });
 
-      print("Selected DateTime: $pickedDateTime");
+    print("Selected DateTime: $pickedDateTime");
     }
-  }
 
 
 
@@ -354,7 +350,7 @@ class _CreateactivityScreenState extends State<CreateactivityScreen> {
                         children: [
                           Text(
                             selectedDate != null
-                                ? "${selectedDate}"
+                                ? "$selectedDate"
                                 : "Select Date",
                             style: TextStyle(color: Colors.black),
                           ),

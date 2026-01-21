@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tripmates/Constants/custom_appbar.dart';
-import 'package:tripmates/Constants/utils.dart';
+import 'package:fluttrr/Constants/utils.dart';
 
 class ActivitiesMapScreen extends StatefulWidget {
-  ActivitiesMapScreen({super.key});
+  const ActivitiesMapScreen({super.key});
 
   @override
   State<ActivitiesMapScreen> createState() => _ActivitiesMapScreenState();
@@ -91,7 +90,7 @@ class _ActivitiesMapScreenState extends State<ActivitiesMapScreen> {
                       ),
                     ),
                   ),
-                  Container(
+                  SizedBox(
                     height: 39,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,

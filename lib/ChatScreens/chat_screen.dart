@@ -5,7 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:tripmates/Constants/Apis_Constants.dart';
+import 'package:fluttrr/Constants/Apis_Constants.dart';
 
 import '../Constants/utils.dart';
 import '../Repository/ChatRespository.dart';
@@ -19,13 +19,14 @@ class ChatScreen extends StatefulWidget {
   final String conversationId;
 
   const ChatScreen({
-    Key? key,
+    super.key,
     required this.providerName,
     required this.conversationId,
     required this.currentuserid,
     required this.reciverid,
-    required this.image, required this.online,
-  }) : super(key: key);
+    required this.image,
+    required this.online,
+  });
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -37,10 +38,10 @@ class _ChatScreenState extends State<ChatScreen> {
   // final FirebaseStorage _storage = FirebaseStorage.instance;
   final List<Map<String, dynamic>> _pendingMessages = [];
   final Box _deletedMessagesBox = Hive.box('deleted_messages');
-  List<String> _selectedMessages = [];
+  final List<String> _selectedMessages = [];
   bool _isSelecting = false;
   final ImagePicker _picker = ImagePicker();
-  List<XFile> _selectedImageFiles = [];
+  final List<XFile> _selectedImageFiles = [];
   bool _isUploading = false;
 
   @override
@@ -88,22 +89,25 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(2.0),
-                  child:widget.online==true ? Container(
-                    height: 13,
-                    width: 13,
-                    decoration: const BoxDecoration(
-                        shape: BoxShape.circle, color: Colors.white),
-                    child:  Center(
-                      child: SizedBox(
-                        height: 11,
-                        width: 11,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle, color: Color(0xff339003)),
-                        ),
-                      ),
-                    ),
-                  ):SizedBox(),
+                  child: widget.online == true
+                      ? Container(
+                          height: 13,
+                          width: 13,
+                          decoration: const BoxDecoration(
+                              shape: BoxShape.circle, color: Colors.white),
+                          child: Center(
+                            child: SizedBox(
+                              height: 11,
+                              width: 11,
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Color(0xff339003)),
+                              ),
+                            ),
+                          ),
+                        )
+                      : SizedBox(),
                 )
               ],
             ),
@@ -165,7 +169,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
                           image: DecorationImage(
-                            image: FileImage(File(_selectedImageFiles[index].path)),
+                            image: FileImage(
+                                File(_selectedImageFiles[index].path)),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -208,13 +213,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
                 final firestoreMessages = snapshot.data!.docs
                     .map((doc) {
-                  final data = doc.data() as Map<String, dynamic>;
-                  return {
-                    ...data,
-                    'messageId': doc.id,
-                  };
-                })
-                    .where((message) => !_isMessageDeleted(message['messageId']))
+                      final data = doc.data() as Map<String, dynamic>;
+                      return {
+                        ...data,
+                        'messageId': doc.id,
+                      };
+                    })
+                    .where(
+                        (message) => !_isMessageDeleted(message['messageId']))
                     .toList();
 
                 WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -223,10 +229,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
                 final pendingMessages = _pendingMessages.where((pending) {
                   return !firestoreMessages.any((firestore) =>
-                  firestore['message'] == pending['message'] &&
+                      firestore['message'] == pending['message'] &&
                       firestore['senderId'] == pending['senderId'] &&
-                      (firestore['timestamp'] as Timestamp).millisecondsSinceEpoch >=
-                          (pending['timestamp'] as Timestamp).millisecondsSinceEpoch);
+                      (firestore['timestamp'] as Timestamp)
+                              .millisecondsSinceEpoch >=
+                          (pending['timestamp'] as Timestamp)
+                              .millisecondsSinceEpoch);
                 }).toList();
 
                 final allMessages = [...firestoreMessages, ...pendingMessages];
@@ -243,8 +251,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   itemBuilder: (context, index) {
                     final message = allMessages[index];
                     final isPending = pendingMessages.contains(message);
-                    final isCurrentUser = message['senderId'] == widget.currentuserid;
-                    final isSelected = _selectedMessages.contains(message['messageId'] ?? message['tempId']);
+                    final isCurrentUser =
+                        message['senderId'] == widget.currentuserid;
+                    final isSelected = _selectedMessages
+                        .contains(message['messageId'] ?? message['tempId']);
                     final isSeen = message['seen'] ?? false;
                     final images = message['images'] as List<dynamic>?;
 
@@ -282,10 +292,9 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _markMessagesAsSeen(List<Map<String, dynamic>> messages) async {
     try {
       final unreadMessages = messages.where((msg) =>
-      msg['senderId'] != widget.currentuserid &&
+          msg['senderId'] != widget.currentuserid &&
           (msg['seen'] == null || msg['seen'] == false) &&
-          msg['messageId'] != null
-      );
+          msg['messageId'] != null);
 
       final batch = _firestore.batch();
 
@@ -308,7 +317,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   bool _isMessageDeleted(String messageId) {
-    return _deletedMessagesBox.get('${widget.currentuserid}_$messageId', defaultValue: false);
+    return _deletedMessagesBox.get('${widget.currentuserid}_$messageId',
+        defaultValue: false);
   }
 
   void _handleLongPress(Map<String, dynamic> message) {
@@ -365,7 +375,8 @@ class _ChatScreenState extends State<ChatScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Clear All Chat'),
-        content: const Text('Are you sure you want to delete all messages from your device?'),
+        content: const Text(
+            'Are you sure you want to delete all messages from your device?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -432,7 +443,8 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     color: const Color(0xffF1F1F1),
@@ -488,13 +500,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _pickImages() async {
     try {
-      final List<XFile>? pickedFiles = await _picker.pickMultiImage(
+      final List<XFile> pickedFiles = await _picker.pickMultiImage(
         maxWidth: 1000,
         maxHeight: 1000,
         imageQuality: 85,
       );
 
-      if (pickedFiles != null && pickedFiles.isNotEmpty) {
+      if (pickedFiles.isNotEmpty) {
         setState(() {
           _selectedImageFiles.addAll(pickedFiles);
         });
@@ -544,9 +556,8 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     try {
-      List<File> imageFiles = _selectedImageFiles
-          .map((xfile) => File(xfile.path))
-          .toList();
+      List<File> imageFiles =
+          _selectedImageFiles.map((xfile) => File(xfile.path)).toList();
 
       String tempId = DateTime.now().millisecondsSinceEpoch.toString();
 
@@ -581,7 +592,6 @@ class _ChatScreenState extends State<ChatScreen> {
           .collection('chats')
           .doc(widget.conversationId)
           .update({'lastMessageTime': Timestamp.now()});
-
     } catch (e) {
       print("❌ Error sending message: $e");
       // ScaffoldMessenger.of(context).showSnackBar(
@@ -598,8 +608,6 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     }
   }
-
-
 }
 
 class MessageBubble extends StatelessWidget {
@@ -613,7 +621,7 @@ class MessageBubble extends StatelessWidget {
   final List<String> images;
 
   const MessageBubble({
-    Key? key,
+    super.key,
     required this.message,
     required this.isSentByMe,
     required this.isTemp,
@@ -622,7 +630,7 @@ class MessageBubble extends StatelessWidget {
     required this.onDelete,
     required this.isSeen,
     required this.images,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -643,7 +651,7 @@ class MessageBubble extends StatelessWidget {
             gradient: isSentByMe
                 ? lefttorightgradient.withOpacity(0.4)
                 : const LinearGradient(
-                colors: [Color(0xffC6C6C6), Color(0xffC6C6C6)]),
+                    colors: [Color(0xffC6C6C6), Color(0xffC6C6C6)]),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Column(
@@ -677,14 +685,14 @@ class MessageBubble extends StatelessWidget {
                           isTemp
                               ? Icons.access_time
                               : isSeen
-                              ? Icons.check
-                              : Icons.check,
+                                  ? Icons.check
+                                  : Icons.check,
                           size: 14,
                           color: isTemp
                               ? Colors.black
                               : isSeen
-                              ? Colors.white
-                              : Colors.black,
+                                  ? Colors.white
+                                  : Colors.black,
                         ),
                         if (!isTemp && isSeen)
                           const Icon(
@@ -705,7 +713,8 @@ class MessageBubble extends StatelessWidget {
 
   Widget _buildMessageContent() {
     final hasImages = images.isNotEmpty;
-    final hasText = message['message'] != null && message['message'].toString().isNotEmpty;
+    final hasText =
+        message['message'] != null && message['message'].toString().isNotEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -718,7 +727,7 @@ class MessageBubble extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.network(
-                    "${Apis.ip}${imageUrl}",
+                    "${Apis.ip}$imageUrl",
                     width: double.infinity,
                     fit: BoxFit.cover,
                     loadingBuilder: (context, child, loadingProgress) {
@@ -730,7 +739,7 @@ class MessageBubble extends StatelessWidget {
                           child: CircularProgressIndicator(
                             value: loadingProgress.expectedTotalBytes != null
                                 ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
+                                    loadingProgress.expectedTotalBytes!
                                 : null,
                           ),
                         ),
@@ -762,7 +771,8 @@ class MessageBubble extends StatelessWidget {
   String _formatTimestamp(Timestamp? timestamp) {
     if (timestamp == null) return 'Unknown';
     DateTime date = timestamp.toDate();
-    String hour = date.hour > 12 ? (date.hour - 12).toString() : date.hour.toString();
+    String hour =
+        date.hour > 12 ? (date.hour - 12).toString() : date.hour.toString();
     String minute = date.minute.toString().padLeft(2, '0');
     String period = date.hour >= 12 ? 'PM' : 'AM';
     return "$hour:$minute $period";

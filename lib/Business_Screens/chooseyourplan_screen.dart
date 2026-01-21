@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:gradient_borders/box_borders/gradient_box_border.dart';
-import 'package:tripmates/Constants/button.dart';
-import 'package:tripmates/Constants/utils.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
+import 'package:fluttrr/Constants/button.dart';
+import 'package:fluttrr/Constants/utils.dart';
 
 import 'choosepaymentmethod_screen.dart';
 
@@ -416,7 +418,16 @@ class _ChooseyourplanScreenState extends State<ChooseyourplanScreen> {
                     ),
                   ),
                   onTap: () {
-                    Get.to(()=> ChoosepaymentmethodScreen());
+                    if (isChecked == false) {
+                      showTopSnackBar(
+                        Overlay.of(context),
+                        CustomSnackBar.info(
+                          message: "please Accept Policy.",
+                        ),
+                      );
+                      return;
+                    }
+                    Get.to(() => ChoosepaymentmethodScreen());
                   }),
             ),
             SizedBox(

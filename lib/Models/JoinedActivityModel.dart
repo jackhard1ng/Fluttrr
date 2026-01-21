@@ -11,17 +11,17 @@ class JoinedActivitesModel {
     if (json['activities'] != null) {
       activities = <Activities>[];
       json['activities'].forEach((v) {
-        activities!.add(new Activities.fromJson(v));
+        activities!.add(Activities.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    data['message'] = this.message;
-    if (this.activities != null) {
-      data['activities'] = this.activities!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['success'] = success;
+    data['message'] = message;
+    if (activities != null) {
+      data['activities'] = activities!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -61,23 +61,23 @@ class Activities {
     if (json['attendees'] != null) {
       attendees = <Attendees>[];
       json['attendees'].forEach((v) {
-        attendees!.add(new Attendees.fromJson(v));
+        attendees!.add(Attendees.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['activity_id'] = this.activityId;
-    data['name'] = this.name;
-    data['location'] = this.location;
-    data['description'] = this.description;
-    data['date_time'] = this.dateTime;
-    data['remaining_slots'] = this.remainingSlots;
-    data['slot'] = this.slot;
-    data['image'] = this.image;
-    if (this.attendees != null) {
-      data['attendees'] = this.attendees!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['activity_id'] = activityId;
+    data['name'] = name;
+    data['location'] = location;
+    data['description'] = description;
+    data['date_time'] = dateTime;
+    data['remaining_slots'] = remainingSlots;
+    data['slot'] = slot;
+    data['image'] = image;
+    if (attendees != null) {
+      data['attendees'] = attendees!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -97,10 +97,10 @@ class Attendees {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['user_id'] = this.userId;
-    data['name'] = this.name;
-    data['images'] = this.images;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['user_id'] = userId;
+    data['name'] = name;
+    data['images'] = images;
     return data;
   }
 }

@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:gradient_slider/gradient_slider.dart';
-import 'package:tripmates/Constants/button.dart';
-import 'package:tripmates/Constants/utils.dart';
+import 'package:fluttrr/Constants/button.dart';
+import 'package:fluttrr/Constants/utils.dart';
 
 import '../Controller/AcitivityController.dart';
 
@@ -19,7 +19,7 @@ class ActivitiesFilters extends StatefulWidget {
 }
 
 class _ActivitiesFiltersState extends State<ActivitiesFilters> {
-  Acitivitycontroller  acitivitycontroller=Get.put(Acitivitycontroller());
+  Acitivitycontroller acitivitycontroller = Get.put(Acitivitycontroller());
   ValueChanged<int>? onDeleted;
 
   double value = 0;
@@ -38,16 +38,16 @@ class _ActivitiesFiltersState extends State<ActivitiesFilters> {
   ];
   double start = 30.0;
   double end = 50.0;
-  List<String> _taglist = [];
+  final List<String> _taglist = [];
   final TextEditingController _tagController = TextEditingController();
-  List<String> _taglisthobbies = [];
+  final List<String> _taglisthobbies = [];
   final TextEditingController _taghobbiesController = TextEditingController();
   final List<String> sizeofGroup = [
     'Large',
     'Medium',
     'Small',
   ];
-  String?date;
+  String? date;
 
   String? selectedsizeofGroup;
   @override
@@ -234,10 +234,9 @@ class _ActivitiesFiltersState extends State<ActivitiesFilters> {
                 },
                 onChanged: (val) => print(val),
                 validator: (val) {
-
                   print(val);
                   setState(() {
-                    date=val;
+                    date = val;
                   });
                   return null;
                 },
@@ -421,9 +420,13 @@ class _ActivitiesFiltersState extends State<ActivitiesFilters> {
                     borderRadius: BorderRadius.circular(10),
                     height: 60,
                     width: 130,
-                    onTap: ()async {
-                    await acitivitycontroller.FilterActivity(_taglisthobbies[0], date.toString(), "", value.toString());
-                    Get.back();
+                    onTap: () async {
+                      await acitivitycontroller.FilterActivity(
+                          _taglisthobbies[0],
+                          date.toString(),
+                          "",
+                          value.toString());
+                      Get.back();
                     },
                     child: const Center(
                       child: Text(

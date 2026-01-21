@@ -4,12 +4,12 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:gradient_borders/box_borders/gradient_box_border.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:tripmates/Constants/Apis_Constants.dart';
-import 'package:tripmates/Constants/all_textfields.dart';
-import 'package:tripmates/Constants/button.dart';
-import 'package:tripmates/Constants/utils.dart';
-import 'package:tripmates/Controller/BussinessPageController.dart';
-import 'package:tripmates/Models/BussinessModel/BusinessPageModel.dart';
+import 'package:fluttrr/Constants/Apis_Constants.dart';
+import 'package:fluttrr/Constants/all_textfields.dart';
+import 'package:fluttrr/Constants/button.dart';
+import 'package:fluttrr/Constants/utils.dart';
+import 'package:fluttrr/Controller/BussinessPageController.dart';
+import 'package:fluttrr/Models/BussinessModel/BusinessPageModel.dart';
 
 class EditBusinessPage extends StatefulWidget {
   final BusinessPageModel? businessData;
@@ -43,13 +43,16 @@ class _EditBusinessPageState extends State<EditBusinessPage> {
   void _initializeFormData() {
     if (widget.businessData != null) {
       _nameController.text = widget.businessData?.profile?.name ?? '';
-      _descriptionController.text = widget.businessData?.profile?.description ?? '';
+      _descriptionController.text =
+          widget.businessData?.profile?.description ?? '';
       _emailController.text = widget.businessData?.profile?.email ?? '';
       _phoneController.text = widget.businessData?.profile?.phoneNumber ?? '';
       _locationController.text = widget.businessData?.profile?.location ?? '';
       _websiteController.text = widget.businessData?.profile?.websiteLink ?? '';
-      _facebookController.text = widget.businessData?.profile?.facebookLink ?? '';
-      _instagramController.text = widget.businessData?.profile?.instagramLink ?? '';
+      _facebookController.text =
+          widget.businessData?.profile?.facebookLink ?? '';
+      _instagramController.text =
+          widget.businessData?.profile?.instagramLink ?? '';
     }
   }
 
@@ -110,16 +113,16 @@ class _EditBusinessPageState extends State<EditBusinessPage> {
     if (!_formKey.currentState!.validate()) return;
 
     final success = await businessController.updateBusinessPage(
-      widget.businessData?.profile?.id.toString()??"0",
-       _nameController.text,
-       _descriptionController.text,
+      widget.businessData?.profile?.id.toString() ?? "0",
+      _nameController.text,
+      _descriptionController.text,
       _emailController.text,
-     _phoneController.text,
-       _websiteController.text,
+      _phoneController.text,
+      _websiteController.text,
       _facebookController.text,
       _instagramController.text,
-       profileImageFile,
-       coverImageFile,
+      profileImageFile,
+      coverImageFile,
     );
 
     if (success) {
@@ -160,7 +163,8 @@ class _EditBusinessPageState extends State<EditBusinessPage> {
 
   String? _validateURL(String? value, String fieldName) {
     if (value == null || value.isEmpty) return null;
-    if (!RegExp(r'^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$')
+    if (!RegExp(
+            r'^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$')
         .hasMatch(value)) {
       return 'Please enter a valid URL for $fieldName';
     }
@@ -215,17 +219,25 @@ class _EditBusinessPageState extends State<EditBusinessPage> {
                                 fit: BoxFit.cover,
                                 image: coverImageFile != null
                                     ? FileImage(coverImageFile!)
-                                    : widget.businessData!.profile!.image != null
-                                    ? NetworkImage("${Apis.ip}${widget.businessData!.profile!.image!}")
-                                    : const AssetImage('assets/default_cover.png') as ImageProvider,
+                                    : widget.businessData!.profile!.image !=
+                                            null
+                                        ? NetworkImage(
+                                            "${Apis.ip}${widget.businessData!.profile!.image!}")
+                                        : const AssetImage(
+                                                'assets/default_cover.png')
+                                            as ImageProvider,
                               ),
                             ),
-                            child: coverImageFile == null && widget.businessData?.profile!.image == null
-                                ? Center(child: SvgPicture.asset('assets/Add Photo.svg'))
+                            child: coverImageFile == null &&
+                                    widget.businessData?.profile!.image == null
+                                ? Center(
+                                    child: SvgPicture.asset(
+                                        'assets/Add Photo.svg'))
                                 : null,
                           ),
                         ),
-                        if (coverImageFile != null || widget.businessData?.profile!.image != null)
+                        if (coverImageFile != null ||
+                            widget.businessData?.profile!.image != null)
                           IconButton(
                             icon: const Icon(Icons.delete, color: Colors.white),
                             onPressed: _deleteCoverImage,
@@ -248,16 +260,22 @@ class _EditBusinessPageState extends State<EditBusinessPage> {
                                   radius: 49,
                                   backgroundImage: profileImageFile != null
                                       ? FileImage(profileImageFile!)
-                                      : widget.businessData?.profile?.logo != null
-                                      ? NetworkImage("${Apis.ip}${widget.businessData!.profile!.logo!}")
-                                      : const AssetImage('assets/default_profile.png') as ImageProvider,
+                                      : widget.businessData?.profile?.logo !=
+                                              null
+                                          ? NetworkImage(
+                                              "${Apis.ip}${widget.businessData!.profile!.logo!}")
+                                          : const AssetImage(
+                                                  'assets/default_profile.png')
+                                              as ImageProvider,
                                 ),
-                                if (profileImageFile != null || widget.businessData?.profile?.logo != null)
+                                if (profileImageFile != null ||
+                                    widget.businessData?.profile?.logo != null)
                                   Positioned(
                                     top: 0,
                                     right: 0,
                                     child: IconButton(
-                                      icon: const Icon(Icons.delete, color: Colors.white),
+                                      icon: const Icon(Icons.delete,
+                                          color: Colors.white),
                                       onPressed: _deleteProfileImage,
                                     ),
                                   ),
@@ -292,7 +310,8 @@ class _EditBusinessPageState extends State<EditBusinessPage> {
                     Business_TextField(
                       controller: _nameController,
                       hintText: 'Enter Business Name',
-                      validator: (value) => _validateRequired(value, 'business name'),
+                      validator: (value) =>
+                          _validateRequired(value, 'business name'),
                     ),
                     const SizedBox(height: 15),
                     const Text(
@@ -307,7 +326,8 @@ class _EditBusinessPageState extends State<EditBusinessPage> {
                       controller: _descriptionController,
                       hintText: 'Description',
                       maxLines: 4,
-                      validator: (value) => _validateRequired(value, 'business description'),
+                      validator: (value) =>
+                          _validateRequired(value, 'business description'),
                     ),
                     const SizedBox(height: 15),
                     const Text(
@@ -351,7 +371,8 @@ class _EditBusinessPageState extends State<EditBusinessPage> {
                     Business_TextField(
                       controller: _locationController,
                       hintText: 'Business Location',
-                      validator: (value) => _validateRequired(value, 'location'),
+                      validator: (value) =>
+                          _validateRequired(value, 'location'),
                     ),
                     const SizedBox(height: 15),
                     const Text(

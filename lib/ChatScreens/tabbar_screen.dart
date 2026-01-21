@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:tripmates/ChatScreens/GroupChatList.dart';
+import 'package:fluttrr/ChatScreens/GroupChatList.dart';
 
-import 'package:tripmates/Constants/custom_appbar.dart';
-import 'package:tripmates/Constants/utils.dart';
+import 'package:fluttrr/Constants/utils.dart';
 
 import '../Controller/ChatsListController.dart';
+import 'BussinessChatList.dart';
 import 'chat_list.dart';
 
 class TabbarScreen extends StatefulWidget {
@@ -24,7 +24,7 @@ class _TabbarScreenState extends State<TabbarScreen>
   @override
   void initState() {
     // TODO: implement initState
-    _controller = TabController(length: 3, vsync: this, initialIndex: 0);
+    _controller = TabController(length: 4, vsync: this, initialIndex: 0);
     controller.Chatlist();
     super.initState();
   }
@@ -53,7 +53,7 @@ class _TabbarScreenState extends State<TabbarScreen>
               ],
             ),
           ),
-          title: Container(
+          title: SizedBox(
             height: 38,
             child: TextFormField(
               style: TextStyle(fontSize: 13, color: Colors.black),
@@ -132,63 +132,63 @@ class _TabbarScreenState extends State<TabbarScreen>
                   ],
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      height: 49,
-                      color: Color(0xffF1F1F1),
-                      child: TabBar(
-                        tabAlignment: TabAlignment.center, // add this line
-                        controller: _controller,
-                        labelColor: lightBlue,
-
-                        unselectedLabelColor: Theme.of(context).primaryColor,
-                        // indicatorSize: TabBarIndicatorSize.label,
-                        indicatorColor: Color(0xff20235A),
-                        dividerColor: Color(0xffF1F1F1),
-                        tabs: [
-                          Text(
-                            'All',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            'Mates Chats',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            'Activity Group Chats',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                     Expanded(
                       child: Container(
                         height: 49,
                         color: Color(0xffF1F1F1),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(right: 20),
-                              child: SvgPicture.asset(
-                                'assets/Group 48096195 (1).svg',
-                                height: 27,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: TabBar(
+                            isScrollable: true, // Enable scroll
+                            controller: _controller,
+                            labelColor: lightBlue,
+                            unselectedLabelColor:
+                                Theme.of(context).primaryColor,
+                            indicatorColor: Color(0xff20235A),
+                            dividerColor: Color(0xffF1F1F1),
+                            tabs: [
+                              Tab(
+                                child: Text(
+                                  'All',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
+                              Tab(
+                                child: Text(
+                                  'Mates Chats',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Tab(
+                                child: Text(
+                                  'Activity Group Chats',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Tab(
+                                child: Text(
+                                  'Business Chats',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    )
+                    ),
                   ],
                 )
               ],
@@ -201,6 +201,7 @@ class _TabbarScreenState extends State<TabbarScreen>
             ChatList(),
             ChatList(),
             Groupchatlist(),
+            BusinessmessagesScreen()
           ],
         ),
       ),

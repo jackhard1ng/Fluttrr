@@ -2,13 +2,12 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tripmates/Constants/button.dart';
-import 'package:tripmates/Constants/custom_appbar.dart';
-import 'package:tripmates/Constants/listdata.dart';
-import 'package:tripmates/Constants/utils.dart';
+import 'package:fluttrr/Constants/button.dart';
+import 'package:fluttrr/Constants/listdata.dart';
+import 'package:fluttrr/Constants/utils.dart';
 
 class Likedactivities extends StatefulWidget {
-  Likedactivities({super.key});
+  const Likedactivities({super.key});
 
   @override
   State<Likedactivities> createState() => _LikedactivitiesState();
@@ -26,7 +25,6 @@ class _LikedactivitiesState extends State<Likedactivities> {
   void _decrementCounter() {
     setState(() {
       _counter = max(_counter - 1, 1);
-      ;
     });
   }
 
@@ -107,7 +105,7 @@ class _LikedactivitiesState extends State<Likedactivities> {
                       ),
                     ),
                   ),
-                  Container(
+                  SizedBox(
                     height: 39,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -172,7 +170,7 @@ class _LikedactivitiesState extends State<Likedactivities> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Container(
+                                          SizedBox(
                                             width: 170,
                                             child: Text(
                                               'Sunrise Yoga in the Park',
@@ -196,7 +194,7 @@ class _LikedactivitiesState extends State<Likedactivities> {
                                               SizedBox(
                                                 width: 7,
                                               ),
-                                              Container(
+                                              SizedBox(
                                                 width: 160,
                                                 child: Text(
                                                   'Central Park, Meadow Area',
@@ -233,7 +231,7 @@ class _LikedactivitiesState extends State<Likedactivities> {
                                           SizedBox(
                                             height: 3,
                                           ),
-                                          Container(
+                                          SizedBox(
                                             width: 279,
                                             child: Text(
                                               'Start your day with a rejuvenatingyoga session surrounded by nature.',

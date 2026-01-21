@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:tripmates/Constants/utils.dart';
+import 'package:fluttrr/Constants/utils.dart';
 
 // home screen wipe cards
 List<Widget> cards = [
@@ -513,7 +513,7 @@ List<Widget> exploreActivitiescards = [
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
+                      SizedBox(
                         width: 170,
                         child: Text(
                           'Hiking Adventure',
@@ -536,7 +536,7 @@ List<Widget> exploreActivitiescards = [
                           SizedBox(
                             width: 7,
                           ),
-                          Container(
+                          SizedBox(
                             width: 180,
                             child: Text(
                               'Green Valley National Park',
@@ -736,7 +736,7 @@ List<Widget> exploreActivitiescards = [
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
+                      SizedBox(
                         width: 170,
                         child: Text(
                           'Hiking Adventure',
@@ -759,7 +759,7 @@ List<Widget> exploreActivitiescards = [
                           SizedBox(
                             width: 7,
                           ),
-                          Container(
+                          SizedBox(
                             width: 180,
                             child: Text(
                               'Green Valley National Park',

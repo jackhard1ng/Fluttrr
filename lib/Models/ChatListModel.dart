@@ -9,16 +9,16 @@ class ChatListModel {
     if (json['chatList'] != null) {
       chatList = <ChatList>[];
       json['chatList'].forEach((v) {
-        chatList!.add(new ChatList.fromJson(v));
+        chatList!.add(ChatList.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['message'] = this.message;
-    if (this.chatList != null) {
-      data['chatList'] = this.chatList!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['message'] = message;
+    if (chatList != null) {
+      data['chatList'] = chatList!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -56,15 +56,15 @@ class ChatList {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['userID'] = this.userID;
-    data['userName'] = this.userName;
-    data['profileImage'] = this.profileImage;
-    data['isOnline'] = this.isOnline;
-    data['lastMessage'] = this.lastMessage;
-    data['lastMessageTime'] = this.lastMessageTime;
-    data['unreadMessages'] = this.unreadMessages;
-    data['conversationId'] = this.conversationId;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['userID'] = userID;
+    data['userName'] = userName;
+    data['profileImage'] = profileImage;
+    data['isOnline'] = isOnline;
+    data['lastMessage'] = lastMessage;
+    data['lastMessageTime'] = lastMessageTime;
+    data['unreadMessages'] = unreadMessages;
+    data['conversationId'] = conversationId;
     return data;
   }
 }

@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
-import 'package:tripmates/Constants/Apis_Constants.dart';
-import 'package:tripmates/Constants/button.dart';
-import 'package:tripmates/Constants/utils.dart';
-import 'package:tripmates/ProfileScreens/leaderboard_screen.dart';
-
+import 'package:fluttrr/Constants/Apis_Constants.dart';
+import 'package:fluttrr/Constants/button.dart';
+import 'package:fluttrr/Constants/utils.dart';
+import 'package:fluttrr/ProfileScreens/leaderboard_screen.dart';
 
 import '../Controller/ProfileController.dart';
 import '../Models/BadgesModel/BadgesModel.dart';
@@ -62,8 +61,10 @@ class _BadgesScreenState extends State<BadgesScreen> {
           }
 
           final badges = controller.badgesModel!.achievements!;
-          final unlockedBadges = badges.where((badge) => badge.unlocked == true).length;
-          final claimedBadges = badges.where((badge) => badge.hasClaimed == true).toList();
+          final unlockedBadges =
+              badges.where((badge) => badge.unlocked == true).length;
+          final claimedBadges =
+              badges.where((badge) => badge.hasClaimed == true).toList();
 
           return SingleChildScrollView(
             child: Padding(
@@ -144,9 +145,9 @@ class _BadgesScreenState extends State<BadgesScreen> {
                     gradient: selectedIndex1 == index
                         ? lefttorightgradient
                         : LinearGradient(colors: [
-                      Color(0xffF1F1F1),
-                      Color(0xffF1F1F1),
-                    ]),
+                            Color(0xffF1F1F1),
+                            Color(0xffF1F1F1),
+                          ]),
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: Center(
@@ -177,130 +178,133 @@ class _BadgesScreenState extends State<BadgesScreen> {
       child: claimedBadges.isEmpty
           ? Center(child: Text("No badges claimed yet"))
           : Stack(
-        children: [
-          if (claimedBadges.length >= 1)
-            Positioned(
-              left: 0,
-              right: 0,
-              top: 0,
-              child: Column(
-                children: [
-                  Card(
-                    color: whiteColor,
-                    elevation: 4,
-                    child: Container(
-                      margin: EdgeInsets.all(5),
-                      height: 56,
-                      width: 56,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: NetworkImage("${Apis.ip}${claimedBadges[0].icon }"),
+              children: [
+                if (claimedBadges.isNotEmpty)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                    child: Column(
+                      children: [
+                        Card(
+                          color: whiteColor,
+                          elevation: 4,
+                          child: Container(
+                            margin: EdgeInsets.all(5),
+                            height: 56,
+                            width: 56,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: NetworkImage(
+                                    "${Apis.ip}${claimedBadges[0].icon}"),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 7),
-                  Text(
-                    claimedBadges[0].name ?? '',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    'Claimed',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).hintColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          if (claimedBadges.length >= 2)
-            Positioned(
-              left: 20,
-              top: 50,
-              child: Column(
-                children: [
-                  Card(
-                    color: whiteColor,
-                    elevation: 4,
-                    child: Container(
-                      margin: EdgeInsets.all(5),
-                      height: 56,
-                      width: 56,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: NetworkImage("${Apis.ip}${claimedBadges[0].icon }"),
+                        SizedBox(height: 7),
+                        Text(
+                          claimedBadges[0].name ?? '',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 7),
-                  Text(
-                    claimedBadges[1].name ?? '',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    'Claimed',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).hintColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          if (claimedBadges.length >= 3)
-            Positioned(
-              right: 20,
-              top: 50,
-              child: Column(
-                children: [
-                  Card(
-                    color: whiteColor,
-                    elevation: 4,
-                    child: Container(
-                      margin: EdgeInsets.all(5),
-                      height: 56,
-                      width: 56,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: NetworkImage("${Apis.ip}${claimedBadges[0].icon }"),
+                        Text(
+                          'Claimed',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).hintColor,
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
-                  SizedBox(height: 7),
-                  Text(
-                    claimedBadges[2].name ?? '',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                if (claimedBadges.length >= 2)
+                  Positioned(
+                    left: 20,
+                    top: 50,
+                    child: Column(
+                      children: [
+                        Card(
+                          color: whiteColor,
+                          elevation: 4,
+                          child: Container(
+                            margin: EdgeInsets.all(5),
+                            height: 56,
+                            width: 56,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: NetworkImage(
+                                    "${Apis.ip}${claimedBadges[0].icon}"),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 7),
+                        Text(
+                          claimedBadges[1].name ?? '',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          'Claimed',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).hintColor,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    'Claimed',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).hintColor,
+                if (claimedBadges.length >= 3)
+                  Positioned(
+                    right: 20,
+                    top: 50,
+                    child: Column(
+                      children: [
+                        Card(
+                          color: whiteColor,
+                          elevation: 4,
+                          child: Container(
+                            margin: EdgeInsets.all(5),
+                            height: 56,
+                            width: 56,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: NetworkImage(
+                                    "${Apis.ip}${claimedBadges[0].icon}"),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 7),
+                        Text(
+                          claimedBadges[2].name ?? '',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          'Claimed',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).hintColor,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+              ],
             ),
-        ],
-      ),
     );
   }
 
@@ -345,7 +349,8 @@ class _BadgesScreenState extends State<BadgesScreen> {
               color: Color(0xffF1F1F1),
             ),
             child: Padding(
-              padding: const EdgeInsets.only(left: 4, right: 16, top: 3, bottom: 3),
+              padding:
+                  const EdgeInsets.only(left: 4, right: 16, top: 3, bottom: 3),
               child: Column(
                 children: [
                   Expanded(
@@ -362,7 +367,7 @@ class _BadgesScreenState extends State<BadgesScreen> {
                             decoration: BoxDecoration(
                               image: DecorationImage(
                                 fit: BoxFit.cover,
-                                image: NetworkImage("${Apis.ip}${badge.icon}" ),
+                                image: NetworkImage("${Apis.ip}${badge.icon}"),
                               ),
                             ),
                           ),
@@ -487,8 +492,8 @@ class _BadgesScreenState extends State<BadgesScreen> {
         ),
       );
 
-
-      bool success = await _profileController.BadgesClaimed(badge.id.toString());
+      bool success =
+          await _profileController.BadgesClaimed(badge.id.toString());
 
       // Close loading dialog
       Navigator.of(context).pop();
@@ -531,100 +536,99 @@ class _BadgesScreenState extends State<BadgesScreen> {
       context: context,
       pageBuilder: (context, anim1, anim2) {
         return Dialog(
-            insetPadding: EdgeInsets.zero,
+          insetPadding: EdgeInsets.zero,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+              color: Theme.of(context).cardColor,
+            ),
+            width: double.infinity,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 60),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Badge image
+                      Card(
+                        color: whiteColor,
+                        elevation: 4,
+                        child: Container(
+                          margin: EdgeInsets.all(15),
+                          height: 100,
+                          width: 100,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: NetworkImage("${Apis.ip}${badge.icon}"),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
 
-        child: Container(
-        decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(10.0)),
-        color: Theme.of(context).cardColor,
-        ),
-        width: double.infinity,
-        child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-        Padding(
-        padding: const EdgeInsets.only(top: 60),
-        child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-        // Badge image
-        Card(
-        color: whiteColor,
-        elevation: 4,
-        child: Container(
-        margin: EdgeInsets.all(15),
-        height: 100,
-        width: 100,
-        decoration: BoxDecoration(
-        image: DecorationImage(
-        fit: BoxFit.cover,
-        image: NetworkImage("${Apis.ip}${badge.icon}"),
-        ),
-        ),
-        ),
-        ),
-        SizedBox(height: 20),
+                      // Congratulations text
+                      SvgPicture.asset(
+                        'assets/Congrats!.svg',
+                        height: 40,
+                      ),
+                      SizedBox(height: 16),
 
-        // Congratulations text
-        SvgPicture.asset(
-        'assets/Congrats!.svg',
-        height: 40,
-        ),
-        SizedBox(height: 16),
+                      // Badge name
+                      Text(
+                        badge.name ?? '',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 10),
 
-        // Badge name
-        Text(
-        badge.name ?? '',
-        style: TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        ),
-        ),
-        SizedBox(height: 10),
+                      // Description
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Text(
+                          'You have successfully claimed this badge!',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).indicatorColor,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 30),
+                    ],
+                  ),
+                ),
 
-        // Description
-        Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Text(
-        'You have successfully claimed this badge!',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-        color: Theme.of(context).indicatorColor,
-        ),
-        ),
-        ),
-        SizedBox(height: 30),
-        ],
-        ),
-        ),
-
-        // Close button (positioned at bottom)
-        Button(
-        width: double.infinity,
-        height: 64,
-        borderRadius: BorderRadius.only(
-        bottomLeft: Radius.circular(10),
-        bottomRight: Radius.circular(10),
-        ),
-        child: Center(
-        child: Text(
-        'Close',
-        style: TextStyle(
-        fontSize: 21,
-        fontWeight: FontWeight.bold,
-        color: whiteColor,
-        ),
-        ),
-        ),
-        onTap: () => Navigator.of(context).pop(),
-        ),
-        ],
-        ),
-        ),
+                // Close button (positioned at bottom)
+                Button(
+                  width: double.infinity,
+                  height: 64,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(10),
+                    bottomRight: Radius.circular(10),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Close',
+                      style: TextStyle(
+                        fontSize: 21,
+                        fontWeight: FontWeight.bold,
+                        color: whiteColor,
+                      ),
+                    ),
+                  ),
+                  onTap: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
+          ),
         );
-        },
+      },
     );
   }
 }

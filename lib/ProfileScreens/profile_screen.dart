@@ -3,21 +3,18 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tripmates/Constants/button.dart';
-import 'package:tripmates/Constants/utils.dart';
-import 'package:tripmates/Controller/BussinessPageController.dart';
-import 'package:tripmates/Controller/ProfileController.dart';
-import 'package:tripmates/ProfileScreens/profileview_screen.dart';
-import 'package:tripmates/ProfileScreens/settingsandprivacy_screen.dart';
-import 'package:tripmates/ProfileScreens/visibilityandpreferences_screen.dart';
+import 'package:fluttrr/Constants/utils.dart';
+import 'package:fluttrr/Controller/BussinessPageController.dart';
+import 'package:fluttrr/Controller/ProfileController.dart';
+import 'package:fluttrr/ProfileScreens/profileview_screen.dart';
+import 'package:fluttrr/ProfileScreens/settingsandprivacy_screen.dart';
+import 'package:fluttrr/ProfileScreens/visibilityandpreferences_screen.dart';
 
 import '../Auth_Screens/login_screen.dart';
-import '../Business_Screens/businesscreateprofile_screen.dart';
 import '../Business_Screens/businessevents_screen.dart';
 import '../Business_Screens/welcome_screen.dart';
 import '../Constants/Apis_Constants.dart';
 import 'badges_screen.dart';
-import 'leaderboard_screen.dart';
 import 'linkedaccounts_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -28,8 +25,9 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  ProfileController controller=Get.put(ProfileController());
-  BusinessController businessController=Get.put(BusinessController());
+  ProfileController controller = Get.put(ProfileController());
+  BusinessController businessController = Get.put(BusinessController());
+  String? percentage;
   double percent = 0.53;
   _percentage(percent) {
     var value = percent * 100;
@@ -42,6 +40,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     controller.GetProfile();
     businessController.BusinessStatus();
+    api();
+  }
+
+  void api() async {
+    await controller.GetPrcentage();
+    percentage = "0.${controller.percentage?.completionPercentage.toString()}";
+    print("form String : $percentage");
+    setState(() {
+      if (percentage == "0.100") {
+        percent = 0.99;
+      } else {
+        percent = double.parse(percentage.toString());
+      }
+    });
+    print(percent);
   }
 
   @override
@@ -54,108 +67,113 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 63,
             ),
             InkWell(
-              onTap: (){
-                Get.to(()=> ProfileViewScreen());
+              onTap: () {
+                Get.to(() => ProfileViewScreen(
+                      percentage: percent,
+                    ));
               },
               child: GetBuilder<ProfileController>(
-                id: "Profile_update",
-                builder: (_) {
-                  return Card(
-                    elevation: 3,
-                    color: Theme.of(context).cardColor,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(19),
-                            bottomRight: Radius.circular(19))),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 14, right: 20, bottom: 13),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Stack(
-                                  alignment: Alignment.bottomCenter,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(10.0),
-                                      child: CircularPercentIndicator(
-                                        radius: 49.0,
-                                        lineWidth: 5.0,
-                                        percent: percent,
-                                        progressBorderColor: Color(0xff4F78DA),
-                                        center: CircleAvatar(
-                                          radius: 43,
-                                          backgroundImage: NetworkImage(
-                                            '${Apis.ip}${controller.profile?.profile?.images?[0].toString()}',
-                                          ),
-                                        ),
-                                        progressColor: Color(0xff4F78DA),
-                                      ),
-                                    ),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Color(0xff4F78DA)),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(10.0),
-                                        child: Center(
-                                            child: Text(
-                                          _percentage(percent),
-                                          style: TextStyle(
-                                              fontSize: 9,
-                                              fontWeight: FontWeight.bold,
-                                              color: whiteColor),
-                                        )),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                  id: "Profile_update",
+                  builder: (_) {
+                    return Card(
+                      elevation: 3,
+                      color: Theme.of(context).cardColor,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(19),
+                              bottomRight: Radius.circular(19))),
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 14, right: 20, bottom: 13),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Stack(
+                                    alignment: Alignment.bottomCenter,
                                     children: [
-                                      Text(
-                                        '${controller.profile?.userName.toString()}, ${controller.profile?.profile?.age.toString()}, ${controller.profile?.profile?.gender.toString()}',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
+                                      Padding(
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: CircularPercentIndicator(
+                                          radius: 49.0,
+                                          lineWidth: 5.0,
+                                          percent: percent,
+                                          progressBorderColor:
+                                              Color(0xff4F78DA),
+                                          center: CircleAvatar(
+                                            radius: 43,
+                                            backgroundImage: NetworkImage(
+                                              '${Apis.ip}${controller.profile?.profile?.images?[0].toString()}',
+                                            ),
+                                          ),
+                                          progressColor: Color(0xff4F78DA),
                                         ),
                                       ),
-                                      Text(
-                                        '@AliKhan',
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: Theme.of(context).indicatorColor,
-                                        ),
-                                      ),
-                                      Text(
-                                        'Complete your profile ',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Color(0xff4F78DA),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Color(0xff4F78DA)),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(10.0),
+                                          child: Center(
+                                              child: Text(
+                                            _percentage(percent),
+                                            style: TextStyle(
+                                                fontSize: 9,
+                                                fontWeight: FontWeight.bold,
+                                                color: whiteColor),
+                                          )),
                                         ),
                                       ),
                                     ],
                                   ),
-                                ),
-                                SizedBox(
-                                  width: 33,
-                                ),
-                                SvgPicture.asset(
-                                  'assets/Group 48095973.svg',
-                                  height: 21,
-                                  color: Theme.of(context).primaryColor,
-                                )
-                              ],
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${controller.profile?.userName.toString()}, ${controller.profile?.profile?.age.toString()}, ${controller.profile?.profile?.gender.toString()}',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          '@AliKhan',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: Theme.of(context)
+                                                .indicatorColor,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Complete your profile ',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Color(0xff4F78DA),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 33,
+                                  ),
+                                  SvgPicture.asset(
+                                    'assets/Group 48095973.svg',
+                                    height: 21,
+                                    color: Theme.of(context).primaryColor,
+                                  )
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                }
-              ),
+                    );
+                  }),
             ),
             SizedBox(
               height: 13,
@@ -231,8 +249,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       height: 3,
                     ),
                     InkWell(
-                      onTap: (){
-                        Get.to(()=>VisibilityandpreferencesScreen());
+                      onTap: () {
+                        Get.to(() => VisibilityandpreferencesScreen());
                       },
                       child: ListTile(
                         leading: SvgPicture.asset('assets/Group 48095968.svg'),
@@ -248,8 +266,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Color(0xffF1F1F1),
                     ),
                     InkWell(
-                      onTap: (){
-                        Get.to(()=> SettingsandprivacyScreen());
+                      onTap: () {
+                        Get.to(() => SettingsandprivacyScreen());
                       },
                       child: ListTile(
                         leading: SvgPicture.asset('assets/SET.svg'),
@@ -265,13 +283,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Color(0xffF1F1F1),
                     ),
                     InkWell(
-                      onTap: ()async{
-                        if(businessController.businessstatusModel?.hasBusinessProfile==true){
-                          Get.to(()=> BusinesseventsScreen());
-                        }else{
-                          Get.to(()=> WelcomeScreen());
+                      onTap: () async {
+                        if (businessController
+                                .businessstatusModel?.hasBusinessProfile ==
+                            true) {
+                          Get.to(() => BusinesseventsScreen());
+                        } else {
+                          Get.to(() => WelcomeScreen());
                         }
-
                       },
                       child: ListTile(
                         leading: SvgPicture.asset(
@@ -290,8 +309,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Color(0xffF1F1F1),
                     ),
                     InkWell(
-                      onTap: (){
-                        Get.to(()=> LinkedaccountsScreen());
+                      onTap: () {
+                        Get.to(() => LinkedaccountsScreen());
                       },
                       child: ListTile(
                         leading: SvgPicture.asset(
@@ -310,8 +329,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Color(0xffF1F1F1),
                     ),
                     InkWell(
-                      onTap: (){
-                       Get.to(()=> BadgesScreen());
+                      onTap: () {
+                        Get.to(() => BadgesScreen());
                       },
                       child: ListTile(
                         leading: SvgPicture.asset(
@@ -348,9 +367,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       height: 60,
                     ),
                     InkWell(
-                      onTap: ()async{
-                        SharedPreferences pref = await SharedPreferences.getInstance();
-                       pref.clear();
+                      onTap: () async {
+                        SharedPreferences pref =
+                            await SharedPreferences.getInstance();
+                        pref.clear();
                         Get.offAll(() => LoginScreen());
                       },
                       child: Container(

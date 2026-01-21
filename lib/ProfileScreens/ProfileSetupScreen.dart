@@ -1,16 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:gradient_borders/box_borders/gradient_box_border.dart';
 import 'package:gradient_progress_indicator/widget/gradient_progress_indicator_widget.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:tripmates/Constants/Apis_Constants.dart';
-import 'package:tripmates/Constants/bottombar.dart';
-import 'package:tripmates/Constants/button.dart';
-import 'package:tripmates/Constants/utils.dart';
-import 'package:tripmates/Controller/ProfileController.dart';
+import 'package:fluttrr/Constants/bottombar.dart';
+import 'package:fluttrr/Constants/button.dart';
+import 'package:fluttrr/Constants/utils.dart';
+import 'package:fluttrr/Controller/ProfileController.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
   const ProfileSetupScreen({super.key});
@@ -20,19 +17,19 @@ class ProfileSetupScreen extends StatefulWidget {
 }
 
 class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
-  ProfileController profileController=Get.put(ProfileController());
+  ProfileController profileController = Get.put(ProfileController());
   final TextEditingController username = TextEditingController();
   final TextEditingController bio = TextEditingController();
   final TextEditingController location = TextEditingController();
-  bool loading=false;
+  bool loading = false;
   int selectedGenderIndex = 0;
   int selectedStatusIndex = 0;
   int? selectedAge;
   String? selectedCountry;
 
-  List<String> _languages = [];
+  final List<String> _languages = [];
   final TextEditingController _languageController = TextEditingController();
-  List<String> _hobbies = [];
+  final List<String> _hobbies = [];
   final TextEditingController _hobbyController = TextEditingController();
 
   File? _selectedCoverImage;
@@ -209,47 +206,49 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             const SizedBox(height: 30),
 
             // Save Button
-          loading? Center(
-            child: GradientProgressIndicator(
-              radius: 17,
-              duration: 3,
-              strokeWidth: 5,
-              backgroundColor: Colors.white,
-              gradientStops: const [
-                0.2,
-                0.7,
-                0.3,
-                0.3,
-              ],
-              gradientColors: const [
-                Color(0xff4F78DA),
-                Color(0xff339003),
-                Color(0xff4F78DA),
-                Colors.white
-              ],
-              child: Text(''),
-            ),
-          ) :Button(
-              borderRadius: BorderRadius.circular(10),
-              height: 60,
-              width: double.infinity,
-              onTap: () {
-                // Save profile logic
-                if (_validateForm()) {
-                  _saveProfile();
-                }
-              },
-              child: const Center(
-                child: Text(
-                  'Complete Setup',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
+            loading
+                ? Center(
+                    child: GradientProgressIndicator(
+                      radius: 17,
+                      duration: 3,
+                      strokeWidth: 5,
+                      backgroundColor: Colors.white,
+                      gradientStops: const [
+                        0.2,
+                        0.7,
+                        0.3,
+                        0.3,
+                      ],
+                      gradientColors: const [
+                        Color(0xff4F78DA),
+                        Color(0xff339003),
+                        Color(0xff4F78DA),
+                        Colors.white
+                      ],
+                      child: Text(''),
+                    ),
+                  )
+                : Button(
+                    borderRadius: BorderRadius.circular(10),
+                    height: 60,
+                    width: double.infinity,
+                    onTap: () {
+                      // Save profile logic
+                      if (_validateForm()) {
+                        _saveProfile();
+                      }
+                    },
+                    child: const Center(
+                      child: Text(
+                        'Complete Setup',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ),
           ],
         ),
       ),
@@ -270,26 +269,27 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               color: Colors.grey[200],
               image: _selectedCoverImage != null
                   ? DecorationImage(
-                image: FileImage(_selectedCoverImage!),
-                fit: BoxFit.cover,
-              )
+                      image: FileImage(_selectedCoverImage!),
+                      fit: BoxFit.cover,
+                    )
                   : null,
             ),
             child: _selectedCoverImage == null
                 ? Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.add_a_photo, size: 40, color: Colors.grey[500]),
-                const SizedBox(height: 8),
-                Text(
-                  'Add Cover Photo',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            )
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.add_a_photo,
+                          size: 40, color: Colors.grey[500]),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Add Cover Photo',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  )
                 : null,
           ),
         ),
@@ -310,9 +310,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   border: Border.all(color: Colors.white, width: 3),
                   image: _selectedProfileImage != null
                       ? DecorationImage(
-                    image: FileImage(_selectedProfileImage!),
-                    fit: BoxFit.cover,
-                  )
+                          image: FileImage(_selectedProfileImage!),
+                          fit: BoxFit.cover,
+                        )
                       : null,
                 ),
                 child: _selectedProfileImage == null
@@ -496,9 +496,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     gradient: selectedIndex == index
                         ? lefttorightgradient
                         : LinearGradient(colors: [
-                      const Color(0xffF1F1F1),
-                      const Color(0xffF1F1F1),
-                    ]),
+                            const Color(0xffF1F1F1),
+                            const Color(0xffF1F1F1),
+                          ]),
                   ),
                   child: Center(
                     child: Text(
@@ -618,15 +618,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     return true;
   }
 
-  void _saveProfile()async {
+  void _saveProfile() async {
     setState(() {
-      loading=true;
+      loading = true;
     });
- final ok= await  profileController.setupProfile(
-
+    final ok = await profileController.setupProfile(
         age: selectedAge!,
         username: username.text,
-        gender:genderOptions[selectedGenderIndex],
+        gender: genderOptions[selectedGenderIndex],
         status: statusOptions[selectedStatusIndex],
         bio: bio.text,
         country: selectedCountry ?? 'Unknown',
@@ -636,23 +635,17 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         latitude: -80.000,
         longitude: 90.000,
         languages: _languages,
-        location: location.text
-    );
+        location: location.text);
 
-      if(ok){
-        setState(() {
-          loading=false;
-        });
-        Get.to(()=>BottomBar(screen: 0));
-      }else{
-        setState(() {
-          loading=false;
-        });
-      }
-
-
-
-
-
+    if (ok) {
+      setState(() {
+        loading = false;
+      });
+      Get.to(() => BottomBar(screen: 0));
+    } else {
+      setState(() {
+        loading = false;
+      });
+    }
   }
 }

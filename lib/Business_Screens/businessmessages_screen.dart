@@ -1,53 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
+import 'package:fluttrr/Constants/Apis_Constants.dart';
 
-import 'package:tripmates/Constants/custom_appbar.dart';
-import 'package:tripmates/Constants/drawer_screen.dart';
-import 'package:tripmates/Constants/listdata.dart';
-import 'package:tripmates/Constants/utils.dart';
+import 'package:fluttrr/Constants/custom_appbar.dart';
+import 'package:fluttrr/Constants/drawer_screen.dart';
+import 'package:fluttrr/Constants/utils.dart';
+import 'package:fluttrr/Controller/BussinessPageController.dart';
+import 'package:fluttrr/Controller/ProfileController.dart';
 
-import '../ChatScreens/chat_screen.dart';
+import '../Models/BussinessModel/BusinessChatModel.dart';
 
-class BusinessmessagesScreen extends StatefulWidget {
-  const BusinessmessagesScreen({super.key});
+class BusinessmessagesScreen2 extends StatefulWidget {
+  const BusinessmessagesScreen2({super.key});
 
   @override
-  State<BusinessmessagesScreen> createState() => _BusinessmessagesScreenState();
+  State<BusinessmessagesScreen2> createState() =>
+      _BusinessmessagesScreen2State();
 }
 
-class _BusinessmessagesScreenState extends State<BusinessmessagesScreen> {
+class _BusinessmessagesScreen2State extends State<BusinessmessagesScreen2> {
+  BusinessController businessController = Get.put(BusinessController());
+  ProfileController profileController = Get.put(ProfileController());
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final List<Map<String, String>> _chatUsers = [
-    {
-      "name": "John Doe",
-      "lastMessage": "Hey! How are you?",
-      "time": "3:45 PM",
-    },
-    {
-      "name": "Jane Smith",
-      "lastMessage": "Let’s catch up soon!",
-      "time": "2:15 PM",
-    },
-    {
-      "name": "Alex Brown",
-      "lastMessage": "Can you send the details?",
-      "time": "1:00 PM",
-    },
-    {
-      "name": "Emily White",
-      "lastMessage": "Great! See you tomorrow.",
-      "time": "12:30 PM",
-    },
-  ];
+
+  @override
+  void initState() {
+    super.initState();
+    apis();
+  }
+
+  void apis() async {
+    await businessController.GetBusinessPage();
+    await businessController.BusinessChats(
+        businessController.businessPageModel?.profile?.id.toString() ?? "",
+        "business");
+    setState(() {}); // Trigger rebuild after data fetch
+  }
 
   @override
   Widget build(BuildContext context) {
+    final chatList = businessController.businessChatList?.chatList ?? [];
+
     return Scaffold(
       key: _scaffoldKey,
       drawer: DrawerScreen(),
       appBar: PreferredSize(
-          preferredSize: Size.fromHeight(83), child: Businessappbar(scaffoldKey: _scaffoldKey,)),
+          preferredSize: const Size.fromHeight(83),
+          child: Businessappbar(
+            scaffoldKey: _scaffoldKey,
+          )),
       body: Stack(
         children: [
           Padding(
@@ -71,45 +74,44 @@ class _BusinessmessagesScreenState extends State<BusinessmessagesScreen> {
           ),
           Padding(
             padding: const EdgeInsets.only(top: 50),
-            child: ListView.builder(
-              itemCount: _chatUsers.length,
-              itemBuilder: (context, index) {
-                final user = _chatUsers[index];
-                return _buildChatCard(
-                  context,
-                  name: user["name"]!,
-                  lastMessage: user["lastMessage"]!,
-                  time: user["time"]!,
-                );
-              },
-            ),
+            child: chatList.isEmpty
+                ? Center(child: Text("No Chat Found"))
+                : ListView.builder(
+                    itemCount: chatList.length,
+                    itemBuilder: (context, index) {
+                      final user = chatList[index];
+                      return _buildChatCard(
+                        context,
+                        name: user.userName ?? "Unknown",
+                        lastMessage: user.lastMessage ?? "",
+                        image: user.userImage?[0].toString() ?? "",
+                        time: formatTimestamp(user.lastMessageTime),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildChatCard(
-    BuildContext context, {
-    required String name,
-    required String lastMessage,
-    required String time,
-  }) {
+  Widget _buildChatCard(BuildContext context,
+      {required String name,
+      required String lastMessage,
+      required String time,
+      required String image}) {
     return Column(
       children: [
-        SizedBox(
-          height: 15,
-        ),
+        SizedBox(height: 15),
         ListTile(
           minTileHeight: 50,
           leading: Stack(
             alignment: Alignment.bottomRight,
             children: [
-              const CircleAvatar(
-                  radius: 25,
-                  backgroundImage: AssetImage(
-                      'assets/Group 48096083.png') // Custom red color
-                  ),
+              CircleAvatar(
+                radius: 25,
+                backgroundImage: NetworkImage("${Apis.ip} ${image.toString()}"),
+              ),
               Padding(
                 padding: const EdgeInsets.all(2.0),
                 child: Container(
@@ -138,9 +140,7 @@ class _BusinessmessagesScreenState extends State<BusinessmessagesScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(
-                width: 4,
-              ),
+              SizedBox(width: 4),
               SvgPicture.asset(
                 'assets/verify.svg',
                 height: 14,
@@ -156,18 +156,18 @@ class _BusinessmessagesScreenState extends State<BusinessmessagesScreen> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          trailing: GradientText(time, colors: [
-            Color(0xff007BFD),
-            Color(0xff20235A),
-          ]),
+          trailing: GradientText(
+            time,
+            colors: [
+              Color(0xff007BFD),
+              Color(0xff20235A),
+            ],
+          ),
           onTap: () {
             // Navigate to the chat detail screen
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //     builder: (context) => ChatScreen(providerName: name),
-            //   ),
-            // );
+            // Navigator.push(context, MaterialPageRoute(
+            //   builder: (context) => ChatScreen(providerName: name),
+            // ));
           },
         ),
         Padding(
@@ -178,5 +178,22 @@ class _BusinessmessagesScreenState extends State<BusinessmessagesScreen> {
         )
       ],
     );
+  }
+
+  String formatTimestamp(LastMessageTime? time) {
+    if (time == null || time.iSeconds == null) return "";
+    final dateTime = DateTime.fromMillisecondsSinceEpoch(time.iSeconds! * 1000);
+    final now = DateTime.now();
+    final diff = now.difference(dateTime);
+
+    if (diff.inDays > 0) {
+      return "${dateTime.day}/${dateTime.month}";
+    } else if (diff.inHours > 0) {
+      return "${diff.inHours}h ago";
+    } else if (diff.inMinutes > 0) {
+      return "${diff.inMinutes}m ago";
+    } else {
+      return "Just now";
+    }
   }
 }

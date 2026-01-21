@@ -7,19 +7,19 @@ class MateProfileViewModel {
 
   MateProfileViewModel.fromJson(Map<String, dynamic> json) {
     message = json['message'];
-    user = json['user'] != null ? new User.fromJson(json['user']) : null;
+    user = json['user'] != null ? User.fromJson(json['user']) : null;
     profile =
-    json['profile'] != null ? new Profile.fromJson(json['profile']) : null;
+    json['profile'] != null ? Profile.fromJson(json['profile']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['message'] = this.message;
-    if (this.user != null) {
-      data['user'] = this.user!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['message'] = message;
+    if (user != null) {
+      data['user'] = user!.toJson();
     }
-    if (this.profile != null) {
-      data['profile'] = this.profile!.toJson();
+    if (profile != null) {
+      data['profile'] = profile!.toJson();
     }
     return data;
   }
@@ -37,9 +37,9 @@ class User {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['userName'] = this.userName;
-    data['onlineStatus'] = this.onlineStatus;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['userName'] = userName;
+    data['onlineStatus'] = onlineStatus;
     return data;
   }
 }
@@ -79,23 +79,23 @@ class Profile {
     language = json['language'].cast<String>();
     countryFlag = json['countryFlag'];
     location = json['location'] != null
-        ? new Location.fromJson(json['location'])
+        ? Location.fromJson(json['location'])
         : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['age'] = this.age;
-    data['gender'] = this.gender;
-    data['status'] = this.status;
-    data['bio'] = this.bio;
-    data['interests'] = this.interests;
-    data['images'] = this.images;
-    data['country'] = this.country;
-    data['language'] = this.language;
-    data['countryFlag'] = this.countryFlag;
-    if (this.location != null) {
-      data['location'] = this.location!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['age'] = age;
+    data['gender'] = gender;
+    data['status'] = status;
+    data['bio'] = bio;
+    data['interests'] = interests;
+    data['images'] = images;
+    data['country'] = country;
+    data['language'] = language;
+    data['countryFlag'] = countryFlag;
+    if (location != null) {
+      data['location'] = location!.toJson();
     }
     return data;
   }
@@ -113,9 +113,9 @@ class Location {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['longitude'] = this.longitude;
-    data['latitude'] = this.latitude;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['longitude'] = longitude;
+    data['latitude'] = latitude;
     return data;
   }
 }

@@ -117,16 +117,16 @@ class UserProfile {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['images'] = this.images;
-    data['age'] = this.age;
-    data['gender'] = this.gender;
-    data['bio'] = this.bio;
-    data['interests'] = this.interests;
-    data['longitude'] = this.longitude;
-    data['latitude'] = this.latitude;
-    data['countryFlag'] = this.countryFlag;
-    data['country'] = this.country;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['images'] = images;
+    data['age'] = age;
+    data['gender'] = gender;
+    data['bio'] = bio;
+    data['interests'] = interests;
+    data['longitude'] = longitude;
+    data['latitude'] = latitude;
+    data['countryFlag'] = countryFlag;
+    data['country'] = country;
     return data;
   }
 }

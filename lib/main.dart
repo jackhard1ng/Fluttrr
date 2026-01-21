@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:responsive_framework/responsive_framework.dart';
-import 'package:tripmates/Auth_Screens/splash_screen.dart';
-import 'package:tripmates/Constants/theme_data.dart';
+import 'package:fluttrr/auth_screens/splash_screen.dart'; // Fixed import
+import 'package:fluttrr/constants/theme_data.dart'; // Fixed import
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'Services/PushNotifications.dart';
+import 'services/push_notifications.dart'; // Fixed path (lowercase 's' if needed)
 import 'firebase_options.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
@@ -18,56 +17,47 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Request permission for Firebase Cloud Messaging (FCM)
   await FirebaseMessaging.instance.requestPermission();
-
-  String? token = await FirebaseMessaging.instance.getToken();
+  final token = await FirebaseMessaging.instance.getToken();
   print("FCM Token: $token");
 
-  // Initialize push notifications
   await PushNotificationService.initialize();
 
-  // 🟢 Initialize Hive
   await Hive.initFlutter();
-  await Hive.openBox('chatBox'); // Open the chat box for storing messages
+  await Hive.openBox('chatBox');
   await Hive.openBox('deleted_messages');
+
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
-        systemNavigationBarColor: Colors.transparent,
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark),
+      systemNavigationBarColor: Colors.transparent,
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+    ),
   );
 
-  runApp(const MyApp());
+  runApp(const FluttrrApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class FluttrrApp extends StatelessWidget {
+  const FluttrrApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      builder: (context, child) => ResponsiveWrapper.builder(
-        child,
-        maxWidth: 1200,
-        minWidth: 480,
-        defaultScale: true,
-        breakpoints: [
-          const ResponsiveBreakpoint.resize(
-            450,
-            name: MOBILE,
-          ),
-          const ResponsiveBreakpoint.autoScale(800, name: TABLET),
-          const ResponsiveBreakpoint.resize(1000, name: DESKTOP),
+      builder: (context, child) => ResponsiveBreakpoints.builder(
+        breakpoints: const [
+          Breakpoint(start: 0, end: 450, name: MOBILE),
+          Breakpoint(start: 451, end: 800, name: TABLET),
+          Breakpoint(start: 801, end: 1200, name: DESKTOP),
         ],
+        child: child!,
       ),
       themeMode: ThemeMode.system,
       darkTheme: ThemeNotifier().darkTheme,
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'Fluttrr',
       theme: ThemeNotifier().lightTheme,
-      home: SplashScreen(),
+      home: const SplashScreen(),
     );
   }
 }

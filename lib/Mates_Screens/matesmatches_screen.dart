@@ -4,11 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:gradient_borders/box_borders/gradient_box_border.dart';
-import 'package:tripmates/Constants/Apis_Constants.dart';
-import 'package:tripmates/Constants/bottombar.dart';
-import 'package:tripmates/Constants/custom_appbar.dart';
-import 'package:tripmates/Constants/utils.dart';
-import 'package:tripmates/Mates_Screens/mateswhoisaround_screen.dart';
+import 'package:fluttrr/Constants/Apis_Constants.dart';
+import 'package:fluttrr/Constants/bottombar.dart';
+import 'package:fluttrr/Constants/custom_appbar.dart';
+import 'package:fluttrr/Constants/utils.dart';
 
 import '../Controller/MatesController.dart';
 import '../Home_Screen/userinfo_screen.dart';
@@ -24,7 +23,7 @@ class MatesmatchesScreen extends StatefulWidget {
 class _MatesmatchesScreenState extends State<MatesmatchesScreen> {
   Matescontroller matescontroller = Get.put(Matescontroller());
   int selectedIndex = 2;
-  List<File> _selectedImageFiles = [];
+  final List<File> _selectedImageFiles = [];
 
   List sortMatches = [
     'Recently Active',
@@ -150,22 +149,26 @@ class _MatesmatchesScreenState extends State<MatesmatchesScreen> {
                           padding: const EdgeInsets.only(
                               left: 20, right: 20, top: 15),
                           child: InkWell(
-                            onTap: (){
-                              Get.to(()=> UserinfoScreen(id: id.toString(),));
+                            onTap: () {
+                              Get.to(() => UserinfoScreen(
+                                    id: id.toString(),
+                                  ));
                             },
                             child: Container(
                               height: 110,
                               width: double.infinity,
                               decoration: BoxDecoration(
                                   border: GradientBoxBorder(
-                                      gradient: toptobottomgradient, width: 2.1),
+                                      gradient: toptobottomgradient,
+                                      width: 2.1),
                                   borderRadius: BorderRadius.circular(10),
                                   gradient: LinearGradient(colors: [
                                     Color(0xff4F78DA),
                                     Color(0xff000000).withOpacity(0.49),
                                   ])),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Row(
                                     children: [
@@ -175,7 +178,7 @@ class _MatesmatchesScreenState extends State<MatesmatchesScreen> {
                                       CircleAvatar(
                                         radius: 33,
                                         backgroundImage:
-                                            NetworkImage('${Apis.ip}${image}'),
+                                            NetworkImage('${Apis.ip}$image'),
                                       ),
                                       SizedBox(
                                         width: 10,
@@ -192,20 +195,21 @@ class _MatesmatchesScreenState extends State<MatesmatchesScreen> {
                                                 height: 17,
                                                 decoration: BoxDecoration(
                                                     borderRadius:
-                                                        BorderRadius.circular(30),
+                                                        BorderRadius.circular(
+                                                            30),
                                                     color: whiteColor),
                                                 child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                          horizontal: 5),
+                                                  padding: const EdgeInsets
+                                                      .symmetric(horizontal: 5),
                                                   child: Center(
                                                       child: Text(
-                                                    '${interest}',
+                                                    '$interest',
                                                     style: TextStyle(
                                                         fontSize: 9,
                                                         fontWeight:
                                                             FontWeight.bold,
-                                                        color: Color(0xff930000)),
+                                                        color:
+                                                            Color(0xff930000)),
                                                   )),
                                                 ),
                                               ),
@@ -226,7 +230,7 @@ class _MatesmatchesScreenState extends State<MatesmatchesScreen> {
                                           Row(
                                             children: [
                                               Text(
-                                                '${name}, ${age}',
+                                                '$name, $age',
                                                 style: TextStyle(
                                                     fontSize: 14,
                                                     fontWeight: FontWeight.bold,
@@ -254,8 +258,9 @@ class _MatesmatchesScreenState extends State<MatesmatchesScreen> {
                                               color: Color(0xff339003),
                                             ),
                                             child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 10),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
                                               child: Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.center,
@@ -284,13 +289,16 @@ class _MatesmatchesScreenState extends State<MatesmatchesScreen> {
                                     ],
                                   ),
                                   InkWell(
-                                    onTap: ()async{
+                                    onTap: () async {
                                       await Chatrespository().StartConversation(
-                                        matescontroller.matesMatchModel?.mates?[index].userID.toString()??"",
+                                        matescontroller.matesMatchModel
+                                                ?.mates?[index].userID
+                                                .toString() ??
+                                            "",
                                         "Hey Mate", // Use the saved messageText, not controller.text
                                         _selectedImageFiles,
                                       );
-                                      Get.to(()=> BottomBar(screen: 3));
+                                      Get.to(() => BottomBar(screen: 3));
                                     },
                                     child: Padding(
                                       padding: const EdgeInsets.only(right: 15),

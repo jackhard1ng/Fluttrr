@@ -8,14 +8,13 @@ import 'package:gradient_progress_indicator/widget/gradient_progress_indicator_w
 import 'package:image_picker/image_picker.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
-import 'package:tripmates/Constants/Apis_Constants.dart';
-import 'package:tripmates/Constants/button.dart';
-import 'package:tripmates/Constants/utils.dart';
+import 'package:fluttrr/Constants/Apis_Constants.dart';
+import 'package:fluttrr/Constants/button.dart';
+import 'package:fluttrr/Constants/utils.dart';
 
 import '../Controller/ProfileController.dart';
 
 class EditProfileScreen extends StatefulWidget {
-
   const EditProfileScreen({super.key});
 
   @override
@@ -23,20 +22,16 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-
-  ProfileController profileController=Get.put(ProfileController());
+  ProfileController profileController = Get.put(ProfileController());
 
   final TextEditingController username = TextEditingController();
   final TextEditingController Bio = TextEditingController();
   final TextEditingController Location = TextEditingController();
 
-
-
-
   int selectedIndex = 0;
   int selectedIndex1 = 0;
-  String?selectedGender;
-  String?selectedstatus;
+  String selectedGender = "male";
+  String selectedstatus = "traveller";
 
   List<String> _taglist = [];
   final TextEditingController _tagController = TextEditingController();
@@ -45,7 +40,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   File? _selectedCoverImage;
   File? _selectedProfileImage;
- bool loading=false;
+  bool loading = false;
   final ImagePicker _picker = ImagePicker();
 
   // Function to select a cover image
@@ -76,7 +71,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     Future.microtask(() async {
       await profileController.GetProfile();
 
-      if (profileController.profile != null && profileController.profile!.profile != null) {
+      if (profileController.profile != null &&
+          profileController.profile!.profile != null) {
         setState(() {
           username.text = profileController.profile!.userName ?? "";
           Bio.text = profileController.profile!.profile!.bio ?? "";
@@ -91,30 +87,28 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             selectedIndex = 2;
           }
           //Status
-          if (profileController.profile!.profile!.status == "traveler") {
+          if (profileController.profile!.profile!.status == "traveller") {
             selectedIndex = 0;
-          }  else {
+          } else {
             selectedIndex = 1;
           }
 
-        //......Langauges
-        _taglisthobbies=profileController.profile?.profile?.interests ??[];
-          _taglist=profileController.profile?.profile?.language ??[];
+          //......Langauges
+          _taglisthobbies = profileController.profile?.profile?.interests ?? [];
+          _taglist = profileController.profile?.profile?.language ?? [];
         });
       }
     });
   }
 
-
-
   List gender = [
-    'Male',
-    'Female',
+    'male',
+    'female',
     'Non-Binary',
   ];
   List status = [
-    'Traveler',
-    'Local',
+    'traveller',
+    'local',
   ];
 
   @override
@@ -129,7 +123,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    onPressed:(){
+                    onPressed: () {
                       Get.back();
                     },
                     icon: Icon(
@@ -169,7 +163,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           fit: BoxFit.cover,
                           image: _selectedCoverImage != null
                               ? FileImage(_selectedCoverImage!) as ImageProvider
-                              : NetworkImage('${Apis.ip}${profileController.profile?.profile?.coverImage}'),
+                              : NetworkImage(
+                                  '${Apis.ip}${profileController.profile?.profile?.coverImage?[0]}'),
                         ),
                       ),
                       child: Center(
@@ -195,7 +190,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             radius: 49,
                             backgroundImage: _selectedProfileImage != null
                                 ? FileImage(_selectedProfileImage!)
-                                : NetworkImage('${Apis.ip}${profileController.profile?.profile?.images?[0]}') as ImageProvider,
+                                : NetworkImage(
+                                        '${Apis.ip}${profileController.profile?.profile?.images?[0]}')
+                                    as ImageProvider,
                           ),
                         ),
                       ),
@@ -213,8 +210,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
-
                   Text(
                     'User Name',
                     style: TextStyle(
@@ -341,17 +336,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               onTap: () {
                                 setState(() {
                                   selectedIndex = index;
-                                  if(selectedIndex==0){
-                                    selectedGender="Male";
-                                    print("selected gender : s=$selectedGender");
-                                  }else if(selectedIndex==1){
-                                    selectedGender="Female";
-                                    print("selected gender : s=$selectedGender");
-
-                                  }else{
-                                    selectedGender="Non-Binary";
-                                    print("selected gender : s=$selectedGender");
-
+                                  if (selectedIndex == 0) {
+                                    selectedGender = "male";
+                                    print(
+                                        "selected gender : s=$selectedGender");
+                                  } else if (selectedIndex == 1) {
+                                    selectedGender = "female";
+                                    print(
+                                        "selected gender : s=$selectedGender");
+                                  } else {
+                                    selectedGender = "Non-Binary";
+                                    print(
+                                        "selected gender : s=$selectedGender");
                                   }
                                 });
                               },
@@ -483,13 +479,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               onTap: () {
                                 setState(() {
                                   selectedIndex1 = index;
-                                  if(selectedIndex==0){
-                                    selectedstatus="Traveler";
-                                    print("selected status : s=$selectedstatus");
-                                  }else{
-                                    selectedGender="Local";
-                                    print("selected status : s=$selectedstatus");
-
+                                  if (selectedIndex == 0) {
+                                    selectedstatus = "traveller";
+                                    print(
+                                        "selected status : s=$selectedstatus");
+                                  } else {
+                                    selectedGender = "local";
+                                    print(
+                                        "selected status : s=$selectedstatus");
                                   }
                                 });
                               },
@@ -732,61 +729,77 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         width: 30,
                       ),
                       Expanded(
-                        child:loading?  GradientProgressIndicator(
-                          radius: 21,
-                          duration: 3,
-                          strokeWidth: 7,
-                          backgroundColor: Colors.white,
-                          gradientStops: const [
-                            0.2,
-                            0.7,
-                            0.3,
-                            0.3,
-                          ],
-                          gradientColors: const [
-                            Color(0xff007BFD),
-                            Color(0xff20235A),
-                            Color(0xff007BFD),
-                            Colors.white
-                          ],
-                          child: Text(''),
-                        ) :Button(
-                          borderRadius: BorderRadius.circular(10),
-                          height: 60,
-                          width: double.infinity,
-                          onTap: () async{
-                            setState(() {
-                              loading=true;
-                            });
-                         final update=   await profileController.editProfile(age: profileController.profile?.profile?.age.toString()??"18", gender: selectedGender.toString(), status: selectedstatus.toString(), bio: Bio.text, interests: _taglisthobbies, Language: _taglist, longitude: "-89", latitude: "90", userName: username.text,coverImage: _selectedCoverImage,image: _selectedProfileImage);
-                            if(update){
-
-                              await profileController.GetProfile();
-                              setState(() {
-                                loading=false;
-                              });
-                              Get.back();
-                            }else{
-                              setState(() {
-                                loading=false;
-                              });
-                              showTopSnackBar(
-                                Overlay.of(context),
-                                CustomSnackBar.error(
-                                  message: "Failed to update Profile.",
-                                ),
-                              );
-                            }
-                          },
-                          child: const Center(
-                              child: Text(
-                            'Save Changes',
-                            style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white),
-                          )),
-                        ),
+                        child: loading
+                            ? GradientProgressIndicator(
+                                radius: 21,
+                                duration: 3,
+                                strokeWidth: 7,
+                                backgroundColor: Colors.white,
+                                gradientStops: const [
+                                  0.2,
+                                  0.7,
+                                  0.3,
+                                  0.3,
+                                ],
+                                gradientColors: const [
+                                  Color(0xff007BFD),
+                                  Color(0xff20235A),
+                                  Color(0xff007BFD),
+                                  Colors.white
+                                ],
+                                child: Text(''),
+                              )
+                            : Button(
+                                borderRadius: BorderRadius.circular(10),
+                                height: 60,
+                                width: double.infinity,
+                                onTap: () async {
+                                  setState(() {
+                                    loading = true;
+                                  });
+                                  final update =
+                                      await profileController.editProfile(
+                                          age: profileController
+                                                  .profile?.profile?.age
+                                                  .toString() ??
+                                              "18",
+                                          gender: selectedGender.toString(),
+                                          status: selectedstatus.toString(),
+                                          bio: Bio.text,
+                                          interests: _taglisthobbies,
+                                          Language: _taglist,
+                                          longitude: "-89",
+                                          latitude: "90",
+                                          userName: username.text,
+                                          coverImage: _selectedCoverImage,
+                                          image: _selectedProfileImage);
+                                  if (update) {
+                                    await profileController.GetProfile();
+                                    setState(() {
+                                      loading = false;
+                                    });
+                                    Get.back();
+                                  } else {
+                                    setState(() {
+                                      loading = false;
+                                    });
+                                    showTopSnackBar(
+                                      Overlay.of(context),
+                                      CustomSnackBar.error(
+                                        message: "Failed to update Profile.",
+                                      ),
+                                    );
+                                  }
+                                },
+                                child: const Center(
+                                    child: Text(
+                                  'Save Changes',
+                                  style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white),
+                                )),
+                              ),
                       ),
                     ],
                   ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:tripmates/ProfileScreens/ChangePasswordScreen.dart';
+import 'package:fluttrr/ProfileScreens/ChangePasswordScreen.dart';
 
 import 'NotificationPreference.dart';
 
@@ -42,8 +42,8 @@ class _SettingsandprivacyScreenState extends State<SettingsandprivacyScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               InkWell(
-                onTap: (){
-                  Get.to(()=> NotificationsPreferenceScreen());
+                onTap: () {
+                  Get.to(() => NotificationsPreferenceScreen());
                 },
                 child: ListTile(
                   contentPadding: EdgeInsets.zero,
@@ -74,8 +74,8 @@ class _SettingsandprivacyScreenState extends State<SettingsandprivacyScreen> {
                 height: 7,
               ),
               InkWell(
-                onTap: (){
-                  Get.to(()=> ChangePasswordScreen());
+                onTap: () {
+                  Get.to(() => ChangePasswordScreen());
                 },
                 child: ListTile(
                   contentPadding: EdgeInsets.zero,

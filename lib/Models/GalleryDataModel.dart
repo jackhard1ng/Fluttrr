@@ -9,16 +9,16 @@ class GalleryDataModel {
     if (json['gallery'] != null) {
       gallery = <Gallery>[];
       json['gallery'].forEach((v) {
-        gallery!.add(new Gallery.fromJson(v));
+        gallery!.add(Gallery.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['message'] = this.message;
-    if (this.gallery != null) {
-      data['gallery'] = this.gallery!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['message'] = message;
+    if (gallery != null) {
+      data['gallery'] = gallery!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -50,13 +50,13 @@ class Gallery {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['userID'] = this.userID;
-    data['images'] = this.images;
-    data['description'] = this.description;
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['userID'] = userID;
+    data['images'] = images;
+    data['description'] = description;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
     return data;
   }
 }

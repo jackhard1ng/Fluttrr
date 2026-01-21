@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tripmates/Repository/ProfileRespository.dart';
+import 'package:fluttrr/Repository/ProfileRespository.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -10,11 +10,11 @@ class ChangePasswordScreen extends StatefulWidget {
 }
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
-
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _oldPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
   bool _obscureOldPassword = true;
   bool _obscureNewPassword = true;
@@ -54,30 +54,28 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       await Future.delayed(const Duration(seconds: 2));
 
       setState(() => _isLoading = false);
-   final password = await  ProfileRepository().changePassword(_oldPasswordController.text, _newPasswordController.text);
-if(password){
-  Get.snackbar(
-    'Success',
-    'Password changed successfully',
-    snackPosition: SnackPosition.BOTTOM,
-    backgroundColor: Colors.green,
-    colorText: Colors.white,
-  );
-  _oldPasswordController.clear();
-  _newPasswordController.clear();
-  _confirmPasswordController.clear();
-}else{
-  Get.snackbar(
-    'Failed',
-    'Password changed Failed',
-    snackPosition: SnackPosition.BOTTOM,
-    backgroundColor: Colors.green,
-    colorText: Colors.white,
-  );
-
-}
-
-
+      final password = await ProfileRepository().changePassword(
+          _oldPasswordController.text, _newPasswordController.text);
+      if (password) {
+        Get.snackbar(
+          'Success',
+          'Password changed successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        _oldPasswordController.clear();
+        _newPasswordController.clear();
+        _confirmPasswordController.clear();
+      } else {
+        Get.snackbar(
+          'Failed',
+          'Password changed Failed',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      }
     }
   }
 
@@ -127,10 +125,13 @@ if(password){
                   prefixIcon: const Icon(Icons.lock_outline),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _obscureOldPassword ? Icons.visibility_off : Icons.visibility,
+                      _obscureOldPassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
                     ),
                     onPressed: () {
-                      setState(() => _obscureOldPassword = !_obscureOldPassword);
+                      setState(
+                          () => _obscureOldPassword = !_obscureOldPassword);
                     },
                   ),
                   border: OutlineInputBorder(
@@ -158,10 +159,13 @@ if(password){
                   prefixIcon: const Icon(Icons.lock_reset),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _obscureNewPassword ? Icons.visibility_off : Icons.visibility,
+                      _obscureNewPassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
                     ),
                     onPressed: () {
-                      setState(() => _obscureNewPassword = !_obscureNewPassword);
+                      setState(
+                          () => _obscureNewPassword = !_obscureNewPassword);
                     },
                   ),
                   border: OutlineInputBorder(
@@ -202,10 +206,13 @@ if(password){
                   prefixIcon: const Icon(Icons.lock_reset),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                      _obscureConfirmPassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
                     ),
                     onPressed: () {
-                      setState(() => _obscureConfirmPassword = !_obscureConfirmPassword);
+                      setState(() =>
+                          _obscureConfirmPassword = !_obscureConfirmPassword);
                     },
                   ),
                   border: OutlineInputBorder(
@@ -240,13 +247,13 @@ if(password){
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
-                    'Change Password',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                          'Change Password',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
             ],
