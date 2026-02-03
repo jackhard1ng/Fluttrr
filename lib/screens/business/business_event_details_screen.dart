@@ -34,8 +34,9 @@ class _BusinessEventDetailsScreenState
   }
 
   void _trackView() {
-    if (widget.event.id != null) {
-      _businessController.trackEventView(widget.event.id!);
+    final eventId = widget.event.eventId ?? widget.event.id;
+    if (eventId != null) {
+      _businessController.recordEventView(eventId);
     }
   }
 
@@ -46,8 +47,9 @@ class _BusinessEventDetailsScreenState
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
         // Track click
-        if (widget.event.id != null) {
-          _businessController.trackEventClick(widget.event.id!);
+        final eventId = widget.event.eventId ?? widget.event.id;
+        if (eventId != null) {
+          _businessController.recordEventClick(eventId);
         }
       }
     }
@@ -69,9 +71,10 @@ class _BusinessEventDetailsScreenState
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              if (widget.event.id != null) {
-                final success = await _businessController.deleteEvent(
-                  widget.event.id!,
+              final eventId = widget.event.eventId ?? widget.event.id;
+              if (eventId != null) {
+                final success = await _businessController.deleteBusinessEvent(
+                  eventId,
                 );
                 if (success) {
                   Get.back();

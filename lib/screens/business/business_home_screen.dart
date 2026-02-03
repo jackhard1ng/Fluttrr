@@ -33,7 +33,7 @@ class _BusinessHomeScreenState extends State<BusinessHomeScreen>
 
   void _loadData() {
     _businessController.loadBusinessProfile();
-    _businessController.loadMyEvents();
+    _businessController.loadMyBusinessEvents();
   }
 
   @override
@@ -191,7 +191,7 @@ class _BusinessHomeScreenState extends State<BusinessHomeScreen>
               borderRadius: BorderRadius.circular(AppRadius.sm),
             ),
             child: Text(
-              _businessController.subscriptionStatus.value?.planName ?? 'Free',
+              business.subscriptionStatus?.planName ?? 'Free',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 12,
@@ -220,11 +220,11 @@ class _EventsList extends StatelessWidget {
 
     return Obx(() {
       if (businessController.isLoading.value &&
-          businessController.myEvents.isEmpty) {
+          businessController.myBusinessEvents.isEmpty) {
         return const LoadingIndicator();
       }
 
-      final events = _getFilteredEvents(businessController.myEvents);
+      final events = _getFilteredEvents(businessController.myBusinessEvents);
 
       if (events.isEmpty) {
         return EmptyState(
@@ -235,7 +235,7 @@ class _EventsList extends StatelessWidget {
       }
 
       return RefreshIndicator(
-        onRefresh: businessController.loadMyEvents,
+        onRefresh: businessController.loadMyBusinessEvents,
         child: ListView.builder(
           padding: const EdgeInsets.all(AppSpacing.md),
           itemCount: events.length,

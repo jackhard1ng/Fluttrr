@@ -84,6 +84,7 @@ class ApiEndpoints {
   static const String createBusinessEvent = '$apiBase/bussness/createEvent';
   static const String myBusinessEvents = '$apiBase/bussness/eventList';
   static const String updateBusinessEvent = '$apiBase/bussness/updateEvent/';
+  static const String deleteBusinessEvent = '$apiBase/bussness/deleteEvent/';
   static const String businessEventDetails = '$apiBase/bussness/eventById/';
   static const String joinBusinessEvent = '$apiBase/bussness/joinEvent';
   static const String leaveBusinessEvent = '$apiBase/bussness/leaveEvent';

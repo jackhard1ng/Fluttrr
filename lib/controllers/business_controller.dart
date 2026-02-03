@@ -299,7 +299,7 @@ class BusinessController extends GetxController {
     }
   }
 
-  /// Create business event
+  /// Create business event using internal form controllers
   Future<bool> createBusinessEvent() async {
     if (!_validateEventForm()) return false;
 
@@ -327,6 +327,52 @@ class BusinessController extends GetxController {
 
       if (response.success) {
         _clearEventForm();
+        await loadMyBusinessEvents();
+        return true;
+      } else {
+        errorMessage.value = response.displayMessage;
+        return false;
+      }
+    } catch (e) {
+      isCreating.value = false;
+      errorMessage.value = 'Failed to create event';
+      return false;
+    }
+  }
+
+  /// Create business event with explicit parameters
+  Future<bool> createEvent({
+    required String name,
+    required String description,
+    required String location,
+    required DateTime startDate,
+    required DateTime endDate,
+    required String eventType,
+    String? privacy,
+    int? maxAttendees,
+    String? ticketUrl,
+    File? image,
+  }) async {
+    isCreating.value = true;
+    errorMessage.value = '';
+
+    try {
+      final response = await _businessRepository.createBusinessEvent(
+        name: name,
+        description: description,
+        location: location,
+        latitude: 0, // Default - can be enhanced to geocode the location
+        longitude: 0,
+        startTime: startDate,
+        endTime: endDate,
+        eventType: eventType,
+        totalSlots: maxAttendees ?? 100,
+        images: image != null ? [image] : null,
+      );
+
+      isCreating.value = false;
+
+      if (response.success) {
         await loadMyBusinessEvents();
         return true;
       } else {
@@ -438,11 +484,27 @@ class BusinessController extends GetxController {
     eventLocationController.text = event.location ?? '';
     eventSlotsController.text = event.totalSlots?.toString() ?? '';
     eventPriceController.text = event.price?.toString() ?? '';
-    eventStartTime.value = event.startTime;
-    eventEndTime.value = event.endTime;
+    eventStartTime.value = event.startDate;
+    eventEndTime.value = event.endDate;
     eventType.value = event.eventType ?? '';
     eventLatitude.value = event.latitude ?? 0;
     eventLongitude.value = event.longitude ?? 0;
+  }
+
+  /// Delete business event
+  Future<bool> deleteBusinessEvent(int eventId) async {
+    try {
+      final response = await _businessRepository.deleteBusinessEvent(eventId);
+      if (response.success) {
+        myBusinessEvents.removeWhere((e) => e.eventId == eventId || e.id == eventId);
+        businessEvents.removeWhere((e) => e.eventId == eventId || e.id == eventId);
+        topEvents.removeWhere((e) => e.eventId == eventId || e.id == eventId);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
   }
 
   /// Join business event
@@ -561,24 +623,31 @@ class BusinessController extends GetxController {
       if (index != -1) {
         final event = list[index];
         list[index] = BusinessEvent(
+          id: event.id,
           eventId: event.eventId,
           businessId: event.businessId,
           name: event.name,
           description: event.description,
           location: event.location,
+          locationName: event.locationName,
           latitude: event.latitude,
           longitude: event.longitude,
-          startTime: event.startTime,
-          endTime: event.endTime,
+          startDate: event.startDate,
+          endDate: event.endDate,
           eventType: event.eventType,
+          privacy: event.privacy,
+          image: event.image,
           images: event.images,
           totalSlots: event.totalSlots,
+          maxAttendees: event.maxAttendees,
           remainingSlots: event.remainingSlots,
           price: event.price,
           currency: event.currency,
-          attendeeCount: event.attendeeCount,
-          viewCount: event.viewCount,
-          clickCount: event.clickCount,
+          ticketUrl: event.ticketUrl,
+          attendeesCount: event.attendeesCount,
+          views: event.views,
+          clicks: event.clicks,
+          saves: event.saves,
           userJoined: joined,
           userSaved: event.userSaved,
         );
@@ -591,24 +660,31 @@ class BusinessController extends GetxController {
     if (selectedEvent.value?.eventId == eventId) {
       final event = selectedEvent.value!;
       selectedEvent.value = BusinessEvent(
+        id: event.id,
         eventId: event.eventId,
         businessId: event.businessId,
         name: event.name,
         description: event.description,
         location: event.location,
+        locationName: event.locationName,
         latitude: event.latitude,
         longitude: event.longitude,
-        startTime: event.startTime,
-        endTime: event.endTime,
+        startDate: event.startDate,
+        endDate: event.endDate,
         eventType: event.eventType,
+        privacy: event.privacy,
+        image: event.image,
         images: event.images,
         totalSlots: event.totalSlots,
+        maxAttendees: event.maxAttendees,
         remainingSlots: event.remainingSlots,
         price: event.price,
         currency: event.currency,
-        attendeeCount: event.attendeeCount,
-        viewCount: event.viewCount,
-        clickCount: event.clickCount,
+        ticketUrl: event.ticketUrl,
+        attendeesCount: event.attendeesCount,
+        views: event.views,
+        clicks: event.clicks,
+        saves: event.saves,
         userJoined: joined,
         userSaved: event.userSaved,
       );
@@ -622,24 +698,31 @@ class BusinessController extends GetxController {
       if (index != -1) {
         final event = list[index];
         list[index] = BusinessEvent(
+          id: event.id,
           eventId: event.eventId,
           businessId: event.businessId,
           name: event.name,
           description: event.description,
           location: event.location,
+          locationName: event.locationName,
           latitude: event.latitude,
           longitude: event.longitude,
-          startTime: event.startTime,
-          endTime: event.endTime,
+          startDate: event.startDate,
+          endDate: event.endDate,
           eventType: event.eventType,
+          privacy: event.privacy,
+          image: event.image,
           images: event.images,
           totalSlots: event.totalSlots,
+          maxAttendees: event.maxAttendees,
           remainingSlots: event.remainingSlots,
           price: event.price,
           currency: event.currency,
-          attendeeCount: event.attendeeCount,
-          viewCount: event.viewCount,
-          clickCount: event.clickCount,
+          ticketUrl: event.ticketUrl,
+          attendeesCount: event.attendeesCount,
+          views: event.views,
+          clicks: event.clicks,
+          saves: event.saves,
           userJoined: event.userJoined,
           userSaved: !event.userSaved,
         );

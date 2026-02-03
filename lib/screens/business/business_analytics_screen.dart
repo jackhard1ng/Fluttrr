@@ -27,7 +27,7 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen> {
   }
 
   void _loadAnalytics() {
-    _businessController.loadAnalytics();
+    _businessController.loadBusinessAnalytics();
   }
 
   @override

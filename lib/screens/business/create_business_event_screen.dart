@@ -337,7 +337,7 @@ class _CreateBusinessEventScreenState extends State<CreateBusinessEventScreen> {
                     // Create button
                     Obx(() => GradientButton(
                           text: 'Publish Event',
-                          isLoading: _businessController.isLoading.value,
+                          isLoading: _businessController.isCreating.value,
                           onPressed: _createEvent,
                         )),
 

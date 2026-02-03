@@ -186,6 +186,11 @@ class BusinessRepository extends BaseRepository {
     );
   }
 
+  /// Delete business event
+  Future<ApiResponse<dynamic>> deleteBusinessEvent(int eventId) async {
+    return delete('${ApiEndpoints.deleteBusinessEvent}$eventId');
+  }
+
   /// Join business event
   Future<ApiResponse<dynamic>> joinBusinessEvent(int eventId) async {
     return post(
