@@ -22,7 +22,7 @@ class Matescontroller extends GetxController {
 
   Future<bool> GetMates(String parameter) async {
     final Mates = await Matesrepository().GetMates(parameter);
-    print("Profile Fatch is : $Mates");
+    print("Profile Fetch is : $Mates");
     if (Mates == null) {
       return false;
     } else {
@@ -36,7 +36,7 @@ class Matescontroller extends GetxController {
 
   Future<bool> NearbyMatesMates() async {
     final Mates = await Matesrepository().NearbyMates();
-    print("Profile Fatch is : $Mates");
+    print("Profile Fetch is : $Mates");
     if (Mates == null) {
       return false;
     } else {
@@ -50,7 +50,7 @@ class Matescontroller extends GetxController {
 
   Future<bool> MatesMatchList() async {
     final Mates = await Matesrepository().MatesMatchList();
-    print("Profile Fatch is : $Mates");
+    print("Profile Fetch is : $Mates");
     if (Mates == null) {
       return false;
     } else {
@@ -64,7 +64,7 @@ class Matescontroller extends GetxController {
 
   Future<bool> MatesMatchRecentlyList() async {
     final Mates = await Matesrepository().GetRecentlyMatchesMates();
-    print("Profile Fatch is : $Mates");
+    print("Profile Fetch is : $Mates");
     if (Mates == null) {
       return false;
     } else {
@@ -78,7 +78,7 @@ class Matescontroller extends GetxController {
 
   Future<bool> MatesMatchActiveList() async {
     final Mates = await Matesrepository().GetActiveMatchesMates();
-    print("Profile Fatch is : $Mates");
+    print("Profile Fetch is : $Mates");
     if (Mates == null) {
       return false;
     } else {
@@ -92,7 +92,7 @@ class Matescontroller extends GetxController {
 
   Future<bool> ViewByDistance(String distance, String unit) async {
     final Mates = await Matesrepository().ViewByDistance(distance, unit);
-    print("Profile Fatch is : $Mates");
+    print("Profile Fetch is : $Mates");
     viewByDistanceModel = ViewByDistanceModel.fromJson(Mates);
     update(["Profile_update"]);
     return true;
@@ -111,7 +111,7 @@ class Matescontroller extends GetxController {
   ) async {
     final Mates = await Matesrepository()
         .FilterNearbyMates(ageMin, ageMax, status, gender, language, Interest);
-    print("Profile Fatch is : $Mates");
+    print("Profile Fetch is : $Mates");
     matesFilterModel = MatesFilterModel.fromJson(Mates);
     update(["Profile_update"]);
     return true;
@@ -121,7 +121,7 @@ class Matescontroller extends GetxController {
 
   Future<bool> LikedMates(String Likedid, BuildContext context) async {
     final Mates = await Matesrepository().Likedmate(Likedid);
-    print("Profile Fatch is : $Mates");
+    print("Profile Fetch is : $Mates");
     showTopSnackBar(
       Overlay.of(context),
       CustomSnackBar.success(

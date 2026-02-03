@@ -24,7 +24,7 @@ class BusinessController extends GetxController {
 //.................................SendOtp User.................................
   Future<bool> SendOtp(String email) async {
     final SendOtp = await BusinessRepository().SendOtp(email);
-    print("SendOtp Fatch is : $SendOtp");
+    print("SendOtp Fetch is : $SendOtp");
     if (SendOtp == null) {
       return false;
     } else {
@@ -36,7 +36,7 @@ class BusinessController extends GetxController {
 //.................................VerifyOtp User.................................
   Future<bool> VerifyOtp(String otp, String email) async {
     final VerifyOtp = await BusinessRepository().VerifyOtp(otp, email);
-    print("VerifyOtp Fatch is : $VerifyOtp");
+    print("VerifyOtp Fetch is : $VerifyOtp");
     if (VerifyOtp == null) {
       return false;
     } else {
@@ -108,7 +108,7 @@ class BusinessController extends GetxController {
         instagramLink: instagramLink,
         logo: logo,
         image: image);
-    print("VerifyOtp Fatch is : $VerifyOtp");
+    print("VerifyOtp Fetch is : $VerifyOtp");
     if (VerifyOtp == null) {
       return false;
     } else {
@@ -121,7 +121,7 @@ class BusinessController extends GetxController {
 
   Future<bool> GetBusinessPage() async {
     final activity = await BusinessRepository().GetDailyActivites();
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -135,7 +135,7 @@ class BusinessController extends GetxController {
 
   Future<bool> GetMYEvents() async {
     final activity = await BusinessRepository().MyEvents();
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -170,7 +170,7 @@ class BusinessController extends GetxController {
         logo: logo,
         image: image,
         id: id);
-    print("VerifyOtp Fatch is : $VerifyOtp");
+    print("VerifyOtp Fetch is : $VerifyOtp");
     if (VerifyOtp == null) {
       return false;
     } else {
@@ -213,7 +213,7 @@ class BusinessController extends GetxController {
         images: images,
         endTime: EndTime,
         id: id);
-    print("VerifyOtp Fatch is : $VerifyOtp");
+    print("VerifyOtp Fetch is : $VerifyOtp");
     if (VerifyOtp == null) {
       return false;
     } else {
@@ -226,7 +226,7 @@ class BusinessController extends GetxController {
 
   Future<bool> GetBussinessAnalytics() async {
     final activity = await BusinessRepository().GetBusinessAnalytics();
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -240,7 +240,7 @@ class BusinessController extends GetxController {
 
   Future<bool> GetEventDetails(String id) async {
     final activity = await BusinessRepository().GetEventdetials(id);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -254,7 +254,7 @@ class BusinessController extends GetxController {
 
   Future<bool> Subscription() async {
     final activity = await BusinessRepository().SubsCription();
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -268,7 +268,7 @@ class BusinessController extends GetxController {
 
   Future<bool> CancelSubscription() async {
     final activity = await BusinessRepository().CancelSubsCription();
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -282,7 +282,7 @@ class BusinessController extends GetxController {
 
   Future<bool> BusinessStatus() async {
     final activity = await BusinessRepository().BusinessStatusCheck();
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -296,7 +296,7 @@ class BusinessController extends GetxController {
 
   Future<bool> TopEvents() async {
     final activity = await BusinessRepository().TopEvent();
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -310,7 +310,7 @@ class BusinessController extends GetxController {
 
   Future<bool> BusinessChats(String id, String type) async {
     final activity = await BusinessRepository().BusinessChatList(id, type);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -326,7 +326,7 @@ class BusinessController extends GetxController {
       String senderid, String businesid, String message) async {
     final activity = await BusinessRepository()
         .StartBusinessChatSend(senderid, businesid, message);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {

@@ -176,7 +176,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   TextFields_Passwords(
                     hintText: 'Enter your confirm password',
-                    controller: authenticationController.Confermpassword,
+                    controller: authenticationController.confirmPassword,
                   ),
                   SizedBox(
                     height: 25,
@@ -245,14 +245,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             print(authenticationController.email.text);
                             print(authenticationController.password.text);
                             print(
-                                authenticationController.Confermpassword.text);
+                                authenticationController.confirmPassword.text);
 
                             if (authenticationController.username.text.isEmpty ||
                                 authenticationController.email.text.isEmpty ||
                                 authenticationController
                                     .password.text.isEmpty ||
                                 authenticationController
-                                    .Confermpassword.text.isEmpty) {
+                                    .confirmPassword.text.isEmpty) {
                               setState(() {
                                 isloading = false;
                               });
@@ -263,7 +263,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ),
                               );
                             } else if (authenticationController.password.text !=
-                                authenticationController.Confermpassword.text) {
+                                authenticationController.confirmPassword.text) {
                               setState(() {
                                 isloading = false;
                               });

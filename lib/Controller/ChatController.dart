@@ -13,7 +13,7 @@ class Chatcontroller extends GetxController {
   String? currentConversationId; // Track the currently open chat
 
   // Initialize Hive and load stored messages for the active chat
-  void initHive(String conversationId) async {
+  Future<void> initHive(String conversationId) async {
     currentConversationId = conversationId; // Set active chat
     chatBox = await Hive.openBox('chatBox');
 

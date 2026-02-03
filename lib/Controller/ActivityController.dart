@@ -34,7 +34,7 @@ class ActivityController extends GetxController {
   }
 
   void decrementCounter() {
-    if (counter > 1) {
+    if (counter.value > 1) {
       counter.value--;
     }
   }
@@ -76,7 +76,7 @@ class ActivityController extends GetxController {
 
   Future<void> loadLikedStatus2(int activityLength) async {
     final prefs = await SharedPreferences.getInstance();
-    final List<String>? likedStringList = prefs.getStringList(likedKey);
+    final List<String>? likedStringList = prefs.getStringList(likedKey2);
 
     if (likedStringList != null && likedStringList.length == activityLength) {
       likedStatus = likedStringList.map((e) => e == 'true').toList();
@@ -96,7 +96,7 @@ class ActivityController extends GetxController {
     final prefs = await SharedPreferences.getInstance();
     final List<String> likedStringList =
         likedStatus.map((e) => e.toString()).toList();
-    await prefs.setStringList(likedKey, likedStringList);
+    await prefs.setStringList(likedKey2, likedStringList);
   }
 
   UnifiedEventModel?
@@ -115,7 +115,7 @@ class ActivityController extends GetxController {
 //................................ Daily Activities...................
   Future<bool> DailyActivities() async {
     final activity = await Activityrepository().GetDailyActivites();
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -129,7 +129,7 @@ class ActivityController extends GetxController {
 
   Future<bool> ActivitieList() async {
     final activity = await Activityrepository().ActivityList();
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -166,7 +166,7 @@ class ActivityController extends GetxController {
         date: date,
         Location: Location,
         totaltime: totaltime);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -203,7 +203,7 @@ class ActivityController extends GetxController {
         location: location,
         totaltime: totaltime,
         image: image);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -290,7 +290,7 @@ class ActivityController extends GetxController {
 
   Future<bool> ActivitieDetails(String id) async {
     final activity = await Activityrepository().ActivityDetails(id);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -305,7 +305,7 @@ class ActivityController extends GetxController {
 
   Future<bool> EventDetails(String id) async {
     final activity = await Activityrepository().EventDetails(id);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -320,7 +320,7 @@ class ActivityController extends GetxController {
 
   Future<bool> MyActivitie() async {
     final activity = await Activityrepository().MyActivity();
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -337,7 +337,7 @@ class ActivityController extends GetxController {
     String gusts,
   ) async {
     final activity = await Activityrepository().JoinActivity(Activityid, gusts);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     // dailyActivites = DailyActivitesModel.fromJson(activity);
     update(["Activity_update"]);
     return true;
@@ -347,7 +347,7 @@ class ActivityController extends GetxController {
 
   Future<bool> joinEvent(String eventid) async {
     final activity = await Activityrepository().JoinEvent(eventid);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     // dailyActivites = DailyActivitesModel.fromJson(activity);
     update(["Activity_update"]);
     return true;
@@ -359,7 +359,7 @@ class ActivityController extends GetxController {
     String activityid,
   ) async {
     final activity = await Activityrepository().SaveActivity(activityid);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     Get.snackbar(
       "Success",
       "Activity Saved successfully",
@@ -379,7 +379,7 @@ class ActivityController extends GetxController {
     String Eventid,
   ) async {
     final activity = await Activityrepository().SaveEvent(Eventid);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     // dailyActivites = DailyActivitesModel.fromJson(activity);
     update(["Activity_update"]);
     return true;
@@ -389,7 +389,7 @@ class ActivityController extends GetxController {
 
   Future<bool> SaveList() async {
     final activity = await Activityrepository().saveList();
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -405,7 +405,7 @@ class ActivityController extends GetxController {
       String Name, String date, String time, String range) async {
     final activity =
         await Activityrepository().FilterActivity(Name, date, time, range);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     activityListModel = ActivityListModel.fromJson(activity);
     update(["Activity_update"]);
     return true;
@@ -415,7 +415,7 @@ class ActivityController extends GetxController {
 
   Future<bool> LeaveActivity(String Activityid) async {
     final activity = await Activityrepository().LeaveActivies(Activityid);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     // dailyActivites = DailyActivitesModel.fromJson(activity);
     update(["Activity_update"]);
     return true;
@@ -425,7 +425,7 @@ class ActivityController extends GetxController {
 
   Future<bool> LeaveEvent(String eventid) async {
     final activity = await Activityrepository().LeaveEvent(eventid);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     // dailyActivites = DailyActivitesModel.fromJson(activity);
     update(["Activity_update"]);
     return true;
@@ -435,7 +435,7 @@ class ActivityController extends GetxController {
 
   Future<bool> DeleteActivity(String eventid) async {
     final activity = await Activityrepository().DeleteActivity(eventid);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     // dailyActivites = DailyActivitesModel.fromJson(activity);
     update(["Activity_update"]);
     return true;
@@ -444,7 +444,7 @@ class ActivityController extends GetxController {
 //................................ UpComing Activities...................
   Future<bool> UpcommingActivities() async {
     final activity = await Activityrepository().GetUpcomingActivites();
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -460,7 +460,7 @@ class ActivityController extends GetxController {
 //..............................Follow Business...................................
   Future<bool> FollowBusiness(String bussinessid) async {
     final activity = await Activityrepository().FollowBusiness(bussinessid);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     // dailyActivites = DailyActivitesModel.fromJson(activity);
     update(["Activity_update"]);
     return true;
@@ -470,7 +470,7 @@ class ActivityController extends GetxController {
 
   Future<bool> unFollowBusiness(String bussinessid) async {
     final activity = await Activityrepository().unFollowBusiness(bussinessid);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     // dailyActivites = DailyActivitesModel.fromJson(activity);
     update(["Activity_update"]);
     return true;
@@ -479,7 +479,7 @@ class ActivityController extends GetxController {
 
   Future<bool> CLickFollowBusiness(String eventid) async {
     final activity = await Activityrepository().CLickFollowBusiness(eventid);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     // dailyActivites = DailyActivitesModel.fromJson(activity);
     update(["Activity_update"]);
     return true;
@@ -488,7 +488,7 @@ class ActivityController extends GetxController {
 
   Future<bool> ViewFollowBusiness(String eventid) async {
     final activity = await Activityrepository().ViewFollowBusiness(eventid);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     // dailyActivites = DailyActivitesModel.fromJson(activity);
     update(["Activity_update"]);
     return true;

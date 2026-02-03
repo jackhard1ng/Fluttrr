@@ -34,7 +34,7 @@ class ProfileController extends GetxController {
 
   Future<bool> GetProfile() async {
     final Profile = await ProfileRepository().GetProfile();
-    print("Profile Fatch is : $Profile");
+    print("Profile Fetch is : $Profile");
     if (Profile == null) {
       return false;
     } else {
@@ -46,7 +46,7 @@ class ProfileController extends GetxController {
 
   Future<bool> GetPrcentage() async {
     final Profile = await ProfileRepository().GetPercentage();
-    print("Profile Fatch is : $Profile");
+    print("Profile Fetch is : $Profile");
     if (Profile == null) {
       return false;
     } else {
@@ -60,7 +60,7 @@ class ProfileController extends GetxController {
 
   Future<bool> GetGalleryList() async {
     final Profile = await ProfileRepository().GetGallery();
-    print("Profile Fatch is : $Profile");
+    print("Profile Fetch is : $Profile");
     if (Profile == null) {
       return false;
     } else {
@@ -78,7 +78,7 @@ class ProfileController extends GetxController {
   ) async {
     final Profile = await ProfileRepository()
         .UploadGallery(description: description, image: image);
-    print("Profile Fatch is : $Profile");
+    print("Profile Fetch is : $Profile");
     if (Profile == null) {
       return false;
     } else {
@@ -92,7 +92,7 @@ class ProfileController extends GetxController {
 
   Future<bool> TotalActivites() async {
     final Profile = await ProfileRepository().GetTotalActivites();
-    print("Profile Fatch is : $Profile");
+    print("Profile Fetch is : $Profile");
     if (Profile == null) {
       return false;
     } else {
@@ -106,7 +106,7 @@ class ProfileController extends GetxController {
 
   Future<bool> TotalMatches() async {
     final Profile = await ProfileRepository().GetTotalMatches();
-    print("Profile Fatch is : $Profile");
+    print("Profile Fetch is : $Profile");
     if (Profile == null) {
       return false;
     } else {
@@ -120,7 +120,7 @@ class ProfileController extends GetxController {
 
   Future<bool> JoinedActivites() async {
     final Profile = await ProfileRepository().GetTotalJoinedActivites();
-    print("Profile Fatch is : $Profile");
+    print("Profile Fetch is : $Profile");
     if (Profile == null) {
       return false;
     } else {
@@ -134,7 +134,7 @@ class ProfileController extends GetxController {
 
   Future<bool> TotalMatchesList() async {
     final Profile = await ProfileRepository().GetTotalMatchesList();
-    print("Profile Fatch is : $Profile");
+    print("Profile Fetch is : $Profile");
     if (Profile == null) {
       return false;
     } else {
@@ -148,7 +148,7 @@ class ProfileController extends GetxController {
 
   Future<bool> JoinedActivitesList() async {
     final Profile = await ProfileRepository().GetTotalJoinedActivitesList();
-    print("Profile Fatch is : $Profile");
+    print("Profile Fetch is : $Profile");
     if (Profile == null) {
       return false;
     } else {
@@ -305,7 +305,7 @@ class ProfileController extends GetxController {
 
   Future<bool> Badgeslist() async {
     final activity = await ProfileRepository().BadgesList();
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -319,7 +319,7 @@ class ProfileController extends GetxController {
 
   Future<bool> BadgesClaimed(String id) async {
     final activity = await ProfileRepository().ClaimedBadges(id);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -333,7 +333,7 @@ class ProfileController extends GetxController {
 
   Future<bool> LeaderBoard() async {
     final activity = await ProfileRepository().LeaderBoard();
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -347,7 +347,7 @@ class ProfileController extends GetxController {
 
   Future<bool> Notifications() async {
     final activity = await ProfileRepository().Notifications();
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -361,7 +361,7 @@ class ProfileController extends GetxController {
 
   Future<bool> Online() async {
     final activity = await ProfileRepository().Online();
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -375,7 +375,7 @@ class ProfileController extends GetxController {
 
   Future<bool> Offline() async {
     final activity = await ProfileRepository().Offline();
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {

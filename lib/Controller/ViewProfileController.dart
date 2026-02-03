@@ -8,7 +8,7 @@ class Viewprofilecontroller extends GetxController {
 //.............................Get the Mateprofile.....................
   Future<bool> GetProfileMates(String id) async {
     final Profile = await Viewprofilerepository().GetProfileMate(id);
-    print("Profile Fatch is : $Profile");
+    print("Profile Fetch is : $Profile");
     if (Profile == null) {
       return false;
     } else {

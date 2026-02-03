@@ -7,7 +7,7 @@ class CustomerController extends GetxController {
   //................................ Get Tickets...................
   Future<bool> GetTicketss() async {
     final activity = await CustomerSupportRepository().GetTickets();
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {
@@ -26,7 +26,7 @@ class CustomerController extends GetxController {
   ) async {
     final activity =
         await CustomerSupportRepository().SendTickets(Complaintype, Des);
-    print("Profile Fatch is : $activity");
+    print("Profile Fetch is : $activity");
     if (activity == null) {
       return false;
     } else {

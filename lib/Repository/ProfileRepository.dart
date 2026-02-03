@@ -561,15 +561,15 @@ class ProfileRepository{
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return true;
         print('Password changed successfully: ${data['message']}');
+        return true;
       } else {
         print('Failed to change password: ${response.body}');
         return false;
       }
     } catch (e) {
-      return false;
       print('Error: $e');
+      return false;
     }
   }
 
