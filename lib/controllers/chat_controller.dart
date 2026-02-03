@@ -1,0 +1,389 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:hive/hive.dart';
+import 'package:socket_io_client/socket_io_client.dart' as io;
+
+import '../constants/api_endpoints.dart';
+import '../models/chat_model.dart';
+import '../repositories/chat_repository.dart';
+
+/// Chat controller with Socket.IO support
+class ChatController extends GetxController {
+  final ChatRepository _chatRepository = ChatRepository();
+
+  // Socket connection
+  io.Socket? _socket;
+  final RxBool isConnected = false.obs;
+
+  // State
+  final RxList<ChatConversation> conversations = <ChatConversation>[].obs;
+  final RxList<GroupChat> groupChats = <GroupChat>[].obs;
+  final RxList<ChatConversation> businessChats = <ChatConversation>[].obs;
+  final RxList<ChatMessage> currentMessages = <ChatMessage>[].obs;
+
+  final Rx<ChatConversation?> currentConversation = Rx<ChatConversation?>(null);
+
+  final RxBool isLoading = false.obs;
+  final RxBool isSending = false.obs;
+  final RxString errorMessage = ''.obs;
+
+  // Text controller for message input
+  final TextEditingController messageController = TextEditingController();
+
+  // Current user ID
+  int? _currentUserId;
+
+  // Hive box for message caching
+  Box? _chatBox;
+  Box? _deletedMessagesBox;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _initHive();
+    loadChatList();
+  }
+
+  @override
+  void onClose() {
+    _disconnectSocket();
+    messageController.dispose();
+    super.onClose();
+  }
+
+  /// Initialize Hive boxes
+  Future<void> _initHive() async {
+    try {
+      _chatBox = Hive.box('chatBox');
+      _deletedMessagesBox = Hive.box('deleted_messages');
+    } catch (e) {
+      debugPrint('Error initializing Hive: $e');
+    }
+  }
+
+  /// Set current user ID and connect socket
+  void initialize(int userId) {
+    _currentUserId = userId;
+    _connectSocket();
+  }
+
+  /// Connect to Socket.IO server
+  void _connectSocket() {
+    if (_currentUserId == null) return;
+
+    try {
+      _socket = io.io(
+        ApiEndpoints.baseUrl,
+        io.OptionBuilder()
+            .setTransports(['websocket'])
+            .setQuery({'userId': _currentUserId.toString()})
+            .enableAutoConnect()
+            .enableReconnection()
+            .setReconnectionAttempts(10)
+            .setReconnectionDelay(2000)
+            .build(),
+      );
+
+      _socket!.onConnect((_) {
+        debugPrint('Socket connected');
+        isConnected.value = true;
+      });
+
+      _socket!.onDisconnect((_) {
+        debugPrint('Socket disconnected');
+        isConnected.value = false;
+      });
+
+      _socket!.on('newMessage', _handleNewMessage);
+      _socket!.on('messageRead', _handleMessageRead);
+      _socket!.on('typing', _handleTyping);
+
+      _socket!.connect();
+    } catch (e) {
+      debugPrint('Socket connection error: $e');
+    }
+  }
+
+  /// Disconnect socket
+  void _disconnectSocket() {
+    _socket?.disconnect();
+    _socket?.dispose();
+    _socket = null;
+    isConnected.value = false;
+  }
+
+  /// Handle incoming message
+  void _handleNewMessage(dynamic data) {
+    try {
+      final message = ChatMessage.fromJson(data as Map<String, dynamic>);
+
+      // Add to current messages if in the same conversation
+      if (currentConversation.value != null &&
+          (message.senderId == currentConversation.value!.otherUserId ||
+              message.receiverId == currentConversation.value!.otherUserId)) {
+        currentMessages.add(message);
+      }
+
+      // Update conversation list
+      _updateConversationWithNewMessage(message);
+
+      // Cache message
+      _cacheMessage(message);
+    } catch (e) {
+      debugPrint('Error handling new message: $e');
+    }
+  }
+
+  /// Handle message read event
+  void _handleMessageRead(dynamic data) {
+    try {
+      final senderId = data['senderId'] as int?;
+      if (senderId != null) {
+        // Update messages as read
+        for (var i = 0; i < currentMessages.length; i++) {
+          if (currentMessages[i].senderId == _currentUserId &&
+              !currentMessages[i].isRead) {
+            currentMessages[i] = currentMessages[i].copyWith(isRead: true);
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Error handling message read: $e');
+    }
+  }
+
+  /// Handle typing event
+  void _handleTyping(dynamic data) {
+    // Handle typing indicator
+    // Can be expanded to show "User is typing..." UI
+  }
+
+  /// Update conversation with new message
+  void _updateConversationWithNewMessage(ChatMessage message) {
+    final userId = message.senderId == _currentUserId
+        ? message.receiverId
+        : message.senderId;
+
+    final index = conversations.indexWhere((c) => c.otherUserId == userId);
+    if (index != -1) {
+      final conv = conversations[index];
+      conversations[index] = ChatConversation(
+        conversationId: conv.conversationId,
+        otherUserId: conv.otherUserId,
+        otherUserName: conv.otherUserName,
+        otherUserImages: conv.otherUserImages,
+        lastMessage: message.content,
+        lastMessageTime: message.timestamp,
+        unreadCount: message.senderId != _currentUserId
+            ? conv.unreadCount + 1
+            : conv.unreadCount,
+        isOnline: conv.isOnline,
+      );
+
+      // Move to top
+      final conversation = conversations.removeAt(index);
+      conversations.insert(0, conversation);
+    }
+  }
+
+  /// Load chat list
+  Future<void> loadChatList() async {
+    isLoading.value = true;
+
+    try {
+      final response = await _chatRepository.getChatList();
+      if (response.success && response.data != null) {
+        conversations.value = response.data!;
+      }
+    } catch (e) {
+      errorMessage.value = 'Failed to load chats';
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  /// Load group chats
+  Future<void> loadGroupChats() async {
+    try {
+      final response = await _chatRepository.getGroupChatList();
+      if (response.success && response.data != null) {
+        groupChats.value = response.data!;
+      }
+    } catch (e) {
+      // Ignore errors
+    }
+  }
+
+  /// Load business chats
+  Future<void> loadBusinessChats() async {
+    try {
+      final response = await _chatRepository.getBusinessChatList();
+      if (response.success && response.data != null) {
+        businessChats.value = response.data!;
+      }
+    } catch (e) {
+      // Ignore errors
+    }
+  }
+
+  /// Open conversation
+  Future<void> openConversation(ChatConversation conversation) async {
+    currentConversation.value = conversation;
+    currentMessages.clear();
+
+    // Load cached messages
+    _loadCachedMessages(conversation.otherUserId);
+
+    // Mark as read
+    if (conversation.otherUserId != null && conversation.unreadCount > 0) {
+      await markAsRead(conversation.otherUserId!);
+    }
+  }
+
+  /// Close conversation
+  void closeConversation() {
+    currentConversation.value = null;
+    currentMessages.clear();
+  }
+
+  /// Send message
+  Future<bool> sendMessage({String? content, String? imageUrl}) async {
+    final text = content ?? messageController.text.trim();
+    if (text.isEmpty && imageUrl == null) return false;
+    if (currentConversation.value?.otherUserId == null) return false;
+
+    isSending.value = true;
+    messageController.clear();
+
+    // Add optimistic message
+    final tempMessage = ChatMessage(
+      messageId: DateTime.now().millisecondsSinceEpoch.toString(),
+      senderId: _currentUserId,
+      receiverId: currentConversation.value!.otherUserId,
+      content: text.isNotEmpty ? text : null,
+      imageUrl: imageUrl,
+      timestamp: DateTime.now(),
+      isSent: false,
+    );
+    currentMessages.add(tempMessage);
+
+    try {
+      final response = await _chatRepository.sendMessage(
+        receiverId: currentConversation.value!.otherUserId!,
+        content: text,
+        imageUrl: imageUrl,
+      );
+
+      isSending.value = false;
+
+      if (response.success) {
+        // Update optimistic message
+        final index = currentMessages.indexWhere(
+            (m) => m.messageId == tempMessage.messageId);
+        if (index != -1 && response.data != null) {
+          currentMessages[index] = response.data!;
+          _cacheMessage(response.data!);
+        }
+        return true;
+      } else {
+        // Remove failed message
+        currentMessages.removeWhere((m) => m.messageId == tempMessage.messageId);
+        return false;
+      }
+    } catch (e) {
+      isSending.value = false;
+      currentMessages.removeWhere((m) => m.messageId == tempMessage.messageId);
+      return false;
+    }
+  }
+
+  /// Mark messages as read
+  Future<void> markAsRead(int senderId) async {
+    try {
+      await _chatRepository.markAsRead(senderId: senderId);
+
+      // Update conversation unread count
+      final index = conversations.indexWhere((c) => c.otherUserId == senderId);
+      if (index != -1) {
+        final conv = conversations[index];
+        conversations[index] = ChatConversation(
+          conversationId: conv.conversationId,
+          otherUserId: conv.otherUserId,
+          otherUserName: conv.otherUserName,
+          otherUserImages: conv.otherUserImages,
+          lastMessage: conv.lastMessage,
+          lastMessageTime: conv.lastMessageTime,
+          unreadCount: 0,
+          isOnline: conv.isOnline,
+        );
+      }
+    } catch (e) {
+      // Ignore errors
+    }
+  }
+
+  /// Send typing indicator
+  void sendTypingIndicator() {
+    if (_socket != null && currentConversation.value?.otherUserId != null) {
+      _socket!.emit('typing', {
+        'senderId': _currentUserId,
+        'receiverId': currentConversation.value!.otherUserId,
+      });
+    }
+  }
+
+  /// Cache message locally
+  void _cacheMessage(ChatMessage message) {
+    try {
+      final key = '${message.senderId}_${message.receiverId}_${message.messageId}';
+      _chatBox?.put(key, message.toJson());
+    } catch (e) {
+      debugPrint('Error caching message: $e');
+    }
+  }
+
+  /// Load cached messages
+  void _loadCachedMessages(int? userId) {
+    if (userId == null || _chatBox == null) return;
+
+    try {
+      final messages = <ChatMessage>[];
+
+      for (var key in _chatBox!.keys) {
+        final keyStr = key.toString();
+        if (keyStr.contains('${_currentUserId}_$userId') ||
+            keyStr.contains('${userId}_$_currentUserId')) {
+          final data = _chatBox!.get(key);
+          if (data != null) {
+            messages.add(ChatMessage.fromJson(Map<String, dynamic>.from(data)));
+          }
+        }
+      }
+
+      // Sort by timestamp
+      messages.sort((a, b) =>
+          (a.timestamp ?? DateTime.now()).compareTo(b.timestamp ?? DateTime.now()));
+
+      currentMessages.value = messages;
+    } catch (e) {
+      debugPrint('Error loading cached messages: $e');
+    }
+  }
+
+  /// Delete message locally
+  void deleteMessage(String messageId) {
+    currentMessages.removeWhere((m) => m.messageId == messageId);
+    _deletedMessagesBox?.put(messageId, true);
+  }
+
+  /// Refresh chat list
+  Future<void> refreshChatList() async {
+    await loadChatList();
+  }
+
+  // Getters
+  int get totalUnreadCount =>
+      conversations.fold(0, (sum, c) => sum + c.unreadCount);
+
+  bool get hasUnreadMessages => totalUnreadCount > 0;
+}

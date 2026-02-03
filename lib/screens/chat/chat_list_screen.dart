@@ -1,0 +1,364 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:timeago/timeago.dart' as timeago;
+
+import '../../constants/utils.dart';
+import '../../controllers/chat_controller.dart';
+import '../../models/chat_model.dart';
+import '../../widgets/common_widgets.dart';
+import 'chat_screen.dart';
+
+/// Chat list screen
+class ChatListScreen extends StatefulWidget {
+  const ChatListScreen({super.key});
+
+  @override
+  State<ChatListScreen> createState() => _ChatListScreenState();
+}
+
+class _ChatListScreenState extends State<ChatListScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+    _loadChats();
+  }
+
+  void _loadChats() {
+    final controller = Get.find<ChatController>();
+    controller.loadChatList();
+    controller.loadGroupChats();
+    controller.loadBusinessChats();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const GradientText(
+                    text: 'Messages',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: () {
+                      // Search chats
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            // Tab bar
+            TabBar(
+              controller: _tabController,
+              labelColor: AppColors.primaryBlue,
+              unselectedLabelColor: AppColors.grey,
+              indicatorColor: AppColors.primaryBlue,
+              tabs: const [
+                Tab(text: 'Direct'),
+                Tab(text: 'Groups'),
+                Tab(text: 'Business'),
+              ],
+            ),
+
+            // Tab views
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _DirectChatsTab(),
+                  _GroupChatsTab(),
+                  _BusinessChatsTab(),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Direct chats tab
+class _DirectChatsTab extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final chatController = Get.find<ChatController>();
+
+    return Obx(() {
+      if (chatController.isLoading.value &&
+          chatController.conversations.isEmpty) {
+        return const LoadingIndicator();
+      }
+
+      if (chatController.conversations.isEmpty) {
+        return const EmptyState(
+          icon: Icons.chat_bubble_outline,
+          title: 'No Messages',
+          subtitle: 'Start a conversation with your matches!',
+        );
+      }
+
+      return RefreshIndicator(
+        onRefresh: chatController.refreshChatList,
+        child: ListView.builder(
+          itemCount: chatController.conversations.length,
+          itemBuilder: (context, index) {
+            return _ChatTile(conversation: chatController.conversations[index]);
+          },
+        ),
+      );
+    });
+  }
+}
+
+/// Group chats tab
+class _GroupChatsTab extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final chatController = Get.find<ChatController>();
+
+    return Obx(() {
+      if (chatController.groupChats.isEmpty) {
+        return const EmptyState(
+          icon: Icons.groups_outlined,
+          title: 'No Group Chats',
+          subtitle: 'Join activities to access group chats',
+        );
+      }
+
+      return ListView.builder(
+        itemCount: chatController.groupChats.length,
+        itemBuilder: (context, index) {
+          return _GroupChatTile(group: chatController.groupChats[index]);
+        },
+      );
+    });
+  }
+}
+
+/// Business chats tab
+class _BusinessChatsTab extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final chatController = Get.find<ChatController>();
+
+    return Obx(() {
+      if (chatController.businessChats.isEmpty) {
+        return const EmptyState(
+          icon: Icons.business_outlined,
+          title: 'No Business Chats',
+          subtitle: 'Message businesses about their events',
+        );
+      }
+
+      return ListView.builder(
+        itemCount: chatController.businessChats.length,
+        itemBuilder: (context, index) {
+          return _ChatTile(
+            conversation: chatController.businessChats[index],
+            isBusiness: true,
+          );
+        },
+      );
+    });
+  }
+}
+
+/// Chat tile widget
+class _ChatTile extends StatelessWidget {
+  final ChatConversation conversation;
+  final bool isBusiness;
+
+  const _ChatTile({
+    required this.conversation,
+    this.isBusiness = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: () => Get.to(() => ChatScreen(
+            conversation: conversation,
+            isBusiness: isBusiness,
+          )),
+      leading: Stack(
+        children: [
+          UserAvatar(
+            imageUrl: conversation.profileImage,
+            size: 50,
+          ),
+          if (conversation.isOnline)
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: Container(
+                width: 14,
+                height: 14,
+                decoration: BoxDecoration(
+                  color: AppColors.online,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                    width: 2,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+      title: Text(
+        conversation.displayName,
+        style: TextStyle(
+          fontWeight: conversation.hasUnread ? FontWeight.bold : FontWeight.normal,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: Text(
+        conversation.lastMessage ?? '',
+        style: TextStyle(
+          color: conversation.hasUnread
+              ? Theme.of(context).textTheme.bodyMedium?.color
+              : AppColors.grey,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (conversation.lastMessageTime != null)
+            Text(
+              timeago.format(conversation.lastMessageTime!, locale: 'en_short'),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          if (conversation.hasUnread) ...[
+            const SizedBox(height: 4),
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: const BoxDecoration(
+                color: AppColors.primaryBlue,
+                shape: BoxShape.circle,
+              ),
+              child: Text(
+                conversation.unreadCount > 99
+                    ? '99+'
+                    : conversation.unreadCount.toString(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Group chat tile widget
+class _GroupChatTile extends StatelessWidget {
+  final GroupChat group;
+
+  const _GroupChatTile({required this.group});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: () {
+        // Navigate to group chat
+      },
+      leading: Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          color: AppColors.primaryBlue.withOpacity(0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Center(
+          child: Text(
+            group.displayName[0].toUpperCase(),
+            style: const TextStyle(
+              color: AppColors.primaryBlue,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+          ),
+        ),
+      ),
+      title: Text(
+        group.displayName,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: Row(
+        children: [
+          const Icon(
+            Icons.people,
+            size: 14,
+            color: AppColors.grey,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '${group.memberCount} members',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (group.lastMessageTime != null)
+            Text(
+              timeago.format(group.lastMessageTime!, locale: 'en_short'),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          if (group.unreadCount > 0) ...[
+            const SizedBox(height: 4),
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: const BoxDecoration(
+                color: AppColors.primaryBlue,
+                shape: BoxShape.circle,
+              ),
+              child: Text(
+                group.unreadCount > 99 ? '99+' : group.unreadCount.toString(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
