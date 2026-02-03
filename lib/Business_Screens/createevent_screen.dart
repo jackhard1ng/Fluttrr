@@ -140,7 +140,7 @@ class _CreateeventScreenState extends State<CreateeventScreen> {
     return null;
   }
 
-  void _submitForm() async {
+  Future<void> _submitForm() async {
     setState(() {
       loading = true;
     });

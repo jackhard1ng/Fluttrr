@@ -34,7 +34,7 @@ class _UserinfoScreenState extends State<UserinfoScreen> {
     api();
   }
 
-  void api() async {
+  Future<void> api() async {
     setState(() {
       loading = true;
     });

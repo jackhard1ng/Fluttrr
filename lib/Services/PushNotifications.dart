@@ -34,11 +34,10 @@ class PushNotificationService {
   }
 
   static Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-    print("Handling background message: ${message.notification?.title}");
+    // Handle background message
   }
 
   static void _firebaseMessagingClickHandler(RemoteMessage message) {
-    print("Notification clicked: ${message.notification?.title}");
     // Navigate to a specific screen if required
   }
 

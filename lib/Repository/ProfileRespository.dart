@@ -16,7 +16,6 @@ class ProfileRepository{
     try {
       SharedPreferences pref=await SharedPreferences.getInstance();
       final token= pref.getString("token");
-      print("The token is :$token");
       final response = await http.get(
         Uri.parse(Apis.Profile),
         headers: {
@@ -25,17 +24,12 @@ class ProfileRepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("api response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("Api Failed Status code : ${response.statusCode}");
-        print("Api Failed response : ${response.body}");
         throw Exception("Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }
@@ -49,7 +43,6 @@ class ProfileRepository{
     try {
       SharedPreferences pref=await SharedPreferences.getInstance();
       final token= pref.getString("token");
-      print("The token is :$token");
       final response = await http.get(
         Uri.parse(Apis.GalleryList),
         headers: {
@@ -58,17 +51,12 @@ class ProfileRepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("api response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("Api Failed Status code : ${response.statusCode}");
-        print("Api Failed response : ${response.body}");
         throw Exception("Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }
@@ -80,7 +68,6 @@ class ProfileRepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is: $token");
 
       var uri = Uri.parse(Apis.GalleryUpload); // Adjust API endpoint as needed
       var request = http.MultipartRequest("POST", uri);
@@ -92,31 +79,22 @@ class ProfileRepository{
       // ✅ Adding image only if provided
       if (image != null) {
         request.files.add(await http.MultipartFile.fromPath("images", image.path));
-        print("Uploading Image: ${image.path}");
       } else {
-        print("No image provided, skipping image upload.");
       }
 
-      // ✅ Debugging: Print request details
-      print("Sending PUT Request: ${request.fields}");
 
       // ✅ Sending request
       var response = await request.send();
 
       // ✅ Convert StreamedResponse to Readable Response
       var responseBody = await response.stream.bytesToString();
-      print("Response Body: $responseBody");
 
       if (response.statusCode == 200) {
-        print("✅ Activity updated successfully");
         return jsonDecode(responseBody); // Return parsed JSON
       } else {
-        print("❌ Response Code: ${response.statusCode}");
-        print("❌ Failed to update activity: $responseBody");
         return {"error": "Failed to update activity", "status": response.statusCode};
       }
     } catch (e) {
-      print("⚠️ Exception Occurred: $e");
       return {"error": "An error occurred: $e"};
     }
   }
@@ -129,7 +107,6 @@ class ProfileRepository{
     try {
       SharedPreferences pref=await SharedPreferences.getInstance();
       final token= pref.getString("token");
-      print("The token is :$token");
       final response = await http.get(
         Uri.parse(Apis.TotalActivity),
         headers: {
@@ -138,17 +115,12 @@ class ProfileRepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("api response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("Api Failed Status code : ${response.statusCode}");
-        print("Api Failed response : ${response.body}");
         throw Exception("Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }
@@ -160,7 +132,6 @@ class ProfileRepository{
     try {
       SharedPreferences pref=await SharedPreferences.getInstance();
       final token= pref.getString("token");
-      print("The token is :$token");
       final response = await http.get(
         Uri.parse(Apis.TotalMatch),
         headers: {
@@ -169,17 +140,12 @@ class ProfileRepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("api response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("Api Failed Status code : ${response.statusCode}");
-        print("Api Failed response : ${response.body}");
         throw Exception("Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }
@@ -191,7 +157,6 @@ class ProfileRepository{
     try {
       SharedPreferences pref=await SharedPreferences.getInstance();
       final token= pref.getString("token");
-      print("The token is :$token");
       final response = await http.get(
         Uri.parse(Apis.JoinedActivites),
         headers: {
@@ -200,17 +165,12 @@ class ProfileRepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("api response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("Api Failed Status code : ${response.statusCode}");
-        print("Api Failed response : ${response.body}");
         throw Exception("Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }
@@ -223,7 +183,6 @@ class ProfileRepository{
     try {
       SharedPreferences pref=await SharedPreferences.getInstance();
       final token= pref.getString("token");
-      print("The token is :$token");
       final response = await http.get(
         Uri.parse(Apis.userMatches),
         headers: {
@@ -232,17 +191,12 @@ class ProfileRepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("api response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("Api Failed Status code : ${response.statusCode}");
-        print("Api Failed response : ${response.body}");
         throw Exception("Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }
@@ -254,7 +208,6 @@ class ProfileRepository{
     try {
       SharedPreferences pref=await SharedPreferences.getInstance();
       final token= pref.getString("token");
-      print("The token is :$token");
       final response = await http.get(
         Uri.parse(Apis.ListJoinedActivites),
         headers: {
@@ -263,17 +216,12 @@ class ProfileRepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("api response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("Api Failed Status code : ${response.statusCode}");
-        print("Api Failed response : ${response.body}");
         throw Exception("Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }
@@ -297,7 +245,6 @@ class ProfileRepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is: $token");
 
       var uri = Uri.parse(Apis.EditeProfile); // Adjust API endpoint as needed
       var request = http.MultipartRequest("PUT", uri);
@@ -325,14 +272,11 @@ class ProfileRepository{
       // ✅ Adding images only if provided
       if (image != null) {
         request.files.add(await http.MultipartFile.fromPath("images", image.path));
-        print("Uploading Image: ${image.path}");
       } else {
-        print("No profile image provided.");
       }
 
       if (coverImage != null) {
         request.files.add(await http.MultipartFile.fromPath("coverImage", coverImage.path));
-        print("Uploading Cover Image: ${coverImage.path}");
       } else {
         print("No cover image provided.");
       }
@@ -345,7 +289,6 @@ class ProfileRepository{
 
       // ✅ Convert StreamedResponse to Readable Response
       var responseBody = await response.stream.bytesToString();
-      print("Response Body: $responseBody");
 
       if (response.statusCode == 200) {
         print("✅ Profile updated successfully");
@@ -356,7 +299,6 @@ class ProfileRepository{
         return {"error": "Failed to update profile", "status": response.statusCode};
       }
     } catch (e) {
-      print("⚠️ Exception Occurred: $e");
       return {"error": "An error occurred: $e"};
     }
   }
@@ -464,7 +406,6 @@ class ProfileRepository{
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
 
-      print("The token is: $token");
 
       var uri = Uri.parse(Apis.SetupProfile);
       var request = http.MultipartRequest("POST", uri);
@@ -511,7 +452,6 @@ class ProfileRepository{
       var responseBody = await response.stream.bytesToString();
 
       print("Response Status Code: ${response.statusCode}");
-      print("Response Body: $responseBody");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         print("✅ Profile setup successful!");
@@ -546,7 +486,6 @@ class ProfileRepository{
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
 
-      print("The token is: $token");
       final response = await http.put(
         Uri.parse(Apis.changepassword),
         headers: {
@@ -609,7 +548,6 @@ class ProfileRepository{
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -635,17 +573,12 @@ class ProfileRepository{
         }
         ),
       );
-      print("Status code : ${response.statusCode}");
-      print("api response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("Api Failed Status code : ${response.statusCode}");
-        print("Api Failed response : ${response.body}");
         throw Exception("Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }
@@ -688,7 +621,6 @@ class ProfileRepository{
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -731,7 +663,6 @@ class ProfileRepository{
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -774,7 +705,6 @@ class ProfileRepository{
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -814,7 +744,6 @@ class ProfileRepository{
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -827,7 +756,6 @@ class ProfileRepository{
     try {
       SharedPreferences pref=await SharedPreferences.getInstance();
       final token= pref.getString("token");
-      print("The token is :$token");
       final response = await http.get(
         Uri.parse(Apis.percentage),
         headers: {
@@ -836,17 +764,12 @@ class ProfileRepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("api response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("Api Failed Status code : ${response.statusCode}");
-        print("Api Failed response : ${response.body}");
         throw Exception("Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }

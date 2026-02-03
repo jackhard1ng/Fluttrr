@@ -24,7 +24,6 @@ class PrivacyPolicyRepository{
       ) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
     Map<String, dynamic> requestData = {
       "privacy": {
         "traveller": travler,
@@ -73,7 +72,6 @@ class PrivacyPolicyRepository{
   Future<Map<String, dynamic>> GetPrivacyPolicy() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
     try {
       final response = await http.get(
           Uri.parse(Apis.Getprivacy),

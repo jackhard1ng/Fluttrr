@@ -27,7 +27,7 @@ class _ImageUploadScreenState extends State<ImageUploadScreen> {
     }
   }
 
-  void _uploadPost() async {
+  Future<void> _uploadPost() async {
     if (_descriptionController.text.isNotEmpty && _image != null) {
       final upload =
           await controller.UploadGallery(_descriptionController.text, _image);

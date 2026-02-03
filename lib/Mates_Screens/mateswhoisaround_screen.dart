@@ -30,7 +30,7 @@ class _MateswhoisaroundScreenState extends State<MateswhoisaroundScreen> {
     apis();
   }
 
-  void apis() async {
+  Future<void> apis() async {
     await matescontroller.MatesFilter("", "", "", "", [], "", []);
   }
 

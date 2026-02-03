@@ -43,10 +43,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     api();
   }
 
-  void api() async {
+  Future<void> api() async {
     await controller.GetPrcentage();
     percentage = "0.${controller.percentage?.completionPercentage.toString()}";
-    print("form String : $percentage");
     setState(() {
       if (percentage == "0.100") {
         percent = 0.99;
@@ -54,7 +53,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         percent = double.parse(percentage.toString());
       }
     });
-    print(percent);
   }
 
   @override

@@ -23,7 +23,6 @@ class ChatsListController extends GetxController {
 
       return snapshot.docs.length;
     } catch (e) {
-      print("Error getting unread count: $e");
       return 0;
     }
   }
@@ -31,7 +30,6 @@ class ChatsListController extends GetxController {
   //.............................Get Chats List...........................
   Future<bool> Chatlist() async {
     final profile = await Chatrespository().ChatList();
-    print("Profile Fetch is : $profile");
 
     if (profile == null) {
       return false;
@@ -45,7 +43,6 @@ class ChatsListController extends GetxController {
   //.............................Get Chats List...........................
   Future<bool> GroupList() async {
     final profile = await Chatrespository().GroupList();
-    print("Profile Fetch is : $profile");
 
     if (profile == null) {
       return false;
@@ -59,7 +56,6 @@ class ChatsListController extends GetxController {
   //.............................Mark as Read...........................
   Future<bool> MarkAsRead(String senderid) async {
     final profile = await Chatrespository().MarkasRead(senderid);
-    print("Profile Fetch is : $profile");
 
     if (profile == null) {
       return false;

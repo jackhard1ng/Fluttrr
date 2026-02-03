@@ -29,7 +29,7 @@ class _BusinessmessagesScreenState extends State<BusinessmessagesScreen> {
     apis();
   }
 
-  void apis() async {
+  Future<void> apis() async {
     await profileController.GetProfile();
     await businessController.BusinessChats(
         profileController.profile?.userId.toString() ?? "", "user");
@@ -101,7 +101,6 @@ class _BusinessmessagesScreenState extends State<BusinessmessagesScreen> {
         SizedBox(height: 15),
         InkWell(
           onTap: () {
-            print("hit ho rha a");
             Get.to(() => Groupmessagescreen2(
                   image: image,
                   currentuserid: currentuser,

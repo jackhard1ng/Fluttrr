@@ -54,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
-  void apis() async {
+  Future<void> apis() async {
     setState(() {
       loading = true;
     });

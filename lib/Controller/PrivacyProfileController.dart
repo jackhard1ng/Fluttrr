@@ -27,7 +27,6 @@ class Privacyprofilecontroller extends GetxController {
         privatemood,
         maxrang,
         minrang);
-    print("Profile Fatch is : $Profile");
     // profile = profileModel.fromJson(Profile);
     update(["Profile_update"]);
     return true;
@@ -37,7 +36,6 @@ class Privacyprofilecontroller extends GetxController {
 
   Future<bool> GetPrivacy() async {
     final Profile = await PrivacyPolicyRepository().GetPrivacyPolicy();
-    print("Profile Fatch is : $Profile");
     Privacymodel = privacyModel.fromJson(Profile);
     update(["Profile_update"]);
     return true;

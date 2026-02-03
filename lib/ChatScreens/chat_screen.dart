@@ -312,7 +312,7 @@ class _ChatScreenState extends State<ChatScreen> {
         await batch.commit();
       }
     } catch (e) {
-      print("❌ Error marking messages as seen: $e");
+      // Error marking messages as seen
     }
   }
 
@@ -419,7 +419,6 @@ class _ChatScreenState extends State<ChatScreen> {
         const SnackBar(content: Text('All messages deleted from your device')),
       );
     } catch (e) {
-      print("❌ Error deleting all messages: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to delete messages')),
       );
@@ -512,7 +511,6 @@ class _ChatScreenState extends State<ChatScreen> {
         });
       }
     } catch (e) {
-      print("❌ Error picking images: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to pick images')),
       );
@@ -534,7 +532,6 @@ class _ChatScreenState extends State<ChatScreen> {
         });
       }
     } catch (e) {
-      print("❌ Error taking photo: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to take photo')),
       );
@@ -593,15 +590,7 @@ class _ChatScreenState extends State<ChatScreen> {
           .doc(widget.conversationId)
           .update({'lastMessageTime': Timestamp.now()});
     } catch (e) {
-      print("❌ Error sending message: $e");
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(content: Text('Failed to send message: ${e.toString()}')),
-      // );
-
-      // Remove the pending message if it fails
-      // setState(() {
-      //   _pendingMessages.removeWhere((msg) => msg['tempId'] == tempId);
-      // });
+      // Error sending message
     } finally {
       setState(() {
         _isUploading = false;

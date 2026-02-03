@@ -175,7 +175,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
     return null;
   }
 
-  void _submitForm() async {
+  Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
 
     if (_endDate != null &&

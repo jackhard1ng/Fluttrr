@@ -128,7 +128,6 @@ class _OtpScreenState extends State<OtpScreen> {
                             showFieldAsBox: true,
                             fieldWidth: 45,
                             onSubmit: (String verificationCode) async {
-                              print("the send opt is : $verificationCode");
                               setState(() {
                                 isloading = true;
                               });

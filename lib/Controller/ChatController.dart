@@ -28,8 +28,6 @@ class Chatcontroller extends GetxController {
   // Initialize Socket.IO connection
   void initSocketIO() {
     try {
-      print("🔗 Connecting to Socket.IO with userId: ${profileController.profile!.userId.toString()}");
-
       _socket = IO.io(
         Apis.ip,
         IO.OptionBuilder()
@@ -42,15 +40,13 @@ class Chatcontroller extends GetxController {
       );
 
       _socket!.onConnect((_) {
-        print('✅ Socket.IO connected');
         _socket!.emit('fetchPendingMessages', {'userId': profileController.profile!.userId.toString()});
       });
 
-      _socket!.onDisconnect((_) => print('⚠️ Socket.IO disconnected, attempting reconnection...'));
+      _socket!.onDisconnect((_) {});
 
       _socket!.on('newMessage', (data) {
         if (data == null || data is! Map) {
-          print('❌ Invalid message data received');
           return;
         }
 
@@ -61,37 +57,15 @@ class Chatcontroller extends GetxController {
           if (!exists) {
             messages.add(message);
             chatBox!.add(message.toJson());
-          } else {
-            print("⚠️ Duplicate message detected, not adding to list");
           }
-        } else {
-          print("📩 Message belongs to another conversation, ignoring...");
         }
       });
 
-      // _socket!.on('pendingMessages', (data) {
-      //   if (data == null || data is! List) {
-      //     print('❌ Invalid pending messages data received');
-      //     return;
-      //   }
-      //
-      //   final List<MessageModel> pendingMessages = data
-      //       .map((e) => MessageModel.fromJson(Map<String, dynamic>.from(e), profileController.profile?.userId.toString() ?? ""))
-      //       .where((msg) => msg.conversationId.toString() == currentConversationId) // Only load messages for the open chat
-      //       .toList();
-      //
-      //   messages.addAll(pendingMessages);
-      //   for (var message in pendingMessages) {
-      //     chatBox!.add(message.toJson());
-      //   }
-      // });
-
       _socket!.onError((error) {
-        print('❌ Socket.IO error: $error');
         Future.delayed(Duration(seconds: 2), _reconnectSocket);
       });
     } catch (e) {
-      print("❌ Socket.IO connection failed: $e");
+      // Socket.IO connection failed
     }
   }
 
@@ -105,7 +79,7 @@ class Chatcontroller extends GetxController {
   // Send message
 
 
-  // 🔥 Delete a single message
+  // Delete a single message
   Future<void> deleteMessage(int messageId) async {
     try {
       messages.removeWhere((msg) => msg.id == messageId);
@@ -116,17 +90,14 @@ class Chatcontroller extends GetxController {
       if (messageIndex != -1) {
         await chatBox!.deleteAt(messageIndex);
       }
-
-      print("✅ Message deleted successfully");
     } catch (e) {
-      print("❌ Error deleting message: $e");
+      // Error deleting message
     }
   }
 
-  // 🔥 Clear all messages in the active chat
+  // Clear all messages in the active chat
   Future<void> clearAllMessages() async {
     if (currentConversationId == null) {
-      print("❌ No active conversation selected, cannot clear messages.");
       return;
     }
 
@@ -150,10 +121,8 @@ class Chatcontroller extends GetxController {
       for (var key in keysToDelete) {
         await chatBox!.delete(key);
       }
-
-      print("✅ All messages cleared for conversation: $currentConversationId");
     } catch (e) {
-      print("❌ Error clearing messages: $e");
+      // Error clearing messages
     }
   }
 

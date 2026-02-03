@@ -31,7 +31,7 @@ class _BusinessmessagesScreen2State extends State<BusinessmessagesScreen2> {
     apis();
   }
 
-  void apis() async {
+  Future<void> apis() async {
     await businessController.GetBusinessPage();
     await businessController.BusinessChats(
         businessController.businessPageModel?.profile?.id.toString() ?? "",

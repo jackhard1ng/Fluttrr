@@ -88,9 +88,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           }
           //Status
           if (profileController.profile!.profile!.status == "traveller") {
-            selectedIndex = 0;
+            selectedIndex1 = 0;
           } else {
-            selectedIndex = 1;
+            selectedIndex1 = 1;
           }
 
           //......Langauges
@@ -338,16 +338,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   selectedIndex = index;
                                   if (selectedIndex == 0) {
                                     selectedGender = "male";
-                                    print(
-                                        "selected gender : s=$selectedGender");
                                   } else if (selectedIndex == 1) {
                                     selectedGender = "female";
-                                    print(
-                                        "selected gender : s=$selectedGender");
                                   } else {
                                     selectedGender = "Non-Binary";
-                                    print(
-                                        "selected gender : s=$selectedGender");
                                   }
                                 });
                               },
@@ -479,14 +473,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               onTap: () {
                                 setState(() {
                                   selectedIndex1 = index;
-                                  if (selectedIndex == 0) {
+                                  if (selectedIndex1 == 0) {
                                     selectedstatus = "traveller";
-                                    print(
-                                        "selected status : s=$selectedstatus");
                                   } else {
-                                    selectedGender = "local";
-                                    print(
-                                        "selected status : s=$selectedstatus");
+                                    selectedstatus = "local";
                                   }
                                 });
                               },

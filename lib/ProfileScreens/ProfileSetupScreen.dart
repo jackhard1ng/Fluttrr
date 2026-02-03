@@ -618,7 +618,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     return true;
   }
 
-  void _saveProfile() async {
+  Future<void> _saveProfile() async {
     setState(() {
       loading = true;
     });

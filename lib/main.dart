@@ -18,8 +18,7 @@ void main() async {
   );
 
   await FirebaseMessaging.instance.requestPermission();
-  final token = await FirebaseMessaging.instance.getToken();
-  print("FCM Token: $token");
+  await FirebaseMessaging.instance.getToken();
 
   await PushNotificationService.initialize();
 

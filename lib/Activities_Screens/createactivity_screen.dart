@@ -157,7 +157,7 @@ class _CreateactivityScreenState extends State<CreateactivityScreen> {
     }
   }
 
-  void _openMap() async {
+  Future<void> _openMap() async {
     final LatLng? pickedLocation = await Navigator.push(
       context,
       MaterialPageRoute(

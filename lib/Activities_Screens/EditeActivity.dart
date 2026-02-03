@@ -184,7 +184,7 @@ class _EditeactivityState extends State<Editeactivity> {
     }
   }
 
-  void _openMap() async {
+  Future<void> _openMap() async {
     final LatLng? pickedLocation = await Navigator.push(
       context,
       MaterialPageRoute(

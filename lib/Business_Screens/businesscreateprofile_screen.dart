@@ -113,7 +113,7 @@ class _BusinesscreateprofileScreenState
     }
   }
 
-  void _verifyEmail() async {
+  Future<void> _verifyEmail() async {
     if (_emailController.text.isEmpty) {
       showTopSnackBar(
         Overlay.of(context),
@@ -166,7 +166,7 @@ class _BusinesscreateprofileScreenState
     }
   }
 
-  void _submitOtp() async {
+  Future<void> _submitOtp() async {
     if (_otpController.text.isEmpty) {
       showTopSnackBar(
         Overlay.of(context),
@@ -212,7 +212,7 @@ class _BusinesscreateprofileScreenState
     });
   }
 
-  void _createProfile() async {
+  Future<void> _createProfile() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }

@@ -34,7 +34,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     setState(() {});
   }
 
-  void _submitTicket() async {
+  Future<void> _submitTicket() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
