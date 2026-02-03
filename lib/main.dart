@@ -8,7 +8,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 
 import 'constants/theme_data.dart';
 import 'firebase_options.dart';
-import 'services/push_notifications.dart';
+import 'services/push_notification_service.dart';
 import 'screens/auth/splash_screen.dart';
 
 /// Background message handler for Firebase

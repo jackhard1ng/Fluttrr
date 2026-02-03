@@ -15,6 +15,10 @@ class AppColors {
   static const Color lightGrey = Color(0xFFF1F1F1);
   static const Color darkGrey = Color(0xFF4D4D4D);
 
+  // Secondary colors
+  static const Color primaryGreen = Color(0xFF339003);
+  static const Color primaryPurple = Color(0xFF6A5ACD);
+
   // Status colors
   static const Color success = Color(0xFF4CAF50);
   static const Color error = Color(0xFFE53935);
@@ -46,6 +50,10 @@ class AppGradients {
   static const LinearGradient primaryDiagonal = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
+    colors: [AppColors.primaryBlue, AppColors.primaryDark],
+  );
+
+  static const RadialGradient primaryRadial = RadialGradient(
     colors: [AppColors.primaryBlue, AppColors.primaryDark],
   );
 }

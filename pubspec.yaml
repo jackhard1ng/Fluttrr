@@ -49,6 +49,8 @@ dependencies:
   dropdown_button2: ^2.3.9               # Custom dropdowns
   gradient_slider: ^1.0.3                # Gradient sliders in filters
   flutter_switch: ^0.3.2                 # Toggle switches
+  url_launcher: ^6.2.5                   # For opening URLs
+  geocoding: ^3.0.0                      # For geocoding (address to coordinates)
 
 dev_dependencies:
   flutter_test:
