@@ -27,7 +27,6 @@ class _ProfileViewScreenState extends State<ProfileViewScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     profileController.GetProfile();
     profileController.GetGalleryList();

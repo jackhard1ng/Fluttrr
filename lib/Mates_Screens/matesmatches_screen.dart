@@ -11,7 +11,7 @@ import 'package:fluttrr/Constants/utils.dart';
 
 import '../Controller/MatesController.dart';
 import '../Home_Screen/userinfo_screen.dart';
-import '../Repository/ChatRespository.dart';
+import '../Repository/ChatRepository.dart';
 
 class MatesmatchesScreen extends StatefulWidget {
   const MatesmatchesScreen({super.key});
@@ -33,7 +33,6 @@ class _MatesmatchesScreenState extends State<MatesmatchesScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     matescontroller.MatesMatchList();
   }

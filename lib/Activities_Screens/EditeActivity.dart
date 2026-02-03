@@ -17,7 +17,7 @@ import 'package:fluttrr/Constants/Apis_Constants.dart';
 
 import '../Constants/button.dart';
 import '../Constants/utils.dart';
-import '../Controller/AcitivityController.dart';
+import '../Controller/ActivityController.dart';
 
 class Editeactivity extends StatefulWidget {
   final String id;
@@ -45,7 +45,7 @@ class Editeactivity extends StatefulWidget {
 }
 
 class _EditeactivityState extends State<Editeactivity> {
-  Acitivitycontroller acitivitycontroller = Get.put(Acitivitycontroller());
+  ActivityController activityController = Get.put(ActivityController());
   bool loading = false;
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
@@ -63,7 +63,7 @@ class _EditeactivityState extends State<Editeactivity> {
     _initializeUserLocation();
     _activitytype.text = widget.ActivityType;
     _description.text = widget.Description;
-    acitivitycontroller.location.value = widget.location;
+    activityController.location.value = widget.location;
     _totalslots.text = widget.numberofPeople;
     _totaltime.text = widget.TotalTime;
     print("Date and time: ${widget.Dateandtime}");
@@ -315,7 +315,7 @@ class _EditeactivityState extends State<Editeactivity> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child:
-                        Obx(() => acitivitycontroller.location.value.isNotEmpty
+                        Obx(() => activityController.location.value.isNotEmpty
                             ? TextFormField(
                                 decoration: InputDecoration(
                                   contentPadding: EdgeInsets.symmetric(
@@ -331,10 +331,10 @@ class _EditeactivityState extends State<Editeactivity> {
                                   // border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                                 ),
                                 controller: TextEditingController(
-                                    text: acitivitycontroller
+                                    text: activityController
                                         .location.value), // Update controller
                                 onChanged: (value) {
-                                  acitivitycontroller.location.value =
+                                  activityController.location.value =
                                       value; // Sync user input
                                 },
                               )
@@ -355,7 +355,7 @@ class _EditeactivityState extends State<Editeactivity> {
                                 controller:
                                     TextEditingController(), // Update controller
                                 // onChanged: (value) {
-                                //   acitivitycontroller.location.value = value; // Sync user input
+                                //   activityController.location.value = value; // Sync user input
                                 // },
                               )),
                   ),
@@ -579,7 +579,7 @@ class _EditeactivityState extends State<Editeactivity> {
                                   setState(() {
                                     loading = true;
                                   });
-                                  final location = await acitivitycontroller
+                                  final location = await activityController
                                       .getCoordinatesFromGeoCode(
                                           _locationController.text);
                                   print(
@@ -587,7 +587,7 @@ class _EditeactivityState extends State<Editeactivity> {
                                   print(
                                       "the Latitude is   :${location["latitude"]}");
                                   final create =
-                                      await acitivitycontroller.UpdateActivity(
+                                      await activityController.UpdateActivity(
                                           widget.id,
                                           _selectedImage,
                                           _activitytype.text,
@@ -597,7 +597,7 @@ class _EditeactivityState extends State<Editeactivity> {
                                           _totalslots.text,
                                           selectedTime.toString(),
                                           selectedDate.toString(),
-                                          acitivitycontroller.location.value,
+                                          activityController.location.value,
                                           _totaltime.text);
                                   if (create) {
                                     setState(() {
@@ -650,7 +650,7 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  Acitivitycontroller acitivitycontroller = Get.put(Acitivitycontroller());
+  ActivityController activityController = Get.put(ActivityController());
   LatLng? _pickedLocation;
   late final MapController _mapController;
   String mapboxApiKey =
@@ -701,9 +701,9 @@ class _MapScreenState extends State<MapScreen> {
               });
 
               String address = await _convertLatLngToAddress(latLng);
-              acitivitycontroller.location.value = address.toString();
+              activityController.location.value = address.toString();
 
-              print("${acitivitycontroller.location}");
+              print("${activityController.location}");
 
               setState(() {
                 ScaffoldMessenger.of(context).showSnackBar(

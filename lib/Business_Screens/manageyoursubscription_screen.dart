@@ -6,7 +6,7 @@ import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:fluttrr/Constants/custom_appbar.dart';
 import 'package:fluttrr/Constants/drawer_screen.dart';
 import 'package:fluttrr/Constants/utils.dart';
-import 'package:fluttrr/Controller/BussinessPageController.dart';
+import 'package:fluttrr/Controller/BusinessPageController.dart';
 
 import 'choosepaymentmethod_screen.dart';
 
@@ -25,7 +25,6 @@ class _ManageyoursubscriptionScreenState
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     businessController.GetBusinessPage();
   }

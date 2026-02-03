@@ -3,9 +3,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:fluttrr/Constants/Apis_Constants.dart';
 import 'package:fluttrr/Constants/utils.dart';
-import 'package:fluttrr/Controller/BussinessPageController.dart';
+import 'package:fluttrr/Controller/BusinessPageController.dart';
 import 'package:intl/intl.dart';
-import 'package:fluttrr/Models/BussinessModel/BusinessEventListModel.dart';
+import 'package:fluttrr/Models/BusinessModel/BusinessEventListModel.dart';
 
 import 'EditeEventScreen.dart';
 

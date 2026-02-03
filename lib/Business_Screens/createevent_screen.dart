@@ -10,9 +10,9 @@ import 'package:intl/intl.dart';
 import 'package:fluttrr/Constants/all_textfields.dart';
 import 'package:fluttrr/Constants/button.dart';
 import 'package:fluttrr/Constants/utils.dart';
-import 'package:fluttrr/Controller/BussinessPageController.dart';
+import 'package:fluttrr/Controller/BusinessPageController.dart';
 
-import '../Controller/AcitivityController.dart';
+import '../Controller/ActivityController.dart';
 import 'businessevents_screen.dart';
 
 class CreateeventScreen extends StatefulWidget {
@@ -25,7 +25,7 @@ class CreateeventScreen extends StatefulWidget {
 class _CreateeventScreenState extends State<CreateeventScreen> {
   bool loading = false;
   BusinessController businessController = Get.put(BusinessController());
-  Acitivitycontroller controller = Get.put(Acitivitycontroller());
+  ActivityController controller = Get.put(ActivityController());
   final _formKey = GlobalKey<FormState>();
   final List<String> eventTypes = ['Paid', 'Free'];
   File? _selectedImage;
@@ -201,7 +201,6 @@ class _CreateeventScreenState extends State<CreateeventScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     businessController.GetBusinessPage();
   }

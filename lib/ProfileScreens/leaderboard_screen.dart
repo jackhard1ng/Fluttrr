@@ -22,7 +22,6 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
   ];
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     profileController.LeaderBoard();
   }

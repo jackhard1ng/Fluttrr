@@ -13,7 +13,7 @@ import 'package:fluttrr/Models/TotalActivityCount.dart';
 import 'package:fluttrr/Models/TotalJoinedActivitesModel.dart';
 import 'package:fluttrr/Models/TotalMatchCount.dart';
 import 'package:fluttrr/Models/TotalMatchListModel.dart';
-import 'package:fluttrr/Repository/ProfileRespository.dart';
+import 'package:fluttrr/Repository/ProfileRepository.dart';
 
 import '../Models/JoinedActivityModel.dart';
 

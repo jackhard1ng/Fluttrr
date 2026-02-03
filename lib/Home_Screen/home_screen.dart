@@ -16,7 +16,7 @@ import 'package:fluttrr/Home_Screen/userinfo_screen.dart';
 
 import '../Activities_Screens/eventsdetails_screen.dart';
 import '../Constants/button.dart';
-import '../Controller/AcitivityController.dart';
+import '../Controller/ActivityController.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   // Chatcontroller chatcontroller=Get.put(Chatcontroller());
   ProfileController profileController = Get.put(ProfileController());
   Matescontroller matescontroller = Get.put(Matescontroller());
-  Acitivitycontroller acitivitycontroller = Get.put(Acitivitycontroller());
+  ActivityController activityController = Get.put(ActivityController());
   bool loading = true;
 
   final CarouselSliderController carouselController =
@@ -40,7 +40,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
-    // TODO: implement initState
     super.initState();
     apis();
   }
@@ -60,8 +59,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     });
     await profileController.GetProfile();
     await matescontroller.NearbyMatesMates();
-    await acitivitycontroller.DailyActivities();
-    await acitivitycontroller.UpcommingActivities();
+    await activityController.DailyActivities();
+    await activityController.UpcommingActivities();
     await profileController.getCurrentLocation();
     await profileController.updateFcmToken();
     setState(() {
@@ -681,7 +680,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           ),
                         ),
                       ),
-                    (acitivitycontroller.dailyActivites?.activities?.isEmpty ??
+                    (activityController.dailyActivites?.activities?.isEmpty ??
                             true)
                         ? Center(
                             child: loading
@@ -712,7 +711,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                     ],
                                   ),
                           )
-                        : GetBuilder<Acitivitycontroller>(
+                        : GetBuilder<ActivityController>(
                             id: "Activity_update",
                             builder: (context) {
                               return Padding(
@@ -720,7 +719,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                     const EdgeInsets.symmetric(horizontal: 17),
                                 child: CarouselSlider.builder(
                                   carouselController: carouselController,
-                                  itemCount: acitivitycontroller
+                                  itemCount: activityController
                                           .dailyActivites?.activities?.length ??
                                       0,
                                   itemBuilder: (context, index, realIndex) {
@@ -745,14 +744,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                       return InkWell(
                                         onTap: () {
                                           Get.to(() => EventsdetailsScreen(
-                                                id: acitivitycontroller
+                                                id: activityController
                                                         .dailyActivites
                                                         ?.activities?[index]
                                                         .activityID
                                                         .toString() ??
                                                     "",
                                                 event: false,
-                                                datetime: acitivitycontroller
+                                                datetime: activityController
                                                         .dailyActivites
                                                         ?.activities?[index]
                                                         .dateTime
@@ -779,7 +778,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                                 Stack(
                                                   children: [
                                                     Image.network(
-                                                      "${Apis.ip}${acitivitycontroller.dailyActivites?.activities?[index].images?.first.toString() ?? ""}",
+                                                      "${Apis.ip}${activityController.dailyActivites?.activities?[index].images?.first.toString() ?? ""}",
                                                       fit: BoxFit.cover,
                                                       height: 150,
                                                       width: double.infinity,
@@ -874,7 +873,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                                           left: 10, top: 10),
                                                   child: Text(
                                                     formatDateTime(
-                                                        acitivitycontroller
+                                                        activityController
                                                                 .dailyActivites
                                                                 ?.activities?[
                                                                     index]
@@ -894,7 +893,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                                           top: 10,
                                                           right: 10),
                                                   child: Text(
-                                                    acitivitycontroller
+                                                    activityController
                                                             .dailyActivites
                                                             ?.activities?[index]
                                                             .name
@@ -914,7 +913,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                                           top: 10,
                                                           right: 10),
                                                   child: Text(
-                                                    acitivitycontroller
+                                                    activityController
                                                             .dailyActivites
                                                             ?.activities?[index]
                                                             .description
@@ -968,7 +967,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
                     // cardscontroller.specialOffers?.specialOffers?.length ?? 0,
-                    acitivitycontroller.dailyActivites?.activities?.length ?? 0,
+                    activityController.dailyActivites?.activities?.length ?? 0,
                     (index) => AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       margin: const EdgeInsets.symmetric(horizontal: 5),
@@ -1020,34 +1019,34 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: GetBuilder<Acitivitycontroller>(
+                      child: GetBuilder<ActivityController>(
                         id: "Activity_update",
                         builder: (context) {
                           return ListView.builder(
                             physics: NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
-                            itemCount: acitivitycontroller
+                            itemCount: activityController
                                     .upComingActivitiesModel
                                     ?.activities
                                     ?.length ??
                                 0,
                             itemBuilder: (BuildContext context, int index) {
-                              final name = acitivitycontroller
+                              final name = activityController
                                       .upComingActivitiesModel
                                       ?.activities?[index]
                                       .name ??
                                   "No Name";
-                              final location = acitivitycontroller
+                              final location = activityController
                                       .upComingActivitiesModel
                                       ?.activities?[index]
                                       .location ??
                                   "No specific location";
-                              final description = acitivitycontroller
+                              final description = activityController
                                       .upComingActivitiesModel
                                       ?.activities?[index]
                                       .description ??
                                   "No Description";
-                              final imageList = acitivitycontroller
+                              final imageList = activityController
                                   .upComingActivitiesModel
                                   ?.activities?[index]
                                   .images;
@@ -1055,42 +1054,42 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                   (imageList != null && imageList.isNotEmpty)
                                       ? imageList[0]
                                       : "No image";
-                              final totalSlots = acitivitycontroller
+                              final totalSlots = activityController
                                       .upComingActivitiesModel
                                       ?.activities?[index]
                                       .totalSlots
                                       ?.toString() ??
                                   "0";
-                              final date = acitivitycontroller
+                              final date = activityController
                                       .upComingActivitiesModel
                                       ?.activities?[index]
                                       .dateTime
                                       ?.toString() ??
                                   "0";
                               final paid = null;
-                              final remainingSlots = acitivitycontroller
+                              final remainingSlots = activityController
                                       .upComingActivitiesModel
                                       ?.activities?[index]
                                       .slots
                                       ?.toString() ??
                                   "0";
-                              final id = acitivitycontroller
+                              final id = activityController
                                       .upComingActivitiesModel
                                       ?.activities?[index]
                                       .activityID
                                       ?.toString() ??
                                   "0";
                               final eventid = "0";
-                              final join = acitivitycontroller
+                              final join = activityController
                                   .upComingActivitiesModel
                                   ?.activities?[index]
                                   .joined;
                               print("the join event : $join");
-                              final creatorImage = acitivitycontroller
+                              final creatorImage = activityController
                                   .upComingActivitiesModel
                                   ?.activities?[index]
                                   .creatorImage?[0];
-                              return (acitivitycontroller
+                              return (activityController
                                           .upComingActivitiesModel
                                           ?.activities
                                           ?.isEmpty ??
@@ -1116,7 +1115,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                                   paid == null ? false : true,
                                               datetime: date,
                                               joined: join ?? false,
-                                              like: acitivitycontroller
+                                              like: activityController
                                                   .likedStatus[index],
                                             ));
                                       },
@@ -1273,7 +1272,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                                             ),
                                                           ],
                                                         ),
-                                                        acitivitycontroller
+                                                        activityController
                                                                     .upComingActivitiesModel
                                                                     ?.activities?[
                                                                         index]
@@ -1286,14 +1285,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                                                           () async {
                                                                         if (paid ==
                                                                             null) {
-                                                                          await acitivitycontroller.LeaveActivity(
+                                                                          await activityController.LeaveActivity(
                                                                               id);
-                                                                          await acitivitycontroller
+                                                                          await activityController
                                                                               .UpcommingActivities();
                                                                         } else {
-                                                                          await acitivitycontroller.LeaveEvent(
+                                                                          await activityController.LeaveEvent(
                                                                               eventid);
-                                                                          await acitivitycontroller
+                                                                          await activityController
                                                                               .UpcommingActivities();
                                                                         }
                                                                       },
@@ -1395,13 +1394,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                                   //..................forlike
                                                   InkWell(
                                                     onTap: () {
-                                                      acitivitycontroller
+                                                      activityController
                                                           .toggleLikedStatus2(
                                                               index);
                                                     },
                                                     child: SvgPicture.asset(
                                                       'assets/Group 48095897.svg',
-                                                      color: acitivitycontroller
+                                                      color: activityController
                                                                   .likedStatus[
                                                               index]
                                                           ? Colors.green
@@ -1418,12 +1417,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                                   InkWell(
                                                       onTap: () async {
                                                         if (paid == null) {
-                                                          await acitivitycontroller
+                                                          await activityController
                                                               .saveActivity(id);
                                                         } else {
                                                           print(
                                                               "Event api is call");
-                                                          await acitivitycontroller
+                                                          await activityController
                                                               .saveEvent(
                                                                   eventid);
                                                         }
@@ -1507,7 +1506,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   void confirmJoinalertBox(String id, bool event) {
-    Acitivitycontroller acitivitycontroller = Get.put(Acitivitycontroller());
+    ActivityController activityController = Get.put(ActivityController());
     showGeneralDialog(
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
@@ -1574,7 +1573,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 InkWell(
-                                  onTap: acitivitycontroller.decrementCounter,
+                                  onTap: activityController.decrementCounter,
                                   child: Container(
                                     height: 56,
                                     width: 70,
@@ -1596,7 +1595,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                   ),
                                 ),
                                 Text(
-                                  '${acitivitycontroller.counter.value}',
+                                  '${activityController.counter.value}',
                                   style: TextStyle(
                                     fontSize: 19,
                                     fontWeight: FontWeight.bold,
@@ -1604,7 +1603,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                   ),
                                 ),
                                 InkWell(
-                                  onTap: acitivitycontroller.incrementCounter,
+                                  onTap: activityController.incrementCounter,
                                   child: Container(
                                     height: 56,
                                     width: 70,
@@ -1639,10 +1638,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         ),
                         onPressed: () async {
                           print(
-                              'the send slots are : ${acitivitycontroller.counter.value}');
-                          await acitivitycontroller.joinActivity(
-                              id, acitivitycontroller.counter.toString());
-                          await acitivitycontroller.UpcommingActivities();
+                              'the send slots are : ${activityController.counter.value}');
+                          await activityController.joinActivity(
+                              id, activityController.counter.toString());
+                          await activityController.UpcommingActivities();
                           Navigator.pop(
                               context); // Close dialog after confirming
                         },
@@ -1741,8 +1740,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               onTap: () async {
                                 if (event) {
                                   print("the event call is success");
-                                  await acitivitycontroller.joinEvent(id);
-                                  await acitivitycontroller
+                                  await activityController.joinEvent(id);
+                                  await activityController
                                       .UpcommingActivities();
                                   Navigator.pop(context);
                                 } else {

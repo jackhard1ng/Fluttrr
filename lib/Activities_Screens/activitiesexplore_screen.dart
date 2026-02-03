@@ -12,7 +12,7 @@ import 'package:fluttrr/Constants/utils.dart';
 
 import '../Constants/Apis_Constants.dart';
 import '../Constants/button.dart';
-import '../Controller/AcitivityController.dart';
+import '../Controller/ActivityController.dart';
 import 'MapViewScreen.dart';
 
 class ActivitiesexploreScreen extends StatefulWidget {
@@ -24,13 +24,12 @@ class ActivitiesexploreScreen extends StatefulWidget {
 }
 
 class _ActivitiesexploreScreenState extends State<ActivitiesexploreScreen> {
-  Acitivitycontroller acitivitycontroller = Get.put(Acitivitycontroller());
+  ActivityController activityController = Get.put(ActivityController());
   final _fromTop = true;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    acitivitycontroller.ActivitieList();
+    activityController.ActivitieList();
   }
 
   String formatDateTime(String dateTimeString) {
@@ -186,51 +185,51 @@ class _ActivitiesexploreScreenState extends State<ActivitiesexploreScreen> {
                   width: double.infinity,
                   child: CardSwiper(
                       cardsCount:
-                          acitivitycontroller.activityListModel?.data?.length ??
+                          activityController.activityListModel?.data?.length ??
                               0,
                       cardBuilder: (context, index, percentThresholdX,
                           percentThresholdY) {
-                        final name = acitivitycontroller
+                        final name = activityController
                                 .activityListModel?.data?[index].name ??
                             "No Name";
-                        final location = acitivitycontroller
+                        final location = activityController
                                 .activityListModel?.data?[index].location ??
                             "No specific location";
-                        final description = acitivitycontroller
+                        final description = activityController
                                 .activityListModel?.data?[index].description ??
                             "No Description";
-                        final imageList = acitivitycontroller
+                        final imageList = activityController
                             .activityListModel?.data?[index].image;
                         final image =
                             (imageList != null && imageList.isNotEmpty)
                                 ? imageList[0]
                                 : "No image";
-                        final totalSlots = acitivitycontroller
+                        final totalSlots = activityController
                                 .activityListModel?.data?[index].totalSlots
                                 ?.toString() ??
                             "0";
-                        final date = acitivitycontroller
+                        final date = activityController
                                 .activityListModel?.data?[index].dateTime
                                 ?.toString() ??
                             "0";
-                        final paid = acitivitycontroller
+                        final paid = activityController
                                 .activityListModel?.data?[index].eventType ??
                             "Free";
-                        final remainingSlots = acitivitycontroller
+                        final remainingSlots = activityController
                                 .activityListModel?.data?[index].remainingSlots
                                 ?.toString() ??
                             "0";
-                        final id = acitivitycontroller
+                        final id = activityController
                                 .activityListModel?.data?[index].activityId
                                 ?.toString() ??
                             "0";
-                        final eventid = acitivitycontroller
+                        final eventid = activityController
                                 .activityListModel?.data?[index].eventId
                                 ?.toString() ??
                             "0";
-                        final join = acitivitycontroller
+                        final join = activityController
                             .activityListModel?.data?[index].userJoined;
-                        final creatorimage = acitivitycontroller
+                        final creatorimage = activityController
                             .activityListModel?.data?[index].creatorImage[0]
                             .toString();
                         return Container(
@@ -413,16 +412,16 @@ class _ActivitiesexploreScreenState extends State<ActivitiesexploreScreen> {
                                       SizedBox(
                                         height: 13,
                                       ),
-                                      acitivitycontroller.activityListModel
+                                      activityController.activityListModel
                                                   ?.data?[index].userJoined ==
                                               true
                                           ? Row(
                                               children: [
                                                 InkWell(
                                                     onTap: () async {
-                                                      await acitivitycontroller
+                                                      await activityController
                                                           .LeaveEvent(eventid);
-                                                      await acitivitycontroller
+                                                      await activityController
                                                           .ActivitieList();
                                                     },
                                                     child: _buildButton(
@@ -529,7 +528,7 @@ class _ActivitiesexploreScreenState extends State<ActivitiesexploreScreen> {
   }
 
   void confirmJoinalertBox(String id, bool event) {
-    Acitivitycontroller acitivitycontroller = Get.put(Acitivitycontroller());
+    ActivityController activityController = Get.put(ActivityController());
     showGeneralDialog(
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
@@ -596,7 +595,7 @@ class _ActivitiesexploreScreenState extends State<ActivitiesexploreScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 InkWell(
-                                  onTap: acitivitycontroller.decrementCounter,
+                                  onTap: activityController.decrementCounter,
                                   child: Container(
                                     height: 56,
                                     width: 70,
@@ -618,7 +617,7 @@ class _ActivitiesexploreScreenState extends State<ActivitiesexploreScreen> {
                                   ),
                                 ),
                                 Text(
-                                  '${acitivitycontroller.counter.value}',
+                                  '${activityController.counter.value}',
                                   style: TextStyle(
                                     fontSize: 19,
                                     fontWeight: FontWeight.bold,
@@ -626,7 +625,7 @@ class _ActivitiesexploreScreenState extends State<ActivitiesexploreScreen> {
                                   ),
                                 ),
                                 InkWell(
-                                  onTap: acitivitycontroller.incrementCounter,
+                                  onTap: activityController.incrementCounter,
                                   child: Container(
                                     height: 56,
                                     width: 70,
@@ -661,10 +660,10 @@ class _ActivitiesexploreScreenState extends State<ActivitiesexploreScreen> {
                         ),
                         onPressed: () async {
                           print(
-                              'the send slots are : ${acitivitycontroller.counter.value}');
-                          await acitivitycontroller.joinActivity(
-                              id, acitivitycontroller.counter.toString());
-                          await acitivitycontroller.ActivitieList();
+                              'the send slots are : ${activityController.counter.value}');
+                          await activityController.joinActivity(
+                              id, activityController.counter.toString());
+                          await activityController.ActivitieList();
                           Navigator.pop(
                               context); // Close dialog after confirming
                         },
@@ -763,8 +762,8 @@ class _ActivitiesexploreScreenState extends State<ActivitiesexploreScreen> {
                               onTap: () async {
                                 if (event) {
                                   print("the event call is success");
-                                  await acitivitycontroller.joinEvent(id);
-                                  await acitivitycontroller.ActivitieList();
+                                  await activityController.joinEvent(id);
+                                  await activityController.ActivitieList();
                                 } else {
                                   confirmJoinalertBox(id, event);
                                 }

@@ -8,7 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:fluttrr/Constants/Apis_Constants.dart';
 
 import '../Constants/utils.dart';
-import '../Repository/ChatRespository.dart';
+import '../Repository/ChatRepository.dart';
 
 class ChatScreen extends StatefulWidget {
   final String providerName;

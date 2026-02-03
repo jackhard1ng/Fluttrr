@@ -26,7 +26,6 @@ class _VisibilityandpreferencesScreenState
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     controller.GetPrivacy();
     if (controller.Privacymodel?.privacy != null) {

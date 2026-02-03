@@ -15,7 +15,7 @@ import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 import '../Constants/button.dart';
 import '../Constants/utils.dart';
-import '../Controller/AcitivityController.dart';
+import '../Controller/ActivityController.dart';
 
 class CreateactivityScreen extends StatefulWidget {
   const CreateactivityScreen({super.key});
@@ -25,7 +25,7 @@ class CreateactivityScreen extends StatefulWidget {
 }
 
 class _CreateactivityScreenState extends State<CreateactivityScreen> {
-  Acitivitycontroller acitivitycontroller=Get.put(Acitivitycontroller());
+  ActivityController activityController = Get.put(ActivityController());
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
   final TextEditingController _locationController = TextEditingController();
@@ -287,7 +287,7 @@ class _CreateactivityScreenState extends State<CreateactivityScreen> {
                   ),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child:  Obx(() => acitivitycontroller.location.value.isNotEmpty?
+                    child:  Obx(() => activityController.location.value.isNotEmpty?
                     TextFormField(
                       decoration: InputDecoration(
                         contentPadding:
@@ -302,9 +302,9 @@ class _CreateactivityScreenState extends State<CreateactivityScreen> {
                         hintText: 'Enter address or pick from map',
                         // border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      controller: TextEditingController(text:acitivitycontroller.location.value), // Update controller
+                      controller: TextEditingController(text:activityController.location.value), // Update controller
                       onChanged: (value) {
-                        acitivitycontroller.location.value = value; // Sync user input
+                        activityController.location.value = value; // Sync user input
                       },
                     ) :
                     TextFormField(
@@ -323,7 +323,7 @@ class _CreateactivityScreenState extends State<CreateactivityScreen> {
                       ),
                       controller: TextEditingController(), // Update controller
                       // onChanged: (value) {
-                      //   acitivitycontroller.location.value = value; // Sync user input
+                      //   activityController.location.value = value; // Sync user input
                       // },
                     )),
                   ),
@@ -516,12 +516,12 @@ class _CreateactivityScreenState extends State<CreateactivityScreen> {
                           width: double.infinity,
                           onTap: ()async {
                             print("the location  is :${_locationController.text}");
-                          final location=  await acitivitycontroller.getCoordinatesFromGeoCode(_locationController.text);
+                          final location=  await activityController.getCoordinatesFromGeoCode(_locationController.text);
                           print("the langitude is :${location["longitude"]}");
                           print("the Latitude is   :${location["latitude"]}");
 
                           // Activityrepository().uploadActivityImage(image: _selectedImage!, activityId: "4");
-                        final create=  await acitivitycontroller.CreateActivity(_selectedImage!,_activitytype.text, location["longitude"].toString(), location["latitude"].toString(), _description.text, _totalslots.text,  selectedTime.toString(), selectedDate.toString(), _locationController.text,_totaltime.text);
+                        final create=  await activityController.CreateActivity(_selectedImage!,_activitytype.text, location["longitude"].toString(), location["latitude"].toString(), _description.text, _totalslots.text,  selectedTime.toString(), selectedDate.toString(), _locationController.text,_totaltime.text);
                           if(create){
                             Get.back();
                           }else{
@@ -571,7 +571,7 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  Acitivitycontroller acitivitycontroller=Get.put(Acitivitycontroller());
+  ActivityController activityController = Get.put(ActivityController());
   LatLng? _pickedLocation;
   late final MapController _mapController;
   String mapboxApiKey = "pk.eyJ1IjoiamFja2hhcmRpbmcxNyIsImEiOiJjbTdzbXNlNzAxYzkxMmpvYWJuZXZoc3E2In0.v3vDy9EOl55cy_5V3oShlQ";
@@ -621,9 +621,9 @@ class _MapScreenState extends State<MapScreen> {
               });
 
               String address = await _convertLatLngToAddress(latLng);
-              acitivitycontroller.location.value=address.toString() ;
+              activityController.location.value=address.toString() ;
 
-              print("${acitivitycontroller.location}");
+              print("${activityController.location}");
 
               setState(() {
                 ScaffoldMessenger.of(context).showSnackBar(

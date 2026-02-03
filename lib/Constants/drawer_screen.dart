@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:fluttrr/Constants/Apis_Constants.dart';
 import 'package:fluttrr/Constants/bottombar.dart';
 import 'package:fluttrr/Constants/utils.dart';
-import 'package:fluttrr/Controller/BussinessPageController.dart';
+import 'package:fluttrr/Controller/BusinessPageController.dart';
 
 import '../Business_Screens/analytics_screen.dart';
 import '../Business_Screens/businessevents_screen.dart';
@@ -25,7 +25,6 @@ class _DrawerScreenState extends State<DrawerScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     businessController.GetBusinessPage();
     businessController.GetMYEvents();

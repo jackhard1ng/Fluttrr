@@ -12,7 +12,7 @@ import 'package:fluttrr/Constants/utils.dart';
 import 'package:fluttrr/Controller/ChatsListController.dart';
 import 'package:fluttrr/Controller/ViewProfileController.dart';
 
-import '../Repository/ChatRespository.dart';
+import '../Repository/ChatRepository.dart';
 
 class UserinfoScreen extends StatefulWidget {
   final String id;
@@ -29,7 +29,6 @@ class _UserinfoScreenState extends State<UserinfoScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     api();
   }

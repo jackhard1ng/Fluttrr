@@ -7,7 +7,7 @@ import 'package:gradient_slider/gradient_slider.dart';
 import 'package:fluttrr/Constants/button.dart';
 import 'package:fluttrr/Constants/utils.dart';
 
-import '../Controller/AcitivityController.dart';
+import '../Controller/ActivityController.dart';
 
 class ActivitiesFilters extends StatefulWidget {
   const ActivitiesFilters({
@@ -19,7 +19,7 @@ class ActivitiesFilters extends StatefulWidget {
 }
 
 class _ActivitiesFiltersState extends State<ActivitiesFilters> {
-  Acitivitycontroller acitivitycontroller = Get.put(Acitivitycontroller());
+  ActivityController activityController = Get.put(ActivityController());
   ValueChanged<int>? onDeleted;
 
   double value = 0;
@@ -421,7 +421,7 @@ class _ActivitiesFiltersState extends State<ActivitiesFilters> {
                     height: 60,
                     width: 130,
                     onTap: () async {
-                      await acitivitycontroller.FilterActivity(
+                      await activityController.FilterActivity(
                           _taglisthobbies[0],
                           date.toString(),
                           "",

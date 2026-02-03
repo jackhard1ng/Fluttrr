@@ -16,7 +16,7 @@ import 'package:fluttrr/Repository/ActivityRepository.dart';
 
 import '../Models/UnifieldsDetailsModel.dart';
 
-class Acitivitycontroller extends GetxController {
+class ActivityController extends GetxController {
   var location = "".obs;
   ActivityListModel? activityListModel;
   List<bool> likedStatus = [];

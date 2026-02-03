@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:fluttrr/Constants/Apis_Constants.dart';
 import 'package:fluttrr/Constants/custom_appbar.dart';
-import 'package:fluttrr/Controller/BussinessPageController.dart';
-import 'package:fluttrr/Models/BussinessModel/AnalyticsModel.dart';
+import 'package:fluttrr/Controller/BusinessPageController.dart';
+import 'package:fluttrr/Models/BusinessModel/AnalyticsModel.dart';
 
 import '../Constants/drawer_screen.dart';
 

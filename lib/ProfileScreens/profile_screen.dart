@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttrr/Constants/utils.dart';
-import 'package:fluttrr/Controller/BussinessPageController.dart';
+import 'package:fluttrr/Controller/BusinessPageController.dart';
 import 'package:fluttrr/Controller/ProfileController.dart';
 import 'package:fluttrr/ProfileScreens/profileview_screen.dart';
 import 'package:fluttrr/ProfileScreens/settingsandprivacy_screen.dart';
@@ -36,7 +36,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     controller.GetProfile();
     businessController.BusinessStatus();

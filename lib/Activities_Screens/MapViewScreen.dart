@@ -7,7 +7,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 import 'package:fluttrr/Constants/Apis_Constants.dart';
 import '../Constants/utils.dart';
-import '../Controller/AcitivityController.dart';
+import '../Controller/ActivityController.dart';
 
 class ActivityMapScreen extends StatefulWidget {
   const ActivityMapScreen({super.key});
@@ -17,7 +17,7 @@ class ActivityMapScreen extends StatefulWidget {
 }
 
 class _ActivityMapScreenState extends State<ActivityMapScreen> {
-  Acitivitycontroller controller = Get.put(Acitivitycontroller());
+  ActivityController controller = Get.put(ActivityController());
   LatLng? _currentLocation;
   final MapController _mapController = MapController();
   final List<Marker> _markers = [];

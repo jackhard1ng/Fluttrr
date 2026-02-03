@@ -6,11 +6,11 @@ import 'package:fluttrr/Activities_Screens/comments_screen.dart';
 import 'package:fluttrr/Constants/Apis_Constants.dart';
 import 'package:fluttrr/Constants/bottombar.dart';
 import 'package:fluttrr/Constants/utils.dart';
-import 'package:fluttrr/Controller/BussinessPageController.dart';
+import 'package:fluttrr/Controller/BusinessPageController.dart';
 import 'package:fluttrr/Controller/ProfileController.dart';
 
 import '../Constants/button.dart';
-import '../Controller/AcitivityController.dart';
+import '../Controller/ActivityController.dart';
 
 class EventsdetailsScreen extends StatefulWidget {
   final String id;
@@ -31,22 +31,21 @@ class EventsdetailsScreen extends StatefulWidget {
 }
 
 class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
-  Acitivitycontroller acitivitycontroller = Get.put(Acitivitycontroller());
+  ActivityController activityController = Get.put(ActivityController());
   BusinessController businessController = Get.put(BusinessController());
   ProfileController profileController = Get.put(ProfileController());
   final _fromTop = true;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     profileController.GetProfile();
     if (widget.event) {
-      acitivitycontroller.EventDetails(widget.id);
-      acitivitycontroller.ViewFollowBusiness(widget.id);
-      acitivitycontroller.CLickFollowBusiness(widget.id);
+      activityController.EventDetails(widget.id);
+      activityController.ViewFollowBusiness(widget.id);
+      activityController.CLickFollowBusiness(widget.id);
     } else {
-      acitivitycontroller.ActivitieDetails(widget.id);
+      activityController.ActivitieDetails(widget.id);
     }
   }
 
@@ -62,10 +61,10 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
   @override
   Widget build(BuildContext context) {
     print(
-        "The data for the both : ${acitivitycontroller.eventModel?.dateTime}");
+        "The data for the both : ${activityController.eventModel?.dateTime}");
     return Scaffold(
       body: SingleChildScrollView(
-        child: GetBuilder<Acitivitycontroller>(
+        child: GetBuilder<ActivityController>(
             id: "Activity_update",
             builder: (_) {
               return Column(
@@ -105,7 +104,7 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
                       image: DecorationImage(
                         fit: BoxFit.cover,
                         image: NetworkImage(
-                            '${Apis.ip}${acitivitycontroller.eventModel?.images?[0].toString()}'),
+                            '${Apis.ip}${activityController.eventModel?.images?[0].toString()}'),
                       ),
                     ),
                     child: Padding(
@@ -160,7 +159,7 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
                             Row(
                               children: [
                                 Text(
-                                  '${acitivitycontroller.eventModel?.totalTime.toString()} ',
+                                  '${activityController.eventModel?.totalTime.toString()} ',
                                   style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
@@ -178,7 +177,7 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
                           height: 3,
                         ),
                         Text(
-                          '${acitivitycontroller.eventModel?.name.toString()}',
+                          '${activityController.eventModel?.name.toString()}',
                           style: TextStyle(
                             fontSize: 21,
                             fontWeight: FontWeight.bold,
@@ -197,7 +196,7 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
                               width: 4,
                             ),
                             Text(
-                              '${acitivitycontroller.eventModel?.location.toString()}',
+                              '${activityController.eventModel?.location.toString()}',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -210,7 +209,7 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
                           height: 3,
                         ),
                         Text(
-                          '${acitivitycontroller.eventModel?.description.toString()}',
+                          '${activityController.eventModel?.description.toString()}',
                           style: TextStyle(
                             color: Theme.of(context).indicatorColor,
                           ),
@@ -257,7 +256,7 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
                                   ],
                                 ),
                                 Text(
-                                  ' ${(acitivitycontroller.eventModel?.totalSlots ?? 0) - (acitivitycontroller.eventModel?.remainingSlots ?? 0)}/${acitivitycontroller.eventModel?.totalSlots.toString()} Joined',
+                                  ' ${(activityController.eventModel?.totalSlots ?? 0) - (activityController.eventModel?.remainingSlots ?? 0)}/${activityController.eventModel?.totalSlots.toString()} Joined',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -398,7 +397,7 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
                                         child: Padding(
                                           padding: const EdgeInsets.all(9.0),
                                           child: Image.network(
-                                              '${Apis.ip}${acitivitycontroller.eventModel?.businessProfile?.logo.toString()}'),
+                                              '${Apis.ip}${activityController.eventModel?.businessProfile?.logo.toString()}'),
                                         ),
                                       ),
                                       SizedBox(
@@ -409,14 +408,14 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            '${acitivitycontroller.eventModel?.businessProfile?.name.toString()}',
+                                            '${activityController.eventModel?.businessProfile?.name.toString()}',
                                             style: TextStyle(
                                               fontSize: 17,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
                                           Text(
-                                            '${acitivitycontroller.eventModel?.businessProfile?.totalEventsCreated.toString()} Past Events | ${acitivitycontroller.eventModel?.businessProfile?.totalFollowers.toString()} followers',
+                                            '${activityController.eventModel?.businessProfile?.totalEventsCreated.toString()} Past Events | ${activityController.eventModel?.businessProfile?.totalFollowers.toString()} followers',
                                             style: TextStyle(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w600,
@@ -426,7 +425,7 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
                                           SizedBox(
                                             width: 203,
                                             child: Text(
-                                              '${acitivitycontroller.eventModel?.businessProfile?.description.toString()}',
+                                              '${activityController.eventModel?.businessProfile?.description.toString()}',
                                               style: TextStyle(
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.w400,
@@ -443,33 +442,33 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
                                     children: [
                                       InkWell(
                                         onTap: () async {
-                                          final follow = acitivitycontroller
+                                          final follow = activityController
                                                   .eventModel
                                                   ?.businessProfile
                                                   ?.isFollowedByCurrentUser ??
                                               false;
 
                                           if (follow) {
-                                            await acitivitycontroller
+                                            await activityController
                                                 .unFollowBusiness(
-                                                    acitivitycontroller
+                                                    activityController
                                                             .eventModel
                                                             ?.businessProfile
                                                             ?.id
                                                             .toString() ??
                                                         "");
-                                            await acitivitycontroller
+                                            await activityController
                                                 .EventDetails(widget.id);
                                           } else {
-                                            await acitivitycontroller
+                                            await activityController
                                                 .FollowBusiness(
-                                                    acitivitycontroller
+                                                    activityController
                                                             .eventModel
                                                             ?.businessProfile
                                                             ?.id
                                                             .toString() ??
                                                         "");
-                                            await acitivitycontroller
+                                            await activityController
                                                 .EventDetails(widget.id);
                                           }
                                         },
@@ -479,7 +478,7 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(10),
-                                            color: acitivitycontroller
+                                            color: activityController
                                                         .eventModel
                                                         ?.businessProfile
                                                         ?.isFollowedByCurrentUser ==
@@ -489,7 +488,7 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
                                           ),
                                           child: Center(
                                             child: Text(
-                                              acitivitycontroller
+                                              activityController
                                                           .eventModel
                                                           ?.businessProfile
                                                           ?.isFollowedByCurrentUser ==
@@ -516,7 +515,7 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
                                                           .profile?.userId
                                                           .toString() ??
                                                       "",
-                                                  acitivitycontroller.eventModel
+                                                  activityController.eventModel
                                                           ?.businessProfile?.id
                                                           .toString() ??
                                                       "",
@@ -555,7 +554,7 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
   }
 
   void confirmJoinalertBox(String id, bool event) {
-    Acitivitycontroller acitivitycontroller = Get.put(Acitivitycontroller());
+    ActivityController activityController = Get.put(ActivityController());
     showGeneralDialog(
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
@@ -622,7 +621,7 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 InkWell(
-                                  onTap: acitivitycontroller.decrementCounter,
+                                  onTap: activityController.decrementCounter,
                                   child: Container(
                                     height: 56,
                                     width: 70,
@@ -644,7 +643,7 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
                                   ),
                                 ),
                                 Text(
-                                  '${acitivitycontroller.counter.value}',
+                                  '${activityController.counter.value}',
                                   style: TextStyle(
                                     fontSize: 19,
                                     fontWeight: FontWeight.bold,
@@ -652,7 +651,7 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
                                   ),
                                 ),
                                 InkWell(
-                                  onTap: acitivitycontroller.incrementCounter,
+                                  onTap: activityController.incrementCounter,
                                   child: Container(
                                     height: 56,
                                     width: 70,
@@ -687,10 +686,10 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
                         ),
                         onPressed: () async {
                           print(
-                              'the send slots are : ${acitivitycontroller.counter.value}');
-                          await acitivitycontroller.joinActivity(
-                              id, acitivitycontroller.counter.toString());
-                          await acitivitycontroller.ActivitieList();
+                              'the send slots are : ${activityController.counter.value}');
+                          await activityController.joinActivity(
+                              id, activityController.counter.toString());
+                          await activityController.ActivitieList();
                           Navigator.pop(
                               context); // Close dialog after confirming
                         },
@@ -789,8 +788,8 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
                               onTap: () async {
                                 if (event) {
                                   print("the event call is success");
-                                  await acitivitycontroller.joinEvent(id);
-                                  await acitivitycontroller.ActivitieList();
+                                  await activityController.joinEvent(id);
+                                  await activityController.ActivitieList();
                                 } else {
                                   confirmJoinalertBox(id, event);
                                 }

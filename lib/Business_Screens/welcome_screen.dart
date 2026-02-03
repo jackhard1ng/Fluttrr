@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:fluttrr/Business_Screens/businesscreateprofile_screen.dart';
 import 'package:fluttrr/Constants/button.dart';
 import 'package:fluttrr/Constants/utils.dart';
-import 'package:fluttrr/Controller/BussinessPageController.dart';
+import 'package:fluttrr/Controller/BusinessPageController.dart';
 
 class WelcomeScreen extends StatelessWidget {
   BusinessController businessController = Get.put(BusinessController());

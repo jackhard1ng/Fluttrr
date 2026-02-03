@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:fluttrr/Models/ChatListModel.dart';
-import 'package:fluttrr/Repository/ChatRespository.dart';
+import 'package:fluttrr/Repository/ChatRepository.dart';
 
 import '../Models/GroupChatList.dart';
 

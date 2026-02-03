@@ -7,9 +7,9 @@ import 'package:fluttrr/Business_Screens/createevent_screen.dart';
 import 'package:fluttrr/Constants/Apis_Constants.dart';
 import 'package:fluttrr/Constants/custom_appbar.dart';
 import 'package:fluttrr/Constants/drawer_screen.dart';
-import 'package:fluttrr/Controller/BussinessPageController.dart';
+import 'package:fluttrr/Controller/BusinessPageController.dart';
 
-import '../Models/BussinessModel/BusinessEventListModel.dart';
+import '../Models/BusinessModel/BusinessEventListModel.dart';
 import 'businesseventdetails_screen.dart';
 
 class BusinesseventsScreen extends StatefulWidget {

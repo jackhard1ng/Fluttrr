@@ -11,7 +11,7 @@ import 'package:fluttrr/Constants/utils.dart';
 
 import '../Constants/bottombar.dart';
 import '../Constants/button.dart';
-import '../Controller/AcitivityController.dart';
+import '../Controller/ActivityController.dart';
 import 'activities_filters.dart';
 
 class Savedactivites extends StatefulWidget {
@@ -22,12 +22,11 @@ class Savedactivites extends StatefulWidget {
 }
 
 class _SavedactivitesState extends State<Savedactivites> {
-  Acitivitycontroller acitivitycontroller = Get.put(Acitivitycontroller());
+  ActivityController activityController = Get.put(ActivityController());
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    acitivitycontroller.SaveList();
+    activityController.SaveList();
   }
 
   final _fromTop = true;
@@ -180,55 +179,55 @@ class _SavedactivitesState extends State<Savedactivites> {
               SizedBox(
                 height: 10,
               ),
-              GetBuilder<Acitivitycontroller>(
+              GetBuilder<ActivityController>(
                 id: "Activity_update",
                 builder: (context) {
                   return ListView.builder(
                     physics: NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount:
-                        acitivitycontroller.savedEventsResponse?.data?.length ??
+                        activityController.savedEventsResponse?.data?.length ??
                             0,
                     itemBuilder: (BuildContext context, int index) {
-                      final name = acitivitycontroller
+                      final name = activityController
                               .savedEventsResponse?.data?[index].name ??
                           "No Name";
-                      final location = acitivitycontroller
+                      final location = activityController
                               .savedEventsResponse?.data?[index].location ??
                           "No specific location";
-                      final description = acitivitycontroller
+                      final description = activityController
                               .savedEventsResponse?.data?[index].description ??
                           "No Description";
-                      final imageList = acitivitycontroller
+                      final imageList = activityController
                           .savedEventsResponse?.data?[index].image?[0];
                       final image = (imageList != null && imageList.isNotEmpty)
                           ? imageList[0]
                           : "No image";
-                      final totalSlots = acitivitycontroller
+                      final totalSlots = activityController
                               .savedEventsResponse?.data?[index].totalSlots
                               ?.toString() ??
                           "0";
-                      final date = acitivitycontroller
+                      final date = activityController
                               .savedEventsResponse?.data?[index].dateTime
                               ?.toString() ??
                           "0";
-                      final paid = acitivitycontroller
+                      final paid = activityController
                           .savedEventsResponse?.data?[index].eventType;
-                      final remainingSlots = acitivitycontroller
+                      final remainingSlots = activityController
                               .savedEventsResponse?.data?[index].remainingSlots
                               ?.toString() ??
                           "0";
-                      final id = acitivitycontroller
+                      final id = activityController
                               .savedEventsResponse?.data?[index].id
                               ?.toString() ??
                           "0";
-                      final eventid = acitivitycontroller
+                      final eventid = activityController
                               .savedEventsResponse?.data?[index].id
                               ?.toString() ??
                           "0";
-                      final join = acitivitycontroller
+                      final join = activityController
                           .savedEventsResponse?.data?[index].userJoined;
-                      final creatoriamge = acitivitycontroller
+                      final creatoriamge = activityController
                           .savedEventsResponse
                           ?.data?[index]
                           .creator
@@ -371,7 +370,7 @@ class _SavedactivitesState extends State<Savedactivites> {
                                               ),
                                             ],
                                           ),
-                                          acitivitycontroller
+                                          activityController
                                                       .savedEventsResponse
                                                       ?.data?[index]
                                                       .userJoined ==
@@ -448,7 +447,7 @@ class _SavedactivitesState extends State<Savedactivites> {
                                     SizedBox(width: 16),
                                     InkWell(
                                         onTap: () async {
-                                          await acitivitycontroller
+                                          await activityController
                                               .saveActivity(id);
                                         },
                                         child: _buildIcon('assets/Group.svg')),
@@ -516,7 +515,7 @@ class _SavedactivitesState extends State<Savedactivites> {
   }
 
   void confirmJoinalertBox(String id, bool event) {
-    Acitivitycontroller acitivitycontroller = Get.put(Acitivitycontroller());
+    ActivityController activityController = Get.put(ActivityController());
     showGeneralDialog(
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
@@ -583,7 +582,7 @@ class _SavedactivitesState extends State<Savedactivites> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 InkWell(
-                                  onTap: acitivitycontroller.decrementCounter,
+                                  onTap: activityController.decrementCounter,
                                   child: Container(
                                     height: 56,
                                     width: 70,
@@ -605,7 +604,7 @@ class _SavedactivitesState extends State<Savedactivites> {
                                   ),
                                 ),
                                 Text(
-                                  '${acitivitycontroller.counter.value}',
+                                  '${activityController.counter.value}',
                                   style: TextStyle(
                                     fontSize: 19,
                                     fontWeight: FontWeight.bold,
@@ -613,7 +612,7 @@ class _SavedactivitesState extends State<Savedactivites> {
                                   ),
                                 ),
                                 InkWell(
-                                  onTap: acitivitycontroller.incrementCounter,
+                                  onTap: activityController.incrementCounter,
                                   child: Container(
                                     height: 56,
                                     width: 70,
@@ -648,10 +647,10 @@ class _SavedactivitesState extends State<Savedactivites> {
                         ),
                         onPressed: () async {
                           print(
-                              'the send slots are : ${acitivitycontroller.counter.value}');
-                          await acitivitycontroller.joinActivity(
-                              id, acitivitycontroller.counter.toString());
-                          await acitivitycontroller.ActivitieList();
+                              'the send slots are : ${activityController.counter.value}');
+                          await activityController.joinActivity(
+                              id, activityController.counter.toString());
+                          await activityController.ActivitieList();
                           Navigator.pop(
                               context); // Close dialog after confirming
                         },
@@ -750,8 +749,8 @@ class _SavedactivitesState extends State<Savedactivites> {
                               onTap: () async {
                                 if (event) {
                                   print("the event call is success");
-                                  await acitivitycontroller.joinEvent(id);
-                                  await acitivitycontroller.ActivitieList();
+                                  await activityController.joinEvent(id);
+                                  await activityController.ActivitieList();
                                 } else {
                                   confirmJoinalertBox(id, event);
                                 }

@@ -5,7 +5,7 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:fluttrr/Constants/Apis_Constants.dart';
 import '../Constants/utils.dart';
-import '../Repository/ChatRespository.dart';
+import '../Repository/ChatRepository.dart';
 
 class Groupmessagescreen extends StatefulWidget {
   final String providerName;

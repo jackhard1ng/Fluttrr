@@ -7,10 +7,10 @@ import 'package:fluttrr/Constants/Apis_Constants.dart';
 import 'package:fluttrr/Constants/custom_appbar.dart';
 import 'package:fluttrr/Constants/drawer_screen.dart';
 import 'package:fluttrr/Constants/utils.dart';
-import 'package:fluttrr/Controller/BussinessPageController.dart';
+import 'package:fluttrr/Controller/BusinessPageController.dart';
 import 'package:fluttrr/Controller/ProfileController.dart';
 
-import '../Models/BussinessModel/BusinessChatModel.dart';
+import '../Models/BusinessModel/BusinessChatModel.dart';
 
 class BusinessmessagesScreen2 extends StatefulWidget {
   const BusinessmessagesScreen2({super.key});

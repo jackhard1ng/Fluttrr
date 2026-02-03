@@ -6,7 +6,7 @@ import 'package:fluttrr/Controller/ProfileController.dart';
 
 import '../Activities_Screens/eventsdetails_screen.dart';
 import '../Constants/Apis_Constants.dart';
-import '../Controller/AcitivityController.dart';
+import '../Controller/ActivityController.dart';
 
 class JoinedactivitiesScreen extends StatefulWidget {
   const JoinedactivitiesScreen({super.key});
@@ -17,10 +17,9 @@ class JoinedactivitiesScreen extends StatefulWidget {
 
 class _JoinedactivitiesScreenState extends State<JoinedactivitiesScreen> {
   ProfileController profileController = Get.put(ProfileController());
-  Acitivitycontroller acitivitycontroller = Get.put(Acitivitycontroller());
+  ActivityController activityController = Get.put(ActivityController());
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     profileController.JoinedActivitesList();
   }
@@ -79,7 +78,7 @@ class _JoinedactivitiesScreenState extends State<JoinedactivitiesScreen> {
                 return Column(
                   // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    GetBuilder<Acitivitycontroller>(
+                    GetBuilder<ActivityController>(
                       id: "Activity_update",
                       builder: (context) {
                         return ListView.builder(
@@ -118,8 +117,8 @@ class _JoinedactivitiesScreenState extends State<JoinedactivitiesScreen> {
                                     ?.activities?[index].dateTime
                                     ?.toString() ??
                                 "0";
-                            // final time =  acitivitycontroller.myActivityModel?.activities?[index].time?.toString() ?? "0";
-                            // final paid = acitivitycontroller.myActivityModel?.activities?[index].;
+                            // final time =  activityController.myActivityModel?.activities?[index].time?.toString() ?? "0";
+                            // final paid = activityController.myActivityModel?.activities?[index].;
                             final remainingSlots = profileController
                                     .joinedActivitesModel
                                     ?.activities?[index]
@@ -281,10 +280,10 @@ class _JoinedactivitiesScreenState extends State<JoinedactivitiesScreen> {
                                                   children: [
                                                     InkWell(
                                                         onTap: () async {
-                                                          await acitivitycontroller
+                                                          await activityController
                                                               .LeaveActivity(
                                                                   id);
-                                                          await acitivitycontroller
+                                                          await activityController
                                                               .ActivitieList();
                                                         },
                                                         child: _buildButton(

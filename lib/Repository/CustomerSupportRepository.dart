@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import "package:http/http.dart" as http;
 import '../Constants/Apis_Constants.dart';
 
-class CustomerSupportRespostory{
+class CustomerSupportRepository{
 
   //......................................Get Tickets ................................
 

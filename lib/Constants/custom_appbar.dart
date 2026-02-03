@@ -7,8 +7,8 @@ import 'package:fluttrr/Constants/utils.dart';
 import 'package:fluttrr/Controller/MatesController.dart';
 
 import '../Business_Screens/premiumwelcome_screen.dart';
-import '../Controller/BussinessPageController.dart';
-import '../CutomerSupport/CustomerSupport.dart';
+import '../Controller/BusinessPageController.dart';
+import '../CustomerSupport/CustomerSupport.dart';
 import '../Models/MatesFilterModel.dart';
 import '../NotificationScreen/NotificationScreen.dart';
 import 'Apis_Constants.dart';

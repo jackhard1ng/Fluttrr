@@ -12,7 +12,7 @@ import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import 'package:fluttrr/Constants/all_textfields.dart';
 import 'package:fluttrr/Constants/button.dart';
 import 'package:fluttrr/Constants/utils.dart';
-import 'package:fluttrr/Controller/BussinessPageController.dart';
+import 'package:fluttrr/Controller/BusinessPageController.dart';
 
 import 'businessevents_screen.dart';
 

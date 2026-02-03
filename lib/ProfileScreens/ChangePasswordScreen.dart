@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:fluttrr/Repository/ProfileRespository.dart';
+import 'package:fluttrr/Repository/ProfileRepository.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});

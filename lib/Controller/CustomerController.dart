@@ -1,12 +1,12 @@
 import 'package:get/get.dart';
-import 'package:fluttrr/Models/CutomerSupport/GetTickets.dart';
-import 'package:fluttrr/Repository/CustomerSupportRespository.dart';
+import 'package:fluttrr/Models/CustomerSupport/GetTickets.dart';
+import 'package:fluttrr/Repository/CustomerSupportRepository.dart';
 
 class CustomerController extends GetxController {
   GetTickets? getTickets;
   //................................ Get Tickets...................
   Future<bool> GetTicketss() async {
-    final activity = await CustomerSupportRespostory().GetTickets();
+    final activity = await CustomerSupportRepository().GetTickets();
     print("Profile Fatch is : $activity");
     if (activity == null) {
       return false;
@@ -25,7 +25,7 @@ class CustomerController extends GetxController {
     String Des,
   ) async {
     final activity =
-        await CustomerSupportRespostory().SendTickets(Complaintype, Des);
+        await CustomerSupportRepository().SendTickets(Complaintype, Des);
     print("Profile Fatch is : $activity");
     if (activity == null) {
       return false;

@@ -8,8 +8,8 @@ import 'package:fluttrr/Constants/Apis_Constants.dart';
 import 'package:fluttrr/Constants/all_textfields.dart';
 import 'package:fluttrr/Constants/button.dart';
 import 'package:fluttrr/Constants/utils.dart';
-import 'package:fluttrr/Controller/BussinessPageController.dart';
-import 'package:fluttrr/Models/BussinessModel/BusinessPageModel.dart';
+import 'package:fluttrr/Controller/BusinessPageController.dart';
+import 'package:fluttrr/Models/BusinessModel/BusinessPageModel.dart';
 
 class EditBusinessPage extends StatefulWidget {
   final BusinessPageModel? businessData;

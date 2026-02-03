@@ -1,15 +1,15 @@
 import 'dart:io';
 
 import 'package:get/get.dart';
-import 'package:fluttrr/Models/BussinessModel/AnalyticsModel.dart';
-import 'package:fluttrr/Models/BussinessModel/BusinessEventListModel.dart';
-import 'package:fluttrr/Models/BussinessModel/BusinessPageModel.dart';
-import 'package:fluttrr/Models/BussinessModel/BusinessStatusModel.dart';
-import 'package:fluttrr/Models/BussinessModel/TopEventsModel.dart';
-import 'package:fluttrr/Repository/BussinessPageRepository.dart';
+import 'package:fluttrr/Models/BusinessModel/AnalyticsModel.dart';
+import 'package:fluttrr/Models/BusinessModel/BusinessEventListModel.dart';
+import 'package:fluttrr/Models/BusinessModel/BusinessPageModel.dart';
+import 'package:fluttrr/Models/BusinessModel/BusinessStatusModel.dart';
+import 'package:fluttrr/Models/BusinessModel/TopEventsModel.dart';
+import 'package:fluttrr/Repository/BusinessPageRepository.dart';
 
-import '../Models/BussinessModel/BusinessChatModel.dart';
-import '../Models/BussinessModel/MyBusinessEventModel.dart';
+import '../Models/BusinessModel/BusinessChatModel.dart';
+import '../Models/BusinessModel/MyBusinessEventModel.dart';
 
 class BusinessController extends GetxController {
   BusinessPageModel? businessPageModel;

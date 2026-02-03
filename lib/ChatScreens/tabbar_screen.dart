@@ -6,7 +6,7 @@ import 'package:fluttrr/ChatScreens/GroupChatList.dart';
 import 'package:fluttrr/Constants/utils.dart';
 
 import '../Controller/ChatsListController.dart';
-import 'BussinessChatList.dart';
+import 'BusinessChatList.dart';
 import 'chat_list.dart';
 
 class TabbarScreen extends StatefulWidget {
@@ -23,7 +23,6 @@ class _TabbarScreenState extends State<TabbarScreen>
   late TabController _controller;
   @override
   void initState() {
-    // TODO: implement initState
     _controller = TabController(length: 4, vsync: this, initialIndex: 0);
     controller.Chatlist();
     super.initState();

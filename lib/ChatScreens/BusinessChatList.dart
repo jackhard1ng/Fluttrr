@@ -5,10 +5,10 @@ import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'package:fluttrr/Constants/Apis_Constants.dart';
 
 import 'package:fluttrr/Constants/utils.dart';
-import 'package:fluttrr/Controller/BussinessPageController.dart';
+import 'package:fluttrr/Controller/BusinessPageController.dart';
 import 'package:fluttrr/Controller/ProfileController.dart';
 
-import '../Models/BussinessModel/BusinessChatModel.dart';
+import '../Models/BusinessModel/BusinessChatModel.dart';
 import 'BusinessChatScreen.dart';
 
 class BusinessmessagesScreen extends StatefulWidget {

@@ -10,7 +10,7 @@ import 'package:fluttrr/Constants/utils.dart';
 
 import '../Constants/Apis_Constants.dart';
 import '../Constants/bottombar.dart';
-import '../Controller/AcitivityController.dart';
+import '../Controller/ActivityController.dart';
 import 'SavedActivites.dart';
 import 'activities_filters.dart';
 import 'activitiesexplore_screen.dart';
@@ -24,12 +24,11 @@ class MyActivitiesScreen extends StatefulWidget {
 }
 
 class _MyActivitiesScreenState extends State<MyActivitiesScreen> {
-  Acitivitycontroller acitivitycontroller = Get.put(Acitivitycontroller());
+  ActivityController activityController = Get.put(ActivityController());
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    acitivitycontroller.MyActivitie();
+    activityController.MyActivitie();
   }
 
   String formatDateTime(String dateTimeString) {
@@ -78,7 +77,7 @@ class _MyActivitiesScreenState extends State<MyActivitiesScreen> {
         padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
         child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
-          child: GetBuilder<Acitivitycontroller>(
+          child: GetBuilder<ActivityController>(
               id: "Activity_update",
               builder: (_) {
                 return Column(
@@ -212,17 +211,17 @@ class _MyActivitiesScreenState extends State<MyActivitiesScreen> {
                         ],
                       ),
                     ),
-                    if (acitivitycontroller
+                    if (activityController
                             .myActivityModel?.activities?.isEmpty ??
                         true)
                       SizedBox(
-                        height: acitivitycontroller
+                        height: activityController
                                     .myActivityModel?.activities?.isEmpty ??
                                 true
                             ? 0
                             : 230,
                       ),
-                    if (acitivitycontroller
+                    if (activityController
                             .myActivityModel?.activities?.isEmpty ??
                         true)
                       Column(
@@ -247,50 +246,50 @@ class _MyActivitiesScreenState extends State<MyActivitiesScreen> {
                           ),
                         ],
                       ),
-                    GetBuilder<Acitivitycontroller>(
+                    GetBuilder<ActivityController>(
                       id: "Activity_update",
                       builder: (context) {
                         return ListView.builder(
                           physics: NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
-                          itemCount: acitivitycontroller
+                          itemCount: activityController
                                   .myActivityModel?.activities?.length ??
                               0,
                           itemBuilder: (BuildContext context, int index) {
-                            final name = acitivitycontroller
+                            final name = activityController
                                     .myActivityModel?.activities?[index].name ??
                                 "No Name";
-                            final location = acitivitycontroller.myActivityModel
+                            final location = activityController.myActivityModel
                                     ?.activities?[index].location ??
                                 "No specific location";
-                            final description = acitivitycontroller
+                            final description = activityController
                                     .myActivityModel
                                     ?.activities?[index]
                                     .description ??
                                 "No Description";
-                            final imageList = acitivitycontroller
+                            final imageList = activityController
                                 .myActivityModel?.activities?[index].images;
                             final image =
                                 (imageList != null && imageList.isNotEmpty)
                                     ? imageList[0]
                                     : "No image";
-                            final totalSlots = acitivitycontroller
+                            final totalSlots = activityController
                                     .myActivityModel
                                     ?.activities?[index]
                                     .totalSlots
                                     ?.toString() ??
                                 "0";
-                            final date = acitivitycontroller.myActivityModel
+                            final date = activityController.myActivityModel
                                     ?.activities?[index].dateTime
                                     ?.toString() ??
                                 "0";
-                            // final time =  acitivitycontroller.myActivityModel?.activities?[index].time?.toString() ?? "0";
-                            // final paid = acitivitycontroller.myActivityModel?.activities?[index].;
-                            final remainingSlots = acitivitycontroller
+                            // final time =  activityController.myActivityModel?.activities?[index].time?.toString() ?? "0";
+                            // final paid = activityController.myActivityModel?.activities?[index].;
+                            final remainingSlots = activityController
                                     .myActivityModel?.activities?[index].slots
                                     ?.toString() ??
                                 "0";
-                            final id = acitivitycontroller.myActivityModel
+                            final id = activityController.myActivityModel
                                     ?.activities?[index].activityID
                                     ?.toString() ??
                                 "0";
@@ -445,10 +444,10 @@ class _MyActivitiesScreenState extends State<MyActivitiesScreen> {
                                                   children: [
                                                     InkWell(
                                                         onTap: () async {
-                                                          await acitivitycontroller
+                                                          await activityController
                                                               .DeleteActivity(
                                                                   id);
-                                                          await acitivitycontroller
+                                                          await activityController
                                                               .MyActivitie();
                                                         },
                                                         child: _buildButton(

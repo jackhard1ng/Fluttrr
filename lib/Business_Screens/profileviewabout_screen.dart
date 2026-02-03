@@ -4,9 +4,9 @@ import 'package:get/get.dart';
 import 'package:fluttrr/Constants/Apis_Constants.dart';
 import 'package:fluttrr/Constants/drawer_screen.dart';
 import 'package:fluttrr/Constants/utils.dart';
-import 'package:fluttrr/Controller/BussinessPageController.dart';
+import 'package:fluttrr/Controller/BusinessPageController.dart';
 
-import 'EditeBussinessPage.dart';
+import 'EditBusinessPage.dart';
 
 class ProfileviewaboutScreen extends StatefulWidget {
   const ProfileviewaboutScreen({super.key});
@@ -20,7 +20,6 @@ class _ProfileviewaboutScreenState extends State<ProfileviewaboutScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     businessController.GetBusinessPage();
   }
