@@ -1,5 +1,6 @@
 
 
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -19,7 +20,6 @@ class Chatrespository{
       ) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is: $token");
 
     try {
       var request = http.MultipartRequest("POST", Uri.parse(Apis.StartConverstaion));
@@ -46,15 +46,12 @@ class Chatrespository{
       var response = await request.send();
       var responseBody = await response.stream.bytesToString();
 
-      print("Response: $responseBody");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(responseBody); // Return response as Map
       } else {
         return null;
       }
     } catch (e) {
-      print("Error: $e");
       return null;
     }
   }
@@ -67,13 +64,11 @@ class Chatrespository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
 
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.GetChatsList);
-      print("The URl is : $uri");
 
       final response = await http.get(
         uri,
@@ -83,18 +78,12 @@ class Chatrespository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -105,13 +94,11 @@ class Chatrespository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
 
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.grouplist);
-      print("The URl is : $uri");
 
       final response = await http.get(
         uri,
@@ -121,18 +108,12 @@ class Chatrespository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -143,7 +124,6 @@ class Chatrespository{
   Future<Map<String, dynamic>?> MarkasRead(String receiverId, ) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
     Map<String, dynamic> requestData = {
       "senderId": receiverId,
     };
@@ -159,8 +139,6 @@ class Chatrespository{
 
 
       );
-      print("The status code is : ${response.statusCode}");
-      print("The response  is : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body); // Return response as Map
       } else {
@@ -178,7 +156,6 @@ class Chatrespository{
   Future<Map<String, dynamic>?> StartConversation2(String receiverId, String message,) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
     Map<String, dynamic> requestData = {
       "groupId": receiverId,
       "message": message
@@ -195,7 +172,6 @@ class Chatrespository{
 
 
       );
-      print("The token is : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body); // Return response as Map
       } else {

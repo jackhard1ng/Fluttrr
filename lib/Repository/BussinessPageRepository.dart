@@ -23,19 +23,14 @@ class BusinessRepository{
         }
         ),
       );
-      print("Status code : ${response.statusCode}");
-      print("api response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       }else if(response.statusCode == 400){
 
       } else {
-        print("Api Failed Status code : ${response.statusCode}");
-        print("Api Failed response : ${response.body}");
         throw Exception("Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }
@@ -55,17 +50,12 @@ class BusinessRepository{
         }
         ),
       );
-      print("Status code : ${response.statusCode}");
-      print("api response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("Api Failed Status code : ${response.statusCode}");
-        print("Api Failed response : ${response.body}");
         throw Exception("Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }
@@ -91,7 +81,6 @@ class BusinessRepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is: $token");
       var uri = Uri.parse(Apis.CreateEvent);
       var request = http.MultipartRequest("POST", uri);
 
@@ -127,18 +116,12 @@ class BusinessRepository{
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
 
-      print("Status code: ${response.statusCode}");
-      print("API response: ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code: ${response.statusCode}");
-        print("API Failed response: ${response.body}");
         throw Exception("Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }
@@ -159,7 +142,6 @@ class BusinessRepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is: $token");
       var uri = Uri.parse(Apis.CreateBusinessProfile);
       var request = http.MultipartRequest("POST", uri);
       request.headers["Authorization"] = "Bearer $token";
@@ -183,18 +165,12 @@ class BusinessRepository{
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
 
-      print("Status code: ${response.statusCode}");
-      print("API response: ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code: ${response.statusCode}");
-        print("API Failed response: ${response.body}");
         throw Exception("Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }
@@ -205,7 +181,6 @@ class BusinessRepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       Map<String,dynamic> queryParams={
         "filterType":"all"
@@ -213,7 +188,6 @@ class BusinessRepository{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.GetCreatedEvent);
-      print("The URl is : $uri");
 
       final response = await http.get(
         uri,
@@ -223,18 +197,12 @@ class BusinessRepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("My events response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -253,7 +221,6 @@ class BusinessRepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       Map<String,dynamic> queryParams={
         "filterType":"all"
@@ -261,7 +228,6 @@ class BusinessRepository{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.GetBusinessPage);
-      print("The URl is : $uri");
 
       final response = await http.get(
         uri,
@@ -271,18 +237,12 @@ class BusinessRepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -306,10 +266,8 @@ class BusinessRepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("🔐 Token: $token");
 
       var uri = Uri.parse("${Apis.UpdateBussinessPage}$id");
-      print("🌐 URL: $uri");
 
       var request = http.MultipartRequest("PUT", uri);
       request.headers["Authorization"] = "Bearer $token";
@@ -323,14 +281,8 @@ class BusinessRepository{
       request.fields['facebook_link'] = facebookLink;
       request.fields['instagram_link'] = instagramLink;
 
-      print("📤 Sending Fields:");
-      request.fields.forEach((key, value) {
-        print("  ➤ $key: $value");
-      });
-
       // Attach files if provided
       if (logo != null) {
-        print("📎 Attaching logo file: ${logo.path}");
         request.files.add(
           await http.MultipartFile.fromPath(
             'logo',
@@ -339,11 +291,9 @@ class BusinessRepository{
           ),
         );
       } else {
-        print("⚠️ No logo file attached.");
       }
 
       if (image != null) {
-        print("📎 Attaching image file: ${image.path}");
         request.files.add(
           await http.MultipartFile.fromPath(
             'image',
@@ -352,7 +302,6 @@ class BusinessRepository{
           ),
         );
       } else {
-        print("⚠️ No image file attached.");
       }
 
       // Set headers
@@ -362,18 +311,12 @@ class BusinessRepository{
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
 
-      print("✅ Status Code: ${response.statusCode}");
-      print("📨 API Response: ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("❌ API Failed - Status Code: ${response.statusCode}");
-        print("❌ API Failed - Body: ${response.body}");
         throw Exception("Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("🔥 Error in EditeBusinessPage(): $e");
       return null;
     }
   }
@@ -402,7 +345,6 @@ class BusinessRepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is: $token");
 
       var uri = Uri.parse("${Apis.EditeEvent}$id");
       var request = http.MultipartRequest("PUT", uri); // Changed to PUT
@@ -442,18 +384,12 @@ class BusinessRepository{
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
 
-      print("Status code: ${response.statusCode}");
-      print("API response: ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code: ${response.statusCode}");
-        print("API Failed response: ${response.body}");
         throw Exception("Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in PUT: $e");
       return null;
     }
   }
@@ -466,7 +402,6 @@ class BusinessRepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       Map<String,dynamic> queryParams={
         "filterType":"all"
@@ -474,7 +409,6 @@ class BusinessRepository{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.Analytics);
-      print("The URl is : $uri");
 
       final response = await http.get(
         uri,
@@ -484,18 +418,12 @@ class BusinessRepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -507,7 +435,6 @@ class BusinessRepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       Map<String,dynamic> queryParams={
         "filterType":"all"
@@ -515,7 +442,6 @@ class BusinessRepository{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse("${Apis.MYEventDetails}$id");
-      print("The URl is : $uri");
 
       final response = await http.get(
         uri,
@@ -525,18 +451,12 @@ class BusinessRepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -548,7 +468,6 @@ class BusinessRepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       Map<String,dynamic> queryParams={
         "filterType":"all"
@@ -556,7 +475,6 @@ class BusinessRepository{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.Subscription);
-      print("The URl is : $uri");
 
       final response = await http.post(
         uri,
@@ -566,18 +484,12 @@ class BusinessRepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -588,7 +500,6 @@ class BusinessRepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       Map<String,dynamic> queryParams={
         "filterType":"all"
@@ -596,7 +507,6 @@ class BusinessRepository{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.CancelSubscription);
-      print("The URl is : $uri");
 
       final response = await http.post(
         uri,
@@ -606,18 +516,12 @@ class BusinessRepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -629,7 +533,6 @@ class BusinessRepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       Map<String,dynamic> queryParams={
         "filterType":"all"
@@ -637,7 +540,6 @@ class BusinessRepository{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.BusinessStatus);
-      print("The URl is : $uri");
 
       final response = await http.get(
         uri,
@@ -647,18 +549,12 @@ class BusinessRepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -669,7 +565,6 @@ class BusinessRepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       Map<String,dynamic> queryParams={
         "filterType":"all"
@@ -677,7 +572,6 @@ class BusinessRepository{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.TopEvents);
-      print("The URl is : $uri");
 
       final response = await http.get(
         uri,
@@ -687,18 +581,12 @@ class BusinessRepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -714,7 +602,6 @@ class BusinessRepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       Map<String,dynamic> date={
         "senderId":senderid,
@@ -724,7 +611,6 @@ class BusinessRepository{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.StartBusinesschat);
-      print("The URl is : $uri");
 
       final response = await http.post(
         uri,
@@ -735,18 +621,12 @@ class BusinessRepository{
         body: jsonEncode(date)
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -757,15 +637,12 @@ class BusinessRepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.GetBusinessChats).replace(queryParameters: {
         "id": id,
         "type":type
       });
-
-      print("The URL is : $uri");
 
       final response = await http.get(
         uri,
@@ -775,18 +652,12 @@ class BusinessRepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }

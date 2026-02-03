@@ -17,7 +17,6 @@ class Activityrepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       Map<String,dynamic> queryParams={
         "filterType":"all"
@@ -25,7 +24,6 @@ class Activityrepository{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.dailyactivities);
-      print("The URl is : $uri");
 
       final response = await http.get(
         uri,
@@ -35,18 +33,12 @@ class Activityrepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -58,7 +50,6 @@ class Activityrepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       Map<String,dynamic> queryParams={
         "filterType":"all"
@@ -66,7 +57,6 @@ class Activityrepository{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.ActivityList);
-      print("The URl is : $uri");
 
       final response = await http.get(
         uri,
@@ -76,18 +66,12 @@ class Activityrepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -112,7 +96,6 @@ class Activityrepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       var uri = Uri.parse(Apis.CreateActivity);
       var request = http.MultipartRequest("POST", uri);
@@ -120,7 +103,7 @@ class Activityrepository{
       request.headers["Authorization"] = "Bearer $token";
       // request.headers["Authorization"] = "Bearer $token";
 
-      // ✅ Adding form fields
+      // Adding form fields
       request.fields["name"] = name;
       request.fields["longitude"] = longitude;
       request.fields["latitude"] = Latitude;
@@ -131,30 +114,21 @@ class Activityrepository{
       request.fields["location"] = Location;
       request.fields["total_time"] = totaltime;
 
-      // ✅ Adding the image file
+      // Adding the image file
       request.files.add(await http.MultipartFile.fromPath("images", image.path));
 
-      // ✅ Debugging: Print request details
-      print("Sending Request: ${request.fields}");
-      print("Uploading Image: ${image.path}");
-
-      // ✅ Sending request
+      // Sending request
       var response = await request.send();
 
-      // ✅ Convert StreamedResponse to Readable Response
+      // Convert StreamedResponse to Readable Response
       var responseBody = await response.stream.bytesToString();
-      print("Response Body: $responseBody");
 
       if (response.statusCode == 200) {
-        print("✅ Recipe uploaded successfully");
         return jsonDecode(responseBody); // Return parsed JSON
       } else {
-        print("❌ Response Code: ${response.statusCode}");
-        print("❌ Failed to upload recipe: $responseBody");
         return {"error": "Failed to upload recipe", "status": response.statusCode};
       }
     } catch (e) {
-      print("⚠️ Exception Occurred: $e");
       return {"error": "An error occurred: $e"};
     }
   }
@@ -178,14 +152,13 @@ class Activityrepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is: $token");
 
       var uri = Uri.parse("${Apis.UpdateActivity}/$activityId"); // Adjust API endpoint as needed
       var request = http.MultipartRequest("PUT", uri);
 
       request.headers["Authorization"] = "Bearer $token";
 
-      // ✅ Adding form fields
+      // Adding form fields
       request.fields["name"] = name;
       request.fields["longitude"] = longitude;
       request.fields["latitude"] = latitude;
@@ -196,34 +169,24 @@ class Activityrepository{
       request.fields["location"] = location;
       request.fields["total_time"] = totaltime;
 
-      // ✅ Adding image only if provided
+      // Adding image only if provided
       if (image != null) {
         request.files.add(await http.MultipartFile.fromPath("images", image.path));
-        print("Uploading Image: ${image.path}");
       } else {
-        print("No image provided, skipping image upload.");
       }
 
-      // ✅ Debugging: Print request details
-      print("Sending PUT Request: ${request.fields}");
-
-      // ✅ Sending request
+      // Sending request
       var response = await request.send();
 
-      // ✅ Convert StreamedResponse to Readable Response
+      // Convert StreamedResponse to Readable Response
       var responseBody = await response.stream.bytesToString();
-      print("Response Body: $responseBody");
 
       if (response.statusCode == 200) {
-        print("✅ Activity updated successfully");
         return jsonDecode(responseBody); // Return parsed JSON
       } else {
-        print("❌ Response Code: ${response.statusCode}");
-        print("❌ Failed to update activity: $responseBody");
         return {"error": "Failed to update activity", "status": response.statusCode};
       }
     } catch (e) {
-      print("⚠️ Exception Occurred: $e");
       return {"error": "An error occurred: $e"};
     }
   }
@@ -242,7 +205,6 @@ class Activityrepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       // Map<String,dynamic> queryParams={
       //   "filterType":"all"
@@ -250,7 +212,6 @@ class Activityrepository{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse("${Apis.DetailActivity}/$id");
-      print("The URl is : $uri");
 
       final response = await http.get(
         uri,
@@ -260,18 +221,12 @@ class Activityrepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -282,7 +237,6 @@ class Activityrepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       // Map<String,dynamic> queryParams={
       //   "filterType":"all"
@@ -290,7 +244,6 @@ class Activityrepository{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse("${Apis.EventDetails}/$id");
-      print("The URl is : $uri");
 
       final response = await http.get(
         uri,
@@ -300,18 +253,12 @@ class Activityrepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -324,7 +271,6 @@ class Activityrepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       // Map<String,dynamic> queryParams={
       //   "filterType":"all"
@@ -332,7 +278,6 @@ class Activityrepository{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.MyActivity);
-      print("The URl is : $uri");
 
       final response = await http.get(
         uri,
@@ -342,18 +287,12 @@ class Activityrepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -363,7 +302,6 @@ class Activityrepository{
   Future<Map<String, dynamic>> JoinActivity(String activityid, String gusts) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
     Map<String, dynamic> requestData = {
       "activityIDs": activityid,
       "guests": gusts
@@ -399,7 +337,6 @@ class Activityrepository{
   Future<Map<String, dynamic>> JoinEvent(String eventid) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
     Map<String, dynamic> requestData = {
       "event_id": eventid,
     };
@@ -434,7 +371,6 @@ class Activityrepository{
   Future<Map<String, dynamic>> SaveActivity(String activityid,) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
     Map<String, dynamic> requestData = {};
     try {
       final response = await http.post(
@@ -467,7 +403,6 @@ class Activityrepository{
   Future<Map<String, dynamic>> SaveEvent(String Eventid,) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
     Map<String, dynamic> requestData = {};
     try {
       final response = await http.post(
@@ -502,7 +437,6 @@ class Activityrepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       // Map<String,dynamic> queryParams={
       //   "filterType":"all"
@@ -510,7 +444,6 @@ class Activityrepository{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.saveList);
-      print("The URl is : $uri");
 
       final response = await http.get(
         uri,
@@ -519,9 +452,6 @@ class Activityrepository{
           "Authorization": "Bearer $token",
         },
       );
-
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         Get.snackbar(
@@ -534,8 +464,6 @@ class Activityrepository{
         );
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         Get.snackbar(
           "Error",
           "Failed to fetch data. (${response.body})",
@@ -547,7 +475,6 @@ class Activityrepository{
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -559,7 +486,6 @@ class Activityrepository{
   Future<Map<String, dynamic>> FilterActivity(String Name, String date,String time,String range) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
     Map<String, dynamic> requestData = {
       "name": Name,
       "date":date,
@@ -596,7 +522,6 @@ class Activityrepository{
   Future<Map<String, dynamic>> LeaveActivies(String Activityid) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
     Map<String, dynamic> requestData = {
       "activityIDs": Activityid,
     };
@@ -631,7 +556,6 @@ class Activityrepository{
   Future<Map<String, dynamic>> LeaveEvent(String eventid) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
     Map<String, dynamic> requestData = {
       "event_id": eventid,
     };
@@ -666,7 +590,6 @@ class Activityrepository{
   Future<Map<String, dynamic>> DeleteActivity(String Activityid) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
     Map<String, dynamic> requestData = {
       "event_id": Activityid,
     };
@@ -705,7 +628,6 @@ class Activityrepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       Map<String,dynamic> queryParams={
         "filterType":"all"
@@ -713,7 +635,6 @@ class Activityrepository{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.UpcomingActivity);
-      print("The URl is : $uri");
 
       final response = await http.get(
         uri,
@@ -723,18 +644,12 @@ class Activityrepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -743,7 +658,6 @@ class Activityrepository{
   Future<Map<String, dynamic>> FollowBusiness(String bussinessid) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
 
     try {
       final response = await http.post(
@@ -776,7 +690,6 @@ class Activityrepository{
   Future<Map<String, dynamic>> unFollowBusiness(String bussinessid) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
 
     try {
       final response = await http.post(
@@ -807,7 +720,6 @@ class Activityrepository{
   Future<Map<String, dynamic>> CLickFollowBusiness(String eventid) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
     Map<String, dynamic> requestData = {
       "event_id": eventid,
     };
@@ -841,7 +753,6 @@ class Activityrepository{
   Future<Map<String, dynamic>> ViewFollowBusiness(String eventid) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
     Map<String, dynamic> requestData = {
       "event_id": eventid,
     };
@@ -870,7 +781,6 @@ class Activityrepository{
       };
     }
   }
-
 
 
 

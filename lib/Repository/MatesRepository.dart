@@ -14,7 +14,6 @@ class Matesrepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       Map<String,dynamic> queryParams={
         "filterType":"all"
@@ -22,7 +21,6 @@ class Matesrepository{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.Mates).replace(queryParameters: queryParams);
-      print("The URl is : $uri");
 
       final response = await http.get(
         uri,
@@ -32,18 +30,12 @@ class Matesrepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -54,10 +46,8 @@ class Matesrepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.nearbyMates);
-      print("The URl is : $uri");
       final response = await http.get(
         uri,
         headers: {
@@ -65,17 +55,12 @@ class Matesrepository{
           "Authorization": "Bearer $token",
         },
       );
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -86,10 +71,8 @@ class Matesrepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.MatchMates);
-      print("The URl is : $uri");
       final response = await http.get(
         uri,
         headers: {
@@ -97,17 +80,12 @@ class Matesrepository{
           "Authorization": "Bearer $token",
         },
       );
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -117,7 +95,6 @@ class Matesrepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       Map<String,dynamic> queryParams={
         "filterType":"joinRecently"
@@ -125,7 +102,6 @@ class Matesrepository{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.Mates).replace(queryParameters: queryParams);
-      print("The URl is : $uri");
 
       final response = await http.get(
         uri,
@@ -135,18 +111,12 @@ class Matesrepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -157,7 +127,6 @@ class Matesrepository{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       Map<String,dynamic> queryParams={
         "filterType":"recentlyActive"
@@ -165,7 +134,6 @@ class Matesrepository{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.Mates).replace(queryParameters: queryParams);
-      print("The URl is : $uri");
 
       final response = await http.get(
         uri,
@@ -175,18 +143,12 @@ class Matesrepository{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -203,7 +165,6 @@ class Matesrepository{
     // Data to send in the request body
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
     Map<String, dynamic> requestData = {
       "distance": distance,
       "unit": unit,
@@ -250,7 +211,6 @@ class Matesrepository{
     // Data to send in the request body
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
     Map<String, dynamic> requestData = {
       "ageMin":ageMin,
       "ageMax": ageMax,
@@ -260,7 +220,6 @@ class Matesrepository{
       // "interests": interests
     };
 
-    print("the send data : $requestData");
     try {
       final response = await http.post(
         Uri.parse(Apis.NearbyFilter),
@@ -297,7 +256,6 @@ class Matesrepository{
     // Data to send in the request body
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
     Map<String, dynamic> requestData = {
       "likedId":likedid,
 
@@ -327,7 +285,6 @@ class Matesrepository{
       };
     }
   }
-
 
 
 

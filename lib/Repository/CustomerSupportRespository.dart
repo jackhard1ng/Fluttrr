@@ -14,7 +14,6 @@ class CustomerSupportRespostory{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       Map<String,dynamic> queryParams={
         "filterType":"all"
@@ -22,7 +21,6 @@ class CustomerSupportRespostory{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.Compalin);
-      print("The URl is : $uri");
 
       final response = await http.get(
         uri,
@@ -32,18 +30,12 @@ class CustomerSupportRespostory{
         },
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }
@@ -59,7 +51,6 @@ class CustomerSupportRespostory{
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
       final token = pref.getString("token");
-      print("The token is : $token");
 
       Map<String,dynamic> senddata={
         "complaint_type": Complaintype,
@@ -70,7 +61,6 @@ class CustomerSupportRespostory{
 
       // Constructing the URI with query parameters
       Uri uri = Uri.parse(Apis.Compalin);
-      print("The URl is : $uri");
 
       final response = await http.post(
         uri,
@@ -81,18 +71,12 @@ class CustomerSupportRespostory{
         body: jsonEncode(senddata)
       );
 
-      print("Status code : ${response.statusCode}");
-      print("API response : ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("API Failed Status code : ${response.statusCode}");
-        print("API Failed response : ${response.body}");
         throw Exception("Failed to fetch data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in GET: $e");
       return null;
     }
   }

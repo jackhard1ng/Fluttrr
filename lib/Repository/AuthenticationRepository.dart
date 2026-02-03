@@ -20,21 +20,16 @@ class AuthenticationRepository {
         body: jsonEncode({"email": email, "password": password}),
       );
 
-      print("Status code : ${response.statusCode}");
-      print("api response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
         SharedPreferences pref = await SharedPreferences.getInstance();
         pref.setString("token", data["token"]);
         return data;
       } else {
-        print("Api Failed Status code : ${response.statusCode}");
-        print("Api Failed response : ${response.body}");
         throw Exception(
             "Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }
@@ -50,19 +45,14 @@ class AuthenticationRepository {
         body: jsonEncode(
             {"userName": userName, "email": email, "password": password}),
       );
-      print("Status code : ${response.statusCode}");
-      print("api response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else if (response.statusCode == 400) {
       } else {
-        print("Api Failed Status code : ${response.statusCode}");
-        print("Api Failed response : ${response.body}");
         throw Exception(
             "Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }
@@ -76,18 +66,13 @@ class AuthenticationRepository {
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"otp": otp, "email": email}),
       );
-      print("Status code : ${response.statusCode}");
-      print("api response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("Api Failed Status code : ${response.statusCode}");
-        print("Api Failed response : ${response.body}");
         throw Exception(
             "Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }
@@ -102,18 +87,13 @@ class AuthenticationRepository {
         body: jsonEncode(
             {"oldPassword": oldPassword, "newPassword": newPassword}),
       );
-      print("Status code : ${response.statusCode}");
-      print("api response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("Api Failed Status code : ${response.statusCode}");
-        print("Api Failed response : ${response.body}");
         throw Exception(
             "Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }
@@ -129,18 +109,13 @@ class AuthenticationRepository {
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"idToken": id}),
       );
-      print("Status code : ${response.statusCode}");
-      print("api response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("Api Failed Status code : ${response.statusCode}");
-        print("Api Failed response : ${response.body}");
         throw Exception(
             "Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }
@@ -150,7 +125,6 @@ class AuthenticationRepository {
       // Trigger the Google Sign-In process
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
-        print("Google Sign-In canceled.");
         return null;
       }
 
@@ -159,15 +133,12 @@ class AuthenticationRepository {
           await googleUser.authentication;
 
       if (googleAuth.idToken == null) {
-        print("Failed to retrieve ID Token.");
         return null;
       }
 
       // Pass the ID token to your backend authentication method
-      print("Google ID Token: ${googleAuth.idToken}");
       return await Google_Auth(googleAuth.idToken!);
     } catch (e) {
-      print("Error during Google Sign-In: $e");
       return null;
     }
   }
@@ -182,18 +153,13 @@ class AuthenticationRepository {
         body: jsonEncode(
             {"newPassword": newPassword, "confirmPassword": conPassword}),
       );
-      print("Status code : ${response.statusCode}");
-      print("api response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("Api Failed Status code : ${response.statusCode}");
-        print("Api Failed response : ${response.body}");
         throw Exception(
             "Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }
@@ -209,19 +175,14 @@ class AuthenticationRepository {
           "email": email,
         }),
       );
-      print("Status code : ${response.statusCode}");
-      print("api response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else if (response.statusCode == 400) {
       } else {
-        print("Api Failed Status code : ${response.statusCode}");
-        print("Api Failed response : ${response.body}");
         throw Exception(
             "Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }
@@ -235,18 +196,13 @@ class AuthenticationRepository {
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"otp": otp, "email": email}),
       );
-      print("Status code : ${response.statusCode}");
-      print("api response : ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body);
       } else {
-        print("Api Failed Status code : ${response.statusCode}");
-        print("Api Failed response : ${response.body}");
         throw Exception(
             "Failed to post data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error in POST: $e");
       return null;
     }
   }
