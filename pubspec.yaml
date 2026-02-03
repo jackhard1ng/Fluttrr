@@ -41,14 +41,10 @@ dependencies:
   flutter_stripe: ^11.4.0
   mapbox_maps_flutter: ^2.18.0
   gradient_progress_indicator: ^1.0.0+5  # For loading indicators
-  image_picker: ^1.1.2                   # For photo uploads (we'll keep this)
-  geocode: ^1.0.3                        # For address lookup (temporary)
-  flutter_map: ^8.1.0                    # Temporary until full Mapbox migration
+  image_picker: ^1.1.2                   # For photo uploads
+  geocode: ^1.0.3                        # For address lookup
+  flutter_map: ^8.1.0                    # Map widget
   latlong2: ^0.9.1                       # Needed for flutter_map
-  date_time_picker: ^2.1.0               # For date pickers in filters
-  dropdown_button2: ^2.3.9               # Custom dropdowns
-  gradient_slider: ^1.0.3                # Gradient sliders in filters
-  flutter_switch: ^0.3.2                 # Toggle switches
   url_launcher: ^6.2.5                   # For opening URLs
   geocoding: ^3.0.0                      # For geocoding (address to coordinates)
 
