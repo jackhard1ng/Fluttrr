@@ -232,15 +232,14 @@ class _ActivitiesFiltersState extends State<ActivitiesFilters> {
 
                   return true;
                 },
-                onChanged: (val) => print(val),
+                onChanged: (val) {},
                 validator: (val) {
-                  print(val);
                   setState(() {
                     date = val;
                   });
                   return null;
                 },
-                onSaved: (val) => print(val),
+                onSaved: (val) {},
               ),
               SizedBox(height: 19),
               Text(

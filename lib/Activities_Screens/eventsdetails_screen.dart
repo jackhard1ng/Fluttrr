@@ -61,8 +61,6 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(
-        "The data for the both : ${acitivitycontroller.eventModel?.dateTime}");
     return Scaffold(
       body: SingleChildScrollView(
         child: GetBuilder<Acitivitycontroller>(
@@ -686,8 +684,6 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
                           minimumSize: Size(170, 43),
                         ),
                         onPressed: () async {
-                          print(
-                              'the send slots are : ${acitivitycontroller.counter.value}');
                           await acitivitycontroller.joinActivity(
                               id, acitivitycontroller.counter.toString());
                           await acitivitycontroller.ActivitieList();
@@ -788,7 +784,6 @@ class _EventsdetailsScreenState extends State<EventsdetailsScreen> {
                               width: 170,
                               onTap: () async {
                                 if (event) {
-                                  print("the event call is success");
                                   await acitivitycontroller.joinEvent(id);
                                   await acitivitycontroller.ActivitieList();
                                 } else {

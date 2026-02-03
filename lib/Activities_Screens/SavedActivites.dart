@@ -235,9 +235,6 @@ class _SavedactivitesState extends State<Savedactivites> {
                           ?.profileImage?[0]
                           .toString();
 
-                      print("the every card with name $name is id has : $id");
-                      // print("the join event : $join");
-
                       return InkWell(
                         onTap: () {
                           Get.to(() => EventsdetailsScreen(
@@ -390,8 +387,6 @@ class _SavedactivitesState extends State<Savedactivites> {
                                                                   ? false
                                                                   : true;
                                                           // final iD =paid==null? id:eventid;
-                                                          print(
-                                                              "The event is : $event");
                                                           alertBox(id, event);
                                                         },
                                                         child:
@@ -647,8 +642,6 @@ class _SavedactivitesState extends State<Savedactivites> {
                           minimumSize: Size(170, 43),
                         ),
                         onPressed: () async {
-                          print(
-                              'the send slots are : ${acitivitycontroller.counter.value}');
                           await acitivitycontroller.joinActivity(
                               id, acitivitycontroller.counter.toString());
                           await acitivitycontroller.ActivitieList();
@@ -749,7 +742,6 @@ class _SavedactivitesState extends State<Savedactivites> {
                               width: 170,
                               onTap: () async {
                                 if (event) {
-                                  print("the event call is success");
                                   await acitivitycontroller.joinEvent(id);
                                   await acitivitycontroller.ActivitieList();
                                 } else {

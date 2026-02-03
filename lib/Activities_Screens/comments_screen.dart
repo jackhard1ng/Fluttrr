@@ -37,8 +37,6 @@ class _CommentsScreenState extends State<CommentsScreen> {
     // Uri uriactivity=Uri.parse("${Apis.baseurl}/comment/${widget.id}");
 
     final response = await http.get(urievent);
-    print(response.statusCode);
-    print(response.body);
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
       CommentsModel commentsModel = CommentsModel.fromJson(jsonData);
@@ -53,7 +51,6 @@ class _CommentsScreenState extends State<CommentsScreen> {
   Future<void> _postReply(int parentCommentId, String content) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
     final response = await http.post(
       Uri.parse('${Apis.baseurl}/comment/add'),
       headers: {
@@ -66,7 +63,6 @@ class _CommentsScreenState extends State<CommentsScreen> {
         'content': content
       }),
     );
-    print(response.body);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       _fetchComments();
@@ -80,7 +76,6 @@ class _CommentsScreenState extends State<CommentsScreen> {
   Future<void> _postComment(String content) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final token = pref.getString("token");
-    print("The token is : $token");
     final response = await http.post(
       Uri.parse('${Apis.baseurl}/comment/add'),
       headers: {
@@ -93,7 +88,6 @@ class _CommentsScreenState extends State<CommentsScreen> {
         'content': content
       }),
     );
-    print(response.body);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       _fetchComments();

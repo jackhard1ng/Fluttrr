@@ -16,7 +16,7 @@ class NearbyMates {
         }).toList();
       }
     } catch (e) {
-      print('Error parsing NearbyMates: $e');
+      // Error parsing NearbyMates
     }
   }
 
@@ -80,7 +80,7 @@ class Users {
       distance = json['distance']?.toString();
       hasLiked = json['hasLiked'] is bool ? json['hasLiked'] : false;
     } catch (e) {
-      print('Error parsing Users: $e');
+      // Error parsing Users
     }
   }
 
@@ -128,7 +128,7 @@ class User {
     try {
       userName = json['userName']?.toString();
     } catch (e) {
-      print('Error parsing User: $e');
+      // Error parsing User
     }
   }
 

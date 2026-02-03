@@ -116,7 +116,6 @@ class _MateswhoisaroundFiltersState extends State<MateswhoisaroundFilters> {
                               selectedIndex = index;
                             });
                             SelectedGender = gender[selectedIndex];
-                            print("Selected Gender: $SelectedGender");
                           },
                           child: Container(
                             decoration: BoxDecoration(
@@ -184,7 +183,6 @@ class _MateswhoisaroundFiltersState extends State<MateswhoisaroundFilters> {
                               statusIndex = index;
                             });
                             SelectedStatus = travelerAndLocalStatus[index];
-                            print("Selected Gender: $SelectedStatus");
                           },
                           child: Container(
                             decoration: BoxDecoration(

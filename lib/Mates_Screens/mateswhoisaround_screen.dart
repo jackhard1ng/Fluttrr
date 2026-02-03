@@ -173,8 +173,6 @@ class _MateswhoisaroundScreenState extends State<MateswhoisaroundScreen> {
                                               user.userProfile?.gender ?? "N/A";
                                           final isliked =
                                               user.hasLiked ?? false;
-                                          print(
-                                              "is liked for te $name : $isliked");
                                           final image = (user.userProfile
                                                       ?.images?.isNotEmpty ??
                                                   false)
@@ -391,7 +389,6 @@ Widget buildCard(String id, String name, String age, String gender,
                 SizedBox(width: 30),
                 InkWell(
                     onTap: () async {
-                      print("The is liked : $Isliked");
                       await matescontroller.LikedMates(id, context);
                       await matescontroller.MatesFilter(
                           "", "", "", "", [""], "", []);

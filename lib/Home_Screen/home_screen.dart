@@ -1085,7 +1085,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                   .upComingActivitiesModel
                                   ?.activities?[index]
                                   .joined;
-                              print("the join event : $join");
                               final creatorImage = acitivitycontroller
                                   .upComingActivitiesModel
                                   ?.activities?[index]
@@ -1333,8 +1332,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                                                                 null
                                                                             ? id
                                                                             : eventid;
-                                                                        print(
-                                                                            "The event is : $event");
                                                                         alertBox(
                                                                             iD,
                                                                             event);
@@ -1421,8 +1418,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                                           await acitivitycontroller
                                                               .saveActivity(id);
                                                         } else {
-                                                          print(
-                                                              "Event api is call");
                                                           await acitivitycontroller
                                                               .saveEvent(
                                                                   eventid);
@@ -1638,8 +1633,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           minimumSize: Size(170, 43),
                         ),
                         onPressed: () async {
-                          print(
-                              'the send slots are : ${acitivitycontroller.counter.value}');
                           await acitivitycontroller.joinActivity(
                               id, acitivitycontroller.counter.toString());
                           await acitivitycontroller.UpcommingActivities();
@@ -1740,7 +1733,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               width: 170,
                               onTap: () async {
                                 if (event) {
-                                  print("the event call is success");
                                   await acitivitycontroller.joinEvent(id);
                                   await acitivitycontroller
                                       .UpcommingActivities();
@@ -1883,7 +1875,6 @@ Widget buildCard(String id, String name, String age, String gender,
                 SizedBox(width: 30),
                 InkWell(
                     onTap: () async {
-                      print("The is liked : $Isliked");
                       await matescontroller.LikedMates(id, context);
                       await matescontroller.MatesFilter(
                           "", "", "", "", [""], "", []);

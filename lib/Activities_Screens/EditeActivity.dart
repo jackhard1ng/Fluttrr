@@ -66,7 +66,6 @@ class _EditeactivityState extends State<Editeactivity> {
     acitivitycontroller.location.value = widget.location;
     _totalslots.text = widget.numberofPeople;
     _totaltime.text = widget.TotalTime;
-    print("Date and time: ${widget.Dateandtime}");
 
     // Parse the string to DateTime
     selectedDate = DateTime.tryParse(widget.Dateandtime);
@@ -76,10 +75,6 @@ class _EditeactivityState extends State<Editeactivity> {
       selectedTime =
           TimeOfDay(hour: selectedDate!.hour, minute: selectedDate!.minute);
     }
-
-    print("Selected Date: $selectedDate"); // Example: 2025-03-14 20:41:06.000Z
-    print(
-        "Selected Time: ${selectedTime?.format(Get.context!)}"); // Example: 8:41 PM
   }
 
   DateTime? selectedDate;
@@ -138,8 +133,6 @@ class _EditeactivityState extends State<Editeactivity> {
     setState(() {
       selectedDate = pickedDateTime; // Store complete DateTime
     });
-
-    print("Selected DateTime: $pickedDateTime");
   }
 
   Future<void> _initializeUserLocation() async {
@@ -582,10 +575,6 @@ class _EditeactivityState extends State<Editeactivity> {
                                   final location = await acitivitycontroller
                                       .getCoordinatesFromGeoCode(
                                           _locationController.text);
-                                  print(
-                                      "the langitude is :${location["longitude"]}");
-                                  print(
-                                      "the Latitude is   :${location["latitude"]}");
                                   final create =
                                       await acitivitycontroller.UpdateActivity(
                                           widget.id,
@@ -702,8 +691,6 @@ class _MapScreenState extends State<MapScreen> {
 
               String address = await _convertLatLngToAddress(latLng);
               acitivitycontroller.location.value = address.toString();
-
-              print("${acitivitycontroller.location}");
 
               setState(() {
                 ScaffoldMessenger.of(context).showSnackBar(

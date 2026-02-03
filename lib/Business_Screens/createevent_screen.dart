@@ -188,12 +188,10 @@ class _CreateeventScreenState extends State<CreateeventScreen> {
 
       Get.offAll(() => BusinesseventsScreen());
       // Form is valid, proceed with submission
-      print('Form submitted successfully');
     } else {
       setState(() {
         loading = false;
       });
-      print('Form submitted Falied');
     }
 
     // Add your form submission logic here

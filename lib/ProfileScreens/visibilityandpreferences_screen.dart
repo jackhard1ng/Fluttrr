@@ -114,7 +114,6 @@ class _VisibilityandpreferencesScreenState
                                         false
                                     ? true
                                     : false;
-                            print("$travler");
                             await controller.UpdatePrivacy(
                                 travler,
                                 controller.Privacymodel?.privacy?.local ??
@@ -175,7 +174,6 @@ class _VisibilityandpreferencesScreenState
                                 controller.Privacymodel!.privacy!.local == false
                                     ? true
                                     : false;
-                            print("$local");
                             await controller.UpdatePrivacy(
                                 controller.Privacymodel?.privacy?.traveller ??
                                     false,
@@ -294,7 +292,6 @@ class _VisibilityandpreferencesScreenState
                                 controller.Privacymodel!.privacy!.male == false
                                     ? true
                                     : false;
-                            print("$male");
                             await controller.UpdatePrivacy(
                                 controller.Privacymodel?.privacy?.traveller ??
                                     false,
@@ -357,7 +354,6 @@ class _VisibilityandpreferencesScreenState
                                         false
                                     ? true
                                     : false;
-                            print("$female");
                             await controller.UpdatePrivacy(
                                 controller.Privacymodel?.privacy?.traveller ??
                                     false,
@@ -419,7 +415,6 @@ class _VisibilityandpreferencesScreenState
                                         false
                                     ? true
                                     : false;
-                            print("$everyone");
                             await controller.UpdatePrivacy(
                                 controller.Privacymodel?.privacy?.traveller ??
                                     false,
@@ -481,7 +476,6 @@ class _VisibilityandpreferencesScreenState
                                         false
                                     ? true
                                     : false;
-                            print("$nonbinary");
                             await controller.UpdatePrivacy(
                                 controller.Privacymodel?.privacy?.traveller ??
                                     false,
@@ -554,7 +548,6 @@ class _VisibilityandpreferencesScreenState
                                         false
                                     ? true
                                     : false;
-                            print("$hideProfile");
                             await controller.UpdatePrivacy(
                                 controller.Privacymodel?.privacy?.traveller ??
                                     false,

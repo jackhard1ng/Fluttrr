@@ -54,7 +54,7 @@ class _MatesMapScreenState extends State<MatesMapScreen> {
       _addCurrentLocationMarker();
       _fetchMatesAndAddMarkers();
     } catch (e) {
-      print('Error getting location: $e');
+      // Error getting location
     }
   }
 
@@ -77,8 +77,6 @@ class _MatesMapScreenState extends State<MatesMapScreen> {
     try {
       await controller.ViewByDistance("25", "km");
 
-      print("Mates Data: ${controller.viewByDistanceModel?.users}");
-
       // Clear previous markers to prevent duplicates
       setState(() {
         _markers.clear();
@@ -91,8 +89,6 @@ class _MatesMapScreenState extends State<MatesMapScreen> {
         String? name = mate.user?.userName;
         String? imageUrl =
             (mate.images?.isNotEmpty == true) ? mate.images![0] : null;
-
-        print("Mate: $name, Lat: $latitude, Lng: $longitude, Image: $imageUrl");
 
         if (latitude != null && longitude != null && imageUrl != null) {
           LatLng position = LatLng(latitude, longitude);
@@ -111,10 +107,8 @@ class _MatesMapScreenState extends State<MatesMapScreen> {
           });
         }
       }
-
-      print("Total markers added: ${_markers.length}");
     } catch (e) {
-      print('Error fetching mate data: $e');
+      // Error fetching mate data
     }
   }
 

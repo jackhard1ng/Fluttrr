@@ -63,7 +63,7 @@ class _ActivityMapScreenState extends State<ActivityMapScreen> {
       _addCurrentLocationMarker();
       _fetchMatesAndAddMarkers();
     } catch (e) {
-      print('Error getting location: $e');
+      // Error getting location
     }
   }
 
@@ -86,8 +86,6 @@ class _ActivityMapScreenState extends State<ActivityMapScreen> {
     try {
       await controller.ActivitieList();
 
-      print("Activity Data: ${controller.activityListModel?.data}");
-
       setState(() {
         _markers.clear();
       });
@@ -103,9 +101,6 @@ class _ActivityMapScreenState extends State<ActivityMapScreen> {
         String? description = activity.description;
         String? imageUrl =
             (activity.image.isNotEmpty) ? activity.image[0] : null;
-
-        print(
-            "Activity: $name, Lat: $latitude, Lng: $longitude, Image: $imageUrl");
 
         if (latitude != null && longitude != null) {
           LatLng position = LatLng(latitude, longitude);
@@ -139,10 +134,8 @@ class _ActivityMapScreenState extends State<ActivityMapScreen> {
           });
         }
       }
-
-      print("Total markers added: ${_markers.length}");
     } catch (e) {
-      print('Error fetching activity data: $e');
+      // Error fetching activity data
     }
   }
 

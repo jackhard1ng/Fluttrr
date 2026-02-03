@@ -96,8 +96,6 @@ class _CreateactivityScreenState extends State<CreateactivityScreen> {
     setState(() {
       selectedDate = pickedDateTime; // Store complete DateTime
     });
-
-    print("Selected DateTime: $pickedDateTime");
     }
 
 
@@ -112,7 +110,6 @@ class _CreateactivityScreenState extends State<CreateactivityScreen> {
       setState(() {
         selectedTime = pickedTime;
       });
-      print("Selected Time: ${pickedTime.hour}:${pickedTime.minute}");
     }
   }
 
@@ -515,10 +512,7 @@ class _CreateactivityScreenState extends State<CreateactivityScreen> {
                           height: 56,
                           width: double.infinity,
                           onTap: ()async {
-                            print("the location  is :${_locationController.text}");
                           final location=  await acitivitycontroller.getCoordinatesFromGeoCode(_locationController.text);
-                          print("the langitude is :${location["longitude"]}");
-                          print("the Latitude is   :${location["latitude"]}");
 
                           // Activityrepository().uploadActivityImage(image: _selectedImage!, activityId: "4");
                         final create=  await acitivitycontroller.CreateActivity(_selectedImage!,_activitytype.text, location["longitude"].toString(), location["latitude"].toString(), _description.text, _totalslots.text,  selectedTime.toString(), selectedDate.toString(), _locationController.text,_totaltime.text);
@@ -622,8 +616,6 @@ class _MapScreenState extends State<MapScreen> {
 
               String address = await _convertLatLngToAddress(latLng);
               acitivitycontroller.location.value=address.toString() ;
-
-              print("${acitivitycontroller.location}");
 
               setState(() {
                 ScaffoldMessenger.of(context).showSnackBar(

@@ -84,7 +84,6 @@ class _BusinesscreateprofileScreenState
         });
       }
     } catch (e) {
-      print("Error picking profile image: $e");
       showTopSnackBar(
         Overlay.of(context),
         CustomSnackBar.error(
@@ -103,7 +102,6 @@ class _BusinesscreateprofileScreenState
         });
       }
     } catch (e) {
-      print("Error picking cover image: $e");
       showTopSnackBar(
         Overlay.of(context),
         CustomSnackBar.error(

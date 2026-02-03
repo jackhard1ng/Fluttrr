@@ -376,7 +376,6 @@ class _GroupmessagescreenState extends State<Groupmessagescreen> {
         const SnackBar(content: Text('All messages deleted from your device')),
       );
     } catch (e) {
-      print("❌ Error deleting all messages: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to delete messages')),
       );
@@ -466,7 +465,6 @@ class _GroupmessagescreenState extends State<Groupmessagescreen> {
       await Chatrespository()
           .StartConversation2(widget.conversationId, messageText);
     } catch (e) {
-      print("❌ Error sending message: $e");
       setState(() {
         _pendingMessages.removeWhere((msg) => msg['tempId'] == tempId);
       });

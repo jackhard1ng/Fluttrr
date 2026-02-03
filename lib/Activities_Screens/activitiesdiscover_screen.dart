@@ -229,7 +229,6 @@ class _ActivitiesdiscoverScreenState extends State<ActivitiesdiscoverScreen> {
                           "0";
                       final join = acitivitycontroller
                           .activityListModel?.data?[index].userJoined;
-                      print("the join event : $join");
                       final creatoriamge = acitivitycontroller
                           .activityListModel?.data?[index].creatorImage[0]
                           .toString();
@@ -450,8 +449,6 @@ class _ActivitiesdiscoverScreenState extends State<ActivitiesdiscoverScreen> {
                                                                     paid == null
                                                                         ? id
                                                                         : eventid;
-                                                                print(
-                                                                    "The event is : $event");
                                                                 alertBox(
                                                                     iD, event);
                                                               },
@@ -528,7 +525,6 @@ class _ActivitiesdiscoverScreenState extends State<ActivitiesdiscoverScreen> {
                                                   await acitivitycontroller
                                                       .saveActivity(id);
                                                 } else {
-                                                  print("Event api is call");
                                                   await acitivitycontroller
                                                       .saveEvent(eventid);
                                                 }
@@ -730,8 +726,6 @@ class _ActivitiesdiscoverScreenState extends State<ActivitiesdiscoverScreen> {
                           minimumSize: Size(170, 43),
                         ),
                         onPressed: () async {
-                          print(
-                              'the send slots are : ${acitivitycontroller.counter.value}');
                           await acitivitycontroller.joinActivity(
                               id, acitivitycontroller.counter.toString());
                           await acitivitycontroller.ActivitieList();
@@ -832,7 +826,6 @@ class _ActivitiesdiscoverScreenState extends State<ActivitiesdiscoverScreen> {
                               width: 170,
                               onTap: () async {
                                 if (event) {
-                                  print("the event call is success");
                                   await acitivitycontroller.joinEvent(id);
                                   await acitivitycontroller.ActivitieList();
                                 } else {

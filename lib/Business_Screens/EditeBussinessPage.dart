@@ -78,7 +78,6 @@ class _EditBusinessPageState extends State<EditBusinessPage> {
         });
       }
     } catch (e) {
-      print("Error picking profile image: $e");
       Get.snackbar('Error', 'Failed to pick profile image');
     }
   }
@@ -92,7 +91,6 @@ class _EditBusinessPageState extends State<EditBusinessPage> {
         });
       }
     } catch (e) {
-      print("Error picking cover image: $e");
       Get.snackbar('Error', 'Failed to pick cover image');
     }
   }

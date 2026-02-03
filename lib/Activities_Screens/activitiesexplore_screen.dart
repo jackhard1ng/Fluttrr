@@ -469,8 +469,6 @@ class _ActivitiesexploreScreenState extends State<ActivitiesexploreScreen> {
                                                     final iD = paid == null
                                                         ? id
                                                         : eventid;
-                                                    print(
-                                                        "The event is : $event");
                                                     alertBox(iD, event);
                                                   },
                                                   child: Container(
@@ -660,8 +658,6 @@ class _ActivitiesexploreScreenState extends State<ActivitiesexploreScreen> {
                           minimumSize: Size(170, 43),
                         ),
                         onPressed: () async {
-                          print(
-                              'the send slots are : ${acitivitycontroller.counter.value}');
                           await acitivitycontroller.joinActivity(
                               id, acitivitycontroller.counter.toString());
                           await acitivitycontroller.ActivitieList();
@@ -762,7 +758,6 @@ class _ActivitiesexploreScreenState extends State<ActivitiesexploreScreen> {
                               width: 170,
                               onTap: () async {
                                 if (event) {
-                                  print("the event call is success");
                                   await acitivitycontroller.joinEvent(id);
                                   await acitivitycontroller.ActivitieList();
                                 } else {

@@ -241,12 +241,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               isloading = true;
                             });
 
-                            print(authenticationController.username.text);
-                            print(authenticationController.email.text);
-                            print(authenticationController.password.text);
-                            print(
-                                authenticationController.Confermpassword.text);
-
                             if (authenticationController.username.text.isEmpty ||
                                 authenticationController.email.text.isEmpty ||
                                 authenticationController
