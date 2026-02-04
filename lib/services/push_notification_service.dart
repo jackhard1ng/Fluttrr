@@ -4,10 +4,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/api_endpoints.dart';
-import '../repositories/base_repository.dart';
 
 /// Push notification service for handling FCM and local notifications
 class PushNotificationService {
@@ -139,10 +139,13 @@ class PushNotificationService {
       final authToken = prefs.getString('token');
 
       if (authToken != null) {
-        final repository = BaseRepository();
-        await repository.post(
-          ApiEndpoints.registerDevice,
-          body: {'fcmToken': token},
+        await http.post(
+          Uri.parse(ApiEndpoints.registerDevice),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $authToken',
+          },
+          body: jsonEncode({'fcmToken': token}),
         );
         debugPrint('FCM token sent to server');
       }
