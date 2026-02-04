@@ -30,10 +30,12 @@ class DefaultFirebaseOptions {
         return windows;
       case TargetPlatform.linux:
         return linux;
+      case TargetPlatform.fuchsia:
+        // Fuchsia uses web config as fallback
+        return web;
       default:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions are not supported for this platform.',
-        );
+        // Return web config as fallback for any unknown platform
+        return web;
     }
   }
 
