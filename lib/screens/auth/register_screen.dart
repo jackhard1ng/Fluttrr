@@ -15,8 +15,10 @@ class RegisterScreen extends StatelessWidget {
     final authController = Get.find<AuthController>();
     final formKey = GlobalKey<FormState>();
 
-    // Clear fields when entering registration
-    authController.clearFields();
+    // Clear fields when entering registration (deferred to avoid setState during build)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      authController.clearFields();
+    });
 
     return Scaffold(
       appBar: AppBar(
