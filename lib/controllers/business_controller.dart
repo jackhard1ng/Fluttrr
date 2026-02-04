@@ -23,6 +23,7 @@ class BusinessController extends GetxController {
   final RxBool isCreating = false.obs;
   final RxBool hasBusiness = false.obs;
   final RxString errorMessage = ''.obs;
+  final Rx<SubscriptionStatus?> subscriptionStatus = Rx<SubscriptionStatus?>(null);
 
   // Create business form controllers
   final TextEditingController businessNameController = TextEditingController();
@@ -115,29 +116,105 @@ class BusinessController extends GetxController {
     await Future.wait([
       loadMyBusinessEvents(),
       loadBusinessAnalytics(),
+      loadSubscriptionStatus(),
     ]);
   }
 
+  /// Send business OTP for email verification
+  Future<bool> sendBusinessOtp(String email) async {
+    isLoading.value = true;
+    errorMessage.value = '';
+
+    try {
+      final response = await _businessRepository.sendBusinessOtp(email: email);
+      isLoading.value = false;
+      return response.success;
+    } catch (e) {
+      isLoading.value = false;
+      errorMessage.value = 'Failed to send OTP';
+      return false;
+    }
+  }
+
+  /// Verify business OTP
+  Future<bool> verifyBusinessOtp({
+    required String email,
+    required String otp,
+  }) async {
+    isLoading.value = true;
+    errorMessage.value = '';
+
+    try {
+      final response = await _businessRepository.verifyBusinessOtp(
+        email: email,
+        otp: otp,
+      );
+      isLoading.value = false;
+      return response.success;
+    } catch (e) {
+      isLoading.value = false;
+      errorMessage.value = 'Failed to verify OTP';
+      return false;
+    }
+  }
+
+  /// Load subscription status
+  Future<void> loadSubscriptionStatus() async {
+    try {
+      final response = await _businessRepository.getSubscriptionStatus();
+      if (response.success && response.data != null) {
+        subscriptionStatus.value = response.data;
+      }
+    } catch (e) {
+      // Ignore errors
+    }
+  }
+
   /// Create business profile
-  Future<bool> createBusinessProfile() async {
-    if (!_validateBusinessForm()) return false;
+  Future<bool> createBusinessProfile({
+    String? name,
+    String? description,
+    String? email,
+    String? phone,
+    String? location,
+    String? website,
+    String? facebook,
+    String? instagram,
+    File? profileImage,
+    File? coverImage,
+  }) async {
+    // Use passed parameters if provided, otherwise use internal controllers
+    final businessName = name ?? businessNameController.text.trim();
+    final businessEmail = email ?? businessEmailController.text.trim();
+    final businessPhone = phone ?? businessPhoneController.text.trim();
+    final businessDescription = description ?? businessDescriptionController.text.trim();
+    final businessAddress = location ?? businessAddressController.text.trim();
+    final businessWebsite = website ?? businessWebsiteController.text.trim();
+
+    // Validate
+    if (businessName.isEmpty || businessEmail.isEmpty || businessPhone.isEmpty) {
+      errorMessage.value = 'Please fill in all required fields';
+      return false;
+    }
 
     isCreating.value = true;
     errorMessage.value = '';
 
     try {
       final response = await _businessRepository.createBusinessProfile(
-        businessName: businessNameController.text.trim(),
-        email: businessEmailController.text.trim(),
-        phone: businessPhoneController.text.trim(),
-        description: businessDescriptionController.text.trim(),
+        businessName: businessName,
+        email: businessEmail,
+        phone: businessPhone,
+        description: businessDescription,
         category: selectedCategory.value,
-        address: businessAddressController.text.trim(),
+        address: businessAddress,
         latitude: businessLatitude.value != 0 ? businessLatitude.value : null,
         longitude: businessLongitude.value != 0 ? businessLongitude.value : null,
-        website: businessWebsiteController.text.trim().isNotEmpty
-            ? businessWebsiteController.text.trim()
-            : null,
+        website: businessWebsite.isNotEmpty ? businessWebsite : null,
+        facebook: facebook,
+        instagram: instagram,
+        profileImage: profileImage,
+        coverImage: coverImage,
       );
 
       isCreating.value = false;

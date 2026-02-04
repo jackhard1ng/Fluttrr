@@ -101,6 +101,7 @@ class ApiEndpoints {
   // Business subscription endpoints
   static const String createSubscription = '$apiBase/bussness/create';
   static const String cancelSubscription = '$apiBase/bussness/cancel';
+  static const String subscriptionStatus = '$apiBase/bussness/subscription-status';
   static const String businessAnalytics = '$apiBase/bussness/analytics';
 
   // Badges & achievements endpoints

@@ -26,6 +26,10 @@ class BusinessRepository extends BaseRepository {
     double? latitude,
     double? longitude,
     String? website,
+    String? facebook,
+    String? instagram,
+    File? profileImage,
+    File? coverImage,
   }) async {
     return post<BusinessModel>(
       ApiEndpoints.createBusinessProfile,
@@ -39,8 +43,37 @@ class BusinessRepository extends BaseRepository {
         if (latitude != null) 'latitude': latitude,
         if (longitude != null) 'longitude': longitude,
         if (website != null) 'website': website,
+        if (facebook != null) 'facebook': facebook,
+        if (instagram != null) 'instagram': instagram,
       },
       fromJson: BusinessModel.fromJson,
+    );
+  }
+
+  /// Send business OTP for email verification
+  Future<ApiResponse<dynamic>> sendBusinessOtp({required String email}) async {
+    return post(
+      ApiEndpoints.businessRequestOtp,
+      body: {'email': email},
+    );
+  }
+
+  /// Verify business OTP
+  Future<ApiResponse<dynamic>> verifyBusinessOtp({
+    required String email,
+    required String otp,
+  }) async {
+    return post(
+      ApiEndpoints.businessVerify,
+      body: {'email': email, 'otp': otp},
+    );
+  }
+
+  /// Get subscription status
+  Future<ApiResponse<SubscriptionStatus>> getSubscriptionStatus() async {
+    return get<SubscriptionStatus>(
+      ApiEndpoints.subscriptionStatus,
+      fromJson: SubscriptionStatus.fromJson,
     );
   }
 
