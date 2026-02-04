@@ -300,13 +300,13 @@ class LocationService {
 
   /// Format address from placemark
   String _formatAddress(Placemark place) {
-    final parts = <String>[
+    final parts = <String?>[
       place.street,
       place.locality,
       place.administrativeArea,
       place.postalCode,
       place.country,
-    ].where((part) => part != null && part.isNotEmpty).toList();
+    ].where((part) => part != null && part.isNotEmpty).cast<String>().toList();
 
     return parts.join(', ');
   }
