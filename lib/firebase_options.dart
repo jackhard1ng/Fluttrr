@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -28,26 +25,27 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return linux;
       default:
         throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
         );
     }
   }
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBlwogGYT41STGgZdaentXG854Fxv2t9K0',
+    appId: '1:174536441327:web:8b7aba45a991c3285c4a1a',
+    messagingSenderId: '174536441327',
+    projectId: 'tripmate-675c8',
+    databaseURL: 'https://tripmate-675c8-default-rtdb.firebaseio.com',
+    storageBucket: 'tripmate-675c8.firebasestorage.app',
+    authDomain: 'tripmate-675c8.firebaseapp.com',
+  );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBlwogGYT41STGgZdaentXG854Fxv2t9K0',
@@ -67,5 +65,36 @@ class DefaultFirebaseOptions {
     storageBucket: 'tripmate-675c8.firebasestorage.app',
     iosClientId: '174536441327-rqdkhisgf5kegfmpksr2b4mnk1p2d9qt.apps.googleusercontent.com',
     iosBundleId: 'com.example.tripmates',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyD8s9TLIShjHjzX17OwneGqGPsqZzMA9G8',
+    appId: '1:174536441327:ios:91e93d742589d3735c4a1a',
+    messagingSenderId: '174536441327',
+    projectId: 'tripmate-675c8',
+    databaseURL: 'https://tripmate-675c8-default-rtdb.firebaseio.com',
+    storageBucket: 'tripmate-675c8.firebasestorage.app',
+    iosClientId: '174536441327-rqdkhisgf5kegfmpksr2b4mnk1p2d9qt.apps.googleusercontent.com',
+    iosBundleId: 'com.example.tripmates',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBlwogGYT41STGgZdaentXG854Fxv2t9K0',
+    appId: '1:174536441327:web:8b7aba45a991c3285c4a1a',
+    messagingSenderId: '174536441327',
+    projectId: 'tripmate-675c8',
+    databaseURL: 'https://tripmate-675c8-default-rtdb.firebaseio.com',
+    storageBucket: 'tripmate-675c8.firebasestorage.app',
+    authDomain: 'tripmate-675c8.firebaseapp.com',
+  );
+
+  static const FirebaseOptions linux = FirebaseOptions(
+    apiKey: 'AIzaSyBlwogGYT41STGgZdaentXG854Fxv2t9K0',
+    appId: '1:174536441327:web:8b7aba45a991c3285c4a1a',
+    messagingSenderId: '174536441327',
+    projectId: 'tripmate-675c8',
+    databaseURL: 'https://tripmate-675c8-default-rtdb.firebaseio.com',
+    storageBucket: 'tripmate-675c8.firebasestorage.app',
+    authDomain: 'tripmate-675c8.firebaseapp.com',
   );
 }
