@@ -244,7 +244,7 @@ class _SettingsTile extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.onTap,
-    this.trailing,
+    this.trailing = null,
   });
 
   @override

@@ -88,7 +88,7 @@ class AppShadows {
 
   static List<BoxShadow> get small => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.05),
+      color: Colors.black.withAlpha(13),
       blurRadius: 4,
       offset: const Offset(0, 2),
     ),
@@ -96,7 +96,7 @@ class AppShadows {
 
   static List<BoxShadow> get medium => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.1),
+      color: Colors.black.withAlpha(26),
       blurRadius: 8,
       offset: const Offset(0, 4),
     ),
@@ -104,7 +104,7 @@ class AppShadows {
 
   static List<BoxShadow> get large => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.15),
+      color: Colors.black.withAlpha(38),
       blurRadius: 16,
       offset: const Offset(0, 8),
     ),
