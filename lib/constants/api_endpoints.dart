@@ -3,7 +3,7 @@ class ApiEndpoints {
   ApiEndpoints._();
 
   // Base URL configuration
-  static const String baseUrl = 'http://82.180.139.134:3001';
+  static const String baseUrl = 'http://82.180.139.134';
   static const String apiBase = '$baseUrl/api';
 
   // Authentication endpoints
