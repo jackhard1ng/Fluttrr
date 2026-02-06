@@ -99,6 +99,66 @@ class AppGradients {
     colors: [Colors.transparent, Color(0xCC000000)],
     stops: [0.4, 1.0],
   );
+
+  // Business screen gradient - elegant dark with subtle blue
+  static const LinearGradient businessGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xFF0F172A), // Slate 900
+      Color(0xFF1E293B), // Slate 800
+      Color(0xFF0F172A), // Slate 900
+    ],
+    stops: [0.0, 0.5, 1.0],
+  );
+
+  // Business screen gradient - with warm accent
+  static const LinearGradient businessWarmGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFF1C1917), // Stone 900
+      Color(0xFF292524), // Stone 800
+      Color(0xFF1C1917), // Stone 900
+    ],
+    stops: [0.0, 0.5, 1.0],
+  );
+
+  // Premium dark gradient with subtle glow effect
+  static const LinearGradient premiumDarkGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xFF18181B), // Zinc 900
+      Color(0xFF27272A), // Zinc 800
+      Color(0xFF18181B), // Zinc 900
+    ],
+    stops: [0.0, 0.4, 1.0],
+  );
+
+  // User login gradient - clean and friendly
+  static const LinearGradient userLoginGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xFFF8FAFC), // Slate 50
+      Color(0xFFFFFFFF), // White
+      Color(0xFFF1F5F9), // Slate 100
+    ],
+    stops: [0.0, 0.5, 1.0],
+  );
+
+  // User login gradient dark mode
+  static const LinearGradient userLoginDarkGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xFF0D1117), // Primary dark
+      Color(0xFF161B22), // Surface dark
+      Color(0xFF0D1117), // Primary dark
+    ],
+    stops: [0.0, 0.5, 1.0],
+  );
 }
 
 /// App spacing constants

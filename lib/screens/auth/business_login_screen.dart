@@ -13,21 +13,16 @@ class BusinessLoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authController = Get.find<AuthController>();
+    // Use Get.put to ensure controller exists, or find if already registered
+    final authController = Get.isRegistered<AuthController>()
+        ? Get.find<AuthController>()
+        : Get.put(AuthController());
     final formKey = GlobalKey<FormState>();
 
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF1a1a2e),
-              Color(0xFF16213e),
-              Color(0xFF0f3460),
-            ],
-          ),
+          gradient: AppGradients.businessGradient,
         ),
         child: SafeArea(
           child: SingleChildScrollView(
@@ -432,39 +427,63 @@ class _BusinessButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       width: double.infinity,
-      height: 52,
-      child: ElevatedButton(
-        onPressed: isLoading ? null : () {
-          HapticFeedback.mediumImpact();
-          onPressed?.call();
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.friendlyOrange,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: AppColors.friendlyOrange.withAlpha(128),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-          ),
-          elevation: 0,
-        ),
-        child: isLoading
-            ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : Text(
-                text,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+      height: 56,
+      decoration: BoxDecoration(
+        gradient: isLoading
+            ? null
+            : const LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [
+                  AppColors.friendlyOrange,
+                  Color(0xFFF97316), // Orange 500
+                ],
               ),
+        color: isLoading ? AppColors.friendlyOrange.withAlpha(128) : null,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        boxShadow: isLoading
+            ? null
+            : [
+                BoxShadow(
+                  color: AppColors.friendlyOrange.withAlpha(77),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: isLoading
+              ? null
+              : () {
+                  HapticFeedback.mediumImpact();
+                  onPressed?.call();
+                },
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          child: Center(
+            child: isLoading
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : Text(
+                    text,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+          ),
+        ),
       ),
     );
   }

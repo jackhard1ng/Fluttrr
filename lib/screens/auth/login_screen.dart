@@ -20,8 +20,9 @@ class LoginScreen extends StatelessWidget {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          gradient: isDark ? AppGradients.splashGradient : null,
-          color: isDark ? null : AppColors.white,
+          gradient: isDark
+              ? AppGradients.userLoginDarkGradient
+              : AppGradients.userLoginGradient,
         ),
         child: SafeArea(
           child: SingleChildScrollView(

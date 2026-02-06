@@ -5,30 +5,13 @@ import 'package:get/get.dart';
 import '../../constants/utils.dart';
 import '../../config/routes.dart';
 import '../../controllers/auth_controller.dart';
+import '../../controllers/profile_controller.dart';
 
-/// Business registration screen
-class BusinessRegisterScreen extends StatefulWidget {
+/// Business registration screen - uses AuthController for state management
+class BusinessRegisterScreen extends StatelessWidget {
   const BusinessRegisterScreen({super.key});
 
-  @override
-  State<BusinessRegisterScreen> createState() => _BusinessRegisterScreenState();
-}
-
-class _BusinessRegisterScreenState extends State<BusinessRegisterScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _businessNameController = TextEditingController();
-  final _businessTypeController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-  final _phoneController = TextEditingController();
-
-  bool _isPasswordVisible = false;
-  bool _isConfirmPasswordVisible = false;
-  bool _agreeToTerms = false;
-  bool _isLoading = false;
-
-  final List<String> _businessTypes = [
+  static const List<String> _businessTypes = [
     'Cafe / Restaurant',
     'Bar / Pub',
     'Gym / Fitness',
@@ -42,79 +25,24 @@ class _BusinessRegisterScreenState extends State<BusinessRegisterScreen> {
   ];
 
   @override
-  void dispose() {
-    _businessNameController.dispose();
-    _businessTypeController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    _phoneController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _register() async {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
-
-    if (!_agreeToTerms) {
-      Get.snackbar(
-        'Terms Required',
-        'Please agree to the Terms of Service and Privacy Policy',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.warning,
-        colorText: Colors.white,
-      );
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    try {
-      final authController = Get.find<AuthController>();
-      final success = await authController.registerBusiness(
-        businessName: _businessNameController.text,
-        businessType: _businessTypeController.text,
-        email: _emailController.text,
-        password: _passwordController.text,
-        phone: _phoneController.text,
-      );
-
-      if (success) {
-        Get.snackbar(
-          'Account Created',
-          'Welcome to Fluttrr for Business!',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: AppColors.success,
-          colorText: Colors.white,
-        );
-        Nav.toBusinessDashboard();
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
+    // Ensure auth controller exists
+    final authController = Get.isRegistered<AuthController>()
+        ? Get.find<AuthController>()
+        : Get.put(AuthController());
+    final formKey = GlobalKey<FormState>();
+    final agreeToTerms = false.obs;
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF1a1a2e),
-              Color(0xFF16213e),
-              Color(0xFF0f3460),
-            ],
-          ),
+          gradient: AppGradients.businessGradient,
         ),
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             child: Form(
-              key: _formKey,
+              key: formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -135,14 +63,27 @@ class _BusinessRegisterScreenState extends State<BusinessRegisterScreen> {
                   Center(
                     child: Column(
                       children: [
+                        // Business icon with gradient
                         Container(
                           width: 70,
                           height: 70,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [AppColors.friendlyOrange, AppColors.friendlyPurple],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                AppColors.friendlyOrange,
+                                Color(0xFFF97316),
+                              ],
                             ),
                             borderRadius: BorderRadius.circular(18),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.friendlyOrange.withAlpha(77),
+                                blurRadius: 20,
+                                spreadRadius: 2,
+                              ),
+                            ],
                           ),
                           child: const Icon(
                             Icons.storefront,
@@ -157,6 +98,7 @@ class _BusinessRegisterScreenState extends State<BusinessRegisterScreen> {
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
+                            letterSpacing: 0.5,
                           ),
                         ),
                         const SizedBox(height: AppSpacing.xs),
@@ -175,205 +117,232 @@ class _BusinessRegisterScreenState extends State<BusinessRegisterScreen> {
                   const SizedBox(height: AppSpacing.xl),
 
                   // Business Name
-                  _buildTextField(
-                    controller: _businessNameController,
+                  _BusinessTextField(
+                    controller: authController.businessNameController,
                     label: 'Business Name',
                     hint: 'Enter your business name',
-                    icon: Icons.business,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Business name is required';
-                      }
-                      if (value.length < 2) {
-                        return 'Business name is too short';
-                      }
-                      return null;
-                    },
+                    prefixIcon: Icons.business,
+                    validator: authController.validateBusinessName,
+                    textInputAction: TextInputAction.next,
                   ),
 
                   const SizedBox(height: AppSpacing.md),
 
                   // Business Type dropdown
-                  _buildDropdown(),
+                  _BusinessDropdown(
+                    label: 'Business Type',
+                    hint: 'Select your business type',
+                    value: authController.selectedBusinessType,
+                    items: _businessTypes,
+                    validator: authController.validateBusinessType,
+                  ),
 
                   const SizedBox(height: AppSpacing.md),
 
                   // Email
-                  _buildTextField(
-                    controller: _emailController,
+                  _BusinessTextField(
+                    controller: authController.emailController,
                     label: 'Business Email',
                     hint: 'Enter your business email',
-                    icon: Icons.email_outlined,
+                    prefixIcon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Email is required';
-                      }
-                      if (!GetUtils.isEmail(value)) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
+                    validator: authController.validateEmail,
+                    textInputAction: TextInputAction.next,
                   ),
 
                   const SizedBox(height: AppSpacing.md),
 
                   // Phone
-                  _buildTextField(
-                    controller: _phoneController,
+                  _BusinessTextField(
+                    controller: authController.businessPhoneController,
                     label: 'Phone Number',
                     hint: 'Enter your phone number',
-                    icon: Icons.phone_outlined,
+                    prefixIcon: Icons.phone_outlined,
                     keyboardType: TextInputType.phone,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Phone number is required';
-                      }
-                      return null;
-                    },
+                    validator: authController.validatePhone,
+                    textInputAction: TextInputAction.next,
                   ),
 
                   const SizedBox(height: AppSpacing.md),
 
                   // Password
-                  _buildTextField(
-                    controller: _passwordController,
-                    label: 'Password',
-                    hint: 'Create a password',
-                    icon: Icons.lock_outlined,
-                    obscureText: !_isPasswordVisible,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isPasswordVisible
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: Colors.white.withAlpha(128),
-                      ),
-                      onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Password is required';
-                      }
-                      if (value.length < 8) {
-                        return 'Password must be at least 8 characters';
-                      }
-                      return null;
-                    },
-                  ),
+                  Obx(() => _BusinessTextField(
+                        controller: authController.passwordController,
+                        label: 'Password',
+                        hint: 'Create a password (min 8 characters)',
+                        prefixIcon: Icons.lock_outlined,
+                        obscureText: !authController.isPasswordVisible.value,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            authController.isPasswordVisible.value
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                            color: Colors.white.withAlpha(128),
+                          ),
+                          onPressed: authController.togglePasswordVisibility,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Password is required';
+                          }
+                          if (value.length < 8) {
+                            return 'Password must be at least 8 characters';
+                          }
+                          return null;
+                        },
+                        textInputAction: TextInputAction.next,
+                      )),
 
                   const SizedBox(height: AppSpacing.md),
 
                   // Confirm Password
-                  _buildTextField(
-                    controller: _confirmPasswordController,
-                    label: 'Confirm Password',
-                    hint: 'Confirm your password',
-                    icon: Icons.lock_outlined,
-                    obscureText: !_isConfirmPasswordVisible,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isConfirmPasswordVisible
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: Colors.white.withAlpha(128),
-                      ),
-                      onPressed: () => setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please confirm your password';
-                      }
-                      if (value != _passwordController.text) {
-                        return 'Passwords do not match';
-                      }
-                      return null;
-                    },
-                  ),
+                  Obx(() => _BusinessTextField(
+                        controller: authController.confirmPasswordController,
+                        label: 'Confirm Password',
+                        hint: 'Confirm your password',
+                        prefixIcon: Icons.lock_outlined,
+                        obscureText:
+                            !authController.isConfirmPasswordVisible.value,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            authController.isConfirmPasswordVisible.value
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                            color: Colors.white.withAlpha(128),
+                          ),
+                          onPressed:
+                              authController.toggleConfirmPasswordVisibility,
+                        ),
+                        validator: authController.validateConfirmPassword,
+                        textInputAction: TextInputAction.done,
+                      )),
 
                   const SizedBox(height: AppSpacing.lg),
 
                   // Terms checkbox
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: _agreeToTerms,
-                        onChanged: (value) => setState(() => _agreeToTerms = value ?? false),
-                        activeColor: AppColors.friendlyOrange,
-                        side: BorderSide(color: Colors.white.withAlpha(128)),
-                      ),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
-                          child: RichText(
-                            text: TextSpan(
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.white.withAlpha(179),
+                  Obx(() => Row(
+                        children: [
+                          Checkbox(
+                            value: agreeToTerms.value,
+                            onChanged: (value) =>
+                                agreeToTerms.value = value ?? false,
+                            activeColor: AppColors.friendlyOrange,
+                            checkColor: Colors.white,
+                            side: BorderSide(color: Colors.white.withAlpha(128)),
+                          ),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () =>
+                                  agreeToTerms.value = !agreeToTerms.value,
+                              child: RichText(
+                                text: TextSpan(
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.white.withAlpha(179),
+                                  ),
+                                  children: const [
+                                    TextSpan(text: 'I agree to the '),
+                                    TextSpan(
+                                      text: 'Terms of Service',
+                                      style: TextStyle(
+                                        color: AppColors.friendlyOrange,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    TextSpan(text: ' and '),
+                                    TextSpan(
+                                      text: 'Privacy Policy',
+                                      style: TextStyle(
+                                        color: AppColors.friendlyOrange,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              children: const [
-                                TextSpan(text: 'I agree to the '),
-                                TextSpan(
-                                  text: 'Terms of Service',
-                                  style: TextStyle(
-                                    color: AppColors.friendlyOrange,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                TextSpan(text: ' and '),
-                                TextSpan(
-                                  text: 'Privacy Policy',
-                                  style: TextStyle(
-                                    color: AppColors.friendlyOrange,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
                             ),
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
+                        ],
+                      )),
 
-                  const SizedBox(height: AppSpacing.lg),
+                  const SizedBox(height: AppSpacing.sm),
 
-                  // Register button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : () {
-                        HapticFeedback.mediumImpact();
-                        _register();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.friendlyOrange,
-                        foregroundColor: Colors.white,
-                        disabledBackgroundColor: AppColors.friendlyOrange.withAlpha(128),
-                        shape: RoundedRectangleBorder(
+                  // Error message
+                  Obx(() {
+                    if (authController.errorMessage.value.isNotEmpty) {
+                      return Container(
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                        decoration: BoxDecoration(
+                          color: AppColors.error.withAlpha(51),
                           borderRadius: BorderRadius.circular(AppRadius.md),
+                          border: Border.all(
+                            color: AppColors.error.withAlpha(77),
+                          ),
                         ),
-                        elevation: 0,
-                      ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                          : const Text(
-                              'Create Business Account',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.error_outline,
+                              color: AppColors.error,
+                              size: 20,
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            Expanded(
+                              child: Text(
+                                authController.errorMessage.value,
+                                style: const TextStyle(
+                                  color: AppColors.error,
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
-                    ),
-                  ),
+                          ],
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  }),
+
+                  // Register button
+                  Obx(() => _BusinessButton(
+                        text: 'Create Business Account',
+                        isLoading: authController.isLoading.value,
+                        onPressed: () async {
+                          if (!(formKey.currentState?.validate() ?? false)) {
+                            return;
+                          }
+
+                          if (!agreeToTerms.value) {
+                            Get.snackbar(
+                              'Terms Required',
+                              'Please agree to the Terms of Service and Privacy Policy',
+                              snackPosition: SnackPosition.BOTTOM,
+                              backgroundColor: AppColors.warning,
+                              colorText: Colors.white,
+                              margin: const EdgeInsets.all(AppSpacing.md),
+                              borderRadius: AppRadius.md,
+                            );
+                            return;
+                          }
+
+                          final success =
+                              await authController.registerBusiness();
+                          if (success) {
+                            Get.put(ProfileController());
+                            Get.snackbar(
+                              'Account Created',
+                              'Welcome to Fluttrr for Business!',
+                              snackPosition: SnackPosition.BOTTOM,
+                              backgroundColor: AppColors.success,
+                              colorText: Colors.white,
+                              margin: const EdgeInsets.all(AppSpacing.md),
+                              borderRadius: AppRadius.md,
+                            );
+                            Nav.toBusinessDashboard();
+                          }
+                        },
+                      )),
 
                   const SizedBox(height: AppSpacing.xl),
 
@@ -410,17 +379,34 @@ class _BusinessRegisterScreenState extends State<BusinessRegisterScreen> {
       ),
     );
   }
+}
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-    TextInputType? keyboardType,
-    bool obscureText = false,
-    Widget? suffixIcon,
-    String? Function(String?)? validator,
-  }) {
+/// Business text field widget
+class _BusinessTextField extends StatelessWidget {
+  final TextEditingController? controller;
+  final String label;
+  final String hint;
+  final IconData prefixIcon;
+  final TextInputType? keyboardType;
+  final bool obscureText;
+  final Widget? suffixIcon;
+  final String? Function(String?)? validator;
+  final TextInputAction? textInputAction;
+
+  const _BusinessTextField({
+    this.controller,
+    required this.label,
+    required this.hint,
+    required this.prefixIcon,
+    this.keyboardType,
+    this.obscureText = false,
+    this.suffixIcon,
+    this.validator,
+    this.textInputAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -437,20 +423,22 @@ class _BusinessRegisterScreenState extends State<BusinessRegisterScreen> {
           keyboardType: keyboardType,
           obscureText: obscureText,
           validator: validator,
+          textInputAction: textInputAction,
           style: const TextStyle(fontSize: 16, color: Colors.white),
+          cursorColor: AppColors.friendlyOrange,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
               color: Colors.white.withAlpha(77),
             ),
             prefixIcon: Icon(
-              icon,
+              prefixIcon,
               color: Colors.white.withAlpha(128),
               size: 22,
             ),
             suffixIcon: suffixIcon,
             filled: true,
-            fillColor: Colors.white.withAlpha(26),
+            fillColor: Colors.white.withAlpha(20),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.md),
               borderSide: BorderSide.none,
@@ -475,79 +463,186 @@ class _BusinessRegisterScreenState extends State<BusinessRegisterScreen> {
                 width: 1,
               ),
             ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              borderSide: const BorderSide(
+                color: AppColors.error,
+                width: 2,
+              ),
+            ),
             errorStyle: const TextStyle(color: AppColors.error),
           ),
         ),
       ],
     );
   }
+}
 
-  Widget _buildDropdown() {
+/// Business dropdown widget
+class _BusinessDropdown extends StatelessWidget {
+  final String label;
+  final String hint;
+  final RxString value;
+  final List<String> items;
+  final String? Function(String?)? validator;
+
+  const _BusinessDropdown({
+    required this.label,
+    required this.hint,
+    required this.value,
+    required this.items,
+    this.validator,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Business Type',
+          label,
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: Colors.white.withAlpha(230),
           ),
         ),
         const SizedBox(height: AppSpacing.sm),
-        DropdownButtonFormField<String>(
-          value: _businessTypeController.text.isEmpty ? null : _businessTypeController.text,
-          hint: Text(
-            'Select your business type',
-            style: TextStyle(color: Colors.white.withAlpha(77)),
-          ),
-          dropdownColor: const Color(0xFF1a1a2e),
-          style: const TextStyle(fontSize: 16, color: Colors.white),
-          icon: Icon(Icons.keyboard_arrow_down, color: Colors.white.withAlpha(128)),
-          decoration: InputDecoration(
-            prefixIcon: Icon(
-              Icons.category_outlined,
-              color: Colors.white.withAlpha(128),
-              size: 22,
-            ),
-            filled: true,
-            fillColor: Colors.white.withAlpha(26),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              borderSide: BorderSide(
-                color: Colors.white.withAlpha(26),
+        Obx(() => DropdownButtonFormField<String>(
+              value: value.value.isEmpty ? null : value.value,
+              hint: Text(
+                hint,
+                style: TextStyle(color: Colors.white.withAlpha(77)),
               ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              borderSide: const BorderSide(
-                color: AppColors.friendlyOrange,
-                width: 2,
+              dropdownColor: const Color(0xFF1E293B),
+              style: const TextStyle(fontSize: 16, color: Colors.white),
+              icon: Icon(
+                Icons.keyboard_arrow_down,
+                color: Colors.white.withAlpha(128),
               ),
-            ),
-          ),
-          items: _businessTypes.map((type) {
-            return DropdownMenuItem(
-              value: type,
-              child: Text(type),
-            );
-          }).toList(),
-          onChanged: (value) {
-            if (value != null) {
-              _businessTypeController.text = value;
-            }
-          },
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please select a business type';
-            }
-            return null;
-          },
-        ),
+              decoration: InputDecoration(
+                prefixIcon: Icon(
+                  Icons.category_outlined,
+                  color: Colors.white.withAlpha(128),
+                  size: 22,
+                ),
+                filled: true,
+                fillColor: Colors.white.withAlpha(20),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  borderSide: BorderSide(
+                    color: Colors.white.withAlpha(26),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  borderSide: const BorderSide(
+                    color: AppColors.friendlyOrange,
+                    width: 2,
+                  ),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  borderSide: const BorderSide(
+                    color: AppColors.error,
+                    width: 1,
+                  ),
+                ),
+                errorStyle: const TextStyle(color: AppColors.error),
+              ),
+              items: items.map((type) {
+                return DropdownMenuItem(
+                  value: type,
+                  child: Text(type),
+                );
+              }).toList(),
+              onChanged: (newValue) {
+                if (newValue != null) {
+                  value.value = newValue;
+                }
+              },
+              validator: validator,
+            )),
       ],
+    );
+  }
+}
+
+/// Business gradient button
+class _BusinessButton extends StatelessWidget {
+  final String text;
+  final VoidCallback? onPressed;
+  final bool isLoading;
+
+  const _BusinessButton({
+    required this.text,
+    this.onPressed,
+    this.isLoading = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 56,
+      decoration: BoxDecoration(
+        gradient: isLoading
+            ? null
+            : const LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [
+                  AppColors.friendlyOrange,
+                  Color(0xFFF97316),
+                ],
+              ),
+        color: isLoading ? AppColors.friendlyOrange.withAlpha(128) : null,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        boxShadow: isLoading
+            ? null
+            : [
+                BoxShadow(
+                  color: AppColors.friendlyOrange.withAlpha(77),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: isLoading
+              ? null
+              : () {
+                  HapticFeedback.mediumImpact();
+                  onPressed?.call();
+                },
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          child: Center(
+            child: isLoading
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : Text(
+                    text,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+          ),
+        ),
+      ),
     );
   }
 }
