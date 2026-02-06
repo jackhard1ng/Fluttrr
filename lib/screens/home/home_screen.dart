@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 import '../../constants/utils.dart';
+import '../../constants/api_endpoints.dart';
 import '../../controllers/profile_controller.dart';
 import '../../controllers/activity_controller.dart';
 import '../../controllers/mates_controller.dart';
@@ -12,7 +13,7 @@ import '../../widgets/common_widgets.dart';
 import '../activities/activity_details_screen.dart';
 import '../mates/mate_profile_screen.dart';
 
-/// Home screen
+/// Home screen with improved brand identity
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -25,6 +26,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
+          color: AppColors.primaryBlue,
           onRefresh: () async {
             await Future.wait([
               profileController.loadProfile(),
@@ -34,22 +36,81 @@ class HomeScreen extends StatelessWidget {
           },
           child: CustomScrollView(
             slivers: [
-              // App bar
+              // Custom App Bar with logo
               SliverAppBar(
                 floating: true,
-                title: const GradientText(
-                  text: 'Fluttrr',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                pinned: false,
+                expandedHeight: 60,
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                title: Row(
+                  children: [
+                    // Butterfly logo
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primaryBlue.withAlpha(38),
+                            blurRadius: 8,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.asset(
+                          'assets/lgo1.png',
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: AppColors.primaryDark,
+                              child: const Icon(
+                                Icons.flutter_dash,
+                                size: 20,
+                                color: AppColors.primaryBlue,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    // App name
+                    ShaderMask(
+                      blendMode: BlendMode.srcIn,
+                      shaderCallback: (bounds) => const LinearGradient(
+                        colors: [AppColors.primaryBlue, AppColors.accentBlue],
+                      ).createShader(bounds),
+                      child: const Text(
+                        'fluttrr.',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w300,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 actions: [
-                  IconButton(
-                    icon: const Icon(Icons.notifications_outlined),
-                    onPressed: () {
-                      // Navigate to notifications
-                    },
+                  // Notifications button
+                  Container(
+                    margin: const EdgeInsets.only(right: AppSpacing.sm),
+                    decoration: BoxDecoration(
+                      color: AppColors.lightGrey,
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.notifications_outlined,
+                        color: AppColors.darkGrey,
+                      ),
+                      onPressed: () {
+                        // Navigate to notifications
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -59,29 +120,73 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Welcome section
+                    // Welcome section with personalized greeting
                     Padding(
                       padding: const EdgeInsets.all(AppSpacing.md),
                       child: Obx(() => Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Hello, ${profileController.userName}!',
-                                style:
-                                    Theme.of(context).textTheme.headlineSmall,
-                              ),
-                              const SizedBox(height: AppSpacing.xs),
-                              Text(
-                                'Find activities and meet new friends',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            ],
-                          )),
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _getGreeting(),
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: AppColors.mediumGrey,
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.xs),
+                          Text(
+                            profileController.userName.isNotEmpty
+                                ? profileController.userName
+                                : 'Friend',
+                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+
+                          // Quick action chips
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                _QuickActionChip(
+                                  icon: Icons.explore_outlined,
+                                  label: 'Discover',
+                                  color: AppColors.friendlyTeal,
+                                  onTap: () {
+                                    // Navigate to discover
+                                  },
+                                ),
+                                const SizedBox(width: AppSpacing.sm),
+                                _QuickActionChip(
+                                  icon: Icons.event_outlined,
+                                  label: 'Host Activity',
+                                  color: AppColors.friendlyPurple,
+                                  onTap: () {
+                                    // Create activity
+                                  },
+                                ),
+                                const SizedBox(width: AppSpacing.sm),
+                                _QuickActionChip(
+                                  icon: Icons.groups_outlined,
+                                  label: 'Find Mates',
+                                  color: AppColors.primaryBlue,
+                                  onTap: () {
+                                    // Navigate to mates
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      )),
                     ),
 
-                    // Nearby mates section
+                    const SizedBox(height: AppSpacing.sm),
+
+                    // Nearby mates section - renamed to "Potential Friends"
                     _SectionHeader(
-                      title: 'Nearby Mates',
+                      title: 'Potential Friends Nearby',
+                      subtitle: 'People who share your interests',
                       onSeeAll: () {
                         // Navigate to mates tab
                       },
@@ -91,9 +196,10 @@ class HomeScreen extends StatelessWidget {
 
                     const SizedBox(height: AppSpacing.lg),
 
-                    // Daily activities section
+                    // Daily activities section - renamed
                     _SectionHeader(
-                      title: 'Daily Activities',
+                      title: "Today's Hangouts",
+                      subtitle: 'Activities happening today',
                       onSeeAll: () {
                         // Navigate to activities tab
                       },
@@ -105,7 +211,8 @@ class HomeScreen extends StatelessWidget {
 
                     // Upcoming activities section
                     _SectionHeader(
-                      title: 'Upcoming Activities',
+                      title: 'Coming Up',
+                      subtitle: 'Plan your next hangout',
                       onSeeAll: () {
                         // Navigate to activities
                       },
@@ -113,7 +220,64 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: AppSpacing.sm),
                     _UpcomingActivitiesList(),
 
-                    const SizedBox(height: AppSpacing.xl),
+                    const SizedBox(height: AppSpacing.lg),
+
+                    // Bottom message about platonic friendships
+                    Container(
+                      margin: const EdgeInsets.all(AppSpacing.md),
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            AppColors.primaryBlue.withAlpha(26),
+                            AppColors.friendlyTeal.withAlpha(26),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(AppRadius.lg),
+                        border: Border.all(
+                          color: AppColors.primaryBlue.withAlpha(38),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(AppSpacing.sm),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryBlue.withAlpha(26),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.favorite_border,
+                              color: AppColors.primaryBlue,
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.md),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Meaningful Friendships',
+                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Fluttrr is a safe space for platonic connections',
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: AppColors.mediumGrey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: AppSpacing.xxl),
                   ],
                 ),
               ),
@@ -123,15 +287,76 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      return 'Good morning';
+    } else if (hour < 17) {
+      return 'Good afternoon';
+    } else {
+      return 'Good evening';
+    }
+  }
 }
 
-/// Section header widget
+/// Quick action chip widget
+class _QuickActionChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _QuickActionChip({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
+        decoration: BoxDecoration(
+          color: color.withAlpha(26),
+          borderRadius: BorderRadius.circular(AppRadius.circular),
+          border: Border.all(color: color.withAlpha(51)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 18, color: color),
+            const SizedBox(width: AppSpacing.xs),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Section header widget with subtitle
 class _SectionHeader extends StatelessWidget {
   final String title;
+  final String? subtitle;
   final VoidCallback? onSeeAll;
 
   const _SectionHeader({
     required this.title,
+    this.subtitle,
     this.onSeeAll,
   });
 
@@ -140,16 +365,55 @@ class _SectionHeader extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: Theme.of(context).textTheme.titleLarge,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle!,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.mediumGrey,
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
           if (onSeeAll != null)
             TextButton(
               onPressed: onSeeAll,
-              child: const Text('See All'),
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: const Size(0, 0),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'See All',
+                    style: TextStyle(
+                      color: AppColors.primaryBlue,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  const Icon(
+                    Icons.chevron_right,
+                    size: 18,
+                    color: AppColors.primaryBlue,
+                  ),
+                ],
+              ),
             ),
         ],
       ),
@@ -157,14 +421,14 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-/// Nearby mates carousel
+/// Nearby mates carousel - improved with safe image loading
 class _NearbyMatesCarousel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final matesController = Get.find<MatesController>();
 
     return SizedBox(
-      height: 160,
+      height: 180,
       child: Obx(() {
         if (matesController.isLoading.value &&
             matesController.nearbyMates.isEmpty) {
@@ -175,8 +439,8 @@ class _NearbyMatesCarousel extends StatelessWidget {
             itemBuilder: (context, index) => Padding(
               padding: const EdgeInsets.only(right: AppSpacing.md),
               child: ShimmerCard(
-                width: 120,
-                height: 160,
+                width: 130,
+                height: 180,
                 borderRadius: AppRadius.lg,
               ),
             ),
@@ -184,11 +448,10 @@ class _NearbyMatesCarousel extends StatelessWidget {
         }
 
         if (matesController.nearbyMates.isEmpty) {
-          return Center(
-            child: Text(
-              'No mates nearby',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+          return _EmptyStateCard(
+            icon: Icons.people_outline,
+            title: 'No friends nearby yet',
+            subtitle: 'Invite people or check back later',
           );
         }
 
@@ -209,7 +472,54 @@ class _NearbyMatesCarousel extends StatelessWidget {
   }
 }
 
-/// Mate card widget
+/// Empty state card for sections
+class _EmptyStateCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  const _EmptyStateCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      decoration: BoxDecoration(
+        color: AppColors.lightGrey,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 40, color: AppColors.mediumGrey),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            title,
+            style: TextStyle(
+              color: AppColors.darkGrey,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: TextStyle(
+              color: AppColors.mediumGrey,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Mate card widget - improved design
 class _MateCard extends StatelessWidget {
   final MateModel mate;
 
@@ -217,33 +527,67 @@ class _MateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final imageUrl = ApiEndpoints.getImageUrl(mate.profileImage);
+    final hasValidImage = ApiEndpoints.isValidImageUrl(mate.profileImage);
+
     return GestureDetector(
-      onTap: () => Get.to(() => MateProfileScreen(userId: mate.userId!)),
+      onTap: () {
+        if (mate.userId != null) {
+          Get.to(() => MateProfileScreen(userId: mate.userId!));
+        }
+      },
       child: Container(
-        width: 120,
+        width: 130,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppRadius.lg),
-          image: mate.profileImage != null
+          image: hasValidImage
               ? DecorationImage(
-                  image: NetworkImage(mate.profileImage!),
+                  image: NetworkImage(imageUrl),
                   fit: BoxFit.cover,
                 )
               : null,
           color: AppColors.lightGrey,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(26),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Stack(
           children: [
+            // Default avatar if no image
+            if (!hasValidImage)
+              Center(
+                child: Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryBlue.withAlpha(26),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.person,
+                    size: 36,
+                    color: AppColors.primaryBlue,
+                  ),
+                ),
+              ),
+
             // Gradient overlay
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppRadius.lg),
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withAlpha(179),
+                    Colors.transparent,
+                    Color(0xCC000000),
                   ],
+                  stops: [0, 0.5, 1],
                 ),
               ),
             ),
@@ -266,13 +610,18 @@ class _MateCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (mate.age != null)
+                  if (mate.age != null || mate.location != null)
                     Text(
-                      '${mate.age} years',
+                      [
+                        if (mate.age != null) '${mate.age}',
+                        if (mate.location != null) mate.location,
+                      ].join(' • '),
                       style: TextStyle(
                         color: Colors.white.withAlpha(204),
-                        fontSize: 12,
+                        fontSize: 11,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                 ],
               ),
@@ -284,12 +633,21 @@ class _MateCard extends StatelessWidget {
                 top: AppSpacing.sm,
                 right: AppSpacing.sm,
                 child: Container(
-                  width: 12,
-                  height: 12,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
-                    color: AppColors.online,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
+                    color: AppColors.success,
+                    borderRadius: BorderRadius.circular(AppRadius.circular),
+                  ),
+                  child: const Text(
+                    'Active',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -300,7 +658,7 @@ class _MateCard extends StatelessWidget {
   }
 }
 
-/// Daily activities list
+/// Daily activities list - improved
 class _DailyActivitiesList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -313,7 +671,7 @@ class _DailyActivitiesList extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
           child: Column(
             children: List.generate(
-              3,
+              2,
               (index) => Padding(
                 padding: const EdgeInsets.only(bottom: AppSpacing.md),
                 child: ShimmerCard(height: 100),
@@ -325,12 +683,11 @@ class _DailyActivitiesList extends StatelessWidget {
 
       if (activityController.dailyActivities.isEmpty) {
         return Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Center(
-            child: Text(
-              'No activities today',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          child: _EmptyStateCard(
+            icon: Icons.event_outlined,
+            title: 'No activities today',
+            subtitle: 'Be the first to create one!',
           ),
         );
       }
@@ -352,7 +709,7 @@ class _DailyActivitiesList extends StatelessWidget {
   }
 }
 
-/// Activity card widget
+/// Activity card widget - improved design
 class _ActivityCard extends StatelessWidget {
   final ActivityModel activity;
 
@@ -360,34 +717,50 @@ class _ActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final imageUrl = ApiEndpoints.getImageUrl(activity.primaryImage);
+    final hasValidImage = ApiEndpoints.isValidImageUrl(activity.primaryImage);
+
     return GestureDetector(
-      onTap: () => Get.to(
-          () => ActivityDetailsScreen(activityId: activity.activityId!)),
+      onTap: () {
+        if (activity.activityId != null) {
+          Get.to(() => ActivityDetailsScreen(activityId: activity.activityId!));
+        }
+      },
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          boxShadow: AppShadows.small,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(13),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           children: [
-            // Image
+            // Image with rounded corners
             Container(
-              width: 80,
-              height: 80,
+              width: 85,
+              height: 85,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(AppRadius.sm),
-                image: activity.primaryImage != null
+                borderRadius: BorderRadius.circular(AppRadius.md),
+                image: hasValidImage
                     ? DecorationImage(
-                        image: NetworkImage(activity.primaryImage!),
+                        image: NetworkImage(imageUrl),
                         fit: BoxFit.cover,
                       )
                     : null,
-                color: AppColors.lightGrey,
+                color: AppColors.primaryBlue.withAlpha(26),
               ),
-              child: activity.primaryImage == null
-                  ? const Icon(Icons.event, color: AppColors.grey)
+              child: !hasValidImage
+                  ? const Icon(
+                      Icons.event,
+                      color: AppColors.primaryBlue,
+                      size: 32,
+                    )
                   : null,
             ),
 
@@ -398,43 +771,70 @@ class _ActivityCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Event type badge
+                  if (activity.eventType != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm,
+                        vertical: 2,
+                      ),
+                      margin: const EdgeInsets.only(bottom: 6),
+                      decoration: BoxDecoration(
+                        color: AppColors.friendlyPurple.withAlpha(26),
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                      ),
+                      child: Text(
+                        activity.eventType!,
+                        style: const TextStyle(
+                          color: AppColors.friendlyPurple,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                   Text(
                     activity.displayName,
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: AppSpacing.xs),
+                  const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.location_on_outlined,
                         size: 14,
-                        color: AppColors.grey,
+                        color: AppColors.mediumGrey,
                       ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           activity.location ?? 'Location TBD',
-                          style: Theme.of(context).textTheme.bodySmall,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppColors.mediumGrey,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: AppSpacing.xs),
+                  const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.people_outline,
                         size: 14,
-                        color: AppColors.grey,
+                        color: AppColors.mediumGrey,
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '${activity.attendeeCount} attending',
-                        style: Theme.of(context).textTheme.bodySmall,
+                        '${activity.attendeeCount} going',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.mediumGrey,
+                        ),
                       ),
                     ],
                   ),
@@ -442,7 +842,7 @@ class _ActivityCard extends StatelessWidget {
               ),
             ),
 
-            // Join indicator
+            // Join indicator / action
             if (activity.userJoined)
               Container(
                 padding: const EdgeInsets.symmetric(
@@ -453,13 +853,37 @@ class _ActivityCard extends StatelessWidget {
                   color: AppColors.success.withAlpha(26),
                   borderRadius: BorderRadius.circular(AppRadius.sm),
                 ),
-                child: const Text(
-                  'Joined',
-                  style: TextStyle(
-                    color: AppColors.success,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.check_circle,
+                      size: 14,
+                      color: AppColors.success,
+                    ),
+                    SizedBox(width: 4),
+                    Text(
+                      'Going',
+                      style: TextStyle(
+                        color: AppColors.success,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.sm),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryBlue.withAlpha(26),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.arrow_forward,
+                  size: 18,
+                  color: AppColors.primaryBlue,
                 ),
               ),
           ],
@@ -469,7 +893,7 @@ class _ActivityCard extends StatelessWidget {
   }
 }
 
-/// Upcoming activities list
+/// Upcoming activities list - improved carousel
 class _UpcomingActivitiesList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -479,10 +903,12 @@ class _UpcomingActivitiesList extends StatelessWidget {
       height: 200,
       child: Obx(() {
         if (activityController.allActivities.isEmpty) {
-          return Center(
-            child: Text(
-              'No upcoming activities',
-              style: Theme.of(context).textTheme.bodyMedium,
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            child: _EmptyStateCard(
+              icon: Icons.calendar_today_outlined,
+              title: 'No upcoming activities',
+              subtitle: 'Create one and invite friends!',
             ),
           );
         }
@@ -495,6 +921,7 @@ class _UpcomingActivitiesList extends StatelessWidget {
             enlargeCenterPage: true,
             autoPlay: true,
             autoPlayInterval: const Duration(seconds: 5),
+            autoPlayAnimationDuration: const Duration(milliseconds: 800),
           ),
           itemBuilder: (context, index, realIndex) {
             final activity = activityController.allActivities[index];
@@ -506,7 +933,7 @@ class _UpcomingActivitiesList extends StatelessWidget {
   }
 }
 
-/// Upcoming activity card
+/// Upcoming activity card - improved design
 class _UpcomingActivityCard extends StatelessWidget {
   final ActivityModel activity;
 
@@ -514,43 +941,65 @@ class _UpcomingActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final imageUrl = ApiEndpoints.getImageUrl(activity.primaryImage);
+    final hasValidImage = ApiEndpoints.isValidImageUrl(activity.primaryImage);
+
     return GestureDetector(
-      onTap: () => Get.to(
-          () => ActivityDetailsScreen(activityId: activity.activityId!)),
+      onTap: () {
+        if (activity.activityId != null) {
+          Get.to(() => ActivityDetailsScreen(activityId: activity.activityId!));
+        }
+      },
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          image: activity.primaryImage != null
+          borderRadius: BorderRadius.circular(AppRadius.xl),
+          image: hasValidImage
               ? DecorationImage(
-                  image: NetworkImage(activity.primaryImage!),
+                  image: NetworkImage(imageUrl),
                   fit: BoxFit.cover,
                 )
               : null,
-          color: AppColors.lightGrey,
+          gradient: !hasValidImage
+              ? LinearGradient(
+                  colors: [
+                    AppColors.primaryBlue,
+                    AppColors.friendlyPurple,
+                  ],
+                )
+              : null,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primaryBlue.withAlpha(51),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
         child: Stack(
           children: [
             // Gradient overlay
             Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(AppRadius.lg),
-                gradient: LinearGradient(
+                borderRadius: BorderRadius.circular(AppRadius.xl),
+                gradient: const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withAlpha(204),
+                    Color(0x33000000),
+                    Color(0xCC000000),
                   ],
+                  stops: [0, 0.5, 1],
                 ),
               ),
             ),
 
             // Content
             Positioned(
-              bottom: AppSpacing.md,
-              left: AppSpacing.md,
-              right: AppSpacing.md,
+              bottom: AppSpacing.lg,
+              left: AppSpacing.lg,
+              right: AppSpacing.lg,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -579,7 +1028,7 @@ class _UpcomingActivityCard extends StatelessWidget {
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                      fontSize: 20,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -602,6 +1051,35 @@ class _UpcomingActivityCard extends StatelessWidget {
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.sm,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withAlpha(51),
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.people,
+                              size: 12,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${activity.attendeeCount}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],

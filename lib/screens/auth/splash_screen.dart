@@ -7,7 +7,7 @@ import '../../controllers/profile_controller.dart';
 import '../home/main_screen.dart';
 import 'login_screen.dart';
 
-/// Splash screen with auto-login check
+/// Splash screen with beautiful brand experience and auto-login check
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -16,10 +16,14 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
+    with TickerProviderStateMixin {
+  late AnimationController _fadeController;
+  late AnimationController _scaleController;
+  late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _taglineFadeAnimation;
 
   @override
   void initState() {
@@ -29,31 +33,64 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _setupAnimations() {
-    _animationController = AnimationController(
+    // Logo fade and scale animation
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+
+    _scaleController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     );
 
+    _slideController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
     _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0, 0.6, curve: Curves.easeOut),
+        parent: _fadeController,
+        curve: Curves.easeOut,
       ),
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1).animate(
+    _scaleAnimation = Tween<double>(begin: 0.6, end: 1).animate(
       CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0, 0.6, curve: Curves.easeOut),
+        parent: _scaleController,
+        curve: Curves.elasticOut,
       ),
     );
 
-    _animationController.forward();
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _slideController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+
+    _taglineFadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _slideController,
+        curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
+      ),
+    );
+
+    // Stagger the animations
+    _fadeController.forward();
+    _scaleController.forward();
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (mounted) _slideController.forward();
+    });
   }
 
   Future<void> _checkAuthAndNavigate() async {
-    // Wait for animation
-    await Future.delayed(const Duration(seconds: 2));
+    // Wait for animations to complete
+    await Future.delayed(const Duration(seconds: 3));
 
     // Initialize auth controller
     final authController = Get.put(AuthController());
@@ -70,7 +107,9 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _fadeController.dispose();
+    _scaleController.dispose();
+    _slideController.dispose();
     super.dispose();
   }
 
@@ -81,104 +120,196 @@ class _SplashScreenState extends State<SplashScreen>
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
-          gradient: AppGradients.primaryVertical,
+          gradient: AppGradients.splashGradient,
         ),
         child: SafeArea(
-          child: AnimatedBuilder(
-            animation: _animationController,
-            builder: (context, child) {
-              return Opacity(
-                opacity: _fadeAnimation.value,
-                child: Transform.scale(
-                  scale: _scaleAnimation.value,
-                  child: child,
-                ),
-              );
-            },
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Logo/Icon
-                Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(51),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: Image.asset(
-                      'assets/lgo1.png',
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Center(
-                          child: Text(
-                            'F',
-                            style: TextStyle(
-                              fontSize: 60,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.primaryBlue,
-                            ),
+          child: Stack(
+            children: [
+              // Subtle background pattern (butterfly wing shapes)
+              Positioned(
+                top: -100,
+                right: -100,
+                child: _buildBackgroundShape(200, 0.03),
+              ),
+              Positioned(
+                bottom: -80,
+                left: -80,
+                child: _buildBackgroundShape(180, 0.02),
+              ),
+
+              // Main content
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Butterfly logo with animations
+                    AnimatedBuilder(
+                      animation: Listenable.merge([_fadeController, _scaleController]),
+                      builder: (context, child) {
+                        return Opacity(
+                          opacity: _fadeAnimation.value,
+                          child: Transform.scale(
+                            scale: _scaleAnimation.value,
+                            child: child,
                           ),
                         );
                       },
+                      child: Container(
+                        width: 140,
+                        height: 140,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(35),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryBlue.withAlpha(77),
+                              blurRadius: 40,
+                              spreadRadius: 5,
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(35),
+                          child: Image.asset(
+                            'assets/lgo1.png',
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryDark,
+                                  borderRadius: BorderRadius.circular(35),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.flutter_dash,
+                                    size: 70,
+                                    color: AppColors.primaryBlue,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: AppSpacing.xl),
+
+                    // Wordmark logo with slide animation
+                    SlideTransition(
+                      position: _slideAnimation,
+                      child: FadeTransition(
+                        opacity: _taglineFadeAnimation,
+                        child: Image.asset(
+                          'assets/lttrrlogo.jpg',
+                          height: 60,
+                          errorBuilder: (context, error, stackTrace) {
+                            return ShaderMask(
+                              blendMode: BlendMode.srcIn,
+                              shaderCallback: (bounds) => const LinearGradient(
+                                colors: [AppColors.primaryBlue, AppColors.accentBlue],
+                              ).createShader(bounds),
+                              child: const Text(
+                                'fluttrr.',
+                                style: TextStyle(
+                                  fontSize: 48,
+                                  fontWeight: FontWeight.w300,
+                                  letterSpacing: 2,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: AppSpacing.lg),
+
+                    // Tagline with fade animation
+                    SlideTransition(
+                      position: _slideAnimation,
+                      child: FadeTransition(
+                        opacity: _taglineFadeAnimation,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.lg,
+                            vertical: AppSpacing.sm,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: AppColors.primaryBlue.withAlpha(51),
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(AppRadius.circular),
+                          ),
+                          child: Text(
+                            'Find Your People',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white.withAlpha(179),
+                              letterSpacing: 3,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: AppSpacing.xxl * 2),
+
+                    // Loading indicator
+                    FadeTransition(
+                      opacity: _taglineFadeAnimation,
+                      child: SizedBox(
+                        width: 32,
+                        height: 32,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColors.primaryBlue.withAlpha(179),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Bottom tagline
+              Positioned(
+                bottom: AppSpacing.xl,
+                left: 0,
+                right: 0,
+                child: FadeTransition(
+                  opacity: _taglineFadeAnimation,
+                  child: Text(
+                    'Platonic friendships, real connections',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white.withAlpha(102),
+                      letterSpacing: 1,
                     ),
                   ),
                 ),
-
-                const SizedBox(height: AppSpacing.xl),
-
-                // App name with logo
-                Image.asset(
-                  'assets/lttrrlogo.png',
-                  height: 50,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Text(
-                      'Fluttrr',
-                      style: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        letterSpacing: 2,
-                      ),
-                    );
-                  },
-                ),
-
-                const SizedBox(height: AppSpacing.sm),
-
-                // Tagline
-                Text(
-                  'Connect. Explore. Belong.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white.withAlpha(204),
-                    letterSpacing: 1,
-                  ),
-                ),
-
-                const SizedBox(height: AppSpacing.xxl * 2),
-
-                // Loading indicator
-                const SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 3,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBackgroundShape(double size, double opacity) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [
+            AppColors.primaryBlue.withAlpha((opacity * 255).round()),
+            Colors.transparent,
+          ],
         ),
       ),
     );

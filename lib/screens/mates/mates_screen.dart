@@ -3,13 +3,14 @@ import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
+import '../../constants/api_endpoints.dart';
 import '../../controllers/mates_controller.dart';
 import '../../models/mate_model.dart';
 import '../../widgets/common_widgets.dart';
 import 'mate_profile_screen.dart';
 import 'matches_screen.dart';
 
-/// Mates/matching screen with swipeable cards
+/// Mates/friend discovery screen with swipeable cards - emphasizing platonic connections
 class MatesScreen extends StatelessWidget {
   const MatesScreen({super.key});
 
@@ -21,34 +22,103 @@ class MatesScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Header
+            // Header with friendly branding
             Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const GradientText(
-                    text: 'Mates',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ShaderMask(
+                        blendMode: BlendMode.srcIn,
+                        shaderCallback: (bounds) => const LinearGradient(
+                          colors: [AppColors.primaryBlue, AppColors.friendlyTeal],
+                        ).createShader(bounds),
+                        child: const Text(
+                          'Find Friends',
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Connect with people nearby',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.mediumGrey,
+                        ),
+                      ),
+                    ],
                   ),
                   Row(
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.filter_list),
-                        onPressed: () => _showFilters(context),
+                      // Filter button
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.lightGrey,
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.tune, color: AppColors.darkGrey),
+                          onPressed: () => _showFilters(context),
+                        ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.favorite),
-                        onPressed: () => Get.to(() => const MatchesScreen()),
+                      const SizedBox(width: AppSpacing.sm),
+                      // Connections button
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.friendlyTeal.withAlpha(26),
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.people, color: AppColors.friendlyTeal),
+                          onPressed: () => Get.to(() => const MatchesScreen()),
+                        ),
                       ),
                     ],
                   ),
                 ],
               ),
             ),
+
+            // Platonic friendship reminder
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.md,
+                vertical: AppSpacing.sm,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.primaryBlue.withAlpha(13),
+                borderRadius: BorderRadius.circular(AppRadius.md),
+                border: Border.all(color: AppColors.primaryBlue.withAlpha(26)),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.handshake_outlined,
+                    size: 18,
+                    color: AppColors.primaryBlue,
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  const Expanded(
+                    child: Text(
+                      'Swipe right to connect as friends',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.primaryBlue,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: AppSpacing.sm),
 
             // Swipeable cards
             Expanded(
@@ -59,31 +129,22 @@ class MatesScreen extends StatelessWidget {
                 }
 
                 if (matesController.nearbyMates.isEmpty) {
-                  return EmptyState(
-                    icon: Icons.people_outline,
-                    title: 'No Mates Nearby',
+                  return _EmptyFriendsState(
+                    title: 'No Friends Nearby Yet',
                     subtitle: 'Try adjusting your filters or check back later',
-                    action: GradientButton(
-                      text: 'Refresh',
-                      width: 120,
-                      onPressed: matesController.loadNearbyMates,
-                    ),
+                    onRefresh: matesController.loadNearbyMates,
                   );
                 }
 
                 if (!matesController.hasMoreMates) {
-                  return EmptyState(
-                    icon: Icons.check_circle_outline,
-                    title: "You've seen everyone!",
-                    subtitle: 'Check back later for new mates',
-                    action: GradientButton(
-                      text: 'Start Over',
-                      width: 120,
-                      onPressed: () {
-                        matesController.currentSwipeIndex.value = 0;
-                        matesController.loadNearbyMates();
-                      },
-                    ),
+                  return _EmptyFriendsState(
+                    title: "You've met everyone!",
+                    subtitle: 'Check back later for new friends',
+                    onRefresh: () {
+                      matesController.currentSwipeIndex.value = 0;
+                      matesController.loadNearbyMates();
+                    },
+                    buttonText: 'Start Over',
                   );
                 }
 
@@ -91,7 +152,7 @@ class MatesScreen extends StatelessWidget {
               }),
             ),
 
-            // Action buttons
+            // Action buttons - friendlier icons
             Obx(() {
               if (matesController.nearbyMates.isEmpty ||
                   !matesController.hasMoreMates) {
@@ -105,11 +166,13 @@ class MatesScreen extends StatelessWidget {
                   children: [
                     _ActionButton(
                       icon: Icons.close,
-                      color: AppColors.error,
+                      label: 'Skip',
+                      color: AppColors.mediumGrey,
                       onPressed: matesController.swipeLeft,
                     ),
                     _ActionButton(
-                      icon: Icons.info_outline,
+                      icon: Icons.person,
+                      label: 'Profile',
                       color: AppColors.primaryBlue,
                       size: 50,
                       onPressed: () {
@@ -120,8 +183,9 @@ class MatesScreen extends StatelessWidget {
                       },
                     ),
                     _ActionButton(
-                      icon: Icons.favorite,
-                      color: AppColors.success,
+                      icon: Icons.waving_hand,
+                      label: 'Wave',
+                      color: AppColors.friendlyTeal,
                       onPressed: matesController.swipeRight,
                     ),
                   ],
@@ -189,7 +253,7 @@ class _SwipeableCards extends StatelessWidget {
   }
 }
 
-/// Mate card widget
+/// Mate card widget with safe image loading
 class _MateCard extends StatelessWidget {
   final MateModel mate;
 
@@ -197,16 +261,28 @@ class _MateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final imageUrl = ApiEndpoints.getImageUrl(mate.profileImage);
+    final hasValidImage = ApiEndpoints.isValidImageUrl(mate.profileImage);
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.xl),
-        image: mate.profileImage != null
+        image: hasValidImage
             ? DecorationImage(
-                image: NetworkImage(mate.profileImage!),
+                image: NetworkImage(imageUrl),
                 fit: BoxFit.cover,
               )
             : null,
-        color: AppColors.lightGrey,
+        gradient: !hasValidImage
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppColors.primaryBlue.withAlpha(51),
+                  AppColors.friendlyPurple.withAlpha(51),
+                ],
+              )
+            : null,
       ),
       child: Stack(
         children: [
@@ -228,12 +304,20 @@ class _MateCard extends StatelessWidget {
           ),
 
           // Default avatar if no image
-          if (mate.profileImage == null)
-            const Center(
-              child: Icon(
-                Icons.person,
-                size: 100,
-                color: AppColors.grey,
+          if (!hasValidImage)
+            Center(
+              child: Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryBlue.withAlpha(26),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.person,
+                  size: 70,
+                  color: AppColors.primaryBlue,
+                ),
               ),
             ),
 
@@ -386,15 +470,81 @@ class _MateCard extends StatelessWidget {
   }
 }
 
-/// Action button widget
+/// Empty state for friends screen
+class _EmptyFriendsState extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final VoidCallback onRefresh;
+  final String buttonText;
+
+  const _EmptyFriendsState({
+    required this.title,
+    required this.subtitle,
+    required this.onRefresh,
+    this.buttonText = 'Refresh',
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: AppColors.primaryBlue.withAlpha(26),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.people_outline,
+                size: 50,
+                color: AppColors.primaryBlue,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              subtitle,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.mediumGrey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            GradientButton(
+              text: buttonText,
+              width: 140,
+              onPressed: onRefresh,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Action button widget with label
 class _ActionButton extends StatelessWidget {
   final IconData icon;
+  final String? label;
   final Color color;
   final VoidCallback onPressed;
   final double size;
 
   const _ActionButton({
     required this.icon,
+    this.label,
     required this.color,
     required this.onPressed,
     this.size = 60,
@@ -402,22 +552,48 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          boxShadow: AppShadows.medium,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          onTap: onPressed,
+          child: Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: color.withAlpha(51),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+              border: Border.all(
+                color: color.withAlpha(51),
+                width: 2,
+              ),
+            ),
+            child: Icon(
+              icon,
+              color: color,
+              size: size * 0.45,
+            ),
+          ),
         ),
-        child: Icon(
-          icon,
-          color: color,
-          size: size * 0.5,
-        ),
-      ),
+        if (label != null) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            label!,
+            style: TextStyle(
+              fontSize: 11,
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
@@ -437,8 +613,17 @@ class _FilterSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Filter Mates',
-            style: Theme.of(context).textTheme.titleLarge,
+            'Find Your People',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            'Adjust filters to find friends who match your vibe',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppColors.mediumGrey,
+            ),
           ),
 
           const SizedBox(height: AppSpacing.lg),

@@ -1,40 +1,49 @@
 import 'package:flutter/material.dart';
 
-/// App color constants
+/// App color constants - Brand colors from Fluttrr butterfly logo
 class AppColors {
   AppColors._();
 
-  // Primary colors
-  static const Color primaryBlue = Color(0xFF007BFD);
-  static const Color primaryDark = Color(0xFF20235A);
+  // Primary brand colors (from butterfly logo)
+  static const Color primaryBlue = Color(0xFF0080FF);  // Vibrant butterfly blue
+  static const Color primaryDark = Color(0xFF0D1117);  // Deep navy background
+  static const Color accentBlue = Color(0xFF38B6FF);   // Lighter blue accent
+
+  // Secondary brand colors
+  static const Color surfaceDark = Color(0xFF161B22);  // Card backgrounds dark mode
+  static const Color surfaceLight = Color(0xFFF6F8FA); // Card backgrounds light mode
 
   // Neutral colors
   static const Color white = Colors.white;
   static const Color black = Colors.black;
-  static const Color grey = Color(0xFF65667D);
-  static const Color lightGrey = Color(0xFFF1F1F1);
-  static const Color darkGrey = Color(0xFF4D4D4D);
+  static const Color grey = Color(0xFF8B949E);
+  static const Color lightGrey = Color(0xFFF0F3F6);
+  static const Color darkGrey = Color(0xFF484F58);
+  static const Color mediumGrey = Color(0xFF6E7681);
 
-  // Secondary colors
-  static const Color primaryGreen = Color(0xFF339003);
-  static const Color primaryPurple = Color(0xFF6A5ACD);
+  // Friendship/social accent colors
+  static const Color friendlyPink = Color(0xFFFF6B9D);   // Warm and welcoming
+  static const Color friendlyTeal = Color(0xFF2DD4BF);   // Fresh and friendly
+  static const Color friendlyPurple = Color(0xFF8B5CF6); // Creative and fun
+  static const Color friendlyOrange = Color(0xFFFB923C); // Energetic
 
   // Status colors
-  static const Color success = Color(0xFF4CAF50);
-  static const Color error = Color(0xFFE53935);
-  static const Color warning = Color(0xFFFFA726);
-  static const Color info = Color(0xFF29B6F6);
+  static const Color success = Color(0xFF22C55E);
+  static const Color error = Color(0xFFEF4444);
+  static const Color warning = Color(0xFFF59E0B);
+  static const Color info = Color(0xFF3B82F6);
 
   // Online status
-  static const Color online = Color(0xFF4CAF50);
-  static const Color offline = Color(0xFF9E9E9E);
-  static const Color away = Color(0xFFFFA726);
+  static const Color online = Color(0xFF22C55E);
+  static const Color offline = Color(0xFF6B7280);
+  static const Color away = Color(0xFFF59E0B);
 }
 
 /// App gradient constants
 class AppGradients {
   AppGradients._();
 
+  // Primary brand gradients
   static const LinearGradient primaryVertical = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
@@ -44,17 +53,46 @@ class AppGradients {
   static const LinearGradient primaryHorizontal = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    colors: [AppColors.primaryBlue, AppColors.primaryDark],
+    colors: [AppColors.accentBlue, AppColors.primaryBlue],
   );
 
   static const LinearGradient primaryDiagonal = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [AppColors.primaryBlue, AppColors.primaryDark],
+    colors: [AppColors.accentBlue, AppColors.primaryBlue],
   );
 
   static const RadialGradient primaryRadial = RadialGradient(
-    colors: [AppColors.primaryBlue, AppColors.primaryDark],
+    colors: [AppColors.accentBlue, AppColors.primaryBlue],
+  );
+
+  // Splash/welcome gradient (matches logo background)
+  static const LinearGradient splashGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF0D1117), Color(0xFF161B22)],
+  );
+
+  // Vibrant button gradient
+  static const LinearGradient buttonGradient = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [Color(0xFF0080FF), Color(0xFF38B6FF)],
+  );
+
+  // Friendly accent gradients for cards
+  static const LinearGradient friendlyGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [AppColors.friendlyPink, AppColors.friendlyPurple],
+  );
+
+  // Card overlay gradient
+  static const LinearGradient cardOverlay = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Colors.transparent, Color(0xCC000000)],
+    stops: [0.4, 1.0],
   );
 }
 
