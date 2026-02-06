@@ -7,3 +7,4 @@ export 'socket_service.dart';
 export 'location_service.dart';
 export 'api_service.dart';
 export 'mock_data_service.dart';
+export 'storage_service.dart';
