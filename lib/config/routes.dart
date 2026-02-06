@@ -11,6 +11,7 @@ import '../screens/discover/event_details_screen.dart';
 import '../screens/discover/saved_events_screen.dart';
 import '../screens/discover/create_event_screen.dart';
 import '../screens/discover/attendees_screen.dart';
+import '../screens/discover/quick_hangout_screen.dart';
 import '../screens/mates/friends_list_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/profile/settings_screen.dart';
@@ -36,6 +37,7 @@ class AppRoutes {
   static const eventDetails = '/event/:id';
   static const savedEvents = '/saved-events';
   static const createEvent = '/create-event';
+  static const quickHangout = '/quick-hangout';
   static const editEvent = '/edit-event/:id';
   static const attendees = '/event/:id/attendees';
 
@@ -112,6 +114,12 @@ class AppPages {
       transition: Transition.downToUp,
       fullscreenDialog: true,
     ),
+    GetPage(
+      name: AppRoutes.quickHangout,
+      page: () => const QuickHangoutScreen(),
+      transition: Transition.downToUp,
+      fullscreenDialog: true,
+    ),
 
     // Mates
     GetPage(
@@ -167,6 +175,7 @@ class Nav {
   static void toSearch() => Get.toNamed(AppRoutes.search);
   static void toSavedEvents() => Get.toNamed(AppRoutes.savedEvents);
   static void toCreateEvent() => Get.toNamed(AppRoutes.createEvent);
+  static void toQuickHangout() => Get.toNamed(AppRoutes.quickHangout);
 
   static void toFriends() => Get.toNamed(AppRoutes.friends);
   static void toProfile() => Get.toNamed(AppRoutes.profile);
