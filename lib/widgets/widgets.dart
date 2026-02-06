@@ -4,6 +4,7 @@
 export 'common_widgets.dart';
 export 'animated_widgets.dart';
 export 'loading_widgets.dart';
+export 'shimmer_loading.dart';
 export 'empty_states.dart';
 export 'confirm_dialog.dart';
 

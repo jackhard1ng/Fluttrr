@@ -8,9 +8,10 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import 'constants/theme_data.dart';
+import 'config/routes.dart';
+import 'config/bindings.dart';
 import 'firebase_options.dart';
 import 'services/push_notification_service.dart';
-import 'screens/auth/splash_screen.dart';
 
 /// Background message handler for Firebase
 @pragma('vm:entry-point')
@@ -98,6 +99,13 @@ class FluttrrApp extends StatelessWidget {
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.system,
 
+      // Initial bindings
+      initialBinding: InitialBindings(),
+
+      // Routes
+      initialRoute: AppRoutes.splash,
+      getPages: AppPages.pages,
+
       // Responsive breakpoints
       builder: (context, child) => ResponsiveBreakpoints.builder(
         breakpoints: const [
@@ -112,9 +120,6 @@ class FluttrrApp extends StatelessWidget {
       // Default transitions
       defaultTransition: Transition.cupertino,
       transitionDuration: const Duration(milliseconds: 300),
-
-      // Home screen
-      home: const SplashScreen(),
     );
   }
 }
