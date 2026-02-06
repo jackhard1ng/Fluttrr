@@ -50,7 +50,7 @@ class ActivitiesScreen extends StatelessWidget {
             ),
 
             // Filter chips
-            _FilterChips(),
+            const _FilterChips(),
 
             // Activities list
             Expanded(
@@ -153,7 +153,9 @@ class ActivitiesScreen extends StatelessWidget {
 
 /// Filter chips row
 class _FilterChips extends StatelessWidget {
-  final List<String> _eventTypes = [
+  const _FilterChips();
+
+  static const List<String> _eventTypes = [
     'All',
     'Sports',
     'Music',

@@ -51,8 +51,8 @@ class _BusinessEventsScreenState extends State<BusinessEventsScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          _UpcomingEventsList(),
-          _PastEventsList(),
+          const _UpcomingEventsList(),
+          const _PastEventsList(),
         ],
       ),
     );
@@ -60,6 +60,8 @@ class _BusinessEventsScreenState extends State<BusinessEventsScreen>
 }
 
 class _UpcomingEventsList extends StatelessWidget {
+  const _UpcomingEventsList();
+
   @override
   Widget build(BuildContext context) {
     final events = [
@@ -113,6 +115,8 @@ class _UpcomingEventsList extends StatelessWidget {
 }
 
 class _PastEventsList extends StatelessWidget {
+  const _PastEventsList();
+
   @override
   Widget build(BuildContext context) {
     final events = [

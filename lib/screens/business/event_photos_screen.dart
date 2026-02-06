@@ -63,7 +63,7 @@ class _EventPhotosScreenState extends State<EventPhotosScreen> {
           ),
 
           // Stats row
-          _PhotoStatsRow(),
+          const _PhotoStatsRow(),
 
           // Photo grid
           Expanded(
@@ -229,6 +229,8 @@ class _EventFilterBar extends StatelessWidget {
 }
 
 class _PhotoStatsRow extends StatelessWidget {
+  const _PhotoStatsRow();
+
   @override
   Widget build(BuildContext context) {
     return Container(

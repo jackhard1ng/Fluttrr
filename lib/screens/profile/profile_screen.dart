@@ -71,7 +71,7 @@ class ProfileScreen extends StatelessWidget {
 
                   // Business Dashboard Card (for business accounts)
                   if (profileController.currentUser.value?.isBusinessAccount == true)
-                    _BusinessDashboardCard(),
+                    const _BusinessDashboardCard(),
 
                   if (profileController.currentUser.value?.isBusinessAccount == true)
                     const SizedBox(height: AppSpacing.lg),
@@ -511,6 +511,8 @@ class _GallerySection extends StatelessWidget {
 
 /// Business Dashboard Card - Prominent access to business features
 class _BusinessDashboardCard extends StatelessWidget {
+  const _BusinessDashboardCard();
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(

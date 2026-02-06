@@ -46,7 +46,7 @@ class _BlockedUsersScreenState extends State<BlockedUsersScreen> {
         ),
       ),
       body: _blockedUsers.isEmpty
-          ? _EmptyState()
+          ? const _EmptyState()
           : ListView.builder(
               padding: const EdgeInsets.all(AppSpacing.md),
               itemCount: _blockedUsers.length,
@@ -202,6 +202,8 @@ class _BlockedUserTile extends StatelessWidget {
 }
 
 class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
   @override
   Widget build(BuildContext context) {
     return Center(

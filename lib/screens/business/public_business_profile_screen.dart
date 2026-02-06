@@ -74,8 +74,8 @@ class _PublicBusinessProfileScreenState
             child: TabBarView(
               controller: _tabController,
               children: [
-                _EventsTab(),
-                _PhotosTab(),
+                const _EventsTab(),
+                const _PhotosTab(),
                 _ReviewsTab(
                   onWriteReview: _showWriteReviewSheet,
                 ),
@@ -419,6 +419,8 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
 }
 
 class _EventsTab extends StatelessWidget {
+  const _EventsTab();
+
   @override
   Widget build(BuildContext context) {
     final events = [
@@ -635,6 +637,8 @@ class _EventCard extends StatelessWidget {
 }
 
 class _PhotosTab extends StatelessWidget {
+  const _PhotosTab();
+
   @override
   Widget build(BuildContext context) {
     // Mock photo data
@@ -793,7 +797,7 @@ class _ReviewsTab extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
 
         // Rating summary
-        _RatingSummary(),
+        const _RatingSummary(),
 
         const SizedBox(height: AppSpacing.lg),
 
@@ -805,6 +809,8 @@ class _ReviewsTab extends StatelessWidget {
 }
 
 class _RatingSummary extends StatelessWidget {
+  const _RatingSummary();
+
   @override
   Widget build(BuildContext context) {
     return Row(

@@ -116,12 +116,12 @@ class BusinessDashboardScreen extends StatelessWidget {
                     const SizedBox(height: AppSpacing.lg),
 
                     // Quick Create Event Button - THE MAIN ACTION
-                    _QuickCreateEventCard(),
+                    const _QuickCreateEventCard(),
 
                     const SizedBox(height: AppSpacing.lg),
 
                     // Stats overview
-                    _StatsOverview(),
+                    const _StatsOverview(),
 
                     const SizedBox(height: AppSpacing.lg),
 
@@ -133,17 +133,17 @@ class BusinessDashboardScreen extends StatelessWidget {
                           ),
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    _QuickActionsGrid(),
+                    const _QuickActionsGrid(),
 
                     const SizedBox(height: AppSpacing.lg),
 
                     // Recent reviews
-                    _RecentReviewsSection(),
+                    const _RecentReviewsSection(),
 
                     const SizedBox(height: AppSpacing.lg),
 
                     // Upcoming events
-                    _UpcomingEventsSection(),
+                    const _UpcomingEventsSection(),
 
                     const SizedBox(height: AppSpacing.xl),
                   ],
@@ -179,6 +179,8 @@ class BusinessDashboardScreen extends StatelessWidget {
 
 /// Big, prominent create event card
 class _QuickCreateEventCard extends StatelessWidget {
+  const _QuickCreateEventCard();
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -255,6 +257,8 @@ class _QuickCreateEventCard extends StatelessWidget {
 
 /// Stats overview cards
 class _StatsOverview extends StatelessWidget {
+  const _StatsOverview();
+
   @override
   Widget build(BuildContext context) {
     // Mock stats for demo
@@ -340,6 +344,8 @@ class _StatCard extends StatelessWidget {
 
 /// Quick actions grid
 class _QuickActionsGrid extends StatelessWidget {
+  const _QuickActionsGrid();
+
   @override
   Widget build(BuildContext context) {
     return GridView.count(
@@ -457,6 +463,8 @@ class _QuickActionTile extends StatelessWidget {
 
 /// Recent reviews section
 class _RecentReviewsSection extends StatelessWidget {
+  const _RecentReviewsSection();
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -604,6 +612,8 @@ class _ReviewCard extends StatelessWidget {
 
 /// Upcoming events section
 class _UpcomingEventsSection extends StatelessWidget {
+  const _UpcomingEventsSection();
+
   @override
   Widget build(BuildContext context) {
     return Column(

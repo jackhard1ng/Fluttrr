@@ -136,7 +136,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                 children: [
                   // Media section
                   _SectionHeader(title: 'Shared Media'),
-                  _MediaPreviewRow(),
+                  const _MediaPreviewRow(),
                   const SizedBox(height: 24),
 
                   // Notifications
@@ -442,6 +442,8 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _MediaPreviewRow extends StatelessWidget {
+  const _MediaPreviewRow();
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(

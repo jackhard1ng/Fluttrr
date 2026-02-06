@@ -87,9 +87,9 @@ class _ChatListScreenState extends State<ChatListScreen>
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  _DirectChatsTab(),
-                  _GroupChatsTab(),
-                  _BusinessChatsTab(),
+                  const _DirectChatsTab(),
+                  const _GroupChatsTab(),
+                  const _BusinessChatsTab(),
                 ],
               ),
             ),
@@ -102,6 +102,8 @@ class _ChatListScreenState extends State<ChatListScreen>
 
 /// Direct chats tab
 class _DirectChatsTab extends StatelessWidget {
+  const _DirectChatsTab();
+
   @override
   Widget build(BuildContext context) {
     final chatController = Get.find<ChatController>();
@@ -135,6 +137,8 @@ class _DirectChatsTab extends StatelessWidget {
 
 /// Group chats tab
 class _GroupChatsTab extends StatelessWidget {
+  const _GroupChatsTab();
+
   @override
   Widget build(BuildContext context) {
     final chatController = Get.find<ChatController>();
@@ -160,6 +164,8 @@ class _GroupChatsTab extends StatelessWidget {
 
 /// Business chats tab
 class _BusinessChatsTab extends StatelessWidget {
+  const _BusinessChatsTab();
+
   @override
   Widget build(BuildContext context) {
     final chatController = Get.find<ChatController>();

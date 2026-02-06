@@ -52,7 +52,7 @@ class _BusinessReviewsScreenState extends State<BusinessReviewsScreen>
       body: Column(
         children: [
           // Stats summary
-          _ReviewStatsSummary(),
+          const _ReviewStatsSummary(),
 
           // Filter chips
           _FilterChips(
@@ -77,6 +77,8 @@ class _BusinessReviewsScreenState extends State<BusinessReviewsScreen>
 }
 
 class _ReviewStatsSummary extends StatelessWidget {
+  const _ReviewStatsSummary();
+
   @override
   Widget build(BuildContext context) {
     return Container(

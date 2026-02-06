@@ -40,21 +40,21 @@ class BusinessStats extends StatelessWidget {
             label: 'Events',
             color: AppColors.primaryBlue,
           ),
-          _Divider(),
+          const _Divider(),
           _StatTile(
             icon: Icons.people,
             value: _formatNumber(totalAttendees),
             label: 'Attendees',
             color: AppColors.friendlyPurple,
           ),
-          _Divider(),
+          const _Divider(),
           _StatTile(
             icon: Icons.star,
             value: avgRating.toStringAsFixed(1),
             label: 'Rating',
             color: AppColors.warmYellow,
           ),
-          _Divider(),
+          const _Divider(),
           _StatTile(
             icon: Icons.favorite,
             value: _formatNumber(followers),
@@ -116,6 +116,8 @@ class _StatTile extends StatelessWidget {
 }
 
 class _Divider extends StatelessWidget {
+  const _Divider();
+
   @override
   Widget build(BuildContext context) {
     return Container(
