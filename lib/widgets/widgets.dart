@@ -96,3 +96,12 @@ export 'animations.dart';
 
 // Network
 export 'network_status.dart';
+
+// Gamification
+export 'gamification.dart';
+
+// Profile prompts
+export 'profile_prompts.dart';
+
+// Friend groups
+export 'friend_groups.dart';
