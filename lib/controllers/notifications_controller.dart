@@ -35,7 +35,7 @@ class NotificationsController extends GetxController {
   }
 
   void markAsRead(String notificationId) {
-    final index = notifications.indexWhere((n) => n.id == notificationId);
+    final index = notifications.indexWhere((n) => n.notificationId == notificationId);
     if (index != -1) {
       final notification = notifications[index];
       notifications[index] = notification.copyWith(isRead: true);
@@ -51,7 +51,7 @@ class NotificationsController extends GetxController {
   }
 
   void deleteNotification(String notificationId) {
-    notifications.removeWhere((n) => n.id == notificationId);
+    notifications.removeWhere((n) => n.notificationId == notificationId);
     _updateUnreadCount();
   }
 
@@ -66,7 +66,8 @@ class NotificationsController extends GetxController {
 
     for (final notification in notifications) {
       final now = DateTime.now();
-      final diff = now.difference(notification.createdAt);
+      final createdAt = notification.createdAt ?? now;
+      final diff = now.difference(createdAt);
 
       String key;
       if (diff.inDays == 0) {
@@ -89,47 +90,52 @@ class NotificationsController extends GetxController {
   // Mock data
   List<NotificationModel> get _mockNotifications => [
     NotificationModel(
-      id: '1',
+      notificationId: '1',
       type: NotificationType.friendRequest,
       title: 'New friend request',
-      message: 'Alex wants to connect with you',
+      body: 'Alex wants to connect with you',
       createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-      data: {'userId': 'user1'},
+      relatedId: 1,
+      relatedType: 'user',
     ),
     NotificationModel(
-      id: '2',
+      notificationId: '2',
       type: NotificationType.eventReminder,
       title: 'Event starting soon',
-      message: 'Board Game Night starts in 2 hours',
+      body: 'Board Game Night starts in 2 hours',
       createdAt: DateTime.now().subtract(const Duration(hours: 3)),
-      data: {'eventId': 'event1'},
+      relatedId: 1,
+      relatedType: 'event',
     ),
     NotificationModel(
-      id: '3',
+      notificationId: '3',
       type: NotificationType.newMessage,
       title: 'New message',
-      message: 'Jordan: Hey, are you coming tonight?',
+      body: 'Jordan: Hey, are you coming tonight?',
       createdAt: DateTime.now().subtract(const Duration(hours: 5)),
       isRead: true,
-      data: {'chatId': 'chat1'},
+      relatedId: 1,
+      relatedType: 'chat',
     ),
     NotificationModel(
-      id: '4',
+      notificationId: '4',
       type: NotificationType.eventUpdate,
       title: 'Event updated',
-      message: 'Hiking Adventure location has changed',
+      body: 'Hiking Adventure location has changed',
       createdAt: DateTime.now().subtract(const Duration(days: 1)),
       isRead: true,
-      data: {'eventId': 'event2'},
+      relatedId: 2,
+      relatedType: 'event',
     ),
     NotificationModel(
-      id: '5',
+      notificationId: '5',
       type: NotificationType.newAttendee,
       title: 'New attendee',
-      message: 'Taylor is going to your Coffee Meetup',
+      body: 'Taylor is going to your Coffee Meetup',
       createdAt: DateTime.now().subtract(const Duration(days: 2)),
       isRead: true,
-      data: {'eventId': 'event3', 'userId': 'user3'},
+      relatedId: 3,
+      relatedType: 'event',
     ),
   ];
 }

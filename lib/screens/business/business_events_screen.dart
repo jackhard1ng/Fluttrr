@@ -341,9 +341,9 @@ class _UpcomingEventCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: EventCapacityIndicator(
-                        current: event.attendees,
-                        capacity: event.capacity,
-                        showProgress: true,
+                        joinedCount: event.attendees,
+                        totalSlots: event.capacity,
+                        compact: false,
                       ),
                     ),
                   ],

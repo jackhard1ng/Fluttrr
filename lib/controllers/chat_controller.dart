@@ -215,7 +215,7 @@ class ChatController extends GetxController {
     final mockData = MockDataService.generateMockChats(10);
 
     conversations.value = mockData.map((data) => ChatConversation(
-      conversationId: data['chatId'] as int,
+      conversationId: data['chatId']?.toString(),
       otherUserId: data['otherUserId'] as int,
       otherUserName: data['otherUserName'] as String,
       otherUserImages: [data['otherUserImage'] as String],

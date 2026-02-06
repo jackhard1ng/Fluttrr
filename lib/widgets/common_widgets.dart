@@ -791,17 +791,24 @@ class EventCapacityIndicator extends StatelessWidget {
 /// Business badge indicator
 class BusinessBadge extends StatelessWidget {
   final bool compact;
+  final double? size;
 
   const BusinessBadge({
     super.key,
     this.compact = false,
+    this.size,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (compact) {
+    final iconSize = size ?? (compact ? 10.0 : 14.0);
+    final fontSize = size != null ? size! * 0.5 : (compact ? 9.0 : 12.0);
+    final paddingH = size != null ? size! * 0.3 : (compact ? 6.0 : 10.0);
+    final paddingV = size != null ? size! * 0.1 : (compact ? 2.0 : 4.0);
+
+    if (compact || size != null) {
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        padding: EdgeInsets.symmetric(horizontal: paddingH, vertical: paddingV),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
@@ -810,15 +817,15 @@ class BusinessBadge extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(4),
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.verified, size: 10, color: Colors.white),
-            SizedBox(width: 2),
+            Icon(Icons.verified, size: iconSize, color: Colors.white),
+            SizedBox(width: size != null ? 1 : 2),
             Text(
               'BIZ',
               style: TextStyle(
-                fontSize: 9,
+                fontSize: fontSize,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
@@ -860,6 +867,113 @@ class BusinessBadge extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Event tags input widget - allows adding/removing tags
+class EventTagsInput extends StatefulWidget {
+  final List<String> tags;
+  final Function(String) onAdd;
+  final Function(String) onRemove;
+  final int maxTags;
+
+  const EventTagsInput({
+    super.key,
+    required this.tags,
+    required this.onAdd,
+    required this.onRemove,
+    this.maxTags = 5,
+  });
+
+  @override
+  State<EventTagsInput> createState() => _EventTagsInputState();
+}
+
+class _EventTagsInputState extends State<EventTagsInput> {
+  final TextEditingController _controller = TextEditingController();
+
+  void _addTag() {
+    final tag = _controller.text.trim();
+    if (tag.isNotEmpty && !widget.tags.contains(tag) && widget.tags.length < widget.maxTags) {
+      widget.onAdd(tag);
+      _controller.clear();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Tags',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _controller,
+                decoration: InputDecoration(
+                  hintText: 'Add a tag...',
+                  filled: true,
+                  fillColor: AppColors.lightGrey.withAlpha(77),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                ),
+                onSubmitted: (_) => _addTag(),
+              ),
+            ),
+            const SizedBox(width: 8),
+            IconButton(
+              onPressed: _addTag,
+              icon: const Icon(Icons.add_circle),
+              color: AppColors.primaryBlue,
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          '${widget.tags.length}/${widget.maxTags} tags',
+          style: TextStyle(
+            fontSize: 12,
+            color: AppColors.mediumGrey,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: widget.tags.map((tag) => Chip(
+            label: Text(tag),
+            deleteIcon: const Icon(Icons.close, size: 16),
+            onDeleted: () => widget.onRemove(tag),
+            backgroundColor: AppColors.primaryBlue.withAlpha(26),
+            labelStyle: const TextStyle(
+              color: AppColors.primaryBlue,
+              fontWeight: FontWeight.w500,
+            ),
+            deleteIconColor: AppColors.primaryBlue,
+          )).toList(),
+        ),
+      ],
     );
   }
 }

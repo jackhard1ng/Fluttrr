@@ -196,7 +196,7 @@ class PulsingOnlineIndicator extends StatefulWidget {
   const PulsingOnlineIndicator({
     super.key,
     this.size = 12,
-    required this.isOnline,
+    this.isOnline = true,
   });
 
   @override

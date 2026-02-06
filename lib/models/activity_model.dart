@@ -40,6 +40,10 @@ class ActivityModel {
     this.creatorImages = const [],
   });
 
+  // Convenience getters
+  DateTime? get startTime => dateTime;
+  String get displayName => name ?? 'Unnamed Activity';
+
   factory ActivityModel.fromJson(Map<String, dynamic> json) {
     return ActivityModel(
       activityId: json['activity_id'] as int?,

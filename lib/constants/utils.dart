@@ -42,6 +42,15 @@ class AppColors {
   static const Color online = Color(0xFF22C55E);
   static const Color offline = Color(0xFF6B7280);
   static const Color away = Color(0xFFF59E0B);
+
+  // Text colors
+  static const Color textPrimary = Color(0xFF1F2937);   // Gray 800
+  static const Color textSecondary = Color(0xFF6B7280); // Gray 500
+  static const Color textLight = Color(0xFF9CA3AF);     // Gray 400
+
+  // Additional accent colors
+  static const Color primaryPurple = Color(0xFF8B5CF6); // Purple 500
+  static const Color primaryGreen = Color(0xFF22C55E);  // Green 500
 }
 
 /// App gradient constants

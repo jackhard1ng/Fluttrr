@@ -99,6 +99,11 @@ enum NotificationType {
   follow,
   comment,
   badge,
+  friendRequest,
+  eventReminder,
+  newMessage,
+  eventUpdate,
+  newAttendee,
 }
 
 /// Notification list response

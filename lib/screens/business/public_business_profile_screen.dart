@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
-import '../../constants/api_endpoints.dart';
 import '../../widgets/common_widgets.dart';
-import '../../widgets/animated_widgets.dart';
 
 /// Public-facing business profile that users can view and review
 class PublicBusinessProfileScreen extends StatefulWidget {
@@ -216,7 +214,7 @@ class _BusinessHeader extends StatelessWidget {
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  const BusinessBadge(size: 18),
+                                  const BusinessBadge(),
                                 ],
                               ),
                               const SizedBox(height: 4),
@@ -584,8 +582,9 @@ class _EventCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 EventCapacityIndicator(
-                  current: event.attendees,
-                  capacity: event.capacity,
+                  joinedCount: event.attendees,
+                  totalSlots: event.capacity,
+                  compact: true,
                 ),
               ],
             ),
