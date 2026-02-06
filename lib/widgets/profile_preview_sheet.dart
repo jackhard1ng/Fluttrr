@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 
 import '../constants/utils.dart';
 import '../constants/api_endpoints.dart';
+import '../config/routes.dart';
 import '../models/mate_model.dart';
-import '../screens/mates/mate_profile_screen.dart';
 import 'animated_widgets.dart';
 import 'common_widgets.dart';
 
@@ -398,7 +398,7 @@ class _ProfilePreviewContent extends StatelessWidget {
             onPressed: () {
               Navigator.pop(context);
               if (mate.userId != null) {
-                Get.to(() => MateProfileScreen(userId: mate.userId!));
+                Nav.toMateProfile(mate.userId!);
               }
             },
             child: Row(

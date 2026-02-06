@@ -3,12 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
+import '../../config/routes.dart';
 import '../../controllers/profile_controller.dart';
 import '../../controllers/discover_controller.dart';
 import '../../controllers/notifications_controller.dart';
-import '../discover/create_event_screen.dart';
-import '../discover/search_screen.dart';
-import 'notifications_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -147,7 +145,7 @@ class _HomeAppBar extends StatelessWidget {
             return GestureDetector(
               onTap: () {
                 HapticFeedback.lightImpact();
-                Get.to(() => const NotificationsScreen());
+                Nav.toNotifications();
               },
               child: Container(
                 margin: const EdgeInsets.only(right: 8),
@@ -244,7 +242,7 @@ class _GreetingSection extends StatelessWidget {
           GestureDetector(
             onTap: () {
               HapticFeedback.lightImpact();
-              Get.to(() => const SearchScreen());
+              Nav.toSearch();
             },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -477,7 +475,7 @@ class _AddEventCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
-        Get.to(() => const CreateEventScreen());
+        Nav.toCreateEvent();
       },
       child: Container(
         width: 120,
@@ -1281,7 +1279,7 @@ class _CreateEventPrompt extends StatelessWidget {
           GestureDetector(
             onTap: () {
               HapticFeedback.mediumImpact();
-              Get.to(() => const CreateEventScreen());
+              Nav.toCreateEvent();
             },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
