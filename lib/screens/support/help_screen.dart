@@ -143,7 +143,11 @@ class _HelpScreenState extends State<HelpScreen> {
                   label: 'Contact Us',
                   onTap: () {
                     HapticFeedback.lightImpact();
-                    Get.toNamed('/contact');
+                    Get.snackbar(
+                      'Contact Us',
+                      'Email us at support@fluttrr.com',
+                      snackPosition: SnackPosition.BOTTOM,
+                    );
                   },
                 ),
                 const SizedBox(width: 12),

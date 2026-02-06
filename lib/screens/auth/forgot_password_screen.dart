@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
+import '../../config/routes.dart';
 import '../../controllers/auth_controller.dart';
 import '../../widgets/common_widgets.dart';
-import 'otp_screen.dart';
 
 /// Forgot password screen
 class ForgotPasswordScreen extends StatelessWidget {
@@ -111,8 +111,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                           final success =
                               await authController.requestPasswordResetOtp();
                           if (success) {
-                            Get.to(
-                                () => const OtpScreen(isRegistration: false));
+                            Nav.toOtp(isRegistration: false);
                           }
                         }
                       },

@@ -1,10 +1,13 @@
 import 'package:get/get.dart';
 
+import '../models/chat_model.dart';
 import '../screens/auth/splash_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
 import '../screens/auth/onboarding_screen.dart';
 import '../screens/auth/forgot_password_screen.dart';
+import '../screens/auth/otp_screen.dart';
+import '../screens/auth/reset_password_screen.dart';
 import '../screens/auth/business_login_screen.dart';
 import '../screens/business/business_register_screen.dart';
 import '../screens/home/main_screen.dart';
@@ -33,6 +36,9 @@ import '../screens/business/business_welcome_screen.dart';
 import '../screens/support/help_screen.dart';
 import '../screens/support/report_screen.dart';
 import '../screens/chat/chat_list_screen.dart';
+import '../screens/chat/chat_screen.dart';
+import '../screens/activities/activity_details_screen.dart';
+import '../screens/activities/create_activity_screen.dart';
 
 /// App route names
 class AppRoutes {
@@ -42,6 +48,8 @@ class AppRoutes {
   static const register = '/register';
   static const onboarding = '/onboarding';
   static const forgotPassword = '/forgot-password';
+  static const otp = '/otp';
+  static const resetPassword = '/reset-password';
   static const businessLogin = '/business-login';
   static const businessRegister = '/business-register';
 
@@ -71,6 +79,11 @@ class AppRoutes {
 
   // Chat
   static const chatList = '/chats';
+  static const chat = '/chat';
+
+  // Activities
+  static const activityDetails = '/activity-details';
+  static const createActivity = '/create-activity';
 
   // Support
   static const help = '/help';
@@ -112,6 +125,19 @@ class AppPages {
     GetPage(
       name: AppRoutes.forgotPassword,
       page: () => const ForgotPasswordScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.otp,
+      page: () {
+        final isRegistration = Get.arguments as bool? ?? false;
+        return OtpScreen(isRegistration: isRegistration);
+      },
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.resetPassword,
+      page: () => const ResetPasswordScreen(),
       transition: Transition.rightToLeft,
     ),
     GetPage(
@@ -224,6 +250,37 @@ class AppPages {
       page: () => const ChatListScreen(),
       transition: Transition.rightToLeft,
     ),
+    GetPage(
+      name: AppRoutes.chat,
+      page: () {
+        final args = Get.arguments;
+        if (args is ChatConversation) {
+          return ChatScreen(conversation: args);
+        }
+        final argsMap = args as Map<String, dynamic>;
+        return ChatScreen(
+          conversation: argsMap['conversation'] as ChatConversation,
+          isBusiness: argsMap['isBusiness'] as bool? ?? false,
+        );
+      },
+      transition: Transition.rightToLeft,
+    ),
+
+    // Activities
+    GetPage(
+      name: AppRoutes.activityDetails,
+      page: () {
+        final activityId = Get.arguments as int? ?? 0;
+        return ActivityDetailsScreen(activityId: activityId);
+      },
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.createActivity,
+      page: () => const CreateActivityScreen(),
+      transition: Transition.downToUp,
+      fullscreenDialog: true,
+    ),
 
     // Support
     GetPage(
@@ -283,8 +340,18 @@ class Nav {
   // Auth
   static void toHome() => Get.offAllNamed(AppRoutes.home);
   static void toLogin() => Get.offAllNamed(AppRoutes.login);
+  static void toRegister() => Get.toNamed(AppRoutes.register);
   static void toOnboarding() => Get.offAllNamed(AppRoutes.onboarding);
   static void toForgotPassword() => Get.toNamed(AppRoutes.forgotPassword);
+  static void toOtp({bool isRegistration = false}) => Get.toNamed(
+        AppRoutes.otp,
+        arguments: isRegistration,
+      );
+  static void toOtpClearStack({bool isRegistration = false}) => Get.offAllNamed(
+        AppRoutes.otp,
+        arguments: isRegistration,
+      );
+  static void toResetPassword() => Get.toNamed(AppRoutes.resetPassword);
   static void toBusinessLogin() => Get.toNamed(AppRoutes.businessLogin);
   static void toBusinessRegister() => Get.toNamed(AppRoutes.businessRegister);
 
@@ -314,6 +381,20 @@ class Nav {
 
   // Chat
   static void toChatList() => Get.toNamed(AppRoutes.chatList);
+  static void toChat(ChatConversation conversation, {bool isBusiness = false}) =>
+      Get.toNamed(
+        AppRoutes.chat,
+        arguments: isBusiness
+            ? {'conversation': conversation, 'isBusiness': true}
+            : conversation,
+      );
+
+  // Activities
+  static void toActivityDetails(int activityId) => Get.toNamed(
+        AppRoutes.activityDetails,
+        arguments: activityId,
+      );
+  static void toCreateActivity() => Get.toNamed(AppRoutes.createActivity);
 
   // Support
   static void toHelp() => Get.toNamed(AppRoutes.help);

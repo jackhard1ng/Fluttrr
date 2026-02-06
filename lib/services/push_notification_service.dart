@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/api_endpoints.dart';
+import '../config/routes.dart';
 
 /// Push notification service for handling FCM and local notifications
 class PushNotificationService {
@@ -257,23 +258,27 @@ class PushNotificationService {
     switch (type) {
       case 'chat':
         if (id != null) {
-          Get.toNamed('/chat', arguments: {'conversationId': id});
+          // Navigate to chat list - specific chat would require fetching conversation
+          Nav.toChatList();
         }
         break;
       case 'match':
-        Get.toNamed('/matches');
+        Nav.toMatches();
         break;
       case 'activity':
         if (id != null) {
-          Get.toNamed('/activity-details', arguments: {'activityId': id});
+          final activityId = int.tryParse(id);
+          if (activityId != null) {
+            Nav.toActivityDetails(activityId);
+          }
         }
         break;
       case 'like':
-        Get.toNamed('/mates');
+        Nav.toMatches();
         break;
       default:
         // Navigate to home
-        Get.toNamed('/home');
+        Nav.toHome();
     }
   }
 

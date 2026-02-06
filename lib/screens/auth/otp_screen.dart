@@ -7,7 +7,6 @@ import '../../config/routes.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/profile_controller.dart';
 import '../../widgets/common_widgets.dart';
-import 'reset_password_screen.dart';
 
 /// OTP verification screen
 class OtpScreen extends StatefulWidget {
@@ -176,7 +175,7 @@ class _OtpScreenState extends State<OtpScreen> {
                         final success =
                             await authController.verifyPasswordResetOtp();
                         if (success) {
-                          Get.to(() => const ResetPasswordScreen());
+                          Nav.toResetPassword();
                         }
                       }
                     },

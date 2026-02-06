@@ -3,13 +3,10 @@ import 'package:get/get.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 import '../../constants/utils.dart';
+import '../../config/routes.dart';
 import '../../controllers/profile_controller.dart';
 import '../../controllers/auth_controller.dart';
 import '../../widgets/common_widgets.dart';
-import '../auth/login_screen.dart';
-import '../business/business_dashboard_screen.dart';
-import 'edit_profile_screen.dart';
-import 'settings_screen.dart';
 
 /// Profile screen
 class ProfileScreen extends StatelessWidget {
@@ -49,13 +46,11 @@ class ProfileScreen extends StatelessWidget {
                         children: [
                           IconButton(
                             icon: const Icon(Icons.edit_outlined),
-                            onPressed: () =>
-                                Get.to(() => const EditProfileScreen()),
+                            onPressed: Nav.toEditProfile,
                           ),
                           IconButton(
                             icon: const Icon(Icons.settings_outlined),
-                            onPressed: () =>
-                                Get.to(() => const SettingsScreen()),
+                            onPressed: Nav.toSettings,
                           ),
                         ],
                       ),
@@ -150,7 +145,7 @@ class ProfileScreen extends StatelessWidget {
               Navigator.pop(context);
               final authController = Get.find<AuthController>();
               await authController.logout();
-              Get.offAll(() => const LoginScreen());
+              Nav.toLogin();
             },
             child: const Text(
               'Logout',
@@ -516,7 +511,7 @@ class _BusinessDashboardCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Get.to(() => const BusinessDashboardScreen()),
+      onTap: Nav.toBusinessDashboardPush,
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(

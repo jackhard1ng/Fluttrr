@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
+import '../../config/routes.dart';
 import '../../controllers/auth_controller.dart';
 import '../../widgets/common_widgets.dart';
-import 'login_screen.dart';
 
 /// Reset password screen
 class ResetPasswordScreen extends StatelessWidget {
@@ -156,7 +156,7 @@ class ResetPasswordScreen extends StatelessWidget {
                               backgroundColor: AppColors.success,
                               colorText: Colors.white,
                             );
-                            Get.offAll(() => const LoginScreen());
+                            Nav.toLogin();
                           }
                         }
                       },

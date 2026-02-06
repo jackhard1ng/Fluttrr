@@ -3,10 +3,10 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../constants/utils.dart';
+import '../../config/routes.dart';
 import '../../controllers/business_controller.dart';
 import '../../models/business_model.dart';
 import '../../widgets/common_widgets.dart';
-import 'business_analytics_screen.dart';
 import 'business_event_details_screen.dart';
 import 'create_business_event_screen.dart';
 import 'subscription_screen.dart';
@@ -114,7 +114,7 @@ class _BusinessHomeScreenState extends State<BusinessHomeScreen>
             children: [
               IconButton(
                 icon: const Icon(Icons.analytics_outlined),
-                onPressed: () => Get.to(() => const BusinessAnalyticsScreen()),
+                onPressed: () => Nav.toBusinessAnalytics(),
               ),
               IconButton(
                 icon: const Icon(Icons.workspace_premium),

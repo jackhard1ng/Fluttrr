@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
+import '../../config/routes.dart';
 import '../../widgets/common_widgets.dart';
 
 /// Screen showing business's past and upcoming events
@@ -100,7 +101,7 @@ class _UpcomingEventsList extends StatelessWidget {
         title: 'No upcoming events',
         subtitle: 'Create your first event to start connecting with people',
         actionLabel: 'Create Event',
-        onAction: () => Get.toNamed('/business/create-event'),
+        onAction: () => Nav.toBusinessCreateEvent(),
       );
     }
 
@@ -582,7 +583,7 @@ class _PastEventCard extends StatelessWidget {
                   icon: Icons.add_a_photo,
                   label: 'Add Photos',
                   color: AppColors.friendlyPurple,
-                  onTap: () => Get.toNamed('/business/photos'),
+                  onTap: () => Nav.toBusinessPhotos(),
                 ),
               ),
               const SizedBox(width: 8),
@@ -591,7 +592,7 @@ class _PastEventCard extends StatelessWidget {
                   icon: Icons.rate_review_outlined,
                   label: 'View Reviews',
                   color: AppColors.friendlyOrange,
-                  onTap: () => Get.toNamed('/business/reviews'),
+                  onTap: () => Nav.toBusinessReviews(),
                 ),
               ),
               const SizedBox(width: 8),

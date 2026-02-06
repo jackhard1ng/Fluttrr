@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
+import '../../config/routes.dart';
 import '../../controllers/activity_controller.dart';
 import '../../models/activity_model.dart';
 import '../../widgets/common_widgets.dart';
-import 'activity_details_screen.dart';
-import 'create_activity_screen.dart';
 
 /// Activities main screen
 class ActivitiesScreen extends StatelessWidget {
@@ -69,7 +68,7 @@ class ActivitiesScreen extends StatelessWidget {
                       text: 'Create Activity',
                       width: 180,
                       onPressed: () =>
-                          Get.to(() => const CreateActivityScreen()),
+                          Nav.toCreateActivity(),
                     ),
                   );
                 }
@@ -98,7 +97,7 @@ class ActivitiesScreen extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Get.to(() => const CreateActivityScreen()),
+        onPressed: () => Nav.toCreateActivity(),
         icon: const Icon(Icons.add),
         label: const Text('Create'),
         backgroundColor: AppColors.primaryBlue,
@@ -212,8 +211,7 @@ class ActivityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () =>
-          Get.to(() => ActivityDetailsScreen(activityId: activity.activityId!)),
+      onTap: () => Nav.toActivityDetails(activity.activityId!),
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
@@ -528,8 +526,7 @@ class _SearchBottomSheetState extends State<_SearchBottomSheet> {
                     subtitle: Text(activity.location ?? ''),
                     onTap: () {
                       Get.back();
-                      Get.to(() => ActivityDetailsScreen(
-                          activityId: activity.activityId!));
+                      Nav.toActivityDetails(activity.activityId!);
                     },
                   );
                 },

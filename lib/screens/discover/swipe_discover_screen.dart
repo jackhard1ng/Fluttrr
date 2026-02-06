@@ -4,10 +4,10 @@ import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
 import '../../constants/api_endpoints.dart';
+import '../../config/routes.dart';
 import '../../controllers/activity_controller.dart';
 import '../../models/activity_model.dart';
 import '../../widgets/common_widgets.dart';
-import '../activities/activity_details_screen.dart';
 
 /// Swipeable activity discovery screen - Tinder-style for events
 class SwipeDiscoverScreen extends StatefulWidget {
@@ -290,7 +290,7 @@ class _SwipeDiscoverScreenState extends State<SwipeDiscoverScreen>
                   if (_currentIndex < activities.length) {
                     final activity = activities[_currentIndex];
                     if (activity.activityId != null) {
-                      Get.to(() => ActivityDetailsScreen(activityId: activity.activityId!));
+                      Nav.toActivityDetails(activity.activityId!);
                     }
                   }
                 },

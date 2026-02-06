@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
+import '../../config/routes.dart';
 import '../../controllers/auth_controller.dart';
 import '../../widgets/common_widgets.dart';
-import 'otp_screen.dart';
 
 /// Registration screen
 class RegisterScreen extends StatelessWidget {
@@ -186,7 +186,7 @@ class RegisterScreen extends StatelessWidget {
                         if (formKey.currentState?.validate() ?? false) {
                           final success = await authController.sendOtp();
                           if (success) {
-                            Get.to(() => const OtpScreen(isRegistration: true));
+                            Nav.toOtp(isRegistration: true);
                           }
                         }
                       },

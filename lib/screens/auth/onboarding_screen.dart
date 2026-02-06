@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
+import '../../config/routes.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -61,7 +62,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _finish() {
     HapticFeedback.mediumImpact();
-    Get.offAllNamed('/login');
+    Nav.toLogin();
   }
 
   @override

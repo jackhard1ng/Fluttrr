@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
+import '../../config/routes.dart';
 import '../../controllers/mates_controller.dart';
 import '../../models/mate_model.dart';
 import '../../models/chat_model.dart';
 import '../../widgets/common_widgets.dart';
-import '../chat/chat_screen.dart';
-import 'mate_profile_screen.dart';
 
 /// Matches screen showing mutual likes
 class MatchesScreen extends StatefulWidget {
@@ -80,7 +79,7 @@ class _MatchCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Get.to(() => MateProfileScreen(userId: match.userId!)),
+      onTap: () => Nav.toMateProfile(match.userId!),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -143,7 +142,7 @@ class _MatchCard extends StatelessWidget {
                         otherUserName: match.userName,
                         otherUserImages: match.images,
                       );
-                      Get.to(() => ChatScreen(conversation: conversation));
+                      Nav.toChat(conversation);
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(

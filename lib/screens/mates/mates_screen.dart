@@ -4,11 +4,10 @@ import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
 import '../../constants/api_endpoints.dart';
+import '../../config/routes.dart';
 import '../../controllers/mates_controller.dart';
 import '../../models/mate_model.dart';
 import '../../widgets/common_widgets.dart';
-import 'mate_profile_screen.dart';
-import 'matches_screen.dart';
 
 /// Mates/friend discovery screen with swipeable cards - emphasizing platonic connections
 class MatesScreen extends StatelessWidget {
@@ -75,7 +74,7 @@ class MatesScreen extends StatelessWidget {
                         ),
                         child: IconButton(
                           icon: const Icon(Icons.people, color: AppColors.friendlyTeal),
-                          onPressed: () => Get.to(() => const MatchesScreen()),
+                          onPressed: Nav.toMatches,
                         ),
                       ),
                     ],
@@ -178,7 +177,7 @@ class MatesScreen extends StatelessWidget {
                       onPressed: () {
                         final mate = matesController.currentMate;
                         if (mate?.userId != null) {
-                          Get.to(() => MateProfileScreen(userId: mate!.userId!));
+                          Nav.toMateProfile(mate!.userId!);
                         }
                       },
                     ),

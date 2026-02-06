@@ -3,11 +3,11 @@ import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
 import '../../constants/api_endpoints.dart';
+import '../../config/routes.dart';
 import '../../controllers/mates_controller.dart';
 import '../../controllers/chat_controller.dart';
 import '../../models/chat_model.dart';
 import '../../widgets/common_widgets.dart';
-import '../chat/chat_screen.dart';
 
 /// Beautiful mate profile view screen with photo gallery
 class MateProfileScreen extends StatefulWidget {
@@ -294,7 +294,7 @@ class _MateProfileScreenState extends State<MateProfileScreen> {
                                 otherUserName: user.userName,
                                 otherUserImages: user.profile?.images ?? [],
                               );
-                              Get.to(() => ChatScreen(conversation: conversation));
+                              Nav.toChat(conversation);
                             },
                           ),
                         ),

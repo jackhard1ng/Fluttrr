@@ -2,13 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
+import '../../config/routes.dart';
 import '../../controllers/profile_controller.dart';
 import '../../widgets/common_widgets.dart';
 import '../../widgets/animated_widgets.dart';
-import 'quick_create_event_screen.dart';
-import 'business_events_screen.dart';
-import 'business_reviews_screen.dart';
-import 'event_photos_screen.dart';
 
 /// Business dashboard - Main screen for business accounts
 /// Designed for ease of use with quick actions and clear stats
@@ -155,7 +152,7 @@ class BusinessDashboardScreen extends StatelessWidget {
       ),
       // Floating action button for quick event creation
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Get.to(() => const QuickCreateEventScreen()),
+        onPressed: () => Nav.toBusinessCreateEvent(),
         backgroundColor: const Color(0xFFFFD700),
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text(
@@ -184,7 +181,7 @@ class _QuickCreateEventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Get.to(() => const QuickCreateEventScreen()),
+      onTap: () => Nav.toBusinessCreateEvent(),
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.lg),
         decoration: BoxDecoration(
@@ -361,21 +358,21 @@ class _QuickActionsGrid extends StatelessWidget {
           label: 'Event Photos',
           subtitle: 'Upload & manage',
           color: AppColors.friendlyPurple,
-          onTap: () => Get.to(() => const EventPhotosScreen()),
+          onTap: () => Nav.toBusinessPhotos(),
         ),
         _QuickActionTile(
           icon: Icons.history,
           label: 'Past Events',
           subtitle: 'View history',
           color: AppColors.primaryBlue,
-          onTap: () => Get.to(() => const BusinessEventsScreen()),
+          onTap: () => Nav.toBusinessEvents(),
         ),
         _QuickActionTile(
           icon: Icons.star_outline,
           label: 'Reviews',
           subtitle: '24 new',
           color: AppColors.friendlyOrange,
-          onTap: () => Get.to(() => const BusinessReviewsScreen()),
+          onTap: () => Nav.toBusinessReviews(),
         ),
         _QuickActionTile(
           icon: Icons.analytics_outlined,
@@ -480,7 +477,7 @@ class _RecentReviewsSection extends StatelessWidget {
                   ),
             ),
             TextButton(
-              onPressed: () => Get.to(() => const BusinessReviewsScreen()),
+              onPressed: () => Nav.toBusinessReviews(),
               child: const Text('See All'),
             ),
           ],
@@ -629,7 +626,7 @@ class _UpcomingEventsSection extends StatelessWidget {
                   ),
             ),
             TextButton(
-              onPressed: () => Get.to(() => const BusinessEventsScreen()),
+              onPressed: () => Nav.toBusinessEvents(),
               child: const Text('See All'),
             ),
           ],

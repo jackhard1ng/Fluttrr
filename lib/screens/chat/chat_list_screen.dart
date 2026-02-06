@@ -3,10 +3,10 @@ import 'package:get/get.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../../constants/utils.dart';
+import '../../config/routes.dart';
 import '../../controllers/chat_controller.dart';
 import '../../models/chat_model.dart';
 import '../../widgets/common_widgets.dart';
-import 'chat_screen.dart';
 
 /// Chat list screen
 class ChatListScreen extends StatefulWidget {
@@ -205,10 +205,7 @@ class _ChatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: () => Get.to(() => ChatScreen(
-            conversation: conversation,
-            isBusiness: isBusiness,
-          )),
+      onTap: () => Nav.toChat(conversation, isBusiness: isBusiness),
       leading: Stack(
         children: [
           UserAvatar(
