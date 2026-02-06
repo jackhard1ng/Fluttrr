@@ -213,7 +213,7 @@ class _SwipeDiscoverScreenState extends State<SwipeDiscoverScreen>
         final activities = activityController.allActivities;
 
         if (activities.isEmpty) {
-          return _EmptyState();
+          return const _EmptyState();
         }
 
         if (_currentIndex >= activities.length) {
@@ -229,7 +229,7 @@ class _SwipeDiscoverScreenState extends State<SwipeDiscoverScreen>
               top: 20,
               left: 0,
               right: 0,
-              child: _SwipeInstructions(),
+              child: const _SwipeInstructions(),
             ),
 
             // Card stack
@@ -333,6 +333,8 @@ class _SwipeDiscoverScreenState extends State<SwipeDiscoverScreen>
 enum SwipeDirection { left, right, up }
 
 class _SwipeInstructions extends StatelessWidget {
+  const _SwipeInstructions();
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -920,6 +922,8 @@ class _CircleButton extends StatelessWidget {
 }
 
 class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
   @override
   Widget build(BuildContext context) {
     return Center(
