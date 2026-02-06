@@ -26,6 +26,11 @@ class AppColors {
   static const Color friendlyTeal = Color(0xFF2DD4BF);   // Fresh and friendly
   static const Color friendlyPurple = Color(0xFF8B5CF6); // Creative and fun
   static const Color friendlyOrange = Color(0xFFFB923C); // Energetic
+  static const Color warmYellow = Color(0xFFFBBF24);     // Warm and inviting
+
+  // Background colors
+  static const Color background = Color(0xFFF9FAFB);     // Light background
+  static const Color backgroundDark = Color(0xFF0D1117); // Dark background
 
   // Status colors
   static const Color success = Color(0xFF22C55E);

@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: CustomScrollView(
             slivers: [
               // App Bar
-              _HomeAppBar(),
+              const _HomeAppBar(),
 
               // Content
               SliverToBoxAdapter(
@@ -59,31 +59,31 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Greeting & Search
-                    _GreetingSection(),
+                    const _GreetingSection(),
 
                     // Free Right Now Card
-                    _FreeNowCard(),
+                    const _FreeNowCard(),
 
                     // Your Upcoming Events
-                    _YourEventsSection(),
+                    const _YourEventsSection(),
 
                     // What Friends Are Doing
-                    _FriendsActivitySection(),
+                    const _FriendsActivitySection(),
 
                     // Quick Browse Categories
-                    _QuickCategoriesSection(),
+                    const _QuickCategoriesSection(),
 
                     // Happening Today
-                    _TodayEventsSection(),
+                    const _TodayEventsSection(),
 
                     // Trending Near You
-                    _TrendingSection(),
+                    const _TrendingSection(),
 
                     // Suggested For You
-                    _SuggestedSection(),
+                    const _SuggestedSection(),
 
                     // Create Your Own
-                    _CreateEventPrompt(),
+                    const _CreateEventPrompt(),
 
                     // Bottom padding
                     const SizedBox(height: 100),
@@ -99,6 +99,8 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class _HomeAppBar extends StatelessWidget {
+  const _HomeAppBar();
+
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
@@ -206,6 +208,8 @@ class _HomeAppBar extends StatelessWidget {
 }
 
 class _GreetingSection extends StatelessWidget {
+  const _GreetingSection();
+
   String _getGreeting() {
     final hour = DateTime.now().hour;
     if (hour < 12) return 'Good morning';
@@ -267,6 +271,8 @@ class _GreetingSection extends StatelessWidget {
 }
 
 class _FreeNowCard extends StatelessWidget {
+  const _FreeNowCard();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -326,6 +332,8 @@ class _FreeNowCard extends StatelessWidget {
 }
 
 class _YourEventsSection extends StatelessWidget {
+  const _YourEventsSection();
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -372,7 +380,7 @@ class _YourEventsSection extends StatelessWidget {
                 attendees: 5,
                 color: AppColors.success,
               ),
-              _AddEventCard(),
+              const _AddEventCard(),
             ],
           ),
         ),
@@ -462,6 +470,8 @@ class _YourEventCard extends StatelessWidget {
 }
 
 class _AddEventCard extends StatelessWidget {
+  const _AddEventCard();
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -505,6 +515,8 @@ class _AddEventCard extends StatelessWidget {
 }
 
 class _FriendsActivitySection extends StatelessWidget {
+  const _FriendsActivitySection();
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -646,6 +658,8 @@ class _FriendActivityItem extends StatelessWidget {
 }
 
 class _QuickCategoriesSection extends StatelessWidget {
+  const _QuickCategoriesSection();
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -721,6 +735,8 @@ class _CategoryChip extends StatelessWidget {
 }
 
 class _TodayEventsSection extends StatelessWidget {
+  const _TodayEventsSection();
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<DiscoverController>(
@@ -773,7 +789,7 @@ class _TodayEventsSection extends StatelessWidget {
             Obx(() {
               final events = controller.filteredEvents.take(3).toList();
               if (events.isEmpty) {
-                return _EmptyTodayCard();
+                return const _EmptyTodayCard();
               }
               return ListView.builder(
                 shrinkWrap: true,
@@ -802,6 +818,8 @@ class _TodayEventsSection extends StatelessWidget {
 }
 
 class _EmptyTodayCard extends StatelessWidget {
+  const _EmptyTodayCard();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -946,6 +964,8 @@ class _EventListItem extends StatelessWidget {
 }
 
 class _TrendingSection extends StatelessWidget {
+  const _TrendingSection();
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -1104,6 +1124,8 @@ class _TrendingCard extends StatelessWidget {
 }
 
 class _SuggestedSection extends StatelessWidget {
+  const _SuggestedSection();
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -1219,6 +1241,8 @@ class _SuggestedSection extends StatelessWidget {
 }
 
 class _CreateEventPrompt extends StatelessWidget {
+  const _CreateEventPrompt();
+
   @override
   Widget build(BuildContext context) {
     return Container(

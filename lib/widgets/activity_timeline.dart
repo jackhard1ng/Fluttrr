@@ -20,7 +20,7 @@ class ActivityTimeline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (activities.isEmpty) {
-      return _EmptyTimeline();
+      return const _EmptyTimeline();
     }
 
     return ListView.builder(
@@ -403,6 +403,8 @@ class _ActionChip extends StatelessWidget {
 }
 
 class _EmptyTimeline extends StatelessWidget {
+  const _EmptyTimeline();
+
   @override
   Widget build(BuildContext context) {
     return Center(
