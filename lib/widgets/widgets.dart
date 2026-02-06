@@ -9,9 +9,16 @@ export 'empty_states.dart';
 export 'confirm_dialog.dart';
 export 'error_boundary.dart';
 export 'refresh_indicator.dart';
+export 'bottom_sheets.dart';
+export 'section_header.dart';
 
 // Input widgets
 export 'input_widgets.dart';
+export 'search_bar.dart';
+
+// User widgets
+export 'user_avatar.dart';
+export 'user_list_tile.dart';
 
 // Profile & social
 export 'profile_preview_sheet.dart';
