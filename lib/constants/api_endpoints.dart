@@ -96,7 +96,9 @@ class ApiEndpoints {
   static const String businessChatList = '$apiBase/message/getChatList';
   static const String sendBusinessMessage = '$apiBase/message/sendB';
 
-  // Business endpoints
+  // Business authentication endpoints
+  static const String businessLogin = '$apiBase/bussness/login';
+  static const String businessRegister = '$apiBase/bussness/register';
   static const String businessRequestOtp = '$apiBase/bussness/request-otp';
   static const String businessVerify = '$apiBase/bussness/verify';
   static const String businessProfile = '$apiBase/bussness/busness';

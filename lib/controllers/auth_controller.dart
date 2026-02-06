@@ -15,6 +15,11 @@ class AuthController extends GetxController {
   final TextEditingController userNameController = TextEditingController();
   final TextEditingController otpController = TextEditingController();
 
+  // Business text controllers
+  final TextEditingController businessNameController = TextEditingController();
+  final TextEditingController businessPhoneController = TextEditingController();
+  final RxString selectedBusinessType = ''.obs;
+
   // State
   final RxBool isLoading = false.obs;
   final RxBool isPasswordVisible = false.obs;
@@ -32,6 +37,8 @@ class AuthController extends GetxController {
     confirmPasswordController.dispose();
     userNameController.dispose();
     otpController.dispose();
+    businessNameController.dispose();
+    businessPhoneController.dispose();
     super.onClose();
   }
 
@@ -42,6 +49,20 @@ class AuthController extends GetxController {
     confirmPasswordController.clear();
     userNameController.clear();
     otpController.clear();
+    businessNameController.clear();
+    businessPhoneController.clear();
+    selectedBusinessType.value = '';
+    errorMessage.value = '';
+  }
+
+  /// Clear business fields only
+  void clearBusinessFields() {
+    businessNameController.clear();
+    businessPhoneController.clear();
+    selectedBusinessType.value = '';
+    emailController.clear();
+    passwordController.clear();
+    confirmPasswordController.clear();
     errorMessage.value = '';
   }
 
@@ -341,5 +362,117 @@ class AuthController extends GetxController {
   Future<void> logout() async {
     await _authRepository.logout();
     clearFields();
+  }
+
+  // ==================== Business Authentication ====================
+
+  /// Validate business name
+  String? validateBusinessName(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Business name is required';
+    }
+    if (value.length < 2) {
+      return 'Business name must be at least 2 characters';
+    }
+    return null;
+  }
+
+  /// Validate phone number
+  String? validatePhone(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Phone number is required';
+    }
+    // Basic phone validation - can be customized
+    if (value.length < 10) {
+      return 'Please enter a valid phone number';
+    }
+    return null;
+  }
+
+  /// Validate business type selection
+  String? validateBusinessType(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please select a business type';
+    }
+    return null;
+  }
+
+  /// Login as business account
+  Future<bool> loginBusiness() async {
+    errorMessage.value = '';
+
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+      errorMessage.value = 'Please fill in all fields';
+      return false;
+    }
+
+    isLoading.value = true;
+
+    try {
+      final response = await _authRepository.loginBusiness(
+        email: emailController.text.trim(),
+        password: passwordController.text,
+      );
+
+      isLoading.value = false;
+
+      if (response.success) {
+        clearFields();
+        return true;
+      } else {
+        errorMessage.value = response.displayMessage;
+        return false;
+      }
+    } catch (e) {
+      isLoading.value = false;
+      errorMessage.value = 'Business login failed. Please try again.';
+      return false;
+    }
+  }
+
+  /// Register business account
+  Future<bool> registerBusiness() async {
+    errorMessage.value = '';
+
+    // Validate all required fields
+    if (businessNameController.text.isEmpty ||
+        selectedBusinessType.value.isEmpty ||
+        emailController.text.isEmpty ||
+        businessPhoneController.text.isEmpty ||
+        passwordController.text.isEmpty) {
+      errorMessage.value = 'Please fill in all fields';
+      return false;
+    }
+
+    if (passwordController.text != confirmPasswordController.text) {
+      errorMessage.value = 'Passwords do not match';
+      return false;
+    }
+
+    isLoading.value = true;
+
+    try {
+      final response = await _authRepository.registerBusiness(
+        businessName: businessNameController.text.trim(),
+        businessType: selectedBusinessType.value,
+        email: emailController.text.trim(),
+        phone: businessPhoneController.text.trim(),
+        password: passwordController.text,
+      );
+
+      isLoading.value = false;
+
+      if (response.success) {
+        clearBusinessFields();
+        return true;
+      } else {
+        errorMessage.value = response.displayMessage;
+        return false;
+      }
+    } catch (e) {
+      isLoading.value = false;
+      errorMessage.value = 'Business registration failed. Please try again.';
+      return false;
+    }
   }
 }

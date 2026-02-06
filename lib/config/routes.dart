@@ -5,6 +5,8 @@ import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
 import '../screens/auth/onboarding_screen.dart';
 import '../screens/auth/forgot_password_screen.dart';
+import '../screens/auth/business_login_screen.dart';
+import '../screens/business/business_register_screen.dart';
 import '../screens/home/main_screen.dart';
 import '../screens/home/notifications_screen.dart';
 import '../screens/discover/search_screen.dart';
@@ -38,6 +40,8 @@ class AppRoutes {
   static const register = '/register';
   static const onboarding = '/onboarding';
   static const forgotPassword = '/forgot-password';
+  static const businessLogin = '/business-login';
+  static const businessRegister = '/business-register';
 
   // Main
   static const home = '/home';
@@ -102,6 +106,16 @@ class AppPages {
     GetPage(
       name: AppRoutes.forgotPassword,
       page: () => const ForgotPasswordScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.businessLogin,
+      page: () => const BusinessLoginScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.businessRegister,
+      page: () => const BusinessRegisterScreen(),
       transition: Transition.rightToLeft,
     ),
 
@@ -250,6 +264,8 @@ class Nav {
   static void toLogin() => Get.offAllNamed(AppRoutes.login);
   static void toOnboarding() => Get.offAllNamed(AppRoutes.onboarding);
   static void toForgotPassword() => Get.toNamed(AppRoutes.forgotPassword);
+  static void toBusinessLogin() => Get.toNamed(AppRoutes.businessLogin);
+  static void toBusinessRegister() => Get.toNamed(AppRoutes.businessRegister);
 
   // Main
   static void toNotifications() => Get.toNamed(AppRoutes.notifications);
@@ -277,7 +293,8 @@ class Nav {
 
   // Business
   static void toBusinessWelcome() => Get.toNamed(AppRoutes.businessWelcome);
-  static void toBusinessDashboard() => Get.toNamed(AppRoutes.businessDashboard);
+  static void toBusinessDashboard() => Get.offAllNamed(AppRoutes.businessDashboard);
+  static void toBusinessDashboardPush() => Get.toNamed(AppRoutes.businessDashboard);
   static void toBusinessEvents() => Get.toNamed(AppRoutes.businessEvents);
   static void toBusinessReviews() => Get.toNamed(AppRoutes.businessReviews);
   static void toBusinessAnalytics() => Get.toNamed(AppRoutes.businessAnalytics);

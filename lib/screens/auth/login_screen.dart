@@ -319,6 +319,75 @@ class LoginScreen extends StatelessWidget {
                   ),
 
                   const SizedBox(height: AppSpacing.xl),
+
+                  // Business account link - clearly separated
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryDark.withAlpha(13),
+                      borderRadius: BorderRadius.circular(AppRadius.lg),
+                      border: Border.all(
+                        color: AppColors.primaryDark.withAlpha(26),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(AppSpacing.sm),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryDark.withAlpha(26),
+                            borderRadius: BorderRadius.circular(AppRadius.md),
+                          ),
+                          child: const Icon(
+                            Icons.storefront,
+                            color: AppColors.primaryDark,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Have a business?',
+                                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primaryDark,
+                                ),
+                              ),
+                              Text(
+                                'Host events and connect with customers',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: AppColors.mediumGrey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => Get.toNamed(AppRoutes.businessLogin),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.primaryDark,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.md,
+                              vertical: AppSpacing.sm,
+                            ),
+                            backgroundColor: AppColors.primaryDark.withAlpha(26),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(AppRadius.md),
+                            ),
+                          ),
+                          child: const Text(
+                            'Sign In',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: AppSpacing.xl),
                 ],
               ),
             ),

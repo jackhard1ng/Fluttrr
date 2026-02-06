@@ -173,4 +173,55 @@ class AuthRepository extends BaseRepository {
     final token = await getToken();
     return token != null && token.isNotEmpty;
   }
+
+  // ==================== Business Authentication ====================
+
+  /// Login as business account
+  Future<ApiResponse<AuthResponse>> loginBusiness({
+    required String email,
+    required String password,
+  }) async {
+    final response = await post<AuthResponse>(
+      ApiEndpoints.businessLogin,
+      body: {'email': email, 'password': password},
+      fromJson: AuthResponse.fromJson,
+      requiresAuth: false,
+    );
+
+    // Save token if login successful
+    if (response.success && response.data?.token != null) {
+      await saveToken(response.data!.token!);
+    }
+
+    return response;
+  }
+
+  /// Register business account
+  Future<ApiResponse<AuthResponse>> registerBusiness({
+    required String businessName,
+    required String businessType,
+    required String email,
+    required String phone,
+    required String password,
+  }) async {
+    final response = await post<AuthResponse>(
+      ApiEndpoints.businessRegister,
+      body: {
+        'businessName': businessName,
+        'businessType': businessType,
+        'email': email,
+        'phone': phone,
+        'password': password,
+      },
+      fromJson: AuthResponse.fromJson,
+      requiresAuth: false,
+    );
+
+    // Save token if registration successful
+    if (response.success && response.data?.token != null) {
+      await saveToken(response.data!.token!);
+    }
+
+    return response;
+  }
 }
