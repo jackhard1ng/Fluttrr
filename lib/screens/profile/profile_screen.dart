@@ -7,6 +7,7 @@ import '../../controllers/profile_controller.dart';
 import '../../controllers/auth_controller.dart';
 import '../../widgets/common_widgets.dart';
 import '../auth/login_screen.dart';
+import '../business/business_dashboard_screen.dart';
 import 'edit_profile_screen.dart';
 import 'settings_screen.dart';
 
@@ -67,6 +68,13 @@ class ProfileScreen extends StatelessWidget {
                   _ProfileHeader(controller: profileController),
 
                   const SizedBox(height: AppSpacing.lg),
+
+                  // Business Dashboard Card (for business accounts)
+                  if (profileController.currentUser.value?.isBusinessAccount == true)
+                    _BusinessDashboardCard(),
+
+                  if (profileController.currentUser.value?.isBusinessAccount == true)
+                    const SizedBox(height: AppSpacing.lg),
 
                   // Profile completion
                   _ProfileCompletion(controller: profileController),
@@ -163,22 +171,72 @@ class _ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isBusinessAccount = controller.currentUser.value?.isBusinessAccount == true;
+
     return Column(
       children: [
-        // Avatar
-        UserAvatar(
-          imageUrl: controller.profileImage,
-          size: 100,
-          showOnlineIndicator: true,
-          isOnline: controller.isOnline,
+        // Avatar with business badge
+        Stack(
+          children: [
+            UserAvatar(
+              imageUrl: controller.profileImage,
+              size: 100,
+              showOnlineIndicator: true,
+              isOnline: controller.isOnline,
+            ),
+            if (isBusinessAccount)
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withAlpha(26),
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: const BusinessBadge(size: 20),
+                ),
+              ),
+          ],
         ),
 
         const SizedBox(height: AppSpacing.md),
 
-        // Name
-        Text(
-          controller.userName,
-          style: Theme.of(context).textTheme.headlineSmall,
+        // Name with business badge
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              controller.userName,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            if (isBusinessAccount) ...[
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+                  ),
+                  borderRadius: BorderRadius.circular(AppRadius.circular),
+                ),
+                child: const Text(
+                  'Business',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
 
         const SizedBox(height: AppSpacing.xs),
@@ -447,6 +505,86 @@ class _GallerySection extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Business Dashboard Card - Prominent access to business features
+class _BusinessDashboardCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Get.to(() => const BusinessDashboardScreen()),
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFFFD700).withAlpha(77),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withAlpha(51),
+                borderRadius: BorderRadius.circular(AppRadius.md),
+              ),
+              child: const Icon(
+                Icons.dashboard,
+                color: Colors.white,
+                size: 32,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Business Dashboard',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Manage events, reviews & photos',
+                    style: TextStyle(
+                      color: Colors.white.withAlpha(204),
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withAlpha(51),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.arrow_forward,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
