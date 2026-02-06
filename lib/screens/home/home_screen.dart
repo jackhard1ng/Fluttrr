@@ -10,6 +10,8 @@ import '../../controllers/mates_controller.dart';
 import '../../models/activity_model.dart';
 import '../../models/mate_model.dart';
 import '../../widgets/common_widgets.dart';
+import '../../widgets/animated_widgets.dart';
+import '../../widgets/profile_preview_sheet.dart';
 import '../activities/activity_details_screen.dart';
 import '../activities/create_activity_screen.dart';
 import '../mates/mate_profile_screen.dart';
@@ -189,6 +191,11 @@ class HomeScreen extends StatelessWidget {
                     ),
 
                     const SizedBox(height: AppSpacing.sm),
+
+                    // Story-style avatars row
+                    _StoryAvatarsRow(),
+
+                    const SizedBox(height: AppSpacing.lg),
 
                     // Nearby mates section - renamed to "Potential Friends"
                     _SectionHeader(
@@ -526,7 +533,57 @@ class _EmptyStateCard extends StatelessWidget {
   }
 }
 
-/// Mate card widget - improved design
+/// Story-style avatars row for quick access to friends
+class _StoryAvatarsRow extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final matesController = Get.find<MatesController>();
+
+    return SizedBox(
+      height: 100,
+      child: Obx(() {
+        if (matesController.nearbyMates.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        // Get online mates first, then others
+        final onlineMates = matesController.nearbyMates
+            .where((m) => m.isOnline)
+            .take(5)
+            .toList();
+        final otherMates = matesController.nearbyMates
+            .where((m) => !m.isOnline)
+            .take(10 - onlineMates.length)
+            .toList();
+        final displayMates = [...onlineMates, ...otherMates];
+
+        return ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          itemCount: displayMates.length,
+          itemBuilder: (context, index) {
+            final mate = displayMates[index];
+            return Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.md),
+              child: StoryAvatar(
+                imageUrl: ApiEndpoints.getImageUrl(mate.profileImage),
+                name: mate.displayName,
+                size: 70,
+                hasNewStory: mate.isOnline && index < 3, // First 3 online have "stories"
+                isOnline: mate.isOnline,
+                onTap: () {
+                  ProfilePreviewSheet.show(context, mate);
+                },
+              ),
+            );
+          },
+        );
+      }),
+    );
+  }
+}
+
+/// Mate card widget - improved design with quick preview
 class _MateCard extends StatelessWidget {
   final MateModel mate;
 
@@ -539,6 +596,11 @@ class _MateCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
+        // Show quick preview on tap
+        ProfilePreviewSheet.show(context, mate);
+      },
+      onLongPress: () {
+        // Go to full profile on long press
         if (mate.userId != null) {
           Get.to(() => MateProfileScreen(userId: mate.userId!));
         }
@@ -634,27 +696,64 @@ class _MateCard extends StatelessWidget {
               ),
             ),
 
-            // Online indicator
-            if (mate.isOnline)
+            // Online indicator with pulse animation
+            Positioned(
+              top: AppSpacing.sm,
+              right: AppSpacing.sm,
+              child: mate.isOnline
+                  ? Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        PulsingOnlineIndicator(isOnline: true, size: 10),
+                        const SizedBox(width: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withAlpha(128),
+                            borderRadius: BorderRadius.circular(AppRadius.circular),
+                          ),
+                          child: const Text(
+                            'Active',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : const SizedBox.shrink(),
+            ),
+
+            // Interest match indicator
+            if (mate.interests != null && mate.interests!.isNotEmpty)
               Positioned(
                 top: AppSpacing.sm,
-                right: AppSpacing.sm,
+                left: AppSpacing.sm,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                   decoration: BoxDecoration(
-                    color: AppColors.success,
-                    borderRadius: BorderRadius.circular(AppRadius.circular),
+                    color: AppColors.friendlyPurple.withAlpha(200),
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
                   ),
-                  child: const Text(
-                    'Active',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.interests, size: 10, color: Colors.white),
+                      const SizedBox(width: 3),
+                      Text(
+                        '${(mate.interests!.length * 0.6).round()}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
