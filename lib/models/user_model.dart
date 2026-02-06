@@ -1,3 +1,9 @@
+/// Account types
+enum AccountType {
+  regular,
+  business,
+}
+
 /// User profile model
 class UserModel {
   final int? userId;
@@ -7,6 +13,8 @@ class UserModel {
   final Profile? profile;
   final ActivityStats? activities;
   final int? completionPercentage;
+  final AccountType accountType;
+  final String? businessName;
 
   const UserModel({
     this.userId,
@@ -16,6 +24,8 @@ class UserModel {
     this.profile,
     this.activities,
     this.completionPercentage,
+    this.accountType = AccountType.regular,
+    this.businessName,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -31,6 +41,10 @@ class UserModel {
           ? ActivityStats.fromJson(json['activities'] as Map<String, dynamic>)
           : null,
       completionPercentage: json['completionPercentage'] as int?,
+      accountType: json['accountType'] == 'business'
+          ? AccountType.business
+          : AccountType.regular,
+      businessName: json['businessName'] as String?,
     );
   }
 
@@ -43,6 +57,8 @@ class UserModel {
       'profile': profile?.toJson(),
       'activities': activities?.toJson(),
       'completionPercentage': completionPercentage,
+      'accountType': accountType == AccountType.business ? 'business' : 'regular',
+      'businessName': businessName,
     };
   }
 
@@ -54,6 +70,8 @@ class UserModel {
     Profile? profile,
     ActivityStats? activities,
     int? completionPercentage,
+    AccountType? accountType,
+    String? businessName,
   }) {
     return UserModel(
       userId: userId ?? this.userId,
@@ -63,10 +81,16 @@ class UserModel {
       profile: profile ?? this.profile,
       activities: activities ?? this.activities,
       completionPercentage: completionPercentage ?? this.completionPercentage,
+      accountType: accountType ?? this.accountType,
+      businessName: businessName ?? this.businessName,
     );
   }
 
   bool get isOnline => onlineStatus?.toLowerCase() == 'online';
+
+  bool get isBusinessAccount => accountType == AccountType.business;
+
+  bool get canCreateEvents => isBusinessAccount;
 
   String get displayName => userName ?? 'User';
 

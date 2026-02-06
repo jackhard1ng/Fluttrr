@@ -539,3 +539,327 @@ class TagChip extends StatelessWidget {
     );
   }
 }
+
+/// Attendee avatars widget - shows overlapping profile pictures with +X more
+class AttendeeAvatars extends StatelessWidget {
+  final List<String?> imageUrls;
+  final int totalCount;
+  final double avatarSize;
+  final double overlap;
+  final int maxVisible;
+  final VoidCallback? onTap;
+
+  const AttendeeAvatars({
+    super.key,
+    required this.imageUrls,
+    required this.totalCount,
+    this.avatarSize = 32,
+    this.overlap = 0.3,
+    this.maxVisible = 4,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final visibleCount = imageUrls.length.clamp(0, maxVisible);
+    final remainingCount = totalCount - visibleCount;
+    final effectiveOverlap = avatarSize * overlap;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: SizedBox(
+        height: avatarSize,
+        width: visibleCount * (avatarSize - effectiveOverlap) +
+            effectiveOverlap +
+            (remainingCount > 0 ? avatarSize : 0),
+        child: Stack(
+          children: [
+            // Visible avatars
+            for (int i = 0; i < visibleCount; i++)
+              Positioned(
+                left: i * (avatarSize - effectiveOverlap),
+                child: _buildAvatar(imageUrls[i], i),
+              ),
+            // +X more indicator
+            if (remainingCount > 0)
+              Positioned(
+                left: visibleCount * (avatarSize - effectiveOverlap),
+                child: _buildMoreIndicator(remainingCount),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAvatar(String? imageUrl, int index) {
+    final fullUrl = ApiEndpoints.getImageUrl(imageUrl);
+    final hasValidImage = ApiEndpoints.isValidImageUrl(imageUrl);
+
+    return Container(
+      width: avatarSize,
+      height: avatarSize,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: _getColorForIndex(index),
+        border: Border.all(color: Colors.white, width: 2),
+        image: hasValidImage
+            ? DecorationImage(
+                image: NetworkImage(fullUrl),
+                fit: BoxFit.cover,
+                onError: (exception, stackTrace) {},
+              )
+            : null,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(26),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: !hasValidImage
+          ? Icon(
+              Icons.person,
+              size: avatarSize * 0.5,
+              color: Colors.white,
+            )
+          : null,
+    );
+  }
+
+  Widget _buildMoreIndicator(int count) {
+    return Container(
+      width: avatarSize,
+      height: avatarSize,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: const LinearGradient(
+          colors: [AppColors.primaryBlue, AppColors.accentBlue],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(color: Colors.white, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(26),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Center(
+        child: Text(
+          '+$count',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: avatarSize * 0.35,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Color _getColorForIndex(int index) {
+    const colors = [
+      AppColors.friendlyTeal,
+      AppColors.friendlyPink,
+      AppColors.friendlyPurple,
+      AppColors.friendlyOrange,
+    ];
+    return colors[index % colors.length];
+  }
+}
+
+/// Event capacity indicator - shows "5/15 joined" or "5 joined so far"
+class EventCapacityIndicator extends StatelessWidget {
+  final int joinedCount;
+  final int? totalSlots;
+  final bool compact;
+
+  const EventCapacityIndicator({
+    super.key,
+    required this.joinedCount,
+    this.totalSlots,
+    this.compact = false,
+  });
+
+  bool get hasLimit => totalSlots != null && totalSlots! > 0;
+  bool get isFull => hasLimit && joinedCount >= totalSlots!;
+  double get fillPercentage =>
+      hasLimit ? (joinedCount / totalSlots!).clamp(0.0, 1.0) : 0.0;
+
+  @override
+  Widget build(BuildContext context) {
+    if (compact) {
+      return _buildCompact(context);
+    }
+    return _buildFull(context);
+  }
+
+  Widget _buildCompact(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: isFull
+            ? AppColors.error.withAlpha(26)
+            : AppColors.primaryBlue.withAlpha(26),
+        borderRadius: BorderRadius.circular(AppRadius.circular),
+        border: Border.all(
+          color: isFull
+              ? AppColors.error.withAlpha(77)
+              : AppColors.primaryBlue.withAlpha(77),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isFull ? Icons.group_off : Icons.group,
+            size: 14,
+            color: isFull ? AppColors.error : AppColors.primaryBlue,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            hasLimit ? '$joinedCount/$totalSlots' : '$joinedCount joined',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: isFull ? AppColors.error : AppColors.primaryBlue,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFull(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              isFull ? Icons.group_off : Icons.group,
+              size: 18,
+              color: isFull ? AppColors.error : AppColors.primaryBlue,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              hasLimit
+                  ? '$joinedCount of $totalSlots spots filled'
+                  : '$joinedCount people joined so far',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: isFull ? AppColors.error : AppColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+        if (hasLimit) ...[
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: fillPercentage,
+              minHeight: 6,
+              backgroundColor: AppColors.lightGrey,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                isFull ? AppColors.error : AppColors.primaryBlue,
+              ),
+            ),
+          ),
+          if (isFull) ...[
+            const SizedBox(height: 4),
+            Text(
+              'This event is full',
+              style: TextStyle(
+                fontSize: 12,
+                color: AppColors.error,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ],
+      ],
+    );
+  }
+}
+
+/// Business badge indicator
+class BusinessBadge extends StatelessWidget {
+  final bool compact;
+
+  const BusinessBadge({
+    super.key,
+    this.compact = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (compact) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.verified, size: 10, color: Colors.white),
+            SizedBox(width: 2),
+            Text(
+              'BIZ',
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFFFD700).withAlpha(77),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.verified, size: 14, color: Colors.white),
+          SizedBox(width: 4),
+          Text(
+            'Business',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

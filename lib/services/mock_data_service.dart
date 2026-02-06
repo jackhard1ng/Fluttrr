@@ -144,14 +144,36 @@ class MockDataService {
     return List.generate(count, (index) => generateMockUser(id: 1000 + index));
   }
 
-  /// Generate a random mock activity
-  static Map<String, dynamic> generateMockActivity({int? id}) {
+  /// Generate a random mock activity with proper attendee data
+  static Map<String, dynamic> generateMockActivity({int? id, bool? hasLimit}) {
     final activityName = _activityNames[_random.nextInt(_activityNames.length)];
     final host = generateMockUser();
-    final attendeeCount = 2 + _random.nextInt(15);
-    final maxAttendees = attendeeCount + _random.nextInt(10);
+    final attendeeCount = 2 + _random.nextInt(12);
+
+    // Some activities have no limit (null), some have limits
+    final bool shouldHaveLimit = hasLimit ?? _random.nextDouble() > 0.4;
+    final int? maxAttendees = shouldHaveLimit
+        ? attendeeCount + _random.nextInt(10) + 3
+        : null;
+
     final daysFromNow = _random.nextInt(14);
     final hour = 8 + _random.nextInt(12);
+
+    // Generate actual attendee data with profile images
+    final attendees = List.generate(
+      attendeeCount,
+      (index) {
+        final user = generateMockUser(id: 6000 + (id ?? 0) * 100 + index);
+        return {
+          'userId': user['userId'],
+          'name': user['name'],
+          'profileImage': user['profileImage'],
+        };
+      },
+    );
+
+    // Some events are hosted by business accounts
+    final isBusinessHost = _random.nextDouble() > 0.6;
 
     return {
       'activityId': id ?? _random.nextInt(10000),
@@ -163,10 +185,12 @@ class MockDataService {
       'date': DateTime.now().add(Duration(days: daysFromNow)).toIso8601String(),
       'time': '${hour.toString().padLeft(2, '0')}:00',
       'hostId': host['userId'],
-      'hostName': host['name'],
+      'hostName': isBusinessHost ? '${host['name']} Events' : host['name'],
       'hostImage': host['profileImage'],
+      'isBusinessHost': isBusinessHost,
       'attendeeCount': attendeeCount,
       'maxAttendees': maxAttendees,
+      'attendees': attendees,
       'primaryImage': null,
       'userJoined': _random.nextDouble() > 0.7,
       'isSaved': _random.nextDouble() > 0.8,

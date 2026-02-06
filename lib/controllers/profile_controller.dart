@@ -91,9 +91,9 @@ class ProfileController extends GetxController {
       userId: mockData['userId'] as int,
       userName: mockData['name'] as String,
       email: mockData['email'] as String,
-      profileImage: mockData['profileImage'] as String,
-      isOnline: mockData['isOnline'] as bool,
-      profile: ProfileModel(
+      onlineStatus: (mockData['isOnline'] as bool) ? 'online' : 'offline',
+      accountType: AccountType.regular, // Regular account for demo
+      profile: Profile(
         age: mockData['age'] as int,
         gender: mockData['gender'] as String,
         bio: mockData['bio'] as String,
@@ -220,13 +220,16 @@ class ProfileController extends GetxController {
         ? userNameController.text.trim()
         : current.userName;
 
+    // Generate new avatar URL based on name
+    final newAvatarUrl = MockDataService.getAvatarUrl(newName ?? 'User');
+
     currentUser.value = UserModel(
       userId: current.userId,
       userName: newName,
       email: current.email,
-      profileImage: MockDataService.getAvatarUrl(newName ?? 'User'),
-      isOnline: current.isOnline,
-      profile: ProfileModel(
+      onlineStatus: current.onlineStatus,
+      accountType: current.accountType,
+      profile: Profile(
         age: int.tryParse(ageController.text) ?? current.profile?.age,
         gender: selectedGender.value.isNotEmpty ? selectedGender.value : current.profile?.gender,
         bio: bioController.text.trim().isNotEmpty ? bioController.text.trim() : current.profile?.bio,
@@ -239,7 +242,7 @@ class ProfileController extends GetxController {
         languages: selectedLanguages.isNotEmpty
             ? List<String>.from(selectedLanguages)
             : current.profile?.languages,
-        images: current.profile?.images,
+        images: [newAvatarUrl],
       ),
     );
 

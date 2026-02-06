@@ -101,7 +101,25 @@ class ActivityController extends GetxController {
   /// Convert mock data to ActivityModel list
   List<ActivityModel> _convertMockToActivities(List<Map<String, dynamic>> mockData) {
     return mockData.map((data) {
-      final host = MockDataService.generateMockUser();
+      final attendeeCount = data['attendeeCount'] as int;
+      final maxAttendees = data['maxAttendees'] as int?;
+
+      // Calculate remaining slots - null means no limit
+      final int? remainingSlots = maxAttendees != null
+          ? (maxAttendees - attendeeCount).clamp(0, maxAttendees)
+          : null;
+
+      // Use pre-generated attendees from mock data
+      final attendeesList = data['attendees'] as List<dynamic>?;
+      final attendees = attendeesList?.map((a) {
+        final attendeeMap = a as Map<String, dynamic>;
+        return Attendee(
+          userId: attendeeMap['userId'] as int,
+          name: attendeeMap['name'] as String,
+          images: [attendeeMap['profileImage'] as String],
+        );
+      }).toList() ?? [];
+
       return ActivityModel(
         activityId: data['activityId'] as int,
         name: data['name'] as String,
@@ -110,24 +128,14 @@ class ActivityController extends GetxController {
         dateTime: DateTime.tryParse(data['date'] as String),
         eventType: data['eventType'] as String,
         images: [],
-        totalSlots: data['maxAttendees'] as int,
-        remainingSlots: (data['maxAttendees'] as int) - (data['attendeeCount'] as int),
-        attendees: List.generate(
-          data['attendeeCount'] as int,
-          (i) {
-            final attendee = MockDataService.generateMockUser();
-            return Attendee(
-              userId: attendee['userId'] as int,
-              name: attendee['name'] as String,
-              images: [attendee['profileImage'] as String],
-            );
-          },
-        ),
+        totalSlots: maxAttendees,
+        remainingSlots: remainingSlots,
+        attendees: attendees,
         userJoined: data['userJoined'] as bool,
         userSaved: data['isSaved'] as bool,
-        creatorId: host['userId'] as int,
-        creatorName: host['name'] as String,
-        creatorImages: [host['profileImage'] as String],
+        creatorId: data['hostId'] as int,
+        creatorName: data['hostName'] as String,
+        creatorImages: [data['hostImage'] as String],
       );
     }).toList();
   }
@@ -488,10 +496,14 @@ class ActivityController extends GetxController {
       errorMessage.value = 'Please select an event type';
       return false;
     }
-    if (slotsController.text.isEmpty || int.tryParse(slotsController.text) == null) {
-      errorMessage.value = 'Please enter valid number of slots';
+    // Slots can be 0 for unlimited, or a positive number for limited
+    final slots = int.tryParse(slotsController.text);
+    if (slotsController.text.isNotEmpty && slots == null) {
+      errorMessage.value = 'Please enter a valid number of slots';
       return false;
     }
+    // If slots is provided and > 0, it's a limited event
+    // If slots is 0 or empty, it's unlimited
     return true;
   }
 

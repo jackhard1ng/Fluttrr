@@ -11,6 +11,7 @@ import '../../models/activity_model.dart';
 import '../../models/mate_model.dart';
 import '../../widgets/common_widgets.dart';
 import '../activities/activity_details_screen.dart';
+import '../activities/create_activity_screen.dart';
 import '../mates/mate_profile_screen.dart';
 
 /// Home screen with improved brand identity
@@ -153,16 +154,22 @@ class HomeScreen extends StatelessWidget {
                                   label: 'Discover',
                                   color: AppColors.friendlyTeal,
                                   onTap: () {
-                                    // Navigate to discover
+                                    // Navigate to discover/activities tab
                                   },
                                 ),
                                 const SizedBox(width: AppSpacing.sm),
                                 _QuickActionChip(
-                                  icon: Icons.event_outlined,
-                                  label: 'Host Activity',
-                                  color: AppColors.friendlyPurple,
+                                  icon: profileController.currentUser.value?.isBusinessAccount == true
+                                      ? Icons.add_circle_outline
+                                      : Icons.event_outlined,
+                                  label: profileController.currentUser.value?.isBusinessAccount == true
+                                      ? 'Create Event'
+                                      : 'Host Activity',
+                                  color: profileController.currentUser.value?.isBusinessAccount == true
+                                      ? const Color(0xFFFFD700)
+                                      : AppColors.friendlyPurple,
                                   onTap: () {
-                                    // Create activity
+                                    Get.to(() => const CreateActivityScreen());
                                   },
                                 ),
                                 const SizedBox(width: AppSpacing.sm),
@@ -171,7 +178,7 @@ class HomeScreen extends StatelessWidget {
                                   label: 'Find Mates',
                                   color: AppColors.primaryBlue,
                                   onTap: () {
-                                    // Navigate to mates
+                                    // Navigate to mates tab
                                   },
                                 ),
                               ],
@@ -709,7 +716,7 @@ class _DailyActivitiesList extends StatelessWidget {
   }
 }
 
-/// Activity card widget - improved design
+/// Activity card widget - improved design with attendee avatars
 class _ActivityCard extends StatelessWidget {
   final ActivityModel activity;
 
@@ -719,6 +726,12 @@ class _ActivityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final imageUrl = ApiEndpoints.getImageUrl(activity.primaryImage);
     final hasValidImage = ApiEndpoints.isValidImageUrl(activity.primaryImage);
+
+    // Get attendee images for avatar display
+    final attendeeImages = activity.attendees
+        .take(4)
+        .map((a) => a.profileImage)
+        .toList();
 
     return GestureDetector(
       onTap: () {
@@ -821,19 +834,33 @@ class _ActivityCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
+                  // Attendee avatars with capacity indicator
                   Row(
                     children: [
-                      Icon(
-                        Icons.people_outline,
-                        size: 14,
-                        color: AppColors.mediumGrey,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${activity.attendeeCount} going',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      if (attendeeImages.isNotEmpty)
+                        AttendeeAvatars(
+                          imageUrls: attendeeImages,
+                          totalCount: activity.attendeeCount,
+                          avatarSize: 28,
+                          maxVisible: 3,
+                        ),
+                      if (attendeeImages.isEmpty)
+                        Icon(
+                          Icons.people_outline,
+                          size: 14,
                           color: AppColors.mediumGrey,
+                        ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          activity.totalSlots != null && activity.totalSlots! > 0
+                              ? '${activity.attendeeCount}/${activity.totalSlots}'
+                              : '${activity.attendeeCount} joined',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppColors.mediumGrey,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ],
@@ -871,6 +898,25 @@ class _ActivityCard extends StatelessWidget {
                       ),
                     ),
                   ],
+                ),
+              )
+            else if (activity.isFull)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: AppSpacing.xs,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withAlpha(26),
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                ),
+                child: const Text(
+                  'Full',
+                  style: TextStyle(
+                    color: AppColors.error,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               )
             else
@@ -933,7 +979,7 @@ class _UpcomingActivitiesList extends StatelessWidget {
   }
 }
 
-/// Upcoming activity card - improved design
+/// Upcoming activity card - improved design with attendee avatars
 class _UpcomingActivityCard extends StatelessWidget {
   final ActivityModel activity;
 
@@ -943,6 +989,12 @@ class _UpcomingActivityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final imageUrl = ApiEndpoints.getImageUrl(activity.primaryImage);
     final hasValidImage = ApiEndpoints.isValidImageUrl(activity.primaryImage);
+
+    // Get attendee images for avatar display
+    final attendeeImages = activity.attendees
+        .take(5)
+        .map((a) => a.profileImage)
+        .toList();
 
     return GestureDetector(
       onTap: () {
@@ -994,6 +1046,44 @@ class _UpcomingActivityCard extends StatelessWidget {
                 ),
               ),
             ),
+
+            // Capacity badge (top right)
+            if (activity.totalSlots != null && activity.totalSlots! > 0)
+              Positioned(
+                top: AppSpacing.md,
+                right: AppSpacing.md,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: activity.isFull
+                        ? AppColors.error.withAlpha(230)
+                        : Colors.black.withAlpha(153),
+                    borderRadius: BorderRadius.circular(AppRadius.circular),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        activity.isFull ? Icons.group_off : Icons.group,
+                        size: 12,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${activity.attendeeCount}/${activity.totalSlots}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
 
             // Content
             Positioned(
@@ -1053,33 +1143,34 @@ class _UpcomingActivityCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.sm,
-                          vertical: 2,
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  // Attendee avatars row
+                  Row(
+                    children: [
+                      if (attendeeImages.isNotEmpty)
+                        AttendeeAvatars(
+                          imageUrls: attendeeImages,
+                          totalCount: activity.attendeeCount,
+                          avatarSize: 30,
+                          maxVisible: 4,
                         ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withAlpha(51),
-                          borderRadius: BorderRadius.circular(AppRadius.sm),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.people,
-                              size: 12,
-                              color: Colors.white,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${activity.attendeeCount}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          activity.totalSlots == null || activity.totalSlots == 0
+                              ? '${activity.attendeeCount} people joined so far'
+                              : activity.isFull
+                                  ? 'Event is full'
+                                  : '${activity.remainingSlots} spots left',
+                          style: TextStyle(
+                            color: activity.isFull
+                                ? Colors.orange[200]
+                                : Colors.white70,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ],
