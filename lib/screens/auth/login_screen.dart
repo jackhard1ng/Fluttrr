@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
+import '../../config/routes.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/profile_controller.dart';
 import '../../widgets/common_widgets.dart';
-import '../home/main_screen.dart';
-import 'register_screen.dart';
-import 'forgot_password_screen.dart';
 
 /// Modern login screen with brand identity
 class LoginScreen extends StatelessWidget {
@@ -149,7 +147,7 @@ class LoginScreen extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () => Get.to(() => const ForgotPasswordScreen()),
+                      onPressed: Nav.toForgotPassword,
                       style: TextButton.styleFrom(
                         foregroundColor: AppColors.primaryBlue,
                         padding: EdgeInsets.zero,
@@ -209,7 +207,7 @@ class LoginScreen extends StatelessWidget {
                         final success = await authController.login();
                         if (success) {
                           Get.put(ProfileController());
-                          Get.offAll(() => const MainScreen());
+                          Nav.toHome();
                         }
                       }
                     },
@@ -272,7 +270,7 @@ class LoginScreen extends StatelessWidget {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () => Get.to(() => const RegisterScreen()),
+                          onTap: () => Get.toNamed(AppRoutes.register),
                           child: const Text(
                             'Join Now',
                             style: TextStyle(

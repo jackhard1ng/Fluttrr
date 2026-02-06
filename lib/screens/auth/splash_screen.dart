@@ -4,8 +4,7 @@ import 'package:get/get.dart';
 import '../../constants/utils.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/profile_controller.dart';
-import '../home/main_screen.dart';
-import 'login_screen.dart';
+import '../../config/routes.dart';
 
 /// Splash screen with beautiful brand experience and auto-login check
 class SplashScreen extends StatefulWidget {
@@ -99,9 +98,9 @@ class _SplashScreenState extends State<SplashScreen>
     if (isLoggedIn) {
       // Initialize profile controller for logged-in users
       Get.put(ProfileController());
-      Get.offAll(() => const MainScreen());
+      Nav.toHome();
     } else {
-      Get.offAll(() => const LoginScreen());
+      Nav.toLogin();
     }
   }
 

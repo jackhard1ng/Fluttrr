@@ -4,3 +4,4 @@ library utils;
 export 'validators.dart';
 export 'formatters.dart';
 export 'app_utils.dart';
+export 'debouncer.dart';
