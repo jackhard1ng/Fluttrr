@@ -6,10 +6,14 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../constants/api_endpoints.dart';
 import '../models/chat_model.dart';
 import '../repositories/chat_repository.dart';
+import '../services/mock_data_service.dart';
 
-/// Chat controller with Socket.IO support
+/// Chat controller with Socket.IO support and mock data fallback
 class ChatController extends GetxController {
   final ChatRepository _chatRepository = ChatRepository();
+
+  /// Flag to use mock data when API fails
+  final RxBool useMockData = true.obs;
 
   // Socket connection
   io.Socket? _socket;
@@ -186,20 +190,58 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Load chat list
+  /// Load chat list (with mock data fallback)
   Future<void> loadChatList() async {
     isLoading.value = true;
 
     try {
       final response = await _chatRepository.getChatList();
-      if (response.success && response.data != null) {
+      if (response.success && response.data != null && response.data!.isNotEmpty) {
         conversations.value = response.data!;
+        useMockData.value = false;
+      } else {
+        _loadMockChats();
       }
     } catch (e) {
-      errorMessage.value = 'Failed to load chats';
+      _loadMockChats();
     } finally {
       isLoading.value = false;
     }
+  }
+
+  /// Load mock chats for demo
+  void _loadMockChats() {
+    useMockData.value = true;
+    final mockData = MockDataService.generateMockChats(10);
+
+    conversations.value = mockData.map((data) => ChatConversation(
+      conversationId: data['chatId'] as int,
+      otherUserId: data['otherUserId'] as int,
+      otherUserName: data['otherUserName'] as String,
+      otherUserImages: [data['otherUserImage'] as String],
+      lastMessage: data['lastMessage'] as String,
+      lastMessageTime: DateTime.tryParse(data['lastMessageTime'] as String),
+      unreadCount: data['unreadCount'] as int,
+      isOnline: data['isOnline'] as bool,
+    )).toList();
+  }
+
+  /// Load mock messages for a conversation
+  void _loadMockMessages(int otherUserId) {
+    final mockChat = MockDataService.generateMockChat(
+      otherUser: MockDataService.generateMockUser(id: otherUserId),
+    );
+
+    final messages = mockChat['messages'] as List<Map<String, dynamic>>;
+    currentMessages.value = messages.map((data) => ChatMessage(
+      messageId: data['messageId'].toString(),
+      senderId: data['senderId'] == 'me' ? _currentUserId : otherUserId,
+      receiverId: data['senderId'] == 'me' ? otherUserId : _currentUserId,
+      content: data['text'] as String,
+      timestamp: DateTime.tryParse(data['timestamp'] as String),
+      isRead: data['isRead'] as bool,
+      isSent: true,
+    )).toList();
   }
 
   /// Load group chats
@@ -226,10 +268,31 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Open conversation
+  /// Open conversation (with mock data support)
   Future<void> openConversation(ChatConversation conversation) async {
     currentConversation.value = conversation;
     currentMessages.clear();
+
+    // In mock mode, load mock messages
+    if (useMockData.value && conversation.otherUserId != null) {
+      _loadMockMessages(conversation.otherUserId!);
+      // Clear unread count in conversations list
+      final index = conversations.indexWhere((c) => c.otherUserId == conversation.otherUserId);
+      if (index != -1) {
+        final conv = conversations[index];
+        conversations[index] = ChatConversation(
+          conversationId: conv.conversationId,
+          otherUserId: conv.otherUserId,
+          otherUserName: conv.otherUserName,
+          otherUserImages: conv.otherUserImages,
+          lastMessage: conv.lastMessage,
+          lastMessageTime: conv.lastMessageTime,
+          unreadCount: 0,
+          isOnline: conv.isOnline,
+        );
+      }
+      return;
+    }
 
     // Load cached messages
     _loadCachedMessages(conversation.otherUserId);
@@ -246,7 +309,7 @@ class ChatController extends GetxController {
     currentMessages.clear();
   }
 
-  /// Send message
+  /// Send message (with mock mode support)
   Future<bool> sendMessage({String? content, String? imageUrl}) async {
     final text = content ?? messageController.text.trim();
     if (text.isEmpty && imageUrl == null) return false;
@@ -258,7 +321,7 @@ class ChatController extends GetxController {
     // Add optimistic message
     final tempMessage = ChatMessage(
       messageId: DateTime.now().millisecondsSinceEpoch.toString(),
-      senderId: _currentUserId,
+      senderId: _currentUserId ?? 1,
       receiverId: currentConversation.value!.otherUserId,
       content: text.isNotEmpty ? text : null,
       imageUrl: imageUrl,
@@ -266,6 +329,41 @@ class ChatController extends GetxController {
       isSent: false,
     );
     currentMessages.add(tempMessage);
+
+    // In mock mode, just simulate sending
+    if (useMockData.value) {
+      await Future.delayed(const Duration(milliseconds: 300));
+      isSending.value = false;
+
+      // Update message as sent
+      final index = currentMessages.indexWhere((m) => m.messageId == tempMessage.messageId);
+      if (index != -1) {
+        currentMessages[index] = tempMessage.copyWith(isSent: true);
+      }
+
+      // Update last message in conversation list
+      final convIndex = conversations.indexWhere(
+        (c) => c.otherUserId == currentConversation.value!.otherUserId
+      );
+      if (convIndex != -1) {
+        final conv = conversations[convIndex];
+        conversations[convIndex] = ChatConversation(
+          conversationId: conv.conversationId,
+          otherUserId: conv.otherUserId,
+          otherUserName: conv.otherUserName,
+          otherUserImages: conv.otherUserImages,
+          lastMessage: text,
+          lastMessageTime: DateTime.now(),
+          unreadCount: 0,
+          isOnline: conv.isOnline,
+        );
+      }
+
+      // Simulate a reply after a short delay
+      _simulateMockReply();
+
+      return true;
+    }
 
     try {
       final response = await _chatRepository.sendMessage(
@@ -294,6 +392,40 @@ class ChatController extends GetxController {
       isSending.value = false;
       currentMessages.removeWhere((m) => m.messageId == tempMessage.messageId);
       return false;
+    }
+  }
+
+  /// Simulate a mock reply from the other user
+  Future<void> _simulateMockReply() async {
+    if (currentConversation.value == null) return;
+
+    // Random chance to get a reply
+    if (MockDataService.generateMockUser()['isOnline'] as bool) {
+      await Future.delayed(Duration(seconds: 2 + DateTime.now().second % 3));
+
+      if (currentConversation.value == null) return; // Check if still in conversation
+
+      final replies = [
+        "That sounds great!",
+        "I'd love to!",
+        "When works for you?",
+        "Thanks for reaching out!",
+        "Let me think about it",
+        "Sure thing!",
+        "Sounds fun!",
+      ];
+
+      final replyMessage = ChatMessage(
+        messageId: DateTime.now().millisecondsSinceEpoch.toString(),
+        senderId: currentConversation.value!.otherUserId,
+        receiverId: _currentUserId ?? 1,
+        content: replies[DateTime.now().second % replies.length],
+        timestamp: DateTime.now(),
+        isSent: true,
+        isRead: true,
+      );
+
+      currentMessages.add(replyMessage);
     }
   }
 

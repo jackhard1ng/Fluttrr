@@ -3,10 +3,14 @@ import 'package:get/get.dart';
 import '../models/mate_model.dart';
 import '../models/user_model.dart';
 import '../repositories/mates_repository.dart';
+import '../services/mock_data_service.dart';
 
-/// Mates/matching controller
+/// Mates/matching controller with mock data fallback
 class MatesController extends GetxController {
   final MatesRepository _matesRepository = MatesRepository();
+
+  /// Flag to use mock data when API fails
+  final RxBool useMockData = true.obs;
 
   // State
   final RxList<MateModel> nearbyMates = <MateModel>[].obs;
@@ -58,7 +62,7 @@ class MatesController extends GetxController {
     loadNearbyMates();
   }
 
-  /// Load nearby mates
+  /// Load nearby mates (with mock data fallback)
   Future<void> loadNearbyMates() async {
     isLoading.value = true;
     errorMessage.value = '';
@@ -70,17 +74,40 @@ class MatesController extends GetxController {
         radius: maxDistance.value,
       );
 
-      if (response.success && response.data != null) {
+      if (response.success && response.data != null && response.data!.isNotEmpty) {
         nearbyMates.value = response.data!;
-        currentSwipeIndex.value = 0;
+        useMockData.value = false;
       } else {
-        errorMessage.value = response.displayMessage;
+        // Use mock data as fallback
+        _loadMockNearbyMates();
       }
+      currentSwipeIndex.value = 0;
     } catch (e) {
-      errorMessage.value = 'Failed to load nearby mates';
+      // Use mock data on error
+      _loadMockNearbyMates();
     } finally {
       isLoading.value = false;
     }
+  }
+
+  /// Load mock nearby mates for demo
+  void _loadMockNearbyMates() {
+    useMockData.value = true;
+    final mockData = MockDataService.generateMockUsers(15);
+    nearbyMates.value = mockData.map((data) => MateModel(
+      userId: data['userId'] as int,
+      userName: data['name'] as String,
+      age: data['age'] as int,
+      gender: data['gender'] as String,
+      bio: data['bio'] as String,
+      location: data['location'] as String,
+      onlineStatus: (data['isOnline'] as bool) ? 'online' : 'offline',
+      images: [data['profileImage'] as String],
+      interests: List<String>.from(data['interests'] as List),
+      distance: double.tryParse(data['distance'] as String),
+      isLiked: false,
+      isMatched: false,
+    )).toList();
   }
 
   /// Filter mates
@@ -190,16 +217,30 @@ class MatesController extends GetxController {
     }
   }
 
-  /// Load matches
+  /// Load matches (with mock data fallback)
   Future<void> loadMatches() async {
     try {
       final response = await _matesRepository.getMatches();
-      if (response.success && response.data != null) {
+      if (response.success && response.data != null && response.data!.isNotEmpty) {
         matches.value = response.data!;
+      } else {
+        _loadMockMatches();
       }
     } catch (e) {
-      // Ignore errors
+      _loadMockMatches();
     }
+  }
+
+  /// Load mock matches for demo
+  void _loadMockMatches() {
+    final mockData = MockDataService.generateMockMatches(8);
+    matches.value = mockData.map((data) => MatchModel(
+      matchId: data['userId'] as int,
+      userId: data['userId'] as int,
+      userName: data['name'] as String,
+      images: [data['profileImage'] as String],
+      matchedAt: DateTime.tryParse(data['matchedAt'] as String),
+    )).toList();
   }
 
   /// View mate profile
