@@ -339,7 +339,7 @@ class ActivityCard extends StatelessWidget {
                             vertical: AppSpacing.xs,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.success.withOpacity(0.1),
+                            color: AppColors.success.withAlpha(26),
                             borderRadius: BorderRadius.circular(AppRadius.sm),
                           ),
                           child: const Text(

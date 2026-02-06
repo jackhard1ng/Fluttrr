@@ -411,7 +411,7 @@ class _CreateBusinessEventScreenState extends State<CreateBusinessEventScreen> {
                       icon: Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
+                          color: Colors.black.withAlpha(128),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(

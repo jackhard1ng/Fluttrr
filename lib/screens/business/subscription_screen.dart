@@ -172,7 +172,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   padding: const EdgeInsets.all(AppSpacing.md),
                   margin: const EdgeInsets.only(bottom: AppSpacing.lg),
                   decoration: BoxDecoration(
-                    color: AppColors.success.withOpacity(0.1),
+                    color: AppColors.success.withAlpha(26),
                     borderRadius: BorderRadius.circular(AppRadius.md),
                     border: Border.all(color: AppColors.success),
                   ),

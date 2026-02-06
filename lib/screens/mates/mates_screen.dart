@@ -220,7 +220,7 @@ class _MateCard extends StatelessWidget {
                 colors: [
                   Colors.transparent,
                   Colors.transparent,
-                  Colors.black.withOpacity(0.7),
+                  Colors.black.withAlpha(179),
                 ],
                 stops: const [0, 0.5, 1],
               ),
@@ -363,7 +363,7 @@ class _MateCard extends StatelessWidget {
                           vertical: AppSpacing.xs,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withAlpha(51),
                           borderRadius: BorderRadius.circular(AppRadius.circular),
                         ),
                         child: Text(

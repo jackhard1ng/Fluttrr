@@ -107,35 +107,50 @@ class _SplashScreenState extends State<SplashScreen>
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withAlpha(51),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
                     ],
                   ),
-                  child: const Center(
-                    child: Text(
-                      'F',
-                      style: TextStyle(
-                        fontSize: 60,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primaryBlue,
-                      ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: Image.asset(
+                      'assets/lgo1.png',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Center(
+                          child: Text(
+                            'F',
+                            style: TextStyle(
+                              fontSize: 60,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryBlue,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
 
                 const SizedBox(height: AppSpacing.xl),
 
-                // App name
-                const Text(
-                  'Fluttrr',
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 2,
-                  ),
+                // App name with logo
+                Image.asset(
+                  'assets/lttrrlogo.png',
+                  height: 50,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Text(
+                      'Fluttrr',
+                      style: TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 2,
+                      ),
+                    );
+                  },
                 ),
 
                 const SizedBox(height: AppSpacing.sm),
@@ -145,7 +160,7 @@ class _SplashScreenState extends State<SplashScreen>
                   'Connect. Explore. Belong.',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withAlpha(204),
                     letterSpacing: 1,
                   ),
                 ),

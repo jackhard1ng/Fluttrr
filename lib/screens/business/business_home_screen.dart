@@ -187,7 +187,7 @@ class _BusinessHomeScreenState extends State<BusinessHomeScreen>
               vertical: 4,
             ),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withAlpha(51),
               borderRadius: BorderRadius.circular(AppRadius.sm),
             ),
             child: Text(

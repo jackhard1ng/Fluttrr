@@ -242,7 +242,7 @@ class _MateCard extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.7),
+                    Colors.black.withAlpha(179),
                   ],
                 ),
               ),
@@ -270,7 +270,7 @@ class _MateCard extends StatelessWidget {
                     Text(
                       '${mate.age} years',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withAlpha(204),
                         fontSize: 12,
                       ),
                     ),
@@ -450,7 +450,7 @@ class _ActivityCard extends StatelessWidget {
                   vertical: AppSpacing.xs,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.success.withOpacity(0.1),
+                  color: AppColors.success.withAlpha(26),
                   borderRadius: BorderRadius.circular(AppRadius.sm),
                 ),
                 child: const Text(
@@ -540,7 +540,7 @@ class _UpcomingActivityCard extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.8),
+                    Colors.black.withAlpha(204),
                   ],
                 ),
               ),

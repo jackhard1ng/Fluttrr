@@ -130,7 +130,7 @@ class _BusinessEventDetailsScreenState
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(0.7),
+                          Colors.black.withAlpha(179),
                         ],
                       ),
                     ),
@@ -379,7 +379,7 @@ class _BusinessEventDetailsScreenState
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withAlpha(204),
             fontSize: 12,
           ),
         ),
@@ -391,7 +391,7 @@ class _BusinessEventDetailsScreenState
     return Container(
       height: 40,
       width: 1,
-      color: Colors.white.withOpacity(0.3),
+      color: Colors.white.withAlpha(77),
     );
   }
 
@@ -420,7 +420,7 @@ class _BusinessEventDetailsScreenState
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: AppColors.primaryBlue.withOpacity(0.1),
+              color: AppColors.primaryBlue.withAlpha(26),
               borderRadius: BorderRadius.circular(AppRadius.sm),
             ),
             child: Icon(

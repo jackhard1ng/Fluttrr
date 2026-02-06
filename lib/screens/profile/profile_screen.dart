@@ -256,7 +256,7 @@ class _ProfileCompletion extends StatelessWidget {
                       ? 'Complete your profile to get more matches!'
                       : 'Your profile is complete!',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withAlpha(204),
                     fontSize: 12,
                   ),
                 ),

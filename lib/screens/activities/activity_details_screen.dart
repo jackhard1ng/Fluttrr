@@ -104,7 +104,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
                           vertical: AppSpacing.xs,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.primaryBlue.withOpacity(0.1),
+                          color: AppColors.primaryBlue.withAlpha(26),
                           borderRadius: BorderRadius.circular(AppRadius.sm),
                         ),
                         child: Text(
@@ -299,7 +299,7 @@ class _DetailRow extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(AppSpacing.sm),
           decoration: BoxDecoration(
-            color: AppColors.primaryBlue.withOpacity(0.1),
+            color: AppColors.primaryBlue.withAlpha(26),
             borderRadius: BorderRadius.circular(AppRadius.sm),
           ),
           child: Icon(

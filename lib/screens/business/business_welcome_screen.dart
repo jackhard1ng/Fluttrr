@@ -122,7 +122,7 @@ class _FeatureItem extends StatelessWidget {
           width: 50,
           height: 50,
           decoration: BoxDecoration(
-            color: AppColors.primaryBlue.withOpacity(0.1),
+            color: AppColors.primaryBlue.withAlpha(26),
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
           child: Icon(

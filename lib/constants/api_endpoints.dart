@@ -6,6 +6,31 @@ class ApiEndpoints {
   static const String baseUrl = 'http://82.180.139.134';
   static const String apiBase = '$baseUrl/api';
 
+  /// Get the full URL for an image path
+  /// Handles relative paths and ensures the URL is valid
+  static String getImageUrl(String? imagePath) {
+    if (imagePath == null || imagePath.isEmpty) {
+      return '';
+    }
+    // Already a full URL
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath;
+    }
+    // Relative path starting with /
+    if (imagePath.startsWith('/')) {
+      return '$baseUrl$imagePath';
+    }
+    // Relative path without leading /
+    return '$baseUrl/$imagePath';
+  }
+
+  /// Check if an image URL is valid
+  static bool isValidImageUrl(String? url) {
+    if (url == null || url.isEmpty) return false;
+    final fullUrl = getImageUrl(url);
+    return fullUrl.startsWith('http://') || fullUrl.startsWith('https://');
+  }
+
   // Authentication endpoints
   static const String login = '$apiBase/user/login';
   static const String verifyOtp = '$apiBase/user/verify-otp';

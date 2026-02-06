@@ -271,7 +271,7 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen> {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: AppColors.primaryBlue.withOpacity(0.1),
+                    color: AppColors.primaryBlue.withAlpha(26),
                     borderRadius: BorderRadius.circular(AppRadius.sm),
                   ),
                   child: const Icon(
@@ -376,7 +376,7 @@ class _OverviewCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withAlpha(26),
         borderRadius: BorderRadius.circular(AppRadius.md),
       ),
       child: Column(
@@ -440,7 +440,7 @@ class _MetricRow extends StatelessWidget {
         const SizedBox(height: 4),
         LinearProgressIndicator(
           value: progress.clamp(0.0, 1.0),
-          backgroundColor: color.withOpacity(0.2),
+          backgroundColor: color.withAlpha(51),
           valueColor: AlwaysStoppedAnimation<Color>(color),
         ),
       ],
@@ -484,8 +484,8 @@ class _GrowthItem extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: isPositive
-                      ? AppColors.success.withOpacity(0.1)
-                      : AppColors.error.withOpacity(0.1),
+                      ? AppColors.success.withAlpha(26)
+                      : AppColors.error.withAlpha(26),
                   borderRadius: BorderRadius.circular(AppRadius.xs),
                 ),
                 child: Row(

@@ -1,7 +1,103 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../constants/api_endpoints.dart';
 import '../constants/utils.dart';
+
+/// Safe network image widget that handles invalid URLs gracefully
+class SafeNetworkImage extends StatelessWidget {
+  final String? imageUrl;
+  final double? width;
+  final double? height;
+  final BoxFit fit;
+  final Widget? placeholder;
+  final Widget? errorWidget;
+  final BorderRadius? borderRadius;
+
+  const SafeNetworkImage({
+    super.key,
+    this.imageUrl,
+    this.width,
+    this.height,
+    this.fit = BoxFit.cover,
+    this.placeholder,
+    this.errorWidget,
+    this.borderRadius,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final fullUrl = ApiEndpoints.getImageUrl(imageUrl);
+
+    if (!ApiEndpoints.isValidImageUrl(imageUrl)) {
+      return _buildPlaceholder();
+    }
+
+    Widget image = Image.network(
+      fullUrl,
+      width: width,
+      height: height,
+      fit: fit,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return placeholder ?? _buildPlaceholder();
+      },
+      errorBuilder: (context, error, stackTrace) {
+        return errorWidget ?? _buildPlaceholder();
+      },
+    );
+
+    if (borderRadius != null) {
+      image = ClipRRect(
+        borderRadius: borderRadius!,
+        child: image,
+      );
+    }
+
+    return image;
+  }
+
+  Widget _buildPlaceholder() {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: AppColors.lightGrey,
+        borderRadius: borderRadius,
+      ),
+      child: const Icon(
+        Icons.image_outlined,
+        color: AppColors.grey,
+        size: 32,
+      ),
+    );
+  }
+}
+
+/// Safe decoration image provider
+class SafeNetworkImageProvider extends ImageProvider<NetworkImage> {
+  final String? imageUrl;
+
+  SafeNetworkImageProvider(this.imageUrl);
+
+  @override
+  ImageStreamCompleter loadImage(NetworkImage key, ImageDecoderCallback decode) {
+    final fullUrl = ApiEndpoints.getImageUrl(imageUrl);
+    if (!ApiEndpoints.isValidImageUrl(imageUrl)) {
+      // Return a transparent image for invalid URLs
+      return OneFrameImageStreamCompleter(
+        Future.error('Invalid image URL'),
+      );
+    }
+    return NetworkImage(fullUrl).loadImage(key, decode);
+  }
+
+  @override
+  Future<NetworkImage> obtainKey(ImageConfiguration configuration) {
+    final fullUrl = ApiEndpoints.getImageUrl(imageUrl);
+    return Future.value(NetworkImage(fullUrl));
+  }
+}
 
 /// Gradient button widget
 class GradientButton extends StatelessWidget {
@@ -322,6 +418,9 @@ class UserAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fullUrl = ApiEndpoints.getImageUrl(imageUrl);
+    final hasValidImage = ApiEndpoints.isValidImageUrl(imageUrl);
+
     return GestureDetector(
       onTap: onTap,
       child: Stack(
@@ -332,14 +431,15 @@ class UserAvatar extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: AppColors.lightGrey,
-              image: imageUrl != null && imageUrl!.isNotEmpty
+              image: hasValidImage
                   ? DecorationImage(
-                      image: NetworkImage(imageUrl!),
+                      image: NetworkImage(fullUrl),
                       fit: BoxFit.cover,
+                      onError: (exception, stackTrace) {},
                     )
                   : null,
             ),
-            child: imageUrl == null || imageUrl!.isEmpty
+            child: !hasValidImage
                 ? Icon(
                     Icons.person,
                     size: size * 0.5,

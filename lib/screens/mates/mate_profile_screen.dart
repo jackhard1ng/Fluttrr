@@ -100,7 +100,7 @@ class _MateProfileScreenState extends State<MateProfileScreen> {
                               vertical: AppSpacing.xs,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.success.withOpacity(0.1),
+                              color: AppColors.success.withAlpha(26),
                               borderRadius: BorderRadius.circular(AppRadius.circular),
                             ),
                             child: const Row(
@@ -297,7 +297,7 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.primaryBlue.withOpacity(0.1),
+        color: AppColors.primaryBlue.withAlpha(26),
         borderRadius: BorderRadius.circular(AppRadius.md),
       ),
       child: Column(
