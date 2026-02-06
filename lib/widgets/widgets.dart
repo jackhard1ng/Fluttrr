@@ -8,6 +8,7 @@ export 'shimmer_loading.dart';
 export 'empty_states.dart';
 export 'confirm_dialog.dart';
 export 'error_boundary.dart';
+export 'refresh_indicator.dart';
 
 // Input widgets
 export 'input_widgets.dart';
