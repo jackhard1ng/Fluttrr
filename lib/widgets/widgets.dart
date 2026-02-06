@@ -7,6 +7,7 @@ export 'loading_widgets.dart';
 export 'shimmer_loading.dart';
 export 'empty_states.dart';
 export 'confirm_dialog.dart';
+export 'error_boundary.dart';
 
 // Input widgets
 export 'input_widgets.dart';
