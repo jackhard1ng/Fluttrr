@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
+import '../../config/routes.dart';
 import '../../controllers/profile_controller.dart';
 import '../../widgets/common_widgets.dart';
-import '../home/main_screen.dart';
 
 /// Profile setup screen for new users
 class ProfileSetupScreen extends StatefulWidget {
@@ -148,7 +148,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                 final success =
                                     await profileController.updateProfile();
                                 if (success) {
-                                  Get.offAll(() => const MainScreen());
+                                  Nav.toHome();
                                 }
                               },
                             )),

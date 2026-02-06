@@ -333,7 +333,7 @@ class _ProfilePreviewContent extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: () {
                       Navigator.pop(context);
-                      // Navigate to chat
+                      Nav.toChatList();
                     },
                     icon: const Icon(Icons.chat_bubble_outline),
                     label: const Text('Message'),

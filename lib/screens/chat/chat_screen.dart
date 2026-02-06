@@ -3,10 +3,10 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../constants/utils.dart';
+import '../../config/routes.dart';
 import '../../controllers/chat_controller.dart';
 import '../../models/chat_model.dart';
 import '../../widgets/common_widgets.dart';
-import '../mates/mate_profile_screen.dart';
 
 /// Chat screen for direct messaging
 class ChatScreen extends StatefulWidget {
@@ -60,8 +60,7 @@ class _ChatScreenState extends State<ChatScreen> {
         titleSpacing: 0,
         title: GestureDetector(
           onTap: widget.conversation.otherUserId != null && !widget.isBusiness
-              ? () => Get.to(() =>
-                  MateProfileScreen(userId: widget.conversation.otherUserId!))
+              ? () => Nav.toMateProfile(widget.conversation.otherUserId!)
               : null,
           child: Row(
             children: [

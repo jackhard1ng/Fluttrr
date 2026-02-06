@@ -3,11 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
+import '../../config/routes.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/profile_controller.dart';
 import '../../widgets/common_widgets.dart';
-import '../home/main_screen.dart';
-import '../profile/profile_setup_screen.dart';
 import 'reset_password_screen.dart';
 
 /// OTP verification screen
@@ -170,8 +169,8 @@ class _OtpScreenState extends State<OtpScreen> {
                         final success = await authController.verifyOtp();
                         if (success) {
                           Get.put(ProfileController());
-                          // Navigate to profile setup for new users
-                          Get.offAll(() => const ProfileSetupScreen());
+                          // Navigate to profile setup for new users (clear stack)
+                          Get.offAllNamed(AppRoutes.profileSetup);
                         }
                       } else {
                         final success =

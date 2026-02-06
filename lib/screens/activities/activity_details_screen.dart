@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../constants/utils.dart';
+import '../../config/routes.dart';
 import '../../controllers/activity_controller.dart';
 import '../../widgets/common_widgets.dart';
-import '../mates/mate_profile_screen.dart';
 
 /// Activity details screen
 class ActivityDetailsScreen extends StatefulWidget {
@@ -194,8 +194,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
                           itemBuilder: (context, index) {
                             final attendee = activity.attendees[index];
                             return GestureDetector(
-                              onTap: () => Get.to(() =>
-                                  MateProfileScreen(userId: attendee.userId!)),
+                              onTap: () => Nav.toMateProfile(attendee.userId!),
                               child: Padding(
                                 padding:
                                     const EdgeInsets.only(right: AppSpacing.md),

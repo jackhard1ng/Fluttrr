@@ -32,6 +32,7 @@ import '../screens/business/event_photos_screen.dart';
 import '../screens/business/business_welcome_screen.dart';
 import '../screens/support/help_screen.dart';
 import '../screens/support/report_screen.dart';
+import '../screens/chat/chat_list_screen.dart';
 
 /// App route names
 class AppRoutes {
@@ -67,6 +68,9 @@ class AppRoutes {
   static const settings = '/settings';
   static const privacy = '/privacy';
   static const blockedUsers = '/blocked-users';
+
+  // Chat
+  static const chatList = '/chats';
 
   // Support
   static const help = '/help';
@@ -214,6 +218,13 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
 
+    // Chat
+    GetPage(
+      name: AppRoutes.chatList,
+      page: () => const ChatListScreen(),
+      transition: Transition.rightToLeft,
+    ),
+
     // Support
     GetPage(
       name: AppRoutes.help,
@@ -300,6 +311,9 @@ class Nav {
   static void toSettings() => Get.toNamed(AppRoutes.settings);
   static void toPrivacy() => Get.toNamed(AppRoutes.privacy);
   static void toBlockedUsers() => Get.toNamed(AppRoutes.blockedUsers);
+
+  // Chat
+  static void toChatList() => Get.toNamed(AppRoutes.chatList);
 
   // Support
   static void toHelp() => Get.toNamed(AppRoutes.help);

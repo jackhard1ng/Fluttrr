@@ -252,7 +252,7 @@ class LoginScreen extends StatelessWidget {
                       final success = await authController.signInWithGoogle();
                       if (success) {
                         Get.put(ProfileController());
-                        Get.offAll(() => const MainScreen());
+                        Nav.toHome();
                       }
                     },
                   ),
