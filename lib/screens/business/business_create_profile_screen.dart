@@ -6,9 +6,9 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../constants/utils.dart';
+import '../../config/routes.dart';
 import '../../controllers/business_controller.dart';
 import '../../widgets/common_widgets.dart';
-import 'business_home_screen.dart';
 
 /// Business create profile screen
 class BusinessCreateProfileScreen extends StatefulWidget {
@@ -232,7 +232,7 @@ class _BusinessCreateProfileScreenState
         backgroundColor: AppColors.success,
         colorText: Colors.white,
       );
-      Get.offAll(() => const BusinessHomeScreen());
+      Nav.toBusinessHome();
     }
   }
 

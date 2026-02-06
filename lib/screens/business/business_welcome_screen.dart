@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
+import '../../config/routes.dart';
 import '../../widgets/common_widgets.dart';
-import 'business_create_profile_screen.dart';
 
 /// Business welcome screen
 class BusinessWelcomeScreen extends StatelessWidget {
@@ -82,7 +82,7 @@ class BusinessWelcomeScreen extends StatelessWidget {
               // Get started button
               GradientButton(
                 text: 'Get Started',
-                onPressed: () => Get.to(() => const BusinessCreateProfileScreen()),
+                onPressed: () => Nav.toBusinessCreateProfile(),
               ),
 
               const SizedBox(height: AppSpacing.md),

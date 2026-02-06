@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 
 import '../models/chat_model.dart';
+import '../models/business_model.dart';
 import '../screens/auth/splash_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
@@ -33,6 +34,11 @@ import '../screens/business/business_analytics_screen.dart';
 import '../screens/business/quick_create_event_screen.dart';
 import '../screens/business/event_photos_screen.dart';
 import '../screens/business/business_welcome_screen.dart';
+import '../screens/business/business_home_screen.dart';
+import '../screens/business/business_create_profile_screen.dart';
+import '../screens/business/business_event_details_screen.dart';
+import '../screens/business/create_business_event_screen.dart';
+import '../screens/business/subscription_screen.dart';
 import '../screens/support/help_screen.dart';
 import '../screens/support/report_screen.dart';
 import '../screens/chat/chat_list_screen.dart';
@@ -91,12 +97,17 @@ class AppRoutes {
 
   // Business
   static const businessWelcome = '/business/welcome';
+  static const businessHome = '/business/home';
   static const businessDashboard = '/business/dashboard';
+  static const businessCreateProfile = '/business/create-profile';
   static const businessEvents = '/business/events';
+  static const businessEventDetails = '/business/event-details';
   static const businessReviews = '/business/reviews';
   static const businessAnalytics = '/business/analytics';
   static const businessCreateEvent = '/business/create-event';
+  static const businessNewEvent = '/business/new-event';
   static const businessPhotos = '/business/photos';
+  static const subscription = '/business/subscription';
 }
 
 /// App pages configuration
@@ -302,13 +313,31 @@ class AppPages {
       transition: Transition.rightToLeft,
     ),
     GetPage(
+      name: AppRoutes.businessHome,
+      page: () => const BusinessHomeScreen(),
+      transition: Transition.fadeIn,
+    ),
+    GetPage(
       name: AppRoutes.businessDashboard,
       page: () => const BusinessDashboardScreen(),
       transition: Transition.rightToLeft,
     ),
     GetPage(
+      name: AppRoutes.businessCreateProfile,
+      page: () => const BusinessCreateProfileScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
       name: AppRoutes.businessEvents,
       page: () => const BusinessEventsScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.businessEventDetails,
+      page: () {
+        final event = Get.arguments as BusinessEvent;
+        return BusinessEventDetailsScreen(event: event);
+      },
       transition: Transition.rightToLeft,
     ),
     GetPage(
@@ -330,6 +359,17 @@ class AppPages {
     GetPage(
       name: AppRoutes.businessPhotos,
       page: () => const EventPhotosScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.businessNewEvent,
+      page: () => const CreateBusinessEventScreen(),
+      transition: Transition.downToUp,
+      fullscreenDialog: true,
+    ),
+    GetPage(
+      name: AppRoutes.subscription,
+      page: () => const SubscriptionScreen(),
       transition: Transition.rightToLeft,
     ),
   ];
@@ -402,13 +442,21 @@ class Nav {
 
   // Business
   static void toBusinessWelcome() => Get.toNamed(AppRoutes.businessWelcome);
+  static void toBusinessHome() => Get.offAllNamed(AppRoutes.businessHome);
   static void toBusinessDashboard() => Get.offAllNamed(AppRoutes.businessDashboard);
   static void toBusinessDashboardPush() => Get.toNamed(AppRoutes.businessDashboard);
+  static void toBusinessCreateProfile() => Get.toNamed(AppRoutes.businessCreateProfile);
   static void toBusinessEvents() => Get.toNamed(AppRoutes.businessEvents);
+  static void toBusinessEventDetails(BusinessEvent event) => Get.toNamed(
+        AppRoutes.businessEventDetails,
+        arguments: event,
+      );
   static void toBusinessReviews() => Get.toNamed(AppRoutes.businessReviews);
   static void toBusinessAnalytics() => Get.toNamed(AppRoutes.businessAnalytics);
   static void toBusinessCreateEvent() => Get.toNamed(AppRoutes.businessCreateEvent);
+  static void toBusinessNewEvent() => Get.toNamed(AppRoutes.businessNewEvent);
   static void toBusinessPhotos() => Get.toNamed(AppRoutes.businessPhotos);
+  static void toSubscription() => Get.toNamed(AppRoutes.subscription);
 
   // Common
   static void back() => Get.back();

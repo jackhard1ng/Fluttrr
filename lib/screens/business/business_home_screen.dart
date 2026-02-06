@@ -7,9 +7,6 @@ import '../../config/routes.dart';
 import '../../controllers/business_controller.dart';
 import '../../models/business_model.dart';
 import '../../widgets/common_widgets.dart';
-import 'business_event_details_screen.dart';
-import 'create_business_event_screen.dart';
-import 'subscription_screen.dart';
 
 /// Business home screen (dashboard)
 class BusinessHomeScreen extends StatefulWidget {
@@ -82,7 +79,7 @@ class _BusinessHomeScreenState extends State<BusinessHomeScreen>
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Get.to(() => const CreateBusinessEventScreen()),
+        onPressed: () => Nav.toBusinessNewEvent(),
         backgroundColor: AppColors.primaryBlue,
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text(
@@ -118,7 +115,7 @@ class _BusinessHomeScreenState extends State<BusinessHomeScreen>
               ),
               IconButton(
                 icon: const Icon(Icons.workspace_premium),
-                onPressed: () => Get.to(() => const SubscriptionScreen()),
+                onPressed: () => Nav.toSubscription(),
               ),
             ],
           ),
@@ -287,7 +284,7 @@ class _BusinessEventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Get.to(() => BusinessEventDetailsScreen(event: event)),
+      onTap: () => Nav.toBusinessEventDetails(event),
       child: Container(
         margin: const EdgeInsets.only(bottom: AppSpacing.md),
         decoration: BoxDecoration(
