@@ -115,3 +115,118 @@ class TagSuggestions extends StatelessWidget {
     );
   }
 }
+
+/// Event tags input with add/remove functionality
+class EventTagsInput extends StatefulWidget {
+  final List<String> tags;
+  final Function(String) onAdd;
+  final Function(String) onRemove;
+
+  const EventTagsInput({
+    super.key,
+    required this.tags,
+    required this.onAdd,
+    required this.onRemove,
+  });
+
+  @override
+  State<EventTagsInput> createState() => _EventTagsInputState();
+}
+
+class _EventTagsInputState extends State<EventTagsInput> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _addTag() {
+    final tag = _controller.text.trim().toLowerCase();
+    if (tag.isNotEmpty && !widget.tags.contains(tag)) {
+      widget.onAdd(tag);
+      _controller.clear();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Tags',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: AppColors.darkGrey,
+          ),
+        ),
+        const SizedBox(height: 8),
+        if (widget.tags.isNotEmpty) ...[
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: widget.tags.map((tag) {
+              return GestureDetector(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  widget.onRemove(tag);
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryBlue.withAlpha(26),
+                    borderRadius: BorderRadius.circular(AppRadius.circular),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '#$tag',
+                        style: TextStyle(
+                          color: AppColors.primaryBlue,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(Icons.close, size: 14, color: AppColors.primaryBlue),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 12),
+        ],
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: AppColors.lightGrey.withAlpha(128),
+            borderRadius: BorderRadius.circular(AppRadius.md),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  decoration: InputDecoration(
+                    hintText: 'Add a tag...',
+                    hintStyle: TextStyle(color: AppColors.mediumGrey),
+                    border: InputBorder.none,
+                  ),
+                  onSubmitted: (_) => _addTag(),
+                ),
+              ),
+              GestureDetector(
+                onTap: _addTag,
+                child: Icon(Icons.add_circle, color: AppColors.primaryBlue),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}

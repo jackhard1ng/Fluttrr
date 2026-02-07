@@ -83,12 +83,14 @@ class _EditEventScreenState extends State<EditEventScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (_hasChanges) {
-          return await _showDiscardDialog();
+    return PopScope(
+      canPop: !_hasChanges,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldPop = await _showDiscardDialog();
+        if (shouldPop && mounted) {
+          Get.back();
         }
-        return true;
       },
       child: Scaffold(
         backgroundColor: Colors.white,

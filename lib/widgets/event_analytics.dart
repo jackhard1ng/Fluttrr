@@ -21,8 +21,8 @@ class EventPerformance extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final conversionRate = views > 0 ? (rsvps / views * 100) : 0;
-    final attendanceRate = rsvps > 0 ? (checkins / rsvps * 100) : 0;
+    final conversionRate = views > 0 ? (rsvps / views * 100).toDouble() : 0.0;
+    final attendanceRate = rsvps > 0 ? (checkins / rsvps * 100).toDouble() : 0.0;
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),

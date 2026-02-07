@@ -32,6 +32,15 @@ class ApiResponse<T> {
     );
   }
 
+  factory ApiResponse.error(String errorMessage, {int? statusCode}) {
+    return ApiResponse(
+      success: false,
+      error: errorMessage,
+      message: errorMessage,
+      statusCode: statusCode,
+    );
+  }
+
   bool get isSuccess => success;
   bool get isFailure => !success;
 

@@ -42,7 +42,6 @@ class ActivityModel {
 
   // Convenience getters
   DateTime? get startTime => dateTime;
-  String get displayName => name ?? 'Unnamed Activity';
 
   factory ActivityModel.fromJson(Map<String, dynamic> json) {
     return ActivityModel(

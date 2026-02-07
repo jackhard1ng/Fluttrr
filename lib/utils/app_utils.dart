@@ -71,8 +71,8 @@ class AppUtils {
   /// Show a loading dialog
   static void showLoading({String? message}) {
     Get.dialog(
-      WillPopScope(
-        onWillPop: () async => false,
+      PopScope(
+        canPop: false,
         child: Center(
           child: Container(
             padding: const EdgeInsets.all(AppSpacing.lg),
@@ -280,7 +280,7 @@ extension DateTimeExtension on DateTime {
 }
 
 /// Extension on String for validation
-extension StringExtension on String {
+extension StringValidationExtension on String {
   /// Check if string is a valid email
   bool get isValidEmail => GetUtils.isEmail(this);
 
@@ -288,8 +288,8 @@ extension StringExtension on String {
   bool get isValidPhone => GetUtils.isPhoneNumber(this);
 
   /// Capitalize first letter
-  String get capitalize => isEmpty ? this : '${this[0].toUpperCase()}${substring(1)}';
+  String get capitalizeFirst => isEmpty ? this : '${this[0].toUpperCase()}${substring(1)}';
 
   /// Capitalize each word
-  String get titleCase => split(' ').map((word) => word.capitalize).join(' ');
+  String get toTitleCase => split(' ').map((word) => word.capitalizeFirst).join(' ');
 }

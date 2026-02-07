@@ -22,6 +22,14 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   bool _isBookmarked = false;
   RsvpStatus? _rsvpStatus;
 
+  void showShareOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const ShareMessageSheet(eventName: 'Friday Night Board Games'),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,7 +172,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   const SizedBox(height: 20),
 
                   // Tags
-                  const EventTagsDisplay(
+                  const EventTags(
                     tags: ['games', 'social', 'chill', 'indoor'],
                   ),
                   const SizedBox(height: 20),
@@ -201,7 +209,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   const SizedBox(height: 20),
 
                   // Weather
-                  const WeatherBadge(weather: WeatherType.sunny, temperature: '72°F'),
+                  const WeatherBadge(weather: WeatherType.sunny, temperature: 72),
                   const SizedBox(height: 20),
 
                   // Spots
