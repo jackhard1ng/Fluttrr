@@ -47,7 +47,7 @@ class ApiService {
       final response = await http.get(uri, headers: _headers);
       return _handleResponse(response, fromJson);
     } catch (e) {
-      return ApiResponse.error(_getErrorMessage(e));
+      return ApiResponse<T>(success: false, error: _getErrorMessage(e));
     }
   }
 
@@ -66,7 +66,7 @@ class ApiService {
       );
       return _handleResponse(response, fromJson);
     } catch (e) {
-      return ApiResponse.error(_getErrorMessage(e));
+      return ApiResponse<T>(success: false, error: _getErrorMessage(e));
     }
   }
 
@@ -85,7 +85,7 @@ class ApiService {
       );
       return _handleResponse(response, fromJson);
     } catch (e) {
-      return ApiResponse.error(_getErrorMessage(e));
+      return ApiResponse<T>(success: false, error: _getErrorMessage(e));
     }
   }
 
@@ -104,7 +104,7 @@ class ApiService {
       );
       return _handleResponse(response, fromJson);
     } catch (e) {
-      return ApiResponse.error(_getErrorMessage(e));
+      return ApiResponse<T>(success: false, error: _getErrorMessage(e));
     }
   }
 
@@ -118,7 +118,7 @@ class ApiService {
       final response = await http.delete(uri, headers: _headers);
       return _handleResponse(response, fromJson);
     } catch (e) {
-      return ApiResponse.error(_getErrorMessage(e));
+      return ApiResponse<T>(success: false, error: _getErrorMessage(e));
     }
   }
 
@@ -144,23 +144,23 @@ class ApiService {
 
     switch (statusCode) {
       case 400:
-        return ApiResponse.error('Bad request: $message');
+        return ApiResponse<T>(success: false, error: 'Bad request: $message');
       case 401:
-        return ApiResponse.error('Unauthorized: Please log in again');
+        return ApiResponse<T>(success: false, error: 'Unauthorized: Please log in again');
       case 403:
-        return ApiResponse.error('Forbidden: You don\'t have permission');
+        return ApiResponse<T>(success: false, error: 'Forbidden: You don\'t have permission');
       case 404:
-        return ApiResponse.error('Not found');
+        return ApiResponse<T>(success: false, error: 'Not found');
       case 422:
-        return ApiResponse.error('Validation error: $message');
+        return ApiResponse<T>(success: false, error: 'Validation error: $message');
       case 429:
-        return ApiResponse.error('Too many requests. Please wait.');
+        return ApiResponse<T>(success: false, error: 'Too many requests. Please wait.');
       case 500:
       case 502:
       case 503:
-        return ApiResponse.error('Server error. Please try again later.');
+        return ApiResponse<T>(success: false, error: 'Server error. Please try again later.');
       default:
-        return ApiResponse.error(message);
+        return ApiResponse<T>(success: false, error: message);
     }
   }
 
