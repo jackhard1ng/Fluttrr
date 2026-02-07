@@ -134,9 +134,9 @@ class ApiService {
 
     if (statusCode >= 200 && statusCode < 300) {
       if (fromJson != null && body.isNotEmpty) {
-        return ApiResponse.success(data: fromJson(body));
+        return ApiResponse<T>(success: true, data: fromJson(body));
       }
-      return ApiResponse.success();
+      return ApiResponse<T>(success: true);
     }
 
     // Handle error responses

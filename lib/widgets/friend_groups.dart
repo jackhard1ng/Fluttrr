@@ -94,11 +94,11 @@ class FriendGroupCard extends StatelessWidget {
             // Member avatars
             Row(
               children: [
-                ...members.take(5).toList().asMap().entries.map((entry) {
-                  return Padding(
-                    padding: EdgeInsets.only(left: entry.key > 0 ? 0 : 0),
+                for (var i = 0; i < members.take(5).length; i++)
+                  Padding(
+                    padding: EdgeInsets.zero,
                     child: Transform.translate(
-                      offset: Offset(-entry.key * 8.0, 0),
+                      offset: Offset(-i * 8.0, 0),
                       child: Container(
                         width: 36,
                         height: 36,
@@ -106,17 +106,17 @@ class FriendGroupCard extends StatelessWidget {
                           color: AppColors.primaryBlue.withAlpha(51),
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.white, width: 2),
-                          image: entry.value.imageUrl != null
+                          image: members[i].imageUrl != null
                               ? DecorationImage(
-                                  image: NetworkImage(entry.value.imageUrl!),
+                                  image: NetworkImage(members[i].imageUrl!),
                                   fit: BoxFit.cover,
                                 )
                               : null,
                         ),
-                        child: entry.value.imageUrl == null
+                        child: members[i].imageUrl == null
                             ? Center(
                                 child: Text(
-                                  entry.value.name[0].toUpperCase(),
+                                  members[i].name[0].toUpperCase(),
                                   style: TextStyle(
                                     color: AppColors.primaryBlue,
                                     fontWeight: FontWeight.bold,
@@ -126,8 +126,7 @@ class FriendGroupCard extends StatelessWidget {
                             : null,
                       ),
                     ),
-                  );
-                }),
+                  ),
                 if (memberCount > 5)
                   Transform.translate(
                     offset: Offset(-5 * 8.0, 0),
