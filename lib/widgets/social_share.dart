@@ -15,23 +15,26 @@ class ShareButton extends StatelessWidget {
     this.compact = false,
   });
 
+  void _handleTap() {
+    HapticFeedback.lightImpact();
+    if (onTap != null) {
+      onTap!();
+    } else {
+      _showShareSheet();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (compact) {
       return GestureDetector(
-        onTap: () {
-          HapticFeedback.lightImpact();
-          onTap?.call() ?? _showShareSheet();
-        },
+        onTap: _handleTap,
         child: Icon(Icons.share, color: AppColors.mediumGrey),
       );
     }
 
     return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        onTap?.call() ?? _showShareSheet();
-      },
+      onTap: _handleTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(

@@ -286,10 +286,4 @@ extension StringValidationExtension on String {
 
   /// Check if string is a valid phone number
   bool get isValidPhone => GetUtils.isPhoneNumber(this);
-
-  /// Capitalize first letter
-  String get capitalizeFirst => isEmpty ? this : '${this[0].toUpperCase()}${substring(1)}';
-
-  /// Capitalize each word
-  String get toTitleCase => split(' ').map((word) => word.capitalizeFirst).join(' ');
 }

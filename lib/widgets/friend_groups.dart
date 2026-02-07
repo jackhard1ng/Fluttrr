@@ -94,7 +94,7 @@ class FriendGroupCard extends StatelessWidget {
             // Member avatars
             Row(
               children: [
-                ...members.take(5).asMap().entries.map((entry) {
+                ...members.take(5).toList().asMap().entries.map((entry) {
                   return Padding(
                     padding: EdgeInsets.only(left: entry.key > 0 ? 0 : 0),
                     child: Transform.translate(

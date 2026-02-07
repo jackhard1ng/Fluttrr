@@ -1,7 +1,9 @@
 // Widgets barrel file - exports all widget files
 
 // Core widgets
-export 'common_widgets.dart';
+// Note: common_widgets.dart re-exports some widgets that also exist in dedicated files.
+// Hide duplicates to avoid ambiguous exports.
+export 'common_widgets.dart' hide LoadingIndicator, ShimmerCard, EmptyState, CustomTextField, UserAvatar, EventTagsInput;
 export 'animated_widgets.dart';
 export 'loading_widgets.dart';
 export 'shimmer_loading.dart';
@@ -23,12 +25,12 @@ export 'user_list_tile.dart';
 // Profile & social
 export 'profile_preview_sheet.dart';
 export 'profile_stats.dart';
-export 'simple_badges.dart';
+export 'simple_badges.dart' hide UserBadge;
 export 'badge_widgets.dart';
 export 'streak_counter.dart';
 export 'match_indicator.dart';
 export 'mutual_friends.dart';
-export 'friend_suggestions.dart';
+export 'friend_suggestions.dart' hide CompatibilityScore;
 export 'new_connection.dart';
 export 'last_seen.dart';
 
@@ -39,7 +41,7 @@ export 'icebreaker_widget.dart';
 export 'intro_message.dart';
 
 // Safety features
-export 'safety_features.dart';
+export 'safety_features.dart' hide SafetyCheckin;
 export 'safety_checkin.dart';
 
 // Activity & timeline
@@ -61,7 +63,7 @@ export 'event_analytics.dart';
 export 'similar_events.dart';
 export 'repeat_event.dart';
 export 'spot_status.dart';
-export 'live_event_widgets.dart';
+export 'live_event_widgets.dart' hide EventVibe;
 export 'post_event_widgets.dart';
 export 'photo_memories.dart';
 export 'thank_host.dart';
@@ -82,7 +84,7 @@ export 'quick_poll.dart';
 export 'quick_note.dart';
 export 'category_chips.dart';
 export 'date_display.dart';
-export 'share_card.dart';
+export 'share_card.dart' hide ShareButton;
 export 'notification_badges.dart';
 
 // Business widgets
