@@ -195,7 +195,7 @@ class _DirectChatsTab extends StatelessWidget {
         return const EmptyState(
           icon: Icons.chat_bubble_outline,
           title: 'No Messages',
-          subtitle: 'Start a conversation with your matches!',
+          subtitle: 'Chat with people you meet at events!',
         );
       }
 
