@@ -28,11 +28,17 @@ class _ChatListScreenState extends State<ChatListScreen>
     _loadChats();
   }
 
-  void _loadChats() {
+  Future<void> _loadChats() async {
     final controller = Get.find<ChatController>();
-    controller.loadChatList();
-    controller.loadGroupChats();
-    controller.loadBusinessChats();
+    // Load all chat types with error handling
+    await Future.wait([
+      controller.loadChatList(),
+      controller.loadGroupChats(),
+      controller.loadBusinessChats(),
+    ], eagerError: false).catchError((e) {
+      debugPrint('Error loading chats: $e');
+      return <void>[];
+    });
   }
 
   @override
@@ -42,13 +48,16 @@ class _ChatListScreenState extends State<ChatListScreen>
   }
 
   void _showChatSearch(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
-      ),
-      builder: (context) => Padding(
+    // Guard against invalid context
+    if (!context.mounted) return;
+    try {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        ),
+        builder: (context) => Padding(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
@@ -103,6 +112,9 @@ class _ChatListScreenState extends State<ChatListScreen>
         ),
       ),
     );
+    } catch (e) {
+      debugPrint('Error showing chat search: $e');
+    }
   }
 
   @override
@@ -566,7 +578,10 @@ class _GroupChatTile extends StatelessWidget {
         ),
         child: Center(
           child: Text(
-            group.displayName[0].toUpperCase(),
+            // Safely access first character with fallback
+            group.displayName.isNotEmpty
+                ? group.displayName[0].toUpperCase()
+                : '?',
             style: const TextStyle(
               color: AppColors.primaryBlue,
               fontWeight: FontWeight.bold,

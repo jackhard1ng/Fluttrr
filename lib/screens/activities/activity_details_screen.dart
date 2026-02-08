@@ -173,11 +173,12 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
                     itemCount: connections.length,
                     itemBuilder: (context, index) {
                       final friend = connections[index];
+                      // Safely extract image URL with null-safe chain
+                      final images = friend.matchedUser?.profile?.images;
+                      final imageUrl = (images != null && images.isNotEmpty) ? images.first : null;
                       return ListTile(
                         leading: UserAvatar(
-                          imageUrl: friend.matchedUser?.profile?.images?.isNotEmpty == true
-                              ? friend.matchedUser!.profile!.images!.first
-                              : null,
+                          imageUrl: imageUrl,
                           size: 45,
                         ),
                         title: Text(friend.matchedUser?.userName ?? 'Friend'),

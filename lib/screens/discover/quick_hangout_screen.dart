@@ -24,6 +24,7 @@ class _QuickHangoutScreenState extends State<QuickHangoutScreen> {
   bool _friendsOnly = true;
   final _noteController = TextEditingController();
   final List<String> _invitedFriends = [];
+  bool _isCreating = false;
 
   final List<Map<String, dynamic>> _quickActivities = [
     {'name': 'Coffee', 'icon': Icons.coffee, 'color': const Color(0xFF8D6E63)},
@@ -69,17 +70,45 @@ class _QuickHangoutScreenState extends State<QuickHangoutScreen> {
     }
   }
 
-  void _createHangout() {
+  Future<void> _createHangout() async {
+    // Prevent double submission
+    if (_isCreating) return;
+
+    setState(() => _isCreating = true);
     HapticFeedback.heavyImpact();
 
-    // Show success
-    Get.dialog(
-      _SuccessDialog(
-        activity: _selectedActivity!,
-        timing: _selectedTiming,
-        groupSize: _groupSize,
-      ),
-    );
+    try {
+      // TODO: Add actual backend call here when API is ready
+      // For now, simulate a brief delay
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      // Check if widget is still mounted
+      if (!mounted) return;
+
+      // Show success
+      Get.dialog(
+        _SuccessDialog(
+          activity: _selectedActivity!,
+          timing: _selectedTiming,
+          groupSize: _groupSize,
+        ),
+      );
+    } catch (e) {
+      debugPrint('Error creating hangout: $e');
+      if (mounted) {
+        Get.snackbar(
+          'Error',
+          'Failed to create hangout. Please try again.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.error,
+          colorText: Colors.white,
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isCreating = false);
+      }
+    }
   }
 
   @override
@@ -254,7 +283,11 @@ class _QuickHangoutScreenState extends State<QuickHangoutScreen> {
                     boxShadow: isSelected
                         ? [
                             BoxShadow(
-                              color: (activity['color'] as Color).withAlpha(51),
+                              // Safely cast color with fallback
+                              color: (activity['color'] is Color
+                                      ? activity['color'] as Color
+                                      : AppColors.primaryBlue)
+                                  .withAlpha(51),
                               blurRadius: 12,
                             ),
                           ]

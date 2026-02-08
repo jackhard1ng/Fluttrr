@@ -57,6 +57,7 @@ class LocationService {
   LocationData? _currentLocation;
   StreamSubscription<Position>? _locationSubscription;
   final _locationController = StreamController<LocationData>.broadcast();
+  bool _isDisposed = false;
 
   /// Stream of location updates
   Stream<LocationData> get locationStream => _locationController.stream;
@@ -169,6 +170,9 @@ class LocationService {
       locationSettings: locationSettings,
     ).listen(
       (Position position) async {
+        // Guard against processing after disposal
+        if (_isDisposed || _locationController.isClosed) return;
+
         _currentLocation = LocationData(
           latitude: position.latitude,
           longitude: position.longitude,
@@ -176,10 +180,15 @@ class LocationService {
         if (!_locationController.isClosed) {
           _locationController.add(_currentLocation!);
         }
-        await _cacheLocation(_currentLocation!);
+        // Only cache if not disposed
+        if (!_isDisposed) {
+          await _cacheLocation(_currentLocation!);
+        }
       },
       onError: (error) {
         debugPrint('Location stream error: $error');
+        // Guard against cleanup after disposal
+        if (_isDisposed) return;
         // Clean up subscription on error
         _locationSubscription?.cancel();
         _locationSubscription = null;
@@ -364,7 +373,10 @@ class LocationService {
 
   /// Dispose of the service
   void dispose() {
+    _isDisposed = true;
     stopLocationUpdates();
-    _locationController.close();
+    if (!_locationController.isClosed) {
+      _locationController.close();
+    }
   }
 }

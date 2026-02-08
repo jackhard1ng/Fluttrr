@@ -123,6 +123,8 @@ class _SwipeDiscoverScreenState extends State<SwipeDiscoverScreen>
     ));
 
     _swipeController.forward().then((_) {
+      // Guard against widget disposal during animation
+      if (!mounted) return;
       _handleSwipeComplete(direction, totalCards);
     });
   }
@@ -237,11 +239,12 @@ class _SwipeDiscoverScreenState extends State<SwipeDiscoverScreen>
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  // Background cards
-                  for (int i = min(_currentIndex + 2, activities.length - 1);
-                       i > _currentIndex;
-                       i--)
-                    _buildBackgroundCard(activities[i], i - _currentIndex),
+                  // Background cards - with bounds checking
+                  if (activities.length > 1)
+                    for (int i = min(_currentIndex + 2, activities.length - 1);
+                         i > _currentIndex && i >= 0 && i < activities.length;
+                         i--)
+                      _buildBackgroundCard(activities[i], i - _currentIndex),
 
                   // Active card
                   if (_currentIndex < activities.length)

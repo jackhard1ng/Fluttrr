@@ -225,6 +225,7 @@ class EventAttendee {
       arrivalStatus: json['arrival_status'] != null
           ? ArrivalStatus.values.firstWhere(
               (s) => s.name == json['arrival_status'],
+              orElse: () => ArrivalStatus.onTime,
             )
           : null,
       isCheckedIn: json['is_checked_in'] ?? false,

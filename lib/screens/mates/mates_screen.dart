@@ -323,7 +323,10 @@ class _PersonCard extends StatelessWidget {
                     ),
                     child: Center(
                       child: Text(
-                        mate.displayName[0],
+                        // Safely access first character with fallback
+                        mate.displayName.isNotEmpty
+                            ? mate.displayName[0]
+                            : '?',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
