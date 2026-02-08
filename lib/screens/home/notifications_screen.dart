@@ -6,6 +6,7 @@ import '../../config/routes.dart';
 import '../../constants/utils.dart';
 import '../../widgets/notification_badges.dart';
 import '../../widgets/empty_states.dart';
+import '../../widgets/advanced_ux.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -117,9 +118,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     child: const Icon(Icons.delete, color: Colors.white),
                   ),
                   onDismissed: (_) {
+                    final removed = notification;
                     setState(() {
                       _notifications.removeAt(index);
                     });
+                    UndoAction.show(
+                      message: 'Notification deleted',
+                      onUndo: () {
+                        setState(() {
+                          _notifications.insert(index, removed);
+                        });
+                      },
+                    );
                   },
                   child: NotificationItem(
                     type: notification.type,

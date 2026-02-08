@@ -47,6 +47,8 @@ dependencies:
   latlong2: ^0.9.1                       # Needed for flutter_map
   url_launcher: ^6.2.5                   # For opening URLs
   geocoding: ^3.0.0                      # For geocoding (address to coordinates)
+  sensors_plus: ^6.0.1                   # For shake detection (feedback)
+  connectivity_plus: ^6.0.5              # For network connectivity status
 
 dev_dependencies:
   flutter_test:

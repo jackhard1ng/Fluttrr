@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
@@ -9,6 +10,7 @@ import '../../controllers/activity_controller.dart';
 import '../../controllers/profile_controller.dart';
 import '../../models/activity_model.dart';
 import '../../widgets/common_widgets.dart';
+import '../../widgets/advanced_ux.dart';
 
 /// Activities main screen with list and map view toggle
 class ActivitiesScreen extends StatefulWidget {
@@ -20,6 +22,13 @@ class ActivitiesScreen extends StatefulWidget {
 
 class _ActivitiesScreenState extends State<ActivitiesScreen> {
   bool _isMapView = false;
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -153,6 +162,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                 return RefreshIndicator(
                   onRefresh: () => activityController.loadActivities(refresh: true),
                   child: ListView.builder(
+                    controller: _scrollController,
                     padding: const EdgeInsets.all(AppSpacing.md),
                     itemCount: activityController.allActivities.length + 1,
                     itemBuilder: (context, index) {
@@ -173,15 +183,30 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
           ],
         ),
       ),
-      floatingActionButton: canCreateEvents
-          ? FloatingActionButton.extended(
-              onPressed: () => Nav.toCreateActivity(),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          // Scroll to top FAB (only in list view)
+          if (!_isMapView)
+            Padding(
+              padding: EdgeInsets.only(right: canCreateEvents ? 12 : 0),
+              child: ScrollToTopFAB(scrollController: _scrollController),
+            ),
+          // Create activity FAB
+          if (canCreateEvents)
+            FloatingActionButton.extended(
+              heroTag: 'create_activity',
+              onPressed: () {
+                HapticFeedback.mediumImpact();
+                Nav.toCreateActivity();
+              },
               icon: const Icon(Icons.add),
               label: const Text('Create'),
               backgroundColor: AppColors.primaryBlue,
               foregroundColor: Colors.white,
-            )
-          : null,
+            ),
+        ],
+      ),
     );
   }
 

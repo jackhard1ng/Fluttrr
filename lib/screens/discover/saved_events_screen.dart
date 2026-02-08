@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
 import '../../widgets/event_bookmark.dart';
+import '../../widgets/advanced_ux.dart';
 
 class SavedEventsScreen extends StatefulWidget {
   const SavedEventsScreen({super.key});
@@ -100,10 +101,18 @@ class _SavedEventsScreenState extends State<SavedEventsScreen> {
                       child: const Icon(Icons.delete, color: Colors.white),
                     ),
                     onDismissed: (_) {
+                      final removed = event;
                       setState(() {
                         _savedEvents.removeAt(index);
                       });
-                      showSavedToast(context, removed: true);
+                      UndoAction.show(
+                        message: '${removed.title} removed',
+                        onUndo: () {
+                          setState(() {
+                            _savedEvents.insert(index, removed);
+                          });
+                        },
+                      );
                     },
                     child: _SavedEventCard(
                       event: event,

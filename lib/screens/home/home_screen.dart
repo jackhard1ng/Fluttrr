@@ -8,6 +8,7 @@ import '../../controllers/profile_controller.dart';
 import '../../controllers/discover_controller.dart';
 import '../../controllers/notifications_controller.dart';
 import '../../models/event_model.dart';
+import '../../widgets/advanced_ux.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -37,59 +38,64 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: RefreshIndicator(
-          color: AppColors.primaryBlue,
-          onRefresh: () async {
-            HapticFeedback.mediumImpact();
-            final discoverController = Get.find<DiscoverController>();
-            await discoverController.refreshEvents();
-          },
-          child: CustomScrollView(
-            slivers: [
-              // App Bar
-              const _HomeAppBar(),
+    return DoubleBackToExit(
+      child: ShakeDetector(
+        onShake: () => showShakeFeedbackDialog(context),
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          body: SafeArea(
+            child: RefreshIndicator(
+              color: AppColors.primaryBlue,
+              onRefresh: () async {
+                HapticFeedback.mediumImpact();
+                final discoverController = Get.find<DiscoverController>();
+                await discoverController.refreshEvents();
+              },
+              child: CustomScrollView(
+                slivers: [
+                  // App Bar
+                  const _HomeAppBar(),
 
-              // Content
-              SliverToBoxAdapter(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Greeting & Search
-                    const _GreetingSection(),
+                  // Content
+                  SliverToBoxAdapter(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Greeting & Search
+                        const _GreetingSection(),
 
-                    // Free Right Now Card
-                    const _FreeNowCard(),
+                        // Free Right Now Card
+                        const _FreeNowCard(),
 
-                    // Your Upcoming Events
-                    const _YourEventsSection(),
+                        // Your Upcoming Events
+                        const _YourEventsSection(),
 
-                    // What Friends Are Doing
-                    const _FriendsActivitySection(),
+                        // What Friends Are Doing
+                        const _FriendsActivitySection(),
 
-                    // Quick Browse Categories
-                    const _QuickCategoriesSection(),
+                        // Quick Browse Categories
+                        const _QuickCategoriesSection(),
 
-                    // Happening Today
-                    const _TodayEventsSection(),
+                        // Happening Today
+                        const _TodayEventsSection(),
 
-                    // Trending Near You
-                    const _TrendingSection(),
+                        // Trending Near You
+                        const _TrendingSection(),
 
-                    // Suggested For You
-                    const _SuggestedSection(),
+                        // Suggested For You
+                        const _SuggestedSection(),
 
-                    // Create Your Own
-                    const _CreateEventPrompt(),
+                        // Create Your Own
+                        const _CreateEventPrompt(),
 
-                    // Bottom padding
-                    const SizedBox(height: 100),
-                  ],
-                ),
+                        // Bottom padding
+                        const SizedBox(height: 100),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
