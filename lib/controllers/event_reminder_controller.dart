@@ -45,14 +45,15 @@ class EventReminderController extends GetxController {
   Future<void> loadPreferences() async {
     try {
       final response = await _repository.getReminderPreferences();
-      if (response.success && response.data != null) {
-        preferences.value = response.data;
+      final data = response.data;
+      if (response.success && data != null) {
+        preferences.value = data;
         // Apply default preferences
         selectedDeliveryMethods.value = [
-          if (response.data!.pushEnabled) ReminderDeliveryMethod.push,
-          if (response.data!.inAppEnabled) ReminderDeliveryMethod.inApp,
-          if (response.data!.emailEnabled) ReminderDeliveryMethod.email,
-          if (response.data!.smsEnabled) ReminderDeliveryMethod.sms,
+          if (data.pushEnabled) ReminderDeliveryMethod.push,
+          if (data.inAppEnabled) ReminderDeliveryMethod.inApp,
+          if (data.emailEnabled) ReminderDeliveryMethod.email,
+          if (data.smsEnabled) ReminderDeliveryMethod.sms,
         ];
       }
     } catch (e) {
@@ -65,8 +66,9 @@ class EventReminderController extends GetxController {
     isLoading.value = true;
     try {
       final response = await _repository.getEventReminders(eventId: eventId);
-      if (response.success && response.data != null) {
-        eventReminders.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        eventReminders.value = data;
       }
     } catch (e) {
       debugPrint('Error loading event reminders: $e');
@@ -80,8 +82,9 @@ class EventReminderController extends GetxController {
     isLoading.value = true;
     try {
       final response = await _repository.getUserReminders();
-      if (response.success && response.data != null) {
-        allReminders.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        allReminders.value = data;
       }
     } catch (e) {
       debugPrint('Error loading all reminders: $e');
@@ -94,8 +97,9 @@ class EventReminderController extends GetxController {
   Future<void> loadUpcomingReminders() async {
     try {
       final response = await _repository.getUpcomingReminders();
-      if (response.success && response.data != null) {
-        upcomingReminders.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        upcomingReminders.value = data;
       }
     } catch (e) {
       debugPrint('Error loading upcoming reminders: $e');
@@ -126,8 +130,9 @@ class EventReminderController extends GetxController {
             : null,
       );
 
-      if (response.success && response.data != null) {
-        eventReminders.add(response.data!);
+      final data = response.data;
+      if (response.success && data != null) {
+        eventReminders.add(data);
         successMessage.value = 'Reminder set!';
         _clearForm();
         return true;
@@ -163,10 +168,11 @@ class EventReminderController extends GetxController {
         customMessage: customMessage,
       );
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         final index = eventReminders.indexWhere((r) => r.reminderId == reminderId);
         if (index != -1) {
-          eventReminders[index] = response.data!;
+          eventReminders[index] = data;
         }
         successMessage.value = 'Reminder updated';
         return true;
@@ -315,8 +321,9 @@ class EventReminderController extends GetxController {
   /// Cancel a reminder for an event
   Future<void> cancelReminder(int eventId) async {
     final reminder = getReminder(eventId);
-    if (reminder?.reminderId != null) {
-      await deleteReminder(reminder!.reminderId!);
+    final reminderId = reminder?.reminderId;
+    if (reminderId != null) {
+      await deleteReminder(reminderId);
     }
   }
 

@@ -61,25 +61,41 @@ class SocketService {
   /// Stream of connection status changes
   Stream<SocketStatus> get statusStream {
     _ensureControllersInitialized();
-    return _statusController!.stream;
+    final controller = _statusController;
+    if (controller == null) {
+      throw StateError('Status controller not initialized');
+    }
+    return controller.stream;
   }
 
   /// Stream of incoming messages
   Stream<Map<String, dynamic>> get messageStream {
     _ensureControllersInitialized();
-    return _messageController!.stream;
+    final controller = _messageController;
+    if (controller == null) {
+      throw StateError('Message controller not initialized');
+    }
+    return controller.stream;
   }
 
   /// Stream of typing indicators
   Stream<Map<String, dynamic>> get typingStream {
     _ensureControllersInitialized();
-    return _typingController!.stream;
+    final controller = _typingController;
+    if (controller == null) {
+      throw StateError('Typing controller not initialized');
+    }
+    return controller.stream;
   }
 
   /// Stream of online status changes
   Stream<Map<String, dynamic>> get onlineStream {
     _ensureControllersInitialized();
-    return _onlineController!.stream;
+    final controller = _onlineController;
+    if (controller == null) {
+      throw StateError('Online controller not initialized');
+    }
+    return controller.stream;
   }
 
   /// Current socket status
@@ -91,7 +107,8 @@ class SocketService {
 
   /// Initialize and connect socket
   Future<void> connect() async {
-    if (_socket != null && _socket!.connected) {
+    final socket = _socket;
+    if (socket != null && socket.connected) {
       debugPrint('Socket already connected');
       return;
     }
@@ -126,7 +143,7 @@ class SocketService {
       );
 
       _setupEventListeners();
-      _socket!.connect();
+      _socket?.connect();
     } catch (e) {
       debugPrint('Error connecting socket: $e');
       _updateStatus(SocketStatus.error);

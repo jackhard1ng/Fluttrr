@@ -84,13 +84,14 @@ class MemoryController extends GetxController {
         page: feedPage.value,
       );
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         if (refresh) {
-          feedMemories.value = response.data!;
+          feedMemories.value = data;
         } else {
-          feedMemories.addAll(response.data!);
+          feedMemories.addAll(data);
         }
-        hasMoreFeed.value = response.data!.length >= 20;
+        hasMoreFeed.value = data.length >= 20;
         feedPage.value++;
       }
     } catch (e) {
@@ -104,8 +105,9 @@ class MemoryController extends GetxController {
   Future<void> loadFeaturedMemories() async {
     try {
       final response = await _repository.getFeaturedMemories();
-      if (response.success && response.data != null) {
-        featuredMemories.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        featuredMemories.value = data;
       }
     } catch (e) {
       debugPrint('Error loading featured memories: $e');
@@ -140,13 +142,14 @@ class MemoryController extends GetxController {
         page: eventPage.value,
       );
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         if (refresh || eventPage.value == 1) {
-          eventMemories.value = response.data!;
+          eventMemories.value = data;
         } else {
-          eventMemories.addAll(response.data!);
+          eventMemories.addAll(data);
         }
-        hasMoreEventMemories.value = response.data!.length >= 20;
+        hasMoreEventMemories.value = data.length >= 20;
         eventPage.value++;
       }
     } catch (e) {
@@ -175,13 +178,14 @@ class MemoryController extends GetxController {
         myEventsOnly: myEventsOnly,
       );
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         if (refresh) {
-          eventsWithMemories.value = response.data!;
+          eventsWithMemories.value = data;
         } else {
-          eventsWithMemories.addAll(response.data!);
+          eventsWithMemories.addAll(data);
         }
-        hasMoreEvents.value = response.data!.length >= 20;
+        hasMoreEvents.value = data.length >= 20;
         eventsPage.value++;
       }
     } catch (e) {
@@ -196,9 +200,10 @@ class MemoryController extends GetxController {
     isLoading.value = true;
     try {
       final response = await _repository.getMemoryDetails(memoryId);
-      if (response.success && response.data != null) {
-        selectedMemory.value = response.data;
-        await _analytics.logMemoryViewed(activityId: response.data!.eventId);
+      final data = response.data;
+      if (response.success && data != null) {
+        selectedMemory.value = data;
+        await _analytics.logMemoryViewed(activityId: data.eventId);
       }
     } catch (e) {
       debugPrint('Error loading memory details: $e');
@@ -231,14 +236,15 @@ class MemoryController extends GetxController {
         caption: caption,
       );
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         // Add to event memories if viewing that event
         if (currentEventId.value == eventId) {
-          eventMemories.insert(0, response.data!);
+          eventMemories.insert(0, data);
         }
 
         // Add to my memories
-        myMemories.insert(0, response.data!);
+        myMemories.insert(0, data);
 
         // Track analytics
         await _analytics.logMemoryPhotoUploaded(
@@ -274,9 +280,10 @@ class MemoryController extends GetxController {
         photos: photos,
       );
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         // Update in lists
-        _updateMemoryInLists(response.data!);
+        _updateMemoryInLists(data);
         successMessage.value = 'Photos added!';
         return true;
       }
@@ -389,8 +396,9 @@ class MemoryController extends GetxController {
           ? await _repository.likeMemory(memoryId)
           : await _repository.unlikeMemory(memoryId);
 
-      if (response.success && response.data != null) {
-        _updateMemoryInLists(response.data!);
+      final data = response.data;
+      if (response.success && data != null) {
+        _updateMemoryInLists(data);
       } else {
         // Revert on failure
         _updateMemoryInLists(memory);
@@ -406,8 +414,9 @@ class MemoryController extends GetxController {
     isLoadingComments.value = true;
     try {
       final response = await _repository.getMemoryComments(memoryId: memoryId);
-      if (response.success && response.data != null) {
-        memoryComments.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        memoryComments.value = data;
       }
     } catch (e) {
       debugPrint('Error loading comments: $e');
@@ -429,8 +438,9 @@ class MemoryController extends GetxController {
         content: content.trim(),
       );
 
-      if (response.success && response.data != null) {
-        memoryComments.add(response.data!);
+      final data = response.data;
+      if (response.success && data != null) {
+        memoryComments.add(data);
 
         // Update comment count in memory
         final memory = _findMemory(memoryId);
@@ -501,8 +511,9 @@ class MemoryController extends GetxController {
         commentId: commentId,
       );
 
-      if (response.success && response.data != null) {
-        memoryComments[commentIndex] = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        memoryComments[commentIndex] = data;
       }
     } catch (e) {
       // Revert on failure
@@ -571,8 +582,9 @@ class MemoryController extends GetxController {
     isLoading.value = true;
     try {
       final response = await _repository.getPhotosTaggedIn();
-      if (response.success && response.data != null) {
-        taggedPhotos.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        taggedPhotos.value = data;
       }
     } catch (e) {
       debugPrint('Error loading tagged photos: $e');
@@ -588,8 +600,9 @@ class MemoryController extends GetxController {
     isLoadingMy.value = true;
     try {
       final response = await _repository.getMyMemories();
-      if (response.success && response.data != null) {
-        myMemories.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        myMemories.value = data;
       }
     } catch (e) {
       debugPrint('Error loading my memories: $e');
@@ -603,8 +616,9 @@ class MemoryController extends GetxController {
     isLoadingTagged.value = true;
     try {
       final response = await _repository.getTaggedMemories();
-      if (response.success && response.data != null) {
-        taggedMemories.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        taggedMemories.value = data;
       }
     } catch (e) {
       debugPrint('Error loading tagged memories: $e');
@@ -685,10 +699,10 @@ class MemoryController extends GetxController {
     final myIndex = myMemories.indexWhere((m) => m.memoryId == memoryId);
     if (myIndex != -1) updateMemory(myMemories[myIndex], myIndex, myMemories);
 
-    if (selectedMemory.value?.memoryId == memoryId) {
-      final memory = selectedMemory.value!;
-      selectedMemory.value = memory.copyWith(
-        photos: memory.photos.where((p) => p.photoId != photoId).toList(),
+    final selected = selectedMemory.value;
+    if (selected != null && selected.memoryId == memoryId) {
+      selectedMemory.value = selected.copyWith(
+        photos: selected.photos.where((p) => p.photoId != photoId).toList(),
       );
     }
   }

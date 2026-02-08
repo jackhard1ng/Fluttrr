@@ -389,6 +389,12 @@ class BusinessController extends GetxController {
   Future<bool> createBusinessEvent() async {
     if (!_validateEventForm()) return false;
 
+    final startTime = eventStartTime.value;
+    if (startTime == null) {
+      errorMessage.value = 'Please select start time';
+      return false;
+    }
+
     isCreating.value = true;
     errorMessage.value = '';
 
@@ -399,7 +405,7 @@ class BusinessController extends GetxController {
         location: eventLocationController.text.trim(),
         latitude: eventLatitude.value,
         longitude: eventLongitude.value,
-        startTime: eventStartTime.value!,
+        startTime: startTime,
         endTime: eventEndTime.value,
         eventType: eventType.value,
         totalSlots: int.tryParse(eventSlotsController.text) ?? 0,
@@ -759,36 +765,35 @@ class BusinessController extends GetxController {
     updateList(topEvents);
 
     final currentSelectedEvent = selectedEvent.value;
-    if (currentSelectedEvent?.eventId == eventId) {
-      final event = currentSelectedEvent!;
+    if (currentSelectedEvent != null && currentSelectedEvent.eventId == eventId) {
       selectedEvent.value = BusinessEvent(
-        id: event.id,
-        eventId: event.eventId,
-        businessId: event.businessId,
-        name: event.name,
-        description: event.description,
-        location: event.location,
-        locationName: event.locationName,
-        latitude: event.latitude,
-        longitude: event.longitude,
-        startDate: event.startDate,
-        endDate: event.endDate,
-        eventType: event.eventType,
-        privacy: event.privacy,
-        image: event.image,
-        images: event.images,
-        totalSlots: event.totalSlots,
-        maxAttendees: event.maxAttendees,
-        remainingSlots: event.remainingSlots,
-        price: event.price,
-        currency: event.currency,
-        ticketUrl: event.ticketUrl,
-        attendeesCount: event.attendeesCount,
-        views: event.views,
-        clicks: event.clicks,
-        saves: event.saves,
+        id: currentSelectedEvent.id,
+        eventId: currentSelectedEvent.eventId,
+        businessId: currentSelectedEvent.businessId,
+        name: currentSelectedEvent.name,
+        description: currentSelectedEvent.description,
+        location: currentSelectedEvent.location,
+        locationName: currentSelectedEvent.locationName,
+        latitude: currentSelectedEvent.latitude,
+        longitude: currentSelectedEvent.longitude,
+        startDate: currentSelectedEvent.startDate,
+        endDate: currentSelectedEvent.endDate,
+        eventType: currentSelectedEvent.eventType,
+        privacy: currentSelectedEvent.privacy,
+        image: currentSelectedEvent.image,
+        images: currentSelectedEvent.images,
+        totalSlots: currentSelectedEvent.totalSlots,
+        maxAttendees: currentSelectedEvent.maxAttendees,
+        remainingSlots: currentSelectedEvent.remainingSlots,
+        price: currentSelectedEvent.price,
+        currency: currentSelectedEvent.currency,
+        ticketUrl: currentSelectedEvent.ticketUrl,
+        attendeesCount: currentSelectedEvent.attendeesCount,
+        views: currentSelectedEvent.views,
+        clicks: currentSelectedEvent.clicks,
+        saves: currentSelectedEvent.saves,
         userJoined: joined,
-        userSaved: event.userSaved,
+        userSaved: currentSelectedEvent.userSaved,
       );
     }
   }

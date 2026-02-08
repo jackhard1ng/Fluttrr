@@ -110,8 +110,9 @@ class PushNotificationService {
       _fcmToken = await _firebaseMessaging.getToken();
       debugPrint('FCM Token retrieved successfully');
 
-      if (_fcmToken != null) {
-        await _saveFcmToken(_fcmToken!);
+      final token = _fcmToken;
+      if (token != null) {
+        await _saveFcmToken(token);
       }
 
       // Cancel existing subscription before creating new one
@@ -274,9 +275,10 @@ class PushNotificationService {
 
   /// Handle notification tap
   void _onNotificationTapped(NotificationResponse response) {
-    if (response.payload != null) {
+    final payload = response.payload;
+    if (payload != null) {
       try {
-        final data = jsonDecode(response.payload!) as Map<String, dynamic>;
+        final data = jsonDecode(payload) as Map<String, dynamic>;
         _navigateFromNotification(data);
       } catch (e) {
         debugPrint('Error parsing notification payload: $e');

@@ -176,10 +176,11 @@ class GuestController extends GetxController {
 
   /// Update guest count in summary
   void _updateGuestCount() {
-    if (currentEventGuests.value != null) {
+    final current = currentEventGuests.value;
+    if (current != null) {
       currentEventGuests.value = EventGuestSummary(
-        eventId: currentEventGuests.value!.eventId,
-        maxGuests: currentEventGuests.value!.maxGuests,
+        eventId: current.eventId,
+        maxGuests: current.maxGuests,
         totalInvited: myGuests.length,
         confirmed: myGuests.where((g) => g.isConfirmed).length,
         declined: myGuests.where((g) => g.status == GuestStatus.declined).length,

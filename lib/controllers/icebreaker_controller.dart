@@ -164,7 +164,9 @@ class IcebreakerController extends GetxController {
   Future<bool> submitResponse({
     required int eventId,
   }) async {
-    if (currentIcebreaker.value == null) {
+    final icebreaker = currentIcebreaker.value;
+    final icebreakerId = icebreaker?.icebreakerId;
+    if (icebreaker == null || icebreakerId == null) {
       errorMessage.value = 'No active icebreaker';
       return false;
     }
@@ -182,7 +184,7 @@ class IcebreakerController extends GetxController {
 
     try {
       final response = await _repository.submitResponse(
-        icebreakerId: currentIcebreaker.value!.icebreakerId!,
+        icebreakerId: icebreakerId,
         eventId: eventId,
         answer: hasAnswer ? answerController.text.trim() : null,
         selectedOptionIndex: hasOption ? selectedOptionIndex.value : null,

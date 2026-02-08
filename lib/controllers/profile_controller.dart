@@ -116,8 +116,9 @@ class ProfileController extends GetxController {
   Future<void> _loadProfileCompletion() async {
     try {
       final response = await _profileRepository.getProfileCompletion();
-      if (response.success && response.data != null) {
-        profileCompletion.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        profileCompletion.value = data;
       }
     } catch (e) {
       debugPrint('Error loading profile completion: $e');
@@ -150,8 +151,9 @@ class ProfileController extends GetxController {
   Future<void> _loadGallery() async {
     try {
       final response = await _profileRepository.getGalleryImages();
-      if (response.success && response.data != null) {
-        galleryImages.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        galleryImages.value = data;
       }
     } catch (e) {
       debugPrint('Error loading gallery: $e');
@@ -236,8 +238,9 @@ class ProfileController extends GetxController {
 
       isUploadingImage.value = false;
 
-      if (response.success && response.data != null) {
-        galleryImages.add(response.data!);
+      final data = response.data;
+      if (response.success && data != null) {
+        galleryImages.add(data);
         return true;
       }
       return false;
@@ -252,8 +255,9 @@ class ProfileController extends GetxController {
   Future<void> loadBadges() async {
     try {
       final response = await _profileRepository.getBadges();
-      if (response.success && response.data != null) {
-        badges.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        badges.value = data;
       }
     } catch (e) {
       debugPrint('Error loading badges: $e');
@@ -297,9 +301,10 @@ class ProfileController extends GetxController {
   Future<void> loadLeaderboard() async {
     try {
       final response = await _profileRepository.getLeaderboard();
-      if (response.success && response.data != null) {
-        leaderboard.value = response.data!.data;
-        currentUserRank.value = response.data!.currentUser;
+      final data = response.data;
+      if (response.success && data != null) {
+        leaderboard.value = data.data;
+        currentUserRank.value = data.currentUser;
       }
     } catch (e) {
       debugPrint('Error loading leaderboard: $e');
@@ -381,8 +386,9 @@ class ProfileController extends GetxController {
       if (response.success) {
         isLowProfile.value = newValue;
         // Update the user model
-        if (currentUser.value != null) {
-          currentUser.value = currentUser.value!.copyWith(isLowProfile: newValue);
+        final user = currentUser.value;
+        if (user != null) {
+          currentUser.value = user.copyWith(isLowProfile: newValue);
         }
         return true;
       }

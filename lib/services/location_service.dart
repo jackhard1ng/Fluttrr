@@ -110,19 +110,21 @@ class LocationService {
         desiredAccuracy: LocationAccuracy.high,
       ).timeout(const Duration(seconds: 15));
 
-      _currentLocation = LocationData(
+      var location = LocationData(
         latitude: position.latitude,
         longitude: position.longitude,
       );
 
       if (includeAddress) {
-        _currentLocation = await _addAddressToLocation(_currentLocation!);
+        location = await _addAddressToLocation(location);
       }
 
-      // Cache location
-      await _cacheLocation(_currentLocation!);
+      _currentLocation = location;
 
-      return _currentLocation;
+      // Cache location
+      await _cacheLocation(location);
+
+      return location;
     } catch (e) {
       debugPrint('Error getting current location: $e');
       return await _getCachedLocation();
@@ -173,16 +175,17 @@ class LocationService {
         // Guard against processing after disposal
         if (_isDisposed || _locationController.isClosed) return;
 
-        _currentLocation = LocationData(
+        final location = LocationData(
           latitude: position.latitude,
           longitude: position.longitude,
         );
+        _currentLocation = location;
         if (!_locationController.isClosed) {
-          _locationController.add(_currentLocation!);
+          _locationController.add(location);
         }
         // Only cache if not disposed
         if (!_isDisposed) {
-          await _cacheLocation(_currentLocation!);
+          await _cacheLocation(location);
         }
       },
       onError: (error) {
@@ -332,8 +335,9 @@ class LocationService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setDouble('cached_latitude', location.latitude);
       await prefs.setDouble('cached_longitude', location.longitude);
-      if (location.city != null) {
-        await prefs.setString('cached_city', location.city!);
+      final city = location.city;
+      if (city != null) {
+        await prefs.setString('cached_city', city);
       }
     } catch (e) {
       debugPrint('Error caching location: $e');

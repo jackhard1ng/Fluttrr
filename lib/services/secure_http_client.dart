@@ -52,21 +52,27 @@ class SecureHttpClient {
 
   /// Get the singleton instance
   static SecureHttpClient get instance {
-    _instance ??= SecureHttpClient._();
-    return _instance!;
+    var inst = _instance;
+    if (inst == null) {
+      inst = SecureHttpClient._();
+      _instance = inst;
+    }
+    return inst;
   }
 
   /// Get the secure HTTP client
   ///
   /// Returns a client with certificate pinning enabled (if configured)
   static Future<http.Client> getClient() async {
-    if (_client != null) return _client!;
+    final existingClient = _client;
+    if (existingClient != null) return existingClient;
 
     if (!enablePinning || kIsWeb) {
       // Web doesn't support certificate pinning
       // Also skip if pinning is disabled
-      _client = http.Client();
-      return _client!;
+      final client = http.Client();
+      _client = client;
+      return client;
     }
 
     try {
@@ -90,14 +96,16 @@ class SecureHttpClient {
         return true;
       };
 
-      _client = IOClient(httpClient);
+      final client = IOClient(httpClient);
+      _client = client;
       debugPrint('SecureHttpClient: Initialized with certificate pinning');
-      return _client!;
+      return client;
     } catch (e) {
       debugPrint('SecureHttpClient: Error creating secure client: $e');
       // Fallback to regular client
-      _client = http.Client();
-      return _client!;
+      final client = http.Client();
+      _client = client;
+      return client;
     }
   }
 
