@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -177,10 +178,16 @@ class _BusinessEventDetailsScreenState
                       );
                       break;
                     case 'share':
+                      final eventId = widget.event.eventId ?? widget.event.id;
+                      final eventUrl = 'https://fluttrr.com/events/$eventId';
+                      Clipboard.setData(ClipboardData(text: eventUrl));
+                      HapticFeedback.lightImpact();
                       Get.snackbar(
                         'Link Copied',
                         'Event link copied to clipboard',
                         snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: AppColors.success,
+                        colorText: Colors.white,
                       );
                       break;
                     case 'report':
