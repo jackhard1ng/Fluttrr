@@ -292,6 +292,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 _scrollToBottom();
               }
             },
+            onAttachment: _showAttachmentOptions,
             isSending: chatController.isSending.value,
           ),
         ],
@@ -302,6 +303,71 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _isSameDay(DateTime? a, DateTime? b) {
     if (a == null || b == null) return false;
     return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  void _showAttachmentOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.lightGrey,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.camera_alt, color: AppColors.primaryBlue),
+              title: const Text('Take Photo'),
+              onTap: () {
+                Navigator.pop(context);
+                Get.snackbar(
+                  'Camera',
+                  'Camera access requires device permissions',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: const Duration(seconds: 2),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.photo_library, color: AppColors.friendlyPurple),
+              title: const Text('Choose from Gallery'),
+              onTap: () {
+                Navigator.pop(context);
+                Get.snackbar(
+                  'Gallery',
+                  'Gallery access requires device permissions',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: const Duration(seconds: 2),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.location_on, color: AppColors.friendlyOrange),
+              title: const Text('Share Location'),
+              onTap: () {
+                Navigator.pop(context);
+                Get.snackbar(
+                  'Location',
+                  'Location sharing requires device permissions',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: const Duration(seconds: 2),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -442,11 +508,13 @@ class _MessageBubble extends StatelessWidget {
 class _MessageInput extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onSend;
+  final VoidCallback onAttachment;
   final bool isSending;
 
   const _MessageInput({
     required this.controller,
     required this.onSend,
+    required this.onAttachment,
     required this.isSending,
   });
 
@@ -464,9 +532,7 @@ class _MessageInput extends StatelessWidget {
             // Attachment button
             IconButton(
               icon: const Icon(Icons.add_photo_alternate_outlined),
-              onPressed: () {
-                // Pick image
-              },
+              onPressed: onAttachment,
             ),
 
             // Text field

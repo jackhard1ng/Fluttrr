@@ -168,7 +168,24 @@ class CreateActivityScreen extends StatelessWidget {
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.my_location),
                   onPressed: () {
-                    // Get current location
+                    Get.snackbar(
+                      'Location',
+                      'Getting your current location...',
+                      snackPosition: SnackPosition.BOTTOM,
+                      duration: const Duration(seconds: 2),
+                    );
+                    // Simulating setting a location
+                    Future.delayed(const Duration(seconds: 1), () {
+                      activityController.locationController.text = 'Current Location';
+                      Get.snackbar(
+                        'Location Set',
+                        'Using your current location',
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: AppColors.success,
+                        colorText: Colors.white,
+                        duration: const Duration(seconds: 2),
+                      );
+                    });
                   },
                 ),
               ),
