@@ -37,9 +37,13 @@ class SettingsController extends GetxController {
     try {
       final box = await Hive.openBox(_boxName);
 
-      // Theme
+      // Theme - with bounds checking (#68)
       final themeModeIndex = box.get('themeMode', defaultValue: 0);
-      themeMode.value = ThemeMode.values[themeModeIndex];
+      if (themeModeIndex is int && themeModeIndex >= 0 && themeModeIndex < ThemeMode.values.length) {
+        themeMode.value = ThemeMode.values[themeModeIndex];
+      } else {
+        themeMode.value = ThemeMode.system;
+      }
 
       // Notifications
       pushNotificationsEnabled.value = box.get('pushNotifications', defaultValue: true);

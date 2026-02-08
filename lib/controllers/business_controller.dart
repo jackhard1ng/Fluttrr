@@ -112,13 +112,17 @@ class BusinessController extends GetxController {
     }
   }
 
-  /// Load business data
+  /// Load business data with proper error handling (#61)
   Future<void> _loadBusinessData() async {
-    await Future.wait([
-      loadMyBusinessEvents(),
-      loadBusinessAnalytics(),
-      loadSubscriptionStatus(),
-    ]);
+    // Use eagerError: false so all operations complete even if one fails
+    await Future.wait(
+      [
+        loadMyBusinessEvents(),
+        loadBusinessAnalytics(),
+        loadSubscriptionStatus(),
+      ],
+      eagerError: false,
+    );
   }
 
   /// Send business OTP for email verification

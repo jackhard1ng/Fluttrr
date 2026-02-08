@@ -232,6 +232,9 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
   }
 
   void _showFilterBottomSheet(BuildContext context) {
+    // Check if context is still mounted before showing bottom sheet (#65)
+    if (!context.mounted) return;
+
     final activityController = Get.find<ActivityController>();
 
     showModalBottomSheet(
@@ -244,6 +247,9 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
   }
 
   void _showSearchBottomSheet(BuildContext context) {
+    // Check if context is still mounted before showing bottom sheet (#65)
+    if (!context.mounted) return;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,

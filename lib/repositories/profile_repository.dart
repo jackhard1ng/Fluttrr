@@ -100,14 +100,29 @@ class ProfileRepository extends BaseRepository {
     return post(ApiEndpoints.setOffline);
   }
 
-  /// Get profile completion percentage
+  /// Get profile completion percentage with safe type conversion (#70)
   Future<ApiResponse<int>> getProfileCompletion() async {
     final response = await get<dynamic>(ApiEndpoints.profileCompletion);
     if (response.success && response.data != null) {
       final percentage = response.data['percentage'] ?? response.data['completionPercentage'] ?? 0;
-      return ApiResponse.success(data: percentage as int);
+      return ApiResponse.success(data: _safeToInt(percentage));
     }
     return ApiResponse.failure(error: response.error);
+  }
+
+  /// Safely convert a value to int (#70)
+  int _safeToInt(dynamic value) {
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+
+  /// Safely convert a value to String (#70)
+  String _safeToString(dynamic value) {
+    if (value is String) return value;
+    if (value != null) return value.toString();
+    return '';
   }
 
   /// Get gallery images
@@ -123,7 +138,7 @@ class ProfileRepository extends BaseRepository {
     return ApiResponse.failure(error: response.error);
   }
 
-  /// Upload gallery image
+  /// Upload gallery image with safe type conversion (#70)
   Future<ApiResponse<String>> uploadGalleryImage(File image) async {
     final response = await uploadFile<dynamic>(
       ApiEndpoints.galleryUpload,
@@ -132,7 +147,7 @@ class ProfileRepository extends BaseRepository {
     );
     if (response.success && response.data != null) {
       final imageUrl = response.data['imageUrl'] ?? response.data['url'] ?? '';
-      return ApiResponse.success(data: imageUrl as String);
+      return ApiResponse.success(data: _safeToString(imageUrl));
     }
     return ApiResponse.failure(error: response.error);
   }
@@ -166,32 +181,32 @@ class ProfileRepository extends BaseRepository {
     );
   }
 
-  /// Get total activity count
+  /// Get total activity count with safe type conversion (#70)
   Future<ApiResponse<int>> getTotalActivityCount() async {
     final response = await get<dynamic>(ApiEndpoints.createdActivitiesCount);
     if (response.success && response.data != null) {
       final count = response.data['count'] ?? 0;
-      return ApiResponse.success(data: count as int);
+      return ApiResponse.success(data: _safeToInt(count));
     }
     return ApiResponse.failure(error: response.error);
   }
 
-  /// Get total match count
+  /// Get total match count with safe type conversion (#70)
   Future<ApiResponse<int>> getTotalMatchCount() async {
     final response = await get<dynamic>(ApiEndpoints.totalMates);
     if (response.success && response.data != null) {
       final count = response.data['count'] ?? response.data['total'] ?? 0;
-      return ApiResponse.success(data: count as int);
+      return ApiResponse.success(data: _safeToInt(count));
     }
     return ApiResponse.failure(error: response.error);
   }
 
-  /// Get joined activities count
+  /// Get joined activities count with safe type conversion (#70)
   Future<ApiResponse<int>> getJoinedActivitiesCount() async {
     final response = await get<dynamic>(ApiEndpoints.joinedActivitiesCount);
     if (response.success && response.data != null) {
       final count = response.data['count'] ?? 0;
-      return ApiResponse.success(data: count as int);
+      return ApiResponse.success(data: _safeToInt(count));
     }
     return ApiResponse.failure(error: response.error);
   }

@@ -132,14 +132,22 @@ class MatesRepository extends BaseRepository {
     return ApiResponse.failure(error: response.error);
   }
 
-  /// Get total mates count
+  /// Get total mates count with safe type conversion (#69)
   Future<ApiResponse<int>> getTotalMatesCount() async {
     final response = await get<dynamic>(ApiEndpoints.totalMates);
     if (response.success && response.data != null) {
       final count = response.data['count'] ?? response.data['total'] ?? 0;
-      return ApiResponse.success(data: count as int);
+      return ApiResponse.success(data: _safeToInt(count));
     }
     return ApiResponse.failure(error: response.error);
+  }
+
+  /// Safely convert a value to int (#69)
+  int _safeToInt(dynamic value) {
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
   }
 
   /// View mate profile

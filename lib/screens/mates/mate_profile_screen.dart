@@ -689,6 +689,9 @@ class _MateProfileScreenState extends State<MateProfileScreen> {
   }
 
   void _showFullScreenPhoto(BuildContext context, List<String> photos, int initialIndex) {
+    // Check if context is still mounted before showing dialog (#66)
+    if (!context.mounted) return;
+
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -792,6 +795,9 @@ class _MateProfileScreenState extends State<MateProfileScreen> {
   }
 
   void _showBlockConfirmation(BuildContext context, String userName) {
+    // Check if context is still mounted before showing dialog (#67)
+    if (!context.mounted) return;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

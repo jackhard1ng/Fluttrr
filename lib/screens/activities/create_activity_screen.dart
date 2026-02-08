@@ -165,28 +165,34 @@ class CreateActivityScreen extends StatelessWidget {
                 labelText: 'Location',
                 hintText: 'Enter location',
                 prefixIcon: const Icon(Icons.location_on_outlined),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.my_location),
-                  onPressed: () {
-                    Get.snackbar(
-                      'Location',
-                      'Getting your current location...',
-                      snackPosition: SnackPosition.BOTTOM,
-                      duration: const Duration(seconds: 2),
-                    );
-                    // Simulating setting a location
-                    Future.delayed(const Duration(seconds: 1), () {
-                      activityController.locationController.text = 'Current Location';
+                suffixIcon: Builder(
+                  // Use Builder to get fresh context for mounted check (#63)
+                  builder: (buttonContext) => IconButton(
+                    icon: const Icon(Icons.my_location),
+                    onPressed: () {
                       Get.snackbar(
-                        'Location Set',
-                        'Using your current location',
+                        'Location',
+                        'Getting your current location...',
                         snackPosition: SnackPosition.BOTTOM,
-                        backgroundColor: AppColors.success,
-                        colorText: Colors.white,
                         duration: const Duration(seconds: 2),
                       );
-                    });
-                  },
+                      // Simulating setting a location with mounted check (#63)
+                      Future.delayed(const Duration(seconds: 1), () {
+                        // Check if context is still mounted before updating UI
+                        if (!buttonContext.mounted) return;
+
+                        activityController.locationController.text = 'Current Location';
+                        Get.snackbar(
+                          'Location Set',
+                          'Using your current location',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: AppColors.success,
+                          colorText: Colors.white,
+                          duration: const Duration(seconds: 2),
+                        );
+                      });
+                    },
+                  ),
                 ),
               ),
 

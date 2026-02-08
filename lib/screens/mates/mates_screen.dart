@@ -262,6 +262,9 @@ class MatesScreen extends StatelessWidget {
   }
 
   void _showFilters(BuildContext context) {
+    // Check if context is still mounted before showing bottom sheet (#64)
+    if (!context.mounted) return;
+
     final matesController = Get.find<MatesController>();
 
     showModalBottomSheet(

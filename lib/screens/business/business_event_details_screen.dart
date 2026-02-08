@@ -58,6 +58,9 @@ class _BusinessEventDetailsScreenState
   }
 
   void _showDeleteDialog() {
+    // Check if widget is still mounted before showing dialog (#62)
+    if (!mounted) return;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
