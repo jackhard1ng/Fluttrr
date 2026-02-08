@@ -6,6 +6,7 @@ import 'business_management_screen.dart';
 import 'event_moderation_screen.dart';
 import 'user_management_screen.dart';
 import 'reports_screen.dart';
+import 'review_queue_screen.dart';
 
 /// Main admin dashboard screen
 class AdminDashboardScreen extends StatelessWidget {
@@ -63,6 +64,10 @@ class AdminDashboardScreen extends StatelessWidget {
               children: [
                 // Admin info card
                 _buildAdminInfoCard(controller),
+                const SizedBox(height: 16),
+
+                // Review Queue button - prominent for manual review
+                _buildReviewQueueButton(controller),
                 const SizedBox(height: 24),
 
                 // Stats grid
@@ -140,6 +145,101 @@ class AdminDashboardScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildReviewQueueButton(AdminController controller) {
+    return Obx(() {
+      final stats = controller.stats.value;
+      final pendingCount = (stats?.pendingVerifications ?? 0) + (stats?.pendingReports ?? 0);
+
+      return InkWell(
+        onTap: () => Get.to(() => const ReviewQueueScreen()),
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.deepPurple,
+                Colors.deepPurple.shade700,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.deepPurple.withValues(alpha: 0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.rate_review,
+                  color: Colors.white,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Review Queue',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Review pending businesses & reports',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (pendingCount > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.orange,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '$pendingCount',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              const SizedBox(width: 8),
+              const Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white,
+                size: 18,
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 
   Widget _buildStatsGrid(AdminController controller) {
@@ -574,6 +674,16 @@ class AdminDashboardScreen extends StatelessWidget {
             title: const Text('Dashboard'),
             onTap: () => Get.back(),
           ),
+          ListTile(
+            leading: const Icon(Icons.rate_review),
+            title: const Text('Review Queue'),
+            subtitle: const Text('Verify businesses & review reports'),
+            onTap: () {
+              Get.back();
+              Get.to(() => const ReviewQueueScreen());
+            },
+          ),
+          const Divider(),
           ListTile(
             leading: const Icon(Icons.business),
             title: const Text('Businesses'),
