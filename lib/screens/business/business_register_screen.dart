@@ -72,14 +72,14 @@ class BusinessRegisterScreen extends StatelessWidget {
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                AppColors.friendlyOrange,
-                                Color(0xFFF97316),
+                                Color(0xFF0D1B4D), // Dark blue
+                                Color(0xFF38B6FF), // Light blue
                               ],
                             ),
                             borderRadius: BorderRadius.circular(18),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.friendlyOrange.withAlpha(77),
+                                color: AppColors.primaryBlue.withAlpha(77),
                                 blurRadius: 20,
                                 spreadRadius: 2,
                               ),
@@ -226,7 +226,7 @@ class BusinessRegisterScreen extends StatelessWidget {
                             value: agreeToTerms.value,
                             onChanged: (value) =>
                                 agreeToTerms.value = value ?? false,
-                            activeColor: AppColors.friendlyOrange,
+                            activeColor: AppColors.primaryBlue,
                             checkColor: Colors.white,
                             side: BorderSide(color: Colors.white.withAlpha(128)),
                           ),
@@ -245,7 +245,7 @@ class BusinessRegisterScreen extends StatelessWidget {
                                     TextSpan(
                                       text: 'Terms of Service',
                                       style: TextStyle(
-                                        color: AppColors.friendlyOrange,
+                                        color: AppColors.accentBlue,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -253,7 +253,7 @@ class BusinessRegisterScreen extends StatelessWidget {
                                     TextSpan(
                                       text: 'Privacy Policy',
                                       style: TextStyle(
-                                        color: AppColors.friendlyOrange,
+                                        color: AppColors.accentBlue,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -360,7 +360,7 @@ class BusinessRegisterScreen extends StatelessWidget {
                             TextSpan(
                               text: 'Sign In',
                               style: TextStyle(
-                                color: AppColors.friendlyOrange,
+                                color: AppColors.accentBlue,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -425,7 +425,7 @@ class _BusinessTextField extends StatelessWidget {
           validator: validator,
           textInputAction: textInputAction,
           style: const TextStyle(fontSize: 16, color: Colors.white),
-          cursorColor: AppColors.friendlyOrange,
+          cursorColor: AppColors.accentBlue,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
@@ -452,7 +452,7 @@ class _BusinessTextField extends StatelessWidget {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.md),
               borderSide: const BorderSide(
-                color: AppColors.friendlyOrange,
+                color: AppColors.accentBlue,
                 width: 2,
               ),
             ),
@@ -540,7 +540,7 @@ class _BusinessDropdown extends StatelessWidget {
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(AppRadius.md),
                   borderSide: const BorderSide(
-                    color: AppColors.friendlyOrange,
+                    color: AppColors.accentBlue,
                     width: 2,
                   ),
                 ),
@@ -595,17 +595,17 @@ class _BusinessButton extends StatelessWidget {
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
                 colors: [
-                  AppColors.friendlyOrange,
-                  Color(0xFFF97316),
+                  Color(0xFF0D1B4D), // Dark blue
+                  Color(0xFF38B6FF), // Light blue
                 ],
               ),
-        color: isLoading ? AppColors.friendlyOrange.withAlpha(128) : null,
+        color: isLoading ? AppColors.primaryBlue.withAlpha(128) : null,
         borderRadius: BorderRadius.circular(AppRadius.md),
         boxShadow: isLoading
             ? null
             : [
                 BoxShadow(
-                  color: AppColors.friendlyOrange.withAlpha(77),
+                  color: AppColors.primaryBlue.withAlpha(77),
                   blurRadius: 16,
                   offset: const Offset(0, 6),
                 ),

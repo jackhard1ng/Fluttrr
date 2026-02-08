@@ -284,7 +284,7 @@ class _StatsOverview extends StatelessWidget {
             icon: Icons.star,
             label: 'Rating',
             value: '4.8',
-            color: AppColors.friendlyOrange,
+            color: AppColors.warmYellow,
           ),
         ),
       ],
@@ -371,7 +371,7 @@ class _QuickActionsGrid extends StatelessWidget {
           icon: Icons.star_outline,
           label: 'Reviews',
           subtitle: '24 new',
-          color: AppColors.friendlyOrange,
+          color: AppColors.warmYellow,
           onTap: () => Nav.toBusinessReviews(),
         ),
         _QuickActionTile(
@@ -561,7 +561,7 @@ class _ReviewCard extends StatelessWidget {
                           return Icon(
                             index < rating ? Icons.star : Icons.star_border,
                             size: 14,
-                            color: AppColors.friendlyOrange,
+                            color: AppColors.warmYellow,
                           );
                         }),
                         const SizedBox(width: 8),

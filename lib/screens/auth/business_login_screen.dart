@@ -55,12 +55,12 @@ class BusinessLoginScreen extends StatelessWidget {
                           height: 80,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [AppColors.friendlyOrange, AppColors.friendlyPurple],
+                              colors: [Color(0xFF0D1B4D), Color(0xFF38B6FF)], // Dark to light blue
                             ),
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.friendlyOrange.withAlpha(77),
+                                color: AppColors.primaryBlue.withAlpha(77),
                                 blurRadius: 20,
                                 spreadRadius: 2,
                               ),
@@ -157,7 +157,7 @@ class BusinessLoginScreen extends StatelessWidget {
                     child: TextButton(
                       onPressed: Nav.toForgotPassword,
                       style: TextButton.styleFrom(
-                        foregroundColor: AppColors.friendlyOrange,
+                        foregroundColor: AppColors.accentBlue,
                         padding: EdgeInsets.zero,
                       ),
                       child: const Text(
@@ -395,7 +395,7 @@ class _BusinessTextField extends StatelessWidget {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.md),
               borderSide: const BorderSide(
-                color: AppColors.friendlyOrange,
+                color: AppColors.accentBlue,
                 width: 2,
               ),
             ),
@@ -437,17 +437,17 @@ class _BusinessButton extends StatelessWidget {
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
                 colors: [
-                  AppColors.friendlyOrange,
-                  Color(0xFFF97316), // Orange 500
+                  Color(0xFF0D1B4D), // Dark blue
+                  Color(0xFF38B6FF), // Light blue
                 ],
               ),
-        color: isLoading ? AppColors.friendlyOrange.withAlpha(128) : null,
+        color: isLoading ? AppColors.primaryBlue.withAlpha(128) : null,
         borderRadius: BorderRadius.circular(AppRadius.md),
         boxShadow: isLoading
             ? null
             : [
                 BoxShadow(
-                  color: AppColors.friendlyOrange.withAlpha(77),
+                  color: AppColors.primaryBlue.withAlpha(77),
                   blurRadius: 16,
                   offset: const Offset(0, 6),
                 ),
@@ -507,7 +507,7 @@ class _BenefitItem extends StatelessWidget {
           Icon(
             icon,
             size: 18,
-            color: AppColors.friendlyOrange,
+            color: AppColors.accentBlue,
           ),
           const SizedBox(width: AppSpacing.sm),
           Text(

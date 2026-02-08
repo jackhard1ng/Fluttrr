@@ -87,13 +87,13 @@ class _ReviewStatsSummary extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.friendlyOrange.withAlpha(26),
+            AppColors.warmYellow.withAlpha(26),
             AppColors.warmYellow.withAlpha(26),
           ],
         ),
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(
-          color: AppColors.friendlyOrange.withAlpha(51),
+          color: AppColors.warmYellow.withAlpha(51),
         ),
       ),
       child: Row(
@@ -105,14 +105,14 @@ class _ReviewStatsSummary extends StatelessWidget {
                 '4.8',
                 style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: AppColors.friendlyOrange,
+                  color: AppColors.warmYellow,
                 ),
               ),
               Row(
                 children: List.generate(5, (index) {
                   return Icon(
                     index < 4 ? Icons.star : Icons.star_half,
-                    color: AppColors.friendlyOrange,
+                    color: AppColors.warmYellow,
                     size: 16,
                   );
                 }),
@@ -173,7 +173,7 @@ class _RatingBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 4),
-          Icon(Icons.star, size: 10, color: AppColors.friendlyOrange),
+          Icon(Icons.star, size: 10, color: AppColors.warmYellow),
           const SizedBox(width: 8),
           Expanded(
             child: Container(
@@ -187,7 +187,7 @@ class _RatingBar extends StatelessWidget {
                 widthFactor: percentage,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: AppColors.friendlyOrange,
+                    color: AppColors.warmYellow,
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ),
@@ -672,7 +672,7 @@ class _ReviewCard extends StatelessWidget {
 
   Color _getRatingColor(int rating) {
     if (rating >= 4) return AppColors.success;
-    if (rating >= 3) return AppColors.friendlyOrange;
+    if (rating >= 3) return AppColors.warmYellow;
     return AppColors.error;
   }
 

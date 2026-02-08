@@ -567,7 +567,7 @@ class _PastEventCard extends StatelessWidget {
                   icon: Icons.star,
                   value: event.averageRating?.toStringAsFixed(1) ?? '-',
                   label: '${event.reviewCount ?? 0} reviews',
-                  color: AppColors.friendlyOrange,
+                  color: AppColors.warmYellow,
                 ),
               ],
             ),
@@ -591,7 +591,7 @@ class _PastEventCard extends StatelessWidget {
                 child: _QuickActionButton(
                   icon: Icons.rate_review_outlined,
                   label: 'View Reviews',
-                  color: AppColors.friendlyOrange,
+                  color: AppColors.warmYellow,
                   onTap: () => Nav.toBusinessReviews(),
                 ),
               ),
