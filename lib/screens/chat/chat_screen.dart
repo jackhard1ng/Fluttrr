@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -424,11 +425,88 @@ class _MessageBubble extends StatelessWidget {
     required this.isMe,
   });
 
+  void _showMessageOptions(BuildContext context) {
+    HapticFeedback.mediumImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.lightGrey,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              if (message.content != null && message.content!.isNotEmpty)
+                ListTile(
+                  leading: Icon(Icons.copy, color: AppColors.primaryBlue),
+                  title: const Text('Copy Message'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Clipboard.setData(ClipboardData(text: message.content!));
+                    Get.snackbar(
+                      'Copied',
+                      'Message copied to clipboard',
+                      snackPosition: SnackPosition.BOTTOM,
+                      duration: const Duration(seconds: 2),
+                    );
+                  },
+                ),
+              ListTile(
+                leading: Icon(Icons.reply, color: AppColors.friendlyTeal),
+                title: const Text('Reply'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Get.snackbar(
+                    'Reply',
+                    'Replying to message...',
+                    snackPosition: SnackPosition.BOTTOM,
+                    duration: const Duration(seconds: 2),
+                  );
+                },
+              ),
+              if (isMe)
+                ListTile(
+                  leading: Icon(Icons.delete_outline, color: AppColors.error),
+                  title: Text('Delete', style: TextStyle(color: AppColors.error)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Get.snackbar(
+                      'Deleted',
+                      'Message deleted',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: AppColors.error,
+                      colorText: Colors.white,
+                      duration: const Duration(seconds: 2),
+                    );
+                  },
+                ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
+      child: GestureDetector(
+        onLongPress: () => _showMessageOptions(context),
+        child: Container(
         margin: EdgeInsets.only(
           top: AppSpacing.xs,
           bottom: AppSpacing.xs,
@@ -498,6 +576,7 @@ class _MessageBubble extends StatelessWidget {
               ],
             ),
           ],
+        ),
         ),
       ),
     );
