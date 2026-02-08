@@ -1,3 +1,5 @@
+import 'phone_verification_model.dart';
+
 /// Account types
 enum AccountType {
   regular,
@@ -16,6 +18,10 @@ class UserModel {
   final AccountType accountType;
   final String? businessName;
   final bool isLowProfile;
+  final PhoneVerificationModel? phoneVerification;
+  final double? averageRating;
+  final int? totalRatings;
+  final List<int> followedBusinessIds;
 
   const UserModel({
     this.userId,
@@ -28,6 +34,10 @@ class UserModel {
     this.accountType = AccountType.regular,
     this.businessName,
     this.isLowProfile = false,
+    this.phoneVerification,
+    this.averageRating,
+    this.totalRatings,
+    this.followedBusinessIds = const [],
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -48,6 +58,12 @@ class UserModel {
           : AccountType.regular,
       businessName: json['businessName'] as String?,
       isLowProfile: json['isLowProfile'] as bool? ?? false,
+      phoneVerification: json['phoneVerification'] != null
+          ? PhoneVerificationModel.fromJson(json['phoneVerification'] as Map<String, dynamic>)
+          : null,
+      averageRating: (json['averageRating'] as num?)?.toDouble(),
+      totalRatings: json['totalRatings'] as int?,
+      followedBusinessIds: _parseIntList(json['followedBusinessIds']),
     );
   }
 
@@ -63,6 +79,10 @@ class UserModel {
       'accountType': accountType == AccountType.business ? 'business' : 'regular',
       'businessName': businessName,
       'isLowProfile': isLowProfile,
+      'phoneVerification': phoneVerification?.toJson(),
+      'averageRating': averageRating,
+      'totalRatings': totalRatings,
+      'followedBusinessIds': followedBusinessIds,
     };
   }
 
@@ -77,6 +97,10 @@ class UserModel {
     AccountType? accountType,
     String? businessName,
     bool? isLowProfile,
+    PhoneVerificationModel? phoneVerification,
+    double? averageRating,
+    int? totalRatings,
+    List<int>? followedBusinessIds,
   }) {
     return UserModel(
       userId: userId ?? this.userId,
@@ -89,6 +113,10 @@ class UserModel {
       accountType: accountType ?? this.accountType,
       businessName: businessName ?? this.businessName,
       isLowProfile: isLowProfile ?? this.isLowProfile,
+      phoneVerification: phoneVerification ?? this.phoneVerification,
+      averageRating: averageRating ?? this.averageRating,
+      totalRatings: totalRatings ?? this.totalRatings,
+      followedBusinessIds: followedBusinessIds ?? this.followedBusinessIds,
     );
   }
 
@@ -104,6 +132,10 @@ class UserModel {
     final images = profile?.images;
     return (images != null && images.isNotEmpty) ? images.first : null;
   }
+
+  bool get isPhoneVerified => phoneVerification?.isVerified ?? false;
+
+  bool isFollowingBusiness(int businessId) => followedBusinessIds.contains(businessId);
 }
 
 /// User profile details
@@ -229,4 +261,13 @@ List<String>? _parseStringList(dynamic value) {
     return value.whereType<String>().toList();
   }
   return null;
+}
+
+/// Helper function to parse int lists from JSON
+List<int> _parseIntList(dynamic value) {
+  if (value == null) return [];
+  if (value is List) {
+    return value.whereType<int>().toList();
+  }
+  return [];
 }

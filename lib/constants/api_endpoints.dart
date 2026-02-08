@@ -156,6 +156,88 @@ class ApiEndpoints {
   // Device/FCM endpoints
   static String get registerDevice => '$apiBase/user/register-device';
 
+  // Phone verification endpoints
+  static String get sendPhoneOtp => '$apiBase/user/send-phone-otp';
+  static String get verifyPhoneOtp => '$apiBase/user/verify-phone-otp';
+  static String get phoneVerificationStatus => '$apiBase/user/phone-status';
+
+  // Event feedback and ratings endpoints
+  static String get submitEventFeedback => '$apiBase/activity/feedback';
+  static String get getEventFeedback => '$apiBase/activity/feedback';
+  static String get rateAttendee => '$apiBase/activity/rate-attendee';
+  static String get getAttendeeRatings => '$apiBase/activity/attendee-ratings';
+  static String get postEventSummary => '$apiBase/activity/post-event-summary';
+  static String get sendThankYou => '$apiBase/activity/send-thank-you';
+
+  // Guest/Bring-a-friend endpoints
+  static String get inviteGuest => '$apiBase/activity/invite-guest';
+  static String get getEventGuests => '$apiBase/activity/guests';
+  static String get updateGuestStatus => '$apiBase/activity/guest-status';
+  static String get cancelGuestInvite => '$apiBase/activity/cancel-guest';
+  static String get guestRsvp => '$apiBase/activity/guest-rsvp';
+
+  // Business rewards endpoints
+  static String get businessRewardsSummary => '$apiBase/business/rewards/summary';
+  static String get businessRewardsList => '$apiBase/business/rewards/list';
+  static String get claimBusinessReward => '$apiBase/business/rewards/claim';
+  static String get businessReferrals => '$apiBase/business/referrals';
+  static String get businessReferralCode => '$apiBase/business/referral-code';
+
+  // Event reminders endpoints
+  static String get createReminder => '$apiBase/activity/reminder';
+  static String get getReminders => '$apiBase/activity/reminders';
+  static String get updateReminder => '$apiBase/activity/reminder';
+  static String get deleteReminder => '$apiBase/activity/reminder';
+  static String get reminderPreferences => '$apiBase/user/reminder-preferences';
+  static String get upcomingReminders => '$apiBase/activity/upcoming-reminders';
+
+  // Waitlist endpoints
+  static String get joinWaitlist => '$apiBase/activity/waitlist/join';
+  static String get leaveWaitlist => '$apiBase/activity/waitlist/leave';
+  static String get getWaitlist => '$apiBase/activity/waitlist';
+  static String get respondToWaitlistOffer => '$apiBase/activity/waitlist/respond';
+  static String get waitlistPosition => '$apiBase/activity/waitlist/position';
+
+  // Recurring events endpoints
+  static String get createRecurringEvent => '$apiBase/activity/recurring/create';
+  static String get getRecurringSeries => '$apiBase/activity/recurring/series';
+  static String get updateRecurringSeries => '$apiBase/activity/recurring/update';
+  static String get cancelRecurringInstance => '$apiBase/activity/recurring/cancel-instance';
+  static String get deleteRecurringSeries => '$apiBase/activity/recurring/delete';
+  static String get recurringEventInstances => '$apiBase/activity/recurring/instances';
+
+  // Follow businesses endpoints
+  static String get getFollowedBusinesses => '$apiBase/user/followed-businesses';
+  static String get followBusinessNotifications => '$apiBase/user/follow-notifications';
+  static String get followedBusinessEvents => '$apiBase/user/followed-business-events';
+
+  // Groups endpoints
+  static String get createGroup => '$apiBase/group/create';
+  static String get getGroups => '$apiBase/group/list';
+  static String get getGroupDetails => '$apiBase/group/details';
+  static String get updateGroup => '$apiBase/group/update';
+  static String get deleteGroup => '$apiBase/group/delete';
+  static String get joinGroup => '$apiBase/group/join';
+  static String get leaveGroup => '$apiBase/group/leave';
+  static String get groupMembers => '$apiBase/group/members';
+  static String get groupEvents => '$apiBase/group/events';
+  static String get groupJoinRequests => '$apiBase/group/requests';
+  static String get respondToJoinRequest => '$apiBase/group/respond-request';
+  static String get searchGroups => '$apiBase/group/search';
+  static String get suggestedGroups => '$apiBase/group/suggested';
+  static String get myGroups => '$apiBase/group/my-groups';
+  static String get interestGroups => '$apiBase/group/by-interest';
+
+  // Icebreakers endpoints
+  static String get getIcebreakers => '$apiBase/icebreaker/list';
+  static String get getRandomIcebreaker => '$apiBase/icebreaker/random';
+  static String get createCustomIcebreaker => '$apiBase/icebreaker/create';
+  static String get icebreakerSession => '$apiBase/icebreaker/session';
+  static String get startIcebreakerSession => '$apiBase/icebreaker/session/start';
+  static String get submitIcebreakerResponse => '$apiBase/icebreaker/respond';
+  static String get icebreakerResponses => '$apiBase/icebreaker/responses';
+  static String get nextIcebreaker => '$apiBase/icebreaker/session/next';
+
   // Socket URL
   static String get socketUrl => AppConfig.socketUrl;
 }
