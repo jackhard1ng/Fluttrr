@@ -510,6 +510,106 @@ class AdminRepository extends BaseRepository {
     );
   }
 
+  // ============ CHAT MODERATION ============
+
+  /// Get chat conversations for moderation
+  Future<ApiResponse<List<Map<String, dynamic>>>> getChatsForModeration({
+    int page = 1,
+    int limit = 20,
+    String? userId,
+    String? search,
+    bool? hasReports,
+    String? sortBy,
+    bool descending = true,
+  }) async {
+    return makeRequest(
+      () => api.get('/admin/chats', queryParameters: {
+        'page': page,
+        'limit': limit,
+        if (userId != null) 'user_id': userId,
+        if (search != null && search.isNotEmpty) 'search': search,
+        if (hasReports != null) 'has_reports': hasReports,
+        if (sortBy != null) 'sort_by': sortBy,
+        'descending': descending,
+      }),
+      (data) => (data as List).cast<Map<String, dynamic>>(),
+    );
+  }
+
+  /// Get messages in a specific chat
+  Future<ApiResponse<List<Map<String, dynamic>>>> getChatMessages({
+    required String chatId,
+    int page = 1,
+    int limit = 50,
+  }) async {
+    return makeRequest(
+      () => api.get('/admin/chats/$chatId/messages', queryParameters: {
+        'page': page,
+        'limit': limit,
+      }),
+      (data) => (data as List).cast<Map<String, dynamic>>(),
+    );
+  }
+
+  /// Delete a specific message
+  Future<ApiResponse<bool>> deleteMessage({
+    required String chatId,
+    required String messageId,
+    required String reason,
+  }) async {
+    return makeRequest(
+      () => api.delete('/admin/chats/$chatId/messages/$messageId', data: {
+        'reason': reason,
+      }),
+      (data) => true,
+    );
+  }
+
+  /// Delete entire chat conversation
+  Future<ApiResponse<bool>> deleteChat({
+    required String chatId,
+    required String reason,
+    bool notifyParticipants = true,
+  }) async {
+    return makeRequest(
+      () => api.delete('/admin/chats/$chatId', data: {
+        'reason': reason,
+        'notify_participants': notifyParticipants,
+      }),
+      (data) => true,
+    );
+  }
+
+  /// Export chat log for investigation
+  Future<ApiResponse<String>> exportChatLog({
+    required String chatId,
+    String format = 'json',
+  }) async {
+    return makeRequest(
+      () => api.get('/admin/chats/$chatId/export', queryParameters: {
+        'format': format,
+      }),
+      (data) => data['export_url'] as String,
+    );
+  }
+
+  /// Warn a user about their chat behavior
+  Future<ApiResponse<bool>> sendChatWarning({
+    required String userId,
+    required String chatId,
+    required String message,
+    String? messageId,
+  }) async {
+    return makeRequest(
+      () => api.post('/admin/chats/$chatId/warn', data: {
+        'user_id': userId,
+        'message': message,
+        if (messageId != null) 'message_id': messageId,
+      }),
+      (data) => true,
+    );
+  }
+
   // ============ SYSTEM SETTINGS ============
 
   /// Get system settings

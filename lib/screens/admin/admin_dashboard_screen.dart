@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../controllers/admin_controller.dart';
 import 'business_management_screen.dart';
+import 'chat_moderation_screen.dart';
 import 'event_moderation_screen.dart';
 import 'user_management_screen.dart';
 import 'reports_screen.dart';
@@ -714,6 +715,15 @@ class AdminDashboardScreen extends StatelessWidget {
             onTap: () {
               Get.back();
               Get.to(() => const ReportsScreen());
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.chat),
+            title: const Text('Chat Moderation'),
+            subtitle: const Text('View user conversations'),
+            onTap: () {
+              Get.back();
+              Get.to(() => const ChatModerationScreen());
             },
           ),
           const Divider(),

@@ -5,8 +5,10 @@ import 'package:get/get.dart';
 import '../../constants/utils.dart';
 import '../../config/routes.dart';
 import '../../controllers/auth_controller.dart';
+import '../../controllers/admin_controller.dart';
 import '../../controllers/profile_controller.dart';
 import '../../widgets/common_widgets.dart';
+import '../admin/admin_dashboard_screen.dart';
 
 /// Settings screen
 class SettingsScreen extends StatelessWidget {
@@ -99,6 +101,9 @@ class SettingsScreen extends StatelessWidget {
             title: 'Privacy Policy',
             onTap: () => _showLegalDialog(context, 'Privacy Policy'),
           ),
+
+          // Admin section (only visible to admins)
+          _AdminPanelTile(),
 
           const SizedBox(height: AppSpacing.xl),
 
@@ -510,6 +515,86 @@ class _SettingsTile extends StatelessWidget {
       },
       contentPadding: EdgeInsets.zero,
     );
+  }
+}
+
+/// Admin Panel tile - only shows for admin users
+class _AdminPanelTile extends StatelessWidget {
+  const _AdminPanelTile();
+
+  @override
+  Widget build(BuildContext context) {
+    // Check if admin controller exists and user is admin
+    final AdminController? adminController;
+    try {
+      adminController = Get.find<AdminController>();
+    } catch (_) {
+      // Controller not registered, try to create it
+      Get.put(AdminController());
+      return _buildAdminCheck();
+    }
+
+    return Obx(() {
+      if (!adminController!.isAdmin) {
+        return const SizedBox.shrink();
+      }
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: AppSpacing.lg),
+          _SectionHeader(title: 'Admin'),
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.deepPurple.withValues(alpha: 0.1),
+                  Colors.deepPurple.withValues(alpha: 0.05),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.deepPurple.withValues(alpha: 0.3)),
+            ),
+            child: ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.deepPurple.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.admin_panel_settings, color: Colors.deepPurple),
+              ),
+              title: const Text(
+                'Admin Panel',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              subtitle: Text(
+                adminController.currentAdmin.value?.roleDisplay ?? 'Manage app',
+                style: TextStyle(color: Colors.deepPurple.shade300, fontSize: 12),
+              ),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.deepPurple),
+              onTap: () {
+                HapticFeedback.mediumImpact();
+                Get.to(() => const AdminDashboardScreen());
+              },
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildAdminCheck() {
+    final adminController = Get.find<AdminController>();
+    return Obx(() {
+      if (adminController.isLoading.value) {
+        return const SizedBox.shrink();
+      }
+      if (!adminController.isAdmin) {
+        return const SizedBox.shrink();
+      }
+      return _AdminPanelTile();
+    });
   }
 }
 
