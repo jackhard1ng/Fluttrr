@@ -12,6 +12,7 @@ import 'config/routes.dart';
 import 'config/bindings.dart';
 import 'firebase_options.dart';
 import 'services/push_notification_service.dart';
+import 'services/token_manager.dart';
 
 /// Background message handler for Firebase
 @pragma('vm:entry-point')
@@ -22,6 +23,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize TokenManager first (single source of truth for auth tokens)
+  await TokenManager.init();
 
   // Initialize Firebase (skip on desktop platforms for development)
   final isDesktop = !kIsWeb &&

@@ -4,9 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/api_endpoints.dart';
+import 'token_manager.dart';
 
 /// Result of a payment operation
 class PaymentResult {
@@ -79,10 +79,9 @@ class StripeService {
     }
   }
 
-  /// Get auth token from SharedPreferences
+  /// Get auth token from TokenManager (single source of truth)
   Future<String?> _getAuthToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
+    return TokenManager.getToken();
   }
 
   /// Create a payment intent on the server

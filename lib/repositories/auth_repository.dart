@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
 
 import '../constants/api_endpoints.dart';
 import '../models/api_response.dart';
+import '../services/token_manager.dart';
 import 'base_repository.dart';
 
 /// Authentication repository
@@ -176,6 +180,62 @@ class AuthRepository extends BaseRepository {
   Future<bool> isLoggedIn() async {
     final token = await getToken();
     return token != null && token.isNotEmpty;
+  }
+
+  // ==================== Token Refresh ====================
+
+  /// Attempt to refresh the access token using the refresh token
+  ///
+  /// Returns true if refresh was successful, false otherwise.
+  /// This method makes a direct HTTP call to avoid recursion through BaseRepository.
+  Future<bool> refreshAccessToken() async {
+    try {
+      final refreshToken = await TokenManager.getRefreshToken();
+
+      if (refreshToken == null || refreshToken.isEmpty) {
+        debugPrint('AuthRepository: No refresh token available');
+        return false;
+      }
+
+      debugPrint('AuthRepository: Attempting token refresh');
+
+      final response = await http.post(
+        Uri.parse(ApiEndpoints.refreshToken),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({'refreshToken': refreshToken}),
+      );
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        final newToken = data['token'] as String?;
+        final newRefreshToken = data['refreshToken'] as String?;
+
+        if (newToken != null) {
+          await TokenManager.saveToken(newToken);
+
+          if (newRefreshToken != null) {
+            await TokenManager.saveRefreshToken(newRefreshToken);
+          }
+
+          debugPrint('AuthRepository: Token refresh successful');
+          return true;
+        }
+      }
+
+      debugPrint('AuthRepository: Token refresh failed with status ${response.statusCode}');
+      return false;
+    } catch (e) {
+      debugPrint('AuthRepository: Token refresh error: $e');
+      return false;
+    }
+  }
+
+  /// Static method for use in BaseRepository without creating circular dependency
+  static Future<bool> tryRefreshToken() async {
+    return AuthRepository().refreshAccessToken();
   }
 
   // ==================== Business Authentication ====================

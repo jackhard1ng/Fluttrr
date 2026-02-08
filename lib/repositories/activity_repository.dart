@@ -180,24 +180,8 @@ class ActivityRepository extends BaseRepository {
     );
   }
 
-  /// Helper method to parse activity list response
+  /// Helper method to parse activity list response (uses safe parsing from BaseRepository)
   ApiResponse<List<ActivityModel>> _parseActivityList(ApiResponse<dynamic> response) {
-    if (response.success && response.data != null) {
-      final data = response.data;
-      List<dynamic> activities = [];
-
-      if (data is Map<String, dynamic>) {
-        activities = data['data'] as List<dynamic>? ?? [];
-      } else if (data is List) {
-        activities = data;
-      }
-
-      final activityList = activities
-          .map((e) => ActivityModel.fromJson(e as Map<String, dynamic>))
-          .toList();
-
-      return ApiResponse.success(data: activityList);
-    }
-    return ApiResponse.failure(error: response.error);
+    return parseListResponse(response, ActivityModel.fromJson);
   }
 }

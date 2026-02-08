@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 import '../constants/api_endpoints.dart';
+import 'token_manager.dart';
 
 /// Connection status for socket
 enum SocketStatus {
@@ -94,8 +94,7 @@ class SocketService {
     _ensureControllersInitialized();
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
+      final token = await TokenManager.getToken();
 
       if (token == null) {
         debugPrint('No auth token available for socket connection');

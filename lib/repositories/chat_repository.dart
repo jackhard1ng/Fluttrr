@@ -25,47 +25,13 @@ class ChatRepository extends BaseRepository {
   /// Get chat list (conversations)
   Future<ApiResponse<List<ChatConversation>>> getChatList() async {
     final response = await get<dynamic>(ApiEndpoints.chatList);
-    if (response.success && response.data != null) {
-      final data = response.data;
-      List<dynamic> chats = [];
-
-      if (data is Map<String, dynamic>) {
-        chats = data['data'] as List<dynamic>? ?? [];
-      } else if (data is List) {
-        chats = data;
-      }
-
-      final chatList = chats
-          .where((e) => e != null)
-          .map((e) => ChatConversation.fromJson(e as Map<String, dynamic>))
-          .toList();
-
-      return ApiResponse.success(data: chatList);
-    }
-    return ApiResponse.failure(error: response.error);
+    return parseListResponse(response, ChatConversation.fromJson);
   }
 
   /// Get group chat list
   Future<ApiResponse<List<GroupChat>>> getGroupChatList() async {
     final response = await get<dynamic>(ApiEndpoints.groupList);
-    if (response.success && response.data != null) {
-      final data = response.data;
-      List<dynamic> groups = [];
-
-      if (data is Map<String, dynamic>) {
-        groups = data['data'] as List<dynamic>? ?? [];
-      } else if (data is List) {
-        groups = data;
-      }
-
-      final groupList = groups
-          .where((e) => e != null)
-          .map((e) => GroupChat.fromJson(e as Map<String, dynamic>))
-          .toList();
-
-      return ApiResponse.success(data: groupList);
-    }
-    return ApiResponse.failure(error: response.error);
+    return parseListResponse(response, GroupChat.fromJson);
   }
 
   /// Mark messages as read
@@ -81,24 +47,7 @@ class ChatRepository extends BaseRepository {
   /// Get business chat list
   Future<ApiResponse<List<ChatConversation>>> getBusinessChatList() async {
     final response = await get<dynamic>(ApiEndpoints.businessChatList);
-    if (response.success && response.data != null) {
-      final data = response.data;
-      List<dynamic> chats = [];
-
-      if (data is Map<String, dynamic>) {
-        chats = data['data'] as List<dynamic>? ?? [];
-      } else if (data is List) {
-        chats = data;
-      }
-
-      final chatList = chats
-          .where((e) => e != null)
-          .map((e) => ChatConversation.fromJson(e as Map<String, dynamic>))
-          .toList();
-
-      return ApiResponse.success(data: chatList);
-    }
-    return ApiResponse.failure(error: response.error);
+    return parseListResponse(response, ChatConversation.fromJson);
   }
 
   /// Send business message

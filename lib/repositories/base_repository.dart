@@ -4,30 +4,28 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/api_response.dart';
+import '../services/token_manager.dart';
+import '../services/auth_event_handler.dart';
 
 /// Base repository with common HTTP operations
 abstract class BaseRepository {
   static const Duration _timeout = Duration(seconds: 30);
 
-  /// Get the auth token from SharedPreferences
+  /// Get the auth token from TokenManager (single source of truth)
   Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
+    return TokenManager.getToken();
   }
 
-  /// Save the auth token to SharedPreferences
+  /// Save the auth token to TokenManager
   Future<void> saveToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('token', token);
+    await TokenManager.saveToken(token);
   }
 
   /// Remove the auth token
   Future<void> clearToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
+    await TokenManager.clearToken();
   }
 
   /// Get headers with optional auth token
@@ -324,6 +322,14 @@ abstract class BaseRepository {
         );
       } else {
         final errorMessage = (data['message'] ?? data['error'] ?? 'Request failed') as String;
+
+        // Handle 401 Unauthorized - trigger global auth handler
+        if (response.statusCode == 401) {
+          debugPrint('BaseRepository: 401 Unauthorized - triggering auth handler');
+          // Fire and forget - don't await to avoid blocking the response
+          AuthEventHandler().handleUnauthorized(message: errorMessage);
+        }
+
         return ApiResponse.failure(
           error: errorMessage,
           statusCode: response.statusCode,
@@ -356,5 +362,108 @@ abstract class BaseRepository {
     }
 
     return ApiResponse.failure(error: message);
+  }
+
+  // ==================== Safe Parsing Utilities ====================
+
+  /// Safely parse a list response into typed models
+  ///
+  /// This method handles:
+  /// - Null data
+  /// - Data wrapped in 'data' key or as direct list
+  /// - Invalid items that can't be cast to Map<String, dynamic>
+  /// - Parsing errors for individual items (logs and skips)
+  ///
+  /// Example usage:
+  /// ```dart
+  /// final response = await get<dynamic>(ApiEndpoints.activities);
+  /// return parseListResponse(response, ActivityModel.fromJson);
+  /// ```
+  ApiResponse<List<T>> parseListResponse<T>(
+    ApiResponse<dynamic> response,
+    T Function(Map<String, dynamic>) fromJson, {
+    String? listKey,
+  }) {
+    if (!response.success) {
+      return ApiResponse.failure(
+        error: response.error,
+        statusCode: response.statusCode,
+      );
+    }
+
+    if (response.data == null) {
+      return ApiResponse.success(data: <T>[]);
+    }
+
+    try {
+      final data = response.data;
+      List<dynamic> items = extractList(data, key: listKey);
+
+      // Parse items safely
+      final parsedItems = <T>[];
+      for (int i = 0; i < items.length; i++) {
+        try {
+          final item = items[i];
+          final map = safeMapCast(item);
+          if (map != null) {
+            parsedItems.add(fromJson(map));
+          } else {
+            debugPrint('parseListResponse: Skipping item at index $i - not a Map (${item.runtimeType})');
+          }
+        } catch (e) {
+          debugPrint('parseListResponse: Error parsing item at index $i: $e');
+          // Continue parsing other items
+        }
+      }
+
+      return ApiResponse.success(data: parsedItems);
+    } catch (e) {
+      debugPrint('parseListResponse: Fatal error: $e');
+      return ApiResponse.failure(error: 'Failed to parse response data');
+    }
+  }
+
+  /// Safely cast a dynamic value to Map<String, dynamic>
+  ///
+  /// Returns null if the value cannot be safely cast.
+  Map<String, dynamic>? safeMapCast(dynamic value) {
+    if (value == null) return null;
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) {
+      try {
+        return Map<String, dynamic>.from(value);
+      } catch (e) {
+        debugPrint('safeMapCast: Failed to convert Map: $e');
+        return null;
+      }
+    }
+    return null;
+  }
+
+  /// Safely extract a list from a response data object
+  ///
+  /// Tries multiple common keys: 'data', 'items', 'results', or the value itself if it's a list.
+  List<dynamic> extractList(dynamic data, {String? key}) {
+    if (data == null) return [];
+
+    if (data is List) return data;
+
+    if (data is Map<String, dynamic>) {
+      // Try specific key first
+      if (key != null && data.containsKey(key)) {
+        final value = data[key];
+        if (value is List) return value;
+      }
+
+      // Try common keys
+      for (final commonKey in ['data', 'items', 'results', 'list']) {
+        if (data.containsKey(commonKey)) {
+          final value = data[commonKey];
+          if (value is List) return value;
+        }
+      }
+    }
+
+    return [];
   }
 }

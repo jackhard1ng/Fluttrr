@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
+import 'token_manager.dart';
+
 /// Local storage service using Hive
 class StorageService {
   static const String _userBox = 'user_data';
@@ -38,20 +40,18 @@ class StorageService {
     await box.delete('current_user');
   }
 
-  // Auth token
+  // Auth token - delegates to TokenManager (single source of truth)
+  // These methods are kept for backward compatibility but use TokenManager internally
   static Future<void> saveToken(String token) async {
-    final box = Hive.box(_userBox);
-    await box.put('auth_token', token);
+    await TokenManager.saveToken(token);
   }
 
   static String? getToken() {
-    final box = Hive.box(_userBox);
-    return box.get('auth_token');
+    return TokenManager.token;
   }
 
   static Future<void> clearToken() async {
-    final box = Hive.box(_userBox);
-    await box.delete('auth_token');
+    await TokenManager.clearToken();
   }
 
   // Preferences

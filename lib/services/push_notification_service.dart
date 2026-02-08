@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/api_endpoints.dart';
 import '../config/routes.dart';
+import 'token_manager.dart';
 
 /// Push notification service for handling FCM and local notifications
 class PushNotificationService {
@@ -141,8 +142,7 @@ class PushNotificationService {
   /// Send FCM token to server
   Future<void> _sendTokenToServer(String token) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final authToken = prefs.getString('token');
+      final authToken = await TokenManager.getToken();
 
       if (authToken != null) {
         await http.post(

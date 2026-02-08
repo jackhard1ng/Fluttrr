@@ -42,6 +42,7 @@ class ApiEndpoints {
   static String get resetPassword => '$apiBase/user/reset-password';
   static String get requestOtp => '$apiBase/user/request-otp';
   static String get verifyResetOtp => '$apiBase/user/verify-reset-otp';
+  static String get refreshToken => '$apiBase/user/refresh-token';
 
   // Profile endpoints
   static String get profile => '$apiBase/user/profile';
