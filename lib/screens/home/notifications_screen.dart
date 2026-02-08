@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../config/routes.dart';
 import '../../constants/utils.dart';
 import '../../widgets/notification_badges.dart';
 import '../../widgets/empty_states.dart';
@@ -131,13 +132,30 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       setState(() {
                         notification.isUnread = false;
                       });
-                      // Navigate based on type
+                      _navigateByType(notification.type);
                     },
                   ),
                 );
               },
             ),
     );
+  }
+
+  void _navigateByType(NotificationType type) {
+    switch (type) {
+      case NotificationType.friend:
+        Nav.toMatches();
+        break;
+      case NotificationType.event:
+        Nav.toDiscover();
+        break;
+      case NotificationType.message:
+        Nav.toMessages();
+        break;
+      case NotificationType.reminder:
+        Nav.toDiscover();
+        break;
+    }
   }
 }
 

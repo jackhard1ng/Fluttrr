@@ -30,6 +30,7 @@ class MatesController extends GetxController {
   final RxString selectedGender = ''.obs;
   final RxList<String> selectedInterests = <String>[].obs;
   final RxDouble maxDistance = 50.0.obs;
+  final RxString quickFilter = ''.obs;
 
   // Location
   final RxDouble currentLatitude = 0.0.obs;
@@ -327,8 +328,20 @@ class MatesController extends GetxController {
     selectedGender.value = '';
     selectedInterests.clear();
     maxDistance.value = 50.0;
+    quickFilter.value = '';
 
     loadNearbyMates();
+  }
+
+  /// Toggle quick filter (online, new, interests, nearby)
+  void toggleQuickFilter(String filter) {
+    if (quickFilter.value == filter) {
+      // Deselect if already selected
+      quickFilter.value = '';
+    } else {
+      quickFilter.value = filter;
+    }
+    filterMates();
   }
 
   /// Toggle interest filter

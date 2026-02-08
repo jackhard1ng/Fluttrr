@@ -108,7 +108,7 @@ class MatesScreen extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
 
             // Quick filters row
-            SizedBox(
+            Obx(() => SizedBox(
               height: 36,
               child: ListView(
                 scrollDirection: Axis.horizontal,
@@ -118,30 +118,42 @@ class MatesScreen extends StatelessWidget {
                     label: 'Online Now',
                     icon: Icons.circle,
                     iconColor: AppColors.success,
-                    isSelected: false,
-                    onTap: () {},
+                    isSelected: matesController.quickFilter.value == 'online',
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      matesController.toggleQuickFilter('online');
+                    },
                   ),
                   _QuickFilterChip(
                     label: 'New Members',
                     icon: Icons.fiber_new,
-                    isSelected: false,
-                    onTap: () {},
+                    isSelected: matesController.quickFilter.value == 'new',
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      matesController.toggleQuickFilter('new');
+                    },
                   ),
                   _QuickFilterChip(
                     label: 'Same Interests',
                     icon: Icons.favorite_border,
-                    isSelected: false,
-                    onTap: () {},
+                    isSelected: matesController.quickFilter.value == 'interests',
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      matesController.toggleQuickFilter('interests');
+                    },
                   ),
                   _QuickFilterChip(
                     label: 'Nearby',
                     icon: Icons.near_me,
-                    isSelected: false,
-                    onTap: () {},
+                    isSelected: matesController.quickFilter.value == 'nearby',
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      matesController.toggleQuickFilter('nearby');
+                    },
                   ),
                 ],
               ),
-            ),
+            )),
 
             const SizedBox(height: AppSpacing.md),
 

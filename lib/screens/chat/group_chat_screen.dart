@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../config/routes.dart';
 import '../../constants/utils.dart';
 
 class GroupChatScreen extends StatefulWidget {
@@ -300,6 +301,27 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
               title: 'Mute Notifications',
               onTap: () {
                 Get.back();
+                Get.snackbar(
+                  'Notifications Muted',
+                  'You won\'t receive notifications from this group',
+                  snackPosition: SnackPosition.BOTTOM,
+                );
+              },
+            ),
+            _InfoTile(
+              icon: Icons.flag_outlined,
+              title: 'Report Group',
+              onTap: () {
+                Get.back();
+                Nav.toReport(eventName: widget.groupName);
+              },
+            ),
+            _InfoTile(
+              icon: Icons.help_outline,
+              title: 'Get Help',
+              onTap: () {
+                Get.back();
+                Nav.toHelp();
               },
             ),
             _InfoTile(

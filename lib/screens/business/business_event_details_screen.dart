@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../config/routes.dart';
 import '../../constants/utils.dart';
 import '../../controllers/business_controller.dart';
 import '../../models/business_model.dart';
@@ -169,6 +170,24 @@ class _BusinessEventDetailsScreenState
                   switch (value) {
                     case 'edit':
                       // Navigate to edit screen
+                      Get.snackbar(
+                        'Coming Soon',
+                        'Event editing will be available soon',
+                        snackPosition: SnackPosition.BOTTOM,
+                      );
+                      break;
+                    case 'share':
+                      Get.snackbar(
+                        'Link Copied',
+                        'Event link copied to clipboard',
+                        snackPosition: SnackPosition.BOTTOM,
+                      );
+                      break;
+                    case 'report':
+                      Nav.toReport(eventName: widget.event.name ?? 'Event');
+                      break;
+                    case 'help':
+                      Nav.toHelp();
                       break;
                     case 'delete':
                       _showDeleteDialog();
@@ -186,6 +205,37 @@ class _BusinessEventDetailsScreenState
                       ],
                     ),
                   ),
+                  const PopupMenuItem(
+                    value: 'share',
+                    child: Row(
+                      children: [
+                        Icon(Icons.share),
+                        SizedBox(width: AppSpacing.sm),
+                        Text('Share Event'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'report',
+                    child: Row(
+                      children: [
+                        Icon(Icons.flag_outlined, color: AppColors.friendlyOrange),
+                        SizedBox(width: AppSpacing.sm),
+                        Text('Report Event'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'help',
+                    child: Row(
+                      children: [
+                        Icon(Icons.help_outline, color: AppColors.primaryBlue),
+                        SizedBox(width: AppSpacing.sm),
+                        Text('Get Help'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuDivider(),
                   const PopupMenuItem(
                     value: 'delete',
                     child: Row(
