@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
@@ -366,10 +367,35 @@ class _StatCard extends StatelessWidget {
     required this.icon,
   });
 
+  void _navigateToDetail(String label) {
+    HapticFeedback.lightImpact();
+    switch (label.toLowerCase()) {
+      case 'events':
+        Nav.toDiscover();
+        break;
+      case 'friends':
+        Nav.toMatches();
+        break;
+      case 'attended':
+        Get.snackbar(
+          'Event History',
+          'View your attended events',
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 2),
+        );
+        Nav.toSavedEvents();
+        break;
+      default:
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Container(
+      child: GestureDetector(
+        onTap: () => _navigateToDetail(label),
+        child: Container(
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
@@ -392,6 +418,7 @@ class _StatCard extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
+        ),
         ),
       ),
     );
