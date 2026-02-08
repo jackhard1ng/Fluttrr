@@ -1044,7 +1044,7 @@ class _EventCard extends StatelessWidget {
                 // View photos link
                 GestureDetector(
                   onTap: () {
-                    // Navigate to photos
+                    Nav.toBusinessPhotos();
                   },
                   child: Row(
                     children: [

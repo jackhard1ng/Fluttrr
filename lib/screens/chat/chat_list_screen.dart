@@ -294,7 +294,7 @@ class _GroupChatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: () {
-        // Navigate to group chat
+        Nav.toGroupChat(groupId: group.id, groupName: group.displayName);
       },
       leading: Container(
         width: 50,

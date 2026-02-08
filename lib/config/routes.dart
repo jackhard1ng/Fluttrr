@@ -43,6 +43,7 @@ import '../screens/support/help_screen.dart';
 import '../screens/support/report_screen.dart';
 import '../screens/chat/chat_list_screen.dart';
 import '../screens/chat/chat_screen.dart';
+import '../screens/chat/group_chat_screen.dart';
 import '../screens/activities/activity_details_screen.dart';
 import '../screens/activities/create_activity_screen.dart';
 
@@ -86,6 +87,7 @@ class AppRoutes {
   // Chat
   static const chatList = '/chats';
   static const chat = '/chat';
+  static const groupChat = '/group-chat';
 
   // Activities
   static const activityDetails = '/activity-details';
@@ -276,6 +278,17 @@ class AppPages {
       },
       transition: Transition.rightToLeft,
     ),
+    GetPage(
+      name: AppRoutes.groupChat,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return GroupChatScreen(
+          groupId: args['groupId'] as String,
+          groupName: args['groupName'] as String,
+        );
+      },
+      transition: Transition.rightToLeft,
+    ),
 
     // Activities
     GetPage(
@@ -434,6 +447,11 @@ class Nav {
         arguments: isBusiness
             ? {'conversation': conversation, 'isBusiness': true}
             : conversation,
+      );
+  static void toGroupChat({required String groupId, required String groupName}) =>
+      Get.toNamed(
+        AppRoutes.groupChat,
+        arguments: {'groupId': groupId, 'groupName': groupName},
       );
 
   // Activities

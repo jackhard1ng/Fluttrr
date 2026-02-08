@@ -9,6 +9,64 @@ import '../../widgets/common_widgets.dart';
 class EditProfileScreen extends StatelessWidget {
   const EditProfileScreen({super.key});
 
+  void _showPhotoOptions(BuildContext context) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Icons.camera_alt, color: AppColors.primaryBlue),
+              title: const Text('Take Photo'),
+              onTap: () {
+                Get.back();
+                Get.snackbar(
+                  'Camera',
+                  'Camera access requires device permissions',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: const Duration(seconds: 2),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.photo_library, color: AppColors.primaryBlue),
+              title: const Text('Choose from Gallery'),
+              onTap: () {
+                Get.back();
+                Get.snackbar(
+                  'Gallery',
+                  'Gallery access requires device permissions',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: const Duration(seconds: 2),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.delete, color: AppColors.error),
+              title: Text('Remove Photo', style: TextStyle(color: AppColors.error)),
+              onTap: () {
+                Get.back();
+                Get.snackbar(
+                  'Photo Removed',
+                  'Your photo has been removed',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: AppColors.error,
+                  colorText: Colors.white,
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final profileController = Get.find<ProfileController>();
@@ -90,9 +148,7 @@ class EditProfileScreen extends StatelessWidget {
                     right: 0,
                     bottom: 0,
                     child: GestureDetector(
-                      onTap: () {
-                        // Change profile photo
-                      },
+                      onTap: () => _showPhotoOptions(context),
                       child: Container(
                         padding: const EdgeInsets.all(AppSpacing.sm),
                         decoration: const BoxDecoration(

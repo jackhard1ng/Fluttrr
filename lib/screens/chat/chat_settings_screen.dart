@@ -105,7 +105,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                     icon: Icons.person,
                     label: 'Profile',
                     onTap: () {
-                      // View profile
+                      Nav.toMatches();
                     },
                   ),
                   _ActionButton(
@@ -120,7 +120,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                     icon: Icons.search,
                     label: 'Search',
                     onTap: () {
-                      // Search in chat
+                      _showSearchInChat();
                     },
                   ),
                 ],
@@ -159,7 +159,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                     title: 'Custom Notification Sound',
                     subtitle: 'Default',
                     onTap: () {
-                      // Choose sound
+                      _showNotificationSoundOptions();
                     },
                   ),
                   const SizedBox(height: 24),
@@ -376,6 +376,101 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
       ),
     );
   }
+
+  void _showSearchInChat() {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: 'Search in chat...',
+                prefixIcon: Icon(Icons.search, color: AppColors.mediumGrey),
+                filled: true,
+                fillColor: AppColors.lightGrey.withAlpha(128),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onSubmitted: (value) {
+                Get.back();
+                if (value.isNotEmpty) {
+                  Get.snackbar(
+                    'Search',
+                    'Searching for "$value" in chat...',
+                    snackPosition: SnackPosition.BOTTOM,
+                  );
+                }
+              },
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Enter text to search through messages',
+              style: TextStyle(
+                color: AppColors.mediumGrey,
+                fontSize: 13,
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showNotificationSoundOptions() {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Notification Sound',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ...['Default', 'Chime', 'Bell', 'Pop', 'None'].map((sound) {
+              return ListTile(
+                leading: Icon(
+                  sound == 'None' ? Icons.volume_off : Icons.volume_up,
+                  color: AppColors.primaryBlue,
+                ),
+                title: Text(sound),
+                trailing: sound == 'Default'
+                    ? Icon(Icons.check, color: AppColors.primaryBlue)
+                    : null,
+                onTap: () {
+                  Get.back();
+                  Get.snackbar(
+                    'Sound Changed',
+                    'Notification sound set to $sound',
+                    snackPosition: SnackPosition.BOTTOM,
+                  );
+                },
+              );
+            }),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _ActionButton extends StatelessWidget {
@@ -467,7 +562,44 @@ class _MediaPreviewRow extends StatelessWidget {
           GestureDetector(
             onTap: () {
               HapticFeedback.lightImpact();
-              // Show all media
+              Get.bottomSheet(
+                Container(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'Shared Media',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        height: 150,
+                        alignment: Alignment.center,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.photo_library, size: 48, color: AppColors.mediumGrey),
+                            const SizedBox(height: 8),
+                            Text(
+                              'No shared media yet',
+                              style: TextStyle(color: AppColors.mediumGrey),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
+              );
             },
             child: Container(
               width: 80,

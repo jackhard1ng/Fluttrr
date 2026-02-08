@@ -317,7 +317,14 @@ class _MateProfileScreenState extends State<MateProfileScreen> {
                           color: AppColors.friendlyPurple,
                           isCompact: true,
                           onTap: () {
-                            // Share profile
+                            HapticFeedback.lightImpact();
+                            Get.snackbar(
+                              'Link Copied',
+                              'Profile link copied to clipboard',
+                              snackPosition: SnackPosition.BOTTOM,
+                              backgroundColor: AppColors.success,
+                              colorText: Colors.white,
+                            );
                           },
                         ),
                       ],

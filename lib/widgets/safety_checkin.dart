@@ -301,7 +301,15 @@ class _ShareLocationSheetState extends State<_ShareLocationSheet> {
                               ),
                               TextButton(
                                 onPressed: () {
-                                  // Add trusted contact
+                                  Navigator.pop(context);
+                                  Get.snackbar(
+                                    'Add Trusted Contact',
+                                    'You can add trusted contacts in Settings > Safety',
+                                    snackPosition: SnackPosition.BOTTOM,
+                                    backgroundColor: AppColors.friendlyTeal,
+                                    colorText: Colors.white,
+                                    duration: const Duration(seconds: 3),
+                                  );
                                 },
                                 style: TextButton.styleFrom(
                                   padding: EdgeInsets.zero,
