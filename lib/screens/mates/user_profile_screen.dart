@@ -587,29 +587,41 @@ class _MutualFriendTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 70,
-      margin: const EdgeInsets.only(right: 12),
-      child: Column(
-        children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: AppColors.friendlyPurple.withAlpha(51),
-            child: Text(
-              name[0],
-              style: TextStyle(
-                color: AppColors.friendlyPurple,
-                fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        // Navigate to mutual friend's profile
+        Get.to(
+          () => UserProfileScreen(
+            userId: 'mutual_${name.toLowerCase()}',
+            userName: name,
+          ),
+        );
+      },
+      child: Container(
+        width: 70,
+        margin: const EdgeInsets.only(right: 12),
+        child: Column(
+          children: [
+            CircleAvatar(
+              radius: 24,
+              backgroundColor: AppColors.friendlyPurple.withAlpha(51),
+              child: Text(
+                name[0],
+                style: TextStyle(
+                  color: AppColors.friendlyPurple,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            name,
-            style: const TextStyle(fontSize: 12),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
+            const SizedBox(height: 6),
+            Text(
+              name,
+              style: const TextStyle(fontSize: 12),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -628,43 +640,60 @@ class _RecentEventTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.lightGrey.withAlpha(77),
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColors.primaryBlue.withAlpha(26),
-              borderRadius: BorderRadius.circular(AppRadius.sm),
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Nav.toDiscover();
+        Get.snackbar(
+          title,
+          'Viewing past event details',
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 2),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.lightGrey.withAlpha(77),
+          borderRadius: BorderRadius.circular(AppRadius.md),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.primaryBlue.withAlpha(26),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+              ),
+              child: Icon(Icons.event, color: AppColors.primaryBlue),
             ),
-            child: Icon(Icons.event, color: AppColors.primaryBlue),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  '$date • $attendees attended',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.mediumGrey,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
-                ),
-              ],
+                  Text(
+                    '$date • $attendees attended',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.mediumGrey,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+            Icon(
+              Icons.chevron_right,
+              color: AppColors.mediumGrey,
+              size: 20,
+            ),
+          ],
+        ),
       ),
     );
   }

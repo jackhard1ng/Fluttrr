@@ -268,12 +268,7 @@ class _ActivityItem extends StatelessWidget {
                   label: 'Comment',
                   onTap: () {
                     HapticFeedback.lightImpact();
-                    Get.snackbar(
-                      'Comments',
-                      'Comment feature coming soon',
-                      snackPosition: SnackPosition.BOTTOM,
-                      duration: const Duration(seconds: 2),
-                    );
+                    _showCommentDialog(context, activity);
                   },
                 ),
                 const Spacer(),
@@ -372,6 +367,116 @@ class _ActivityItem extends StatelessWidget {
       final period = time.hour >= 12 ? 'PM' : 'AM';
       return '$hour:${time.minute.toString().padLeft(2, '0')} $period';
     }
+  }
+
+  void _showCommentDialog(BuildContext context, FriendActivity activity) {
+    final commentController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+      ),
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          left: AppSpacing.md,
+          right: AppSpacing.md,
+          top: AppSpacing.md,
+          bottom: MediaQuery.of(context).viewInsets.bottom + AppSpacing.md,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Handle
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.lightGrey,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
+            // Header
+            Text(
+              'Add a comment',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.darkGrey,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Comment on ${activity.userName}\'s activity',
+              style: TextStyle(
+                color: AppColors.mediumGrey,
+                fontSize: 13,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
+            // Comment input
+            TextField(
+              controller: commentController,
+              autofocus: true,
+              maxLines: 3,
+              decoration: InputDecoration(
+                hintText: 'Write your comment...',
+                hintStyle: TextStyle(color: AppColors.mediumGrey),
+                filled: true,
+                fillColor: AppColors.lightGrey.withAlpha(77),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.all(AppSpacing.md),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
+            // Submit button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  final comment = commentController.text.trim();
+                  Navigator.pop(context);
+                  if (comment.isNotEmpty) {
+                    Get.snackbar(
+                      'Comment Posted',
+                      'Your comment has been added',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: AppColors.success,
+                      colorText: Colors.white,
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryBlue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                ),
+                child: const Text(
+                  'Post Comment',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+        ),
+      ),
+    );
   }
 }
 
