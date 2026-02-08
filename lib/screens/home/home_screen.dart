@@ -1120,7 +1120,7 @@ class _TrendingSection extends StatelessWidget {
   }
 }
 
-class _TrendingCard extends StatelessWidget {
+class _TrendingCard extends StatefulWidget {
   final String emoji;
   final String title;
   final String location;
@@ -1136,13 +1136,47 @@ class _TrendingCard extends StatelessWidget {
   });
 
   @override
+  State<_TrendingCard> createState() => _TrendingCardState();
+}
+
+class _TrendingCardState extends State<_TrendingCard> {
+  bool _isSaved = false;
+  bool _showSavedAnimation = false;
+
+  void _handleDoubleTap() {
+    if (!_isSaved) {
+      HapticFeedback.mediumImpact();
+      setState(() {
+        _isSaved = true;
+        _showSavedAnimation = true;
+      });
+      Get.snackbar(
+        '💾 Saved!',
+        '${widget.title} added to your saved events',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.success,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
+      Future.delayed(const Duration(milliseconds: 800), () {
+        if (mounted) {
+          setState(() => _showSavedAnimation = false);
+        }
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
         Nav.toDiscover();
       },
-      child: Container(
+      onDoubleTap: _handleDoubleTap,
+      child: Stack(
+        children: [
+          Container(
         width: 170,
         margin: const EdgeInsets.only(right: 12),
         decoration: BoxDecoration(
@@ -1223,6 +1257,44 @@ class _TrendingCard extends StatelessWidget {
             ],
           ),
         ),
+          ),
+          // Saved indicator
+          if (_isSaved)
+            Positioned(
+              top: 8,
+              right: 20,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: AppColors.success,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.bookmark,
+                  size: 14,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          // Save animation overlay
+          if (_showSavedAnimation)
+            Positioned.fill(
+              child: Container(
+                margin: const EdgeInsets.only(right: 12),
+                decoration: BoxDecoration(
+                  color: Colors.black.withAlpha(77),
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.bookmark,
+                    size: 48,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
