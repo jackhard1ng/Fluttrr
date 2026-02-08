@@ -9,6 +9,7 @@ class NotificationsController extends GetxController {
 
   // State
   final isLoading = false.obs;
+  final isRefreshing = false.obs;
   final notifications = <NotificationModel>[].obs;
   final unreadCount = 0.obs;
   final errorMessage = ''.obs;
@@ -19,8 +20,12 @@ class NotificationsController extends GetxController {
     loadNotifications();
   }
 
+  /// Load notifications with proper loading state management
   Future<void> loadNotifications() async {
-    isLoading.value = true;
+    // Show loading spinner only on initial load (when list is empty)
+    if (notifications.isEmpty) {
+      isLoading.value = true;
+    }
     errorMessage.value = '';
 
     try {
@@ -33,15 +38,33 @@ class NotificationsController extends GetxController {
         errorMessage.value = response.displayMessage;
       }
     } catch (e) {
-      errorMessage.value = 'Failed to load notifications';
+      errorMessage.value = 'Failed to load notifications. Please try again.';
       debugPrint('Error loading notifications: $e');
     } finally {
       isLoading.value = false;
     }
   }
 
+  /// Refresh notifications with separate loading state for pull-to-refresh
   Future<void> refreshNotifications() async {
-    await loadNotifications();
+    isRefreshing.value = true;
+    errorMessage.value = '';
+
+    try {
+      final response = await _notificationRepository.getNotifications();
+
+      if (response.success && response.data != null) {
+        notifications.value = response.data!;
+        _updateUnreadCount();
+      } else {
+        errorMessage.value = response.displayMessage;
+      }
+    } catch (e) {
+      errorMessage.value = 'Failed to refresh notifications';
+      debugPrint('Error refreshing notifications: $e');
+    } finally {
+      isRefreshing.value = false;
+    }
   }
 
   void _updateUnreadCount() {

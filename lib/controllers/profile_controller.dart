@@ -95,12 +95,18 @@ class ProfileController extends GetxController {
 
   /// Load additional profile data with individual error handling
   Future<void> _loadAdditionalData() async {
-    // Load in parallel - each method handles its own errors
-    await Future.wait([
-      _loadProfileCompletion(),
-      _loadStatistics(),
-      _loadGallery(),
-    ], eagerError: false);
+    try {
+      // Load in parallel - each method handles its own errors
+      await Future.wait([
+        _loadProfileCompletion(),
+        _loadStatistics(),
+        _loadGallery(),
+      ], eagerError: false);
+    } catch (e) {
+      // Set error message for UI to display if all operations fail
+      debugPrint('Error loading additional profile data: $e');
+      // Don't override main profile error - only log additional data failures
+    }
   }
 
   Future<void> _loadProfileCompletion() async {
@@ -289,19 +295,45 @@ class ProfileController extends GetxController {
     }
   }
 
-  /// Set user online status
+  /// Set user online status with error handling
   Future<void> setOnline() async {
-    await _profileRepository.setOnline();
+    try {
+      final response = await _profileRepository.setOnline();
+      if (!response.success) {
+        debugPrint('Failed to set online status: ${response.error}');
+      }
+    } catch (e) {
+      debugPrint('Error setting online status: $e');
+    }
   }
 
-  /// Set user offline status
+  /// Set user offline status with error handling
   Future<void> setOffline() async {
-    await _profileRepository.setOffline();
+    try {
+      final response = await _profileRepository.setOffline();
+      if (!response.success) {
+        debugPrint('Failed to set offline status: ${response.error}');
+      }
+    } catch (e) {
+      debugPrint('Error setting offline status: $e');
+    }
   }
 
-  /// Update FCM token
+  /// Update FCM token with error handling
   Future<void> updateFcmToken(String token) async {
-    await _profileRepository.updateFcmToken(token);
+    if (token.isEmpty) {
+      debugPrint('Cannot update FCM token: token is empty');
+      return;
+    }
+
+    try {
+      final response = await _profileRepository.updateFcmToken(token);
+      if (!response.success) {
+        debugPrint('Failed to update FCM token: ${response.error}');
+      }
+    } catch (e) {
+      debugPrint('Error updating FCM token: $e');
+    }
   }
 
   /// Toggle interest selection

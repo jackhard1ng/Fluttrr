@@ -181,9 +181,10 @@ class MatesController extends GetxController {
     }
   }
 
-  /// Like a mate
+  /// Like a mate with proper error handling
   Future<bool> likeMate(int userId) async {
     isLiking.value = true;
+    errorMessage.value = '';
 
     try {
       final response = await _matesRepository.likeMate(userId);
@@ -195,16 +196,22 @@ class MatesController extends GetxController {
         _updateMateLikeStatus(userId, true);
 
         // Check if it's a match (response might contain match info)
-        final isMatch = response.data?['isMatch'] == true;
+        // Safely check the response data type and content
+        final data = response.data;
+        final isMatch = data is Map && data['isMatch'] == true;
         if (isMatch) {
           await loadMatches();
         }
 
         return true;
+      } else {
+        errorMessage.value = response.displayMessage;
+        return false;
       }
-      return false;
     } catch (e) {
       isLiking.value = false;
+      errorMessage.value = 'Failed to like user. Please try again.';
+      debugPrint('Error liking mate: $e');
       return false;
     }
   }

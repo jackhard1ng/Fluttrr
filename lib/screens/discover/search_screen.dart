@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -18,9 +20,26 @@ class _SearchScreenState extends State<SearchScreen> {
   final _searchController = TextEditingController();
   final _searchFocus = FocusNode();
 
+  /// Maximum allowed search query length
+  static const int _maxQueryLength = 100;
+
   String _query = '';
   SearchTab _activeTab = SearchTab.events;
   final List<String> _recentSearches = ['Board games', 'Coffee meetup', 'Hiking'];
+
+  /// Sanitize search input to prevent injection attacks
+  String _sanitizeQuery(String input) {
+    if (input.isEmpty) return '';
+
+    // Remove potentially dangerous characters
+    final sanitized = input
+        .replaceAll(RegExp(r'[<>"\x27%\\]'), '') // Remove <, >, ", ', %, \
+        .replaceAll(RegExp(r'\s+'), ' ') // Normalize whitespace
+        .trim();
+
+    // Limit length
+    return sanitized.substring(0, min(sanitized.length, _maxQueryLength));
+  }
 
   @override
   void initState() {
@@ -67,13 +86,15 @@ class _SearchScreenState extends State<SearchScreen> {
                             child: TextField(
                               controller: _searchController,
                               focusNode: _searchFocus,
+                              maxLength: _maxQueryLength,
                               decoration: InputDecoration(
                                 hintText: 'Search events, people, places...',
                                 hintStyle: TextStyle(color: AppColors.mediumGrey),
                                 border: InputBorder.none,
+                                counterText: '', // Hide character counter
                               ),
                               onChanged: (value) {
-                                setState(() => _query = value);
+                                setState(() => _query = _sanitizeQuery(value));
                               },
                             ),
                           ),

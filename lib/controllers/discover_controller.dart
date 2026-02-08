@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
+import '../config/environment.dart';
 import '../models/event_model.dart';
 import '../repositories/activity_repository.dart';
 
@@ -16,9 +17,9 @@ class DiscoverController extends GetxController {
   final selectedCategories = <String>[].obs;
   final errorMessage = ''.obs;
 
-  // Filters
+  // Filters - using configurable defaults
   final dateFilter = Rxn<DateTime>();
-  final distanceFilter = 25.0.obs; // miles
+  final distanceFilter = AppConfig.defaultSearchRadius.obs;
   final showFullEvents = false.obs;
 
   @override
@@ -45,7 +46,7 @@ class DiscoverController extends GetxController {
           startTime: TimeOfDay.fromDateTime(activity.dateTime ?? DateTime.now()),
           endTime: null,
           location: activity.location ?? '',
-          maxAttendees: activity.totalSlots ?? 20,
+          maxAttendees: activity.totalSlots ?? AppConfig.defaultMaxAttendees,
           currentAttendees: activity.attendeeCount ?? 0,
           categories: activity.eventType != null ? [activity.eventType!] : [],
           tags: [],
@@ -186,7 +187,7 @@ class DiscoverController extends GetxController {
     required TimeOfDay startTime,
     TimeOfDay? endTime,
     required String location,
-    int maxAttendees = 20,
+    int? maxAttendees,
     List<String> categories = const [],
     List<String> tags = const [],
     String? vibe,
@@ -195,6 +196,8 @@ class DiscoverController extends GetxController {
     double longitude = 0,
   }) async {
     isLoading.value = true;
+    final attendeeLimit = maxAttendees ?? AppConfig.defaultMaxAttendees;
+
     try {
       // Combine date and time
       final dateTime = DateTime(
@@ -213,7 +216,7 @@ class DiscoverController extends GetxController {
         longitude: longitude,
         dateTime: dateTime,
         eventType: categories.isNotEmpty ? categories.first : 'social',
-        totalSlots: maxAttendees,
+        totalSlots: attendeeLimit,
       );
 
       final activityData = response.data;
@@ -228,7 +231,7 @@ class DiscoverController extends GetxController {
           startTime: startTime,
           endTime: endTime,
           location: location,
-          maxAttendees: maxAttendees,
+          maxAttendees: attendeeLimit,
           categories: categories,
           tags: tags,
           vibe: vibe,

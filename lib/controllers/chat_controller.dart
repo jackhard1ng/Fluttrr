@@ -104,8 +104,15 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Disconnect socket
+  /// Disconnect socket and unregister all event listeners
   void _disconnectSocket() {
+    // Unregister all event listeners to prevent memory leaks
+    _socket?.off('newMessage');
+    _socket?.off('messageRead');
+    _socket?.off('typing');
+    _socket?.off('connect');
+    _socket?.off('disconnect');
+
     _socket?.disconnect();
     _socket?.dispose();
     _socket = null;

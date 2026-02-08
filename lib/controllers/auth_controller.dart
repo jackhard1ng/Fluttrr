@@ -41,7 +41,7 @@ class AuthController extends GetxController {
     super.onClose();
   }
 
-  /// Clear all fields
+  /// Clear all fields including sensitive data
   void clearFields() {
     emailController.clear();
     passwordController.clear();
@@ -52,6 +52,7 @@ class AuthController extends GetxController {
     businessPhoneController.clear();
     selectedBusinessType.value = '';
     errorMessage.value = '';
+    _tempEmail = ''; // Clear sensitive data
   }
 
   /// Clear business fields only
@@ -203,25 +204,28 @@ class AuthController extends GetxController {
     }
 
     isLoading.value = true;
+    final email = _tempEmail; // Capture before clearing
 
     try {
       final response = await _authRepository.verifyOtp(
-        email: _tempEmail,
+        email: email,
         otp: otpController.text.trim(),
       );
 
       isLoading.value = false;
 
       if (response.success) {
-        clearFields();
+        clearFields(); // This also clears _tempEmail
         return true;
       } else {
         errorMessage.value = response.displayMessage;
+        _tempEmail = ''; // Clear sensitive data on failure
         return false;
       }
     } catch (e) {
       isLoading.value = false;
       errorMessage.value = 'OTP verification failed. Please try again.';
+      _tempEmail = ''; // Clear sensitive data on error
       return false;
     }
   }
@@ -268,10 +272,11 @@ class AuthController extends GetxController {
     }
 
     isLoading.value = true;
+    final email = _tempEmail; // Capture before potential clearing
 
     try {
       final response = await _authRepository.verifyPasswordResetOtp(
-        email: _tempEmail,
+        email: email,
         otp: otpController.text.trim(),
       );
 
@@ -279,14 +284,17 @@ class AuthController extends GetxController {
 
       if (response.success) {
         otpController.clear();
+        // Keep _tempEmail for resetPassword, will be cleared there
         return true;
       } else {
         errorMessage.value = response.displayMessage;
+        _tempEmail = ''; // Clear on failure
         return false;
       }
     } catch (e) {
       isLoading.value = false;
       errorMessage.value = 'OTP verification failed. Please try again.';
+      _tempEmail = ''; // Clear on error
       return false;
     }
   }
@@ -316,15 +324,17 @@ class AuthController extends GetxController {
       isLoading.value = false;
 
       if (response.success) {
-        clearFields();
+        clearFields(); // Clears _tempEmail too
         return true;
       } else {
         errorMessage.value = response.displayMessage;
+        _tempEmail = ''; // Clear sensitive data on failure
         return false;
       }
     } catch (e) {
       isLoading.value = false;
       errorMessage.value = 'Password reset failed. Please try again.';
+      _tempEmail = ''; // Clear sensitive data on error
       return false;
     }
   }

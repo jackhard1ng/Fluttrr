@@ -72,4 +72,29 @@ class AppConfig {
   static bool get useSecureStorage {
     return true; // Always use secure storage for tokens
   }
+
+  // ==================== Discovery & Search Defaults ====================
+
+  /// Default search radius in miles for finding events and people
+  static const double defaultSearchRadius = 25.0;
+
+  /// Default maximum attendees for new events
+  static const int defaultMaxAttendees = 20;
+
+  /// Maximum search query length
+  static const int maxSearchQueryLength = 100;
+
+  /// Default page size for paginated lists
+  static const int defaultPageSize = 20;
+
+  // ==================== Matching & Filtering Defaults ====================
+
+  /// Default minimum age for filtering
+  static const int defaultMinAge = 18;
+
+  /// Default maximum age for filtering
+  static const int defaultMaxAge = 60;
+
+  /// Default maximum distance in miles for matching
+  static const double defaultMaxDistance = 50.0;
 }
