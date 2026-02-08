@@ -289,6 +289,204 @@ class _PersonCard extends StatelessWidget {
     this.isLiked = false,
   });
 
+  void _showPersonOptions(BuildContext context) {
+    HapticFeedback.mediumImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.lightGrey,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      color: AppColors.primaryBlue.withAlpha(26),
+                    ),
+                    child: Center(
+                      child: Text(
+                        mate.displayName[0],
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: AppColors.primaryBlue,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          mate.displayName,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        if (mate.distanceText.isNotEmpty)
+                          Text(
+                            mate.distanceText,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.mediumGrey,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(),
+            ListTile(
+              leading: Icon(Icons.person, color: AppColors.primaryBlue),
+              title: const Text('View Profile'),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.lightImpact();
+                onViewProfile();
+              },
+            ),
+            if (!isLiked)
+              ListTile(
+                leading: Icon(Icons.person_add, color: AppColors.success),
+                title: const Text('Send Connection Request'),
+                onTap: () {
+                  Navigator.pop(context);
+                  HapticFeedback.lightImpact();
+                  onConnect();
+                },
+              ),
+            ListTile(
+              leading: Icon(Icons.message, color: AppColors.friendlyTeal),
+              title: const Text('Say Hi'),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.lightImpact();
+                Get.snackbar(
+                  '👋 Hi sent!',
+                  'You waved at ${mate.displayName}',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: AppColors.friendlyTeal,
+                  colorText: Colors.white,
+                  duration: const Duration(seconds: 2),
+                );
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: Icon(Icons.visibility_off, color: AppColors.mediumGrey),
+              title: const Text('Hide This Person'),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.lightImpact();
+                Get.snackbar(
+                  'Person Hidden',
+                  'You won\'t see ${mate.displayName} anymore',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: const Duration(seconds: 2),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.flag, color: AppColors.error),
+              title: Text('Report', style: TextStyle(color: AppColors.error)),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.mediumImpact();
+                _showReportDialog(context);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showReportDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Report User'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Why are you reporting ${mate.displayName}?'),
+            const SizedBox(height: 16),
+            _ReportOption(
+              label: 'Inappropriate profile',
+              onTap: () {
+                Navigator.pop(context);
+                _confirmReport(context, 'Inappropriate profile');
+              },
+            ),
+            _ReportOption(
+              label: 'Spam or fake account',
+              onTap: () {
+                Navigator.pop(context);
+                _confirmReport(context, 'Spam or fake account');
+              },
+            ),
+            _ReportOption(
+              label: 'Harassment',
+              onTap: () {
+                Navigator.pop(context);
+                _confirmReport(context, 'Harassment');
+              },
+            ),
+            _ReportOption(
+              label: 'Other',
+              onTap: () {
+                Navigator.pop(context);
+                _confirmReport(context, 'Other');
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmReport(BuildContext context, String reason) {
+    HapticFeedback.mediumImpact();
+    Get.snackbar(
+      'Report Submitted',
+      'Thank you for keeping our community safe',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: AppColors.primaryBlue,
+      colorText: Colors.white,
+      duration: const Duration(seconds: 2),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final imageUrl = ApiEndpoints.getImageUrl(mate.profileImage);
@@ -296,6 +494,7 @@ class _PersonCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: onViewProfile,
+      onLongPress: () => _showPersonOptions(context),
       child: Container(
         margin: const EdgeInsets.only(bottom: AppSpacing.md),
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -821,6 +1020,37 @@ class _FilterSheet extends StatelessWidget {
 
           const SizedBox(height: AppSpacing.md),
         ],
+      ),
+    );
+  }
+}
+
+/// Report option for dialogs
+class _ReportOption extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _ReportOption({
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        margin: const EdgeInsets.only(bottom: 4),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.lightGrey),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(fontSize: 14),
+        ),
       ),
     );
   }

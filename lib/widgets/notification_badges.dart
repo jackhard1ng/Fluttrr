@@ -130,6 +130,7 @@ class NotificationItem extends StatelessWidget {
   final String timeAgo;
   final bool isUnread;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
   const NotificationItem({
     super.key,
@@ -139,12 +140,14 @@ class NotificationItem extends StatelessWidget {
     required this.timeAgo,
     this.isUnread = false,
     this.onTap,
+    this.onLongPress,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(

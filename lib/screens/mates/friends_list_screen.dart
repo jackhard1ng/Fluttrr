@@ -192,9 +192,185 @@ class _FriendTile extends StatelessWidget {
 
   const _FriendTile({required this.friend});
 
+  void _showFriendActions(BuildContext context) {
+    HapticFeedback.mediumImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.lightGrey,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.primaryBlue.withAlpha(26),
+                    ),
+                    child: Center(
+                      child: Text(
+                        friend.name[0],
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryBlue,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          friend.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        if (friend.isOnline)
+                          Text(
+                            'Online now',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.success,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(),
+            ListTile(
+              leading: Icon(Icons.message, color: AppColors.primaryBlue),
+              title: const Text('Send Message'),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.lightImpact();
+                Nav.toMessages();
+                Get.snackbar(
+                  'Opening chat',
+                  'Starting conversation with ${friend.name}',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: const Duration(seconds: 2),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.person, color: AppColors.friendlyPurple),
+              title: const Text('View Profile'),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.lightImpact();
+                Nav.toUserProfile(
+                  userId: 'friend_${friend.name.toLowerCase().replaceAll(' ', '_')}',
+                  userName: friend.name,
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.event, color: AppColors.friendlyTeal),
+              title: Text('${friend.mutualEvents} mutual events'),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.lightImpact();
+                Nav.toDiscover();
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: Icon(Icons.notifications_off, color: AppColors.mediumGrey),
+              title: const Text('Mute Notifications'),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.lightImpact();
+                Get.snackbar(
+                  'Notifications muted',
+                  'You won\'t receive notifications from ${friend.name}',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: const Duration(seconds: 2),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.person_remove, color: AppColors.error),
+              title: Text('Remove Friend', style: TextStyle(color: AppColors.error)),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.mediumImpact();
+                _confirmRemoveFriend(context);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _confirmRemoveFriend(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Remove Friend?'),
+        content: Text('Are you sure you want to remove ${friend.name} from your friends?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              HapticFeedback.mediumImpact();
+              Get.snackbar(
+                'Friend Removed',
+                '${friend.name} has been removed from your friends',
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: AppColors.error,
+                colorText: Colors.white,
+                duration: const Duration(seconds: 2),
+              );
+            },
+            child: Text('Remove', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Nav.toUserProfile(
+          userId: 'friend_${friend.name.toLowerCase().replaceAll(' ', '_')}',
+          userName: friend.name,
+        );
+      },
+      onLongPress: () => _showFriendActions(context),
+      child: Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -260,6 +436,7 @@ class _FriendTile extends StatelessWidget {
           EventsInCommon(count: friend.mutualEvents),
         ],
       ),
+      ),
     );
   }
 }
@@ -269,11 +446,165 @@ class _PendingTile extends StatelessWidget {
 
   const _PendingTile({required this.friend});
 
+  void _showPendingActions(BuildContext context, bool isReceived) {
+    HapticFeedback.mediumImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.lightGrey,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.friendlyPurple.withAlpha(26),
+                    ),
+                    child: Center(
+                      child: Text(
+                        friend.name[0],
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.friendlyPurple,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          friend.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          isReceived ? 'Wants to connect' : 'Request pending',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.friendlyOrange,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(),
+            ListTile(
+              leading: Icon(Icons.person, color: AppColors.friendlyPurple),
+              title: const Text('View Profile'),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.lightImpact();
+                Nav.toUserProfile(
+                  userId: 'pending_${friend.name.toLowerCase().replaceAll(' ', '_')}',
+                  userName: friend.name,
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.event, color: AppColors.friendlyTeal),
+              title: Text('${friend.mutualEvents} mutual events'),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.lightImpact();
+                Nav.toDiscover();
+              },
+            ),
+            if (isReceived) ...[
+              const Divider(),
+              ListTile(
+                leading: Icon(Icons.check_circle, color: AppColors.success),
+                title: const Text('Accept Request'),
+                onTap: () {
+                  Navigator.pop(context);
+                  HapticFeedback.lightImpact();
+                  Get.snackbar(
+                    'Friend Added!',
+                    '${friend.name} is now your friend',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: AppColors.success,
+                    colorText: Colors.white,
+                    duration: const Duration(seconds: 2),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.cancel, color: AppColors.error),
+                title: Text('Decline Request', style: TextStyle(color: AppColors.error)),
+                onTap: () {
+                  Navigator.pop(context);
+                  HapticFeedback.lightImpact();
+                  Get.snackbar(
+                    'Request Declined',
+                    'Friend request from ${friend.name} declined',
+                    snackPosition: SnackPosition.BOTTOM,
+                    duration: const Duration(seconds: 2),
+                  );
+                },
+              ),
+            ] else ...[
+              const Divider(),
+              ListTile(
+                leading: Icon(Icons.cancel, color: AppColors.error),
+                title: Text('Cancel Request', style: TextStyle(color: AppColors.error)),
+                onTap: () {
+                  Navigator.pop(context);
+                  HapticFeedback.lightImpact();
+                  Get.snackbar(
+                    'Request Cancelled',
+                    'Friend request to ${friend.name} cancelled',
+                    snackPosition: SnackPosition.BOTTOM,
+                    duration: const Duration(seconds: 2),
+                  );
+                },
+              ),
+            ],
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isReceived = friend.lastSeen.contains('Received');
 
-    return Container(
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Nav.toUserProfile(
+          userId: 'pending_${friend.name.toLowerCase().replaceAll(' ', '_')}',
+          userName: friend.name,
+        );
+      },
+      onLongPress: () => _showPendingActions(context, isReceived),
+      child: Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -386,6 +717,7 @@ class _PendingTile extends StatelessWidget {
               ),
             ),
         ],
+      ),
       ),
     );
   }

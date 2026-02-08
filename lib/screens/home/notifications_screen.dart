@@ -134,11 +134,139 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       });
                       _navigateByType(notification.type);
                     },
+                    onLongPress: () => _showNotificationActions(context, notification, index),
                   ),
                 );
               },
             ),
     );
+  }
+
+  void _showNotificationActions(BuildContext context, _NotificationData notification, int index) {
+    HapticFeedback.mediumImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.lightGrey,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: notification.type.color.withAlpha(26),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(notification.type.icon, size: 20, color: notification.type.color),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      notification.title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(),
+            ListTile(
+              leading: Icon(
+                notification.isUnread ? Icons.mark_email_read : Icons.mark_email_unread,
+                color: AppColors.primaryBlue,
+              ),
+              title: Text(notification.isUnread ? 'Mark as Read' : 'Mark as Unread'),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.lightImpact();
+                setState(() {
+                  notification.isUnread = !notification.isUnread;
+                });
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.open_in_new, color: AppColors.friendlyTeal),
+              title: const Text('View Details'),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.lightImpact();
+                setState(() {
+                  notification.isUnread = false;
+                });
+                _navigateByType(notification.type);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.notifications_off, color: AppColors.mediumGrey),
+              title: const Text('Turn Off This Type'),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.lightImpact();
+                Get.snackbar(
+                  'Notifications Updated',
+                  '${_getTypeLabel(notification.type)} notifications muted',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: const Duration(seconds: 2),
+                );
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: Icon(Icons.delete, color: AppColors.error),
+              title: Text('Delete', style: TextStyle(color: AppColors.error)),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.mediumImpact();
+                setState(() {
+                  _notifications.removeAt(index);
+                });
+                Get.snackbar(
+                  'Notification Deleted',
+                  'Notification removed',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: const Duration(seconds: 2),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getTypeLabel(NotificationType type) {
+    switch (type) {
+      case NotificationType.friend:
+        return 'Friend request';
+      case NotificationType.event:
+        return 'Event';
+      case NotificationType.message:
+        return 'Message';
+      case NotificationType.reminder:
+        return 'Reminder';
+    }
   }
 
   void _navigateByType(NotificationType type) {

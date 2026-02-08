@@ -111,11 +111,143 @@ class _SavedEventsScreenState extends State<SavedEventsScreen> {
                         HapticFeedback.lightImpact();
                         Nav.toDiscover();
                       },
+                      onLongPress: () => _showEventActions(context, event, index),
                     ),
                   ),
                 );
               },
             ),
+    );
+  }
+
+  void _showEventActions(BuildContext context, _SavedEvent event, int index) {
+    HapticFeedback.mediumImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.lightGrey,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: AppColors.warmYellow.withAlpha(51),
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                    ),
+                    child: Center(
+                      child: Text(event.emoji, style: const TextStyle(fontSize: 24)),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          event.title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          event.date,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.mediumGrey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(),
+            ListTile(
+              leading: Icon(Icons.event, color: AppColors.primaryBlue),
+              title: const Text('View Event'),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.lightImpact();
+                Nav.toDiscover();
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.calendar_month, color: AppColors.success),
+              title: const Text('Add to Calendar'),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.lightImpact();
+                Get.snackbar(
+                  '📅 Added to Calendar',
+                  '${event.title} on ${event.date}',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: AppColors.success,
+                  colorText: Colors.white,
+                  duration: const Duration(seconds: 2),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.share, color: AppColors.friendlyTeal),
+              title: const Text('Share Event'),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.lightImpact();
+                Clipboard.setData(ClipboardData(text: '${event.title} - ${event.date} at ${event.location}'));
+                Get.snackbar(
+                  'Copied to Clipboard',
+                  'Share the event with your friends!',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: const Duration(seconds: 2),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.group_add, color: AppColors.friendlyPurple),
+              title: const Text('Invite Friends'),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.lightImpact();
+                Nav.toMatches();
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: Icon(Icons.bookmark_remove, color: AppColors.error),
+              title: Text('Remove from Saved', style: TextStyle(color: AppColors.error)),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.mediumImpact();
+                setState(() {
+                  _savedEvents.removeAt(index);
+                });
+                showSavedToast(context, removed: true);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -139,13 +271,15 @@ class _SavedEvent {
 class _SavedEventCard extends StatelessWidget {
   final _SavedEvent event;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
-  const _SavedEventCard({required this.event, this.onTap});
+  const _SavedEventCard({required this.event, this.onTap, this.onLongPress});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
