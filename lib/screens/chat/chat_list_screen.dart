@@ -40,6 +40,70 @@ class _ChatListScreenState extends State<ChatListScreen>
     super.dispose();
   }
 
+  void _showChatSearch(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+      ),
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.lightGrey,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              TextField(
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: 'Search conversations...',
+                  prefixIcon: Icon(Icons.search, color: AppColors.mediumGrey),
+                  filled: true,
+                  fillColor: AppColors.lightGrey.withAlpha(128),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.circular),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                onSubmitted: (value) {
+                  Navigator.pop(context);
+                  if (value.isNotEmpty) {
+                    Get.snackbar(
+                      'Search',
+                      'Searching for "$value" in conversations...',
+                      snackPosition: SnackPosition.BOTTOM,
+                    );
+                  }
+                },
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Search by name or message content',
+                style: TextStyle(
+                  color: AppColors.mediumGrey,
+                  fontSize: 13,
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,7 +126,7 @@ class _ChatListScreenState extends State<ChatListScreen>
                   IconButton(
                     icon: const Icon(Icons.search),
                     onPressed: () {
-                      // Search chats
+                      _showChatSearch(context);
                     },
                   ),
                 ],

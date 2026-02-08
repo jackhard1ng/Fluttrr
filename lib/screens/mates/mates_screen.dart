@@ -84,23 +84,29 @@ class MatesScreen extends StatelessWidget {
             ),
 
             // Search bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: AppColors.lightGrey.withAlpha(128),
-                  borderRadius: BorderRadius.circular(AppRadius.circular),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.search, color: AppColors.mediumGrey),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Search by name or interests...',
-                      style: TextStyle(color: AppColors.mediumGrey),
-                    ),
-                  ],
+            GestureDetector(
+              onTap: () {
+                HapticFeedback.lightImpact();
+                Nav.toSearch();
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.lightGrey.withAlpha(128),
+                    borderRadius: BorderRadius.circular(AppRadius.circular),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.search, color: AppColors.mediumGrey),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Search by name or interests...',
+                        style: TextStyle(color: AppColors.mediumGrey),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
