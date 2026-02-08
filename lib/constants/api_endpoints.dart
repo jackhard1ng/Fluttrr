@@ -77,13 +77,7 @@ class ApiEndpoints {
   static String get joinedActivitiesCount => '$apiBase/activity/joined-activities-count';
   static String get userActivities => '$apiBase/activity/user-activities';
 
-  // Mates endpoints
-  static String get filterMates => '$apiBase/mate/filter';
-  static String get nearbyMates => '$apiBase/mate/nearby';
-  static String get findNearbyMates => '$apiBase/mate/find-nearby-mates';
-  static String get likeMate => '$apiBase/mate/like';
-  static String get likedMates => '$apiBase/mate/liked-mates';
-  static String get totalMates => '$apiBase/mate/total-mates';
+  // User search endpoints
   static String get matchList => '$apiBase/user/match';
   static String get searchUsers => '$apiBase/user/search';
   static String get userList => '$apiBase/user/List';

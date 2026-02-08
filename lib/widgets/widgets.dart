@@ -23,14 +23,12 @@ export 'user_avatar.dart';
 export 'user_list_tile.dart';
 
 // Profile & social
-export 'profile_preview_sheet.dart';
 export 'profile_stats.dart' hide VerifiedBadge;
 export 'simple_badges.dart' hide UserBadge;
 export 'badge_widgets.dart';
 export 'streak_counter.dart';
 export 'match_indicator.dart';
 export 'mutual_friends.dart';
-export 'friend_suggestions.dart' hide CompatibilityScore;
 export 'new_connection.dart';
 export 'last_seen.dart';
 
@@ -74,7 +72,6 @@ export 'carpool_widget.dart';
 
 // User status widgets
 export 'mood_status.dart';
-export 'free_now_widget.dart';
 export 'nearby_indicator.dart';
 
 // Actions & interactions
