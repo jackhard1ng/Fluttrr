@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -291,18 +293,39 @@ abstract class BaseRepository {
     debugPrint('API Response [${response.statusCode}]: ${response.request?.url}');
 
     try {
-      final body = response.body.isNotEmpty ? jsonDecode(response.body) : {};
-      final data = body is Map<String, dynamic> ? body : <String, dynamic>{};
+      Map<String, dynamic> data;
+
+      if (response.body.isNotEmpty) {
+        final decoded = jsonDecode(response.body);
+        if (decoded is Map<String, dynamic>) {
+          data = decoded;
+        } else if (decoded is List) {
+          // Handle array responses by wrapping in a map
+          data = {'data': decoded};
+        } else {
+          data = <String, dynamic>{};
+        }
+      } else {
+        data = <String, dynamic>{};
+      }
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
+        T? parsedData;
+        if (fromJson != null) {
+          parsedData = fromJson(data);
+        }
+        // Only cast if no fromJson provided and T is dynamic or Map
+        // This avoids unsafe casts
+
         return ApiResponse.success(
-          data: fromJson != null ? fromJson(data) : data as T?,
+          data: parsedData,
           message: data['message'] as String?,
           statusCode: response.statusCode,
         );
       } else {
+        final errorMessage = (data['message'] ?? data['error'] ?? 'Request failed') as String;
         return ApiResponse.failure(
-          error: data['message'] ?? data['error'] ?? 'Request failed',
+          error: errorMessage,
           statusCode: response.statusCode,
         );
       }
@@ -317,15 +340,19 @@ abstract class BaseRepository {
 
   /// Handle errors
   ApiResponse<T> _handleError<T>(dynamic error) {
-    debugPrint('API Error: $error');
+    debugPrint('API Error: ${error.runtimeType}');
 
     String message;
     if (error is SocketException) {
       message = 'No internet connection';
-    } else if (error.toString().contains('TimeoutException')) {
-      message = 'Request timed out';
+    } else if (error is TimeoutException) {
+      message = 'Request timed out. Please try again.';
+    } else if (error is FormatException) {
+      message = 'Invalid response format';
+    } else if (error is http.ClientException) {
+      message = 'Network error. Please check your connection.';
     } else {
-      message = 'Something went wrong';
+      message = 'Something went wrong. Please try again.';
     }
 
     return ApiResponse.failure(error: message);

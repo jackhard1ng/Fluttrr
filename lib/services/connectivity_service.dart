@@ -12,6 +12,13 @@ class ConnectivityService extends GetxService {
   Timer? _checkTimer;
   static const Duration _checkInterval = Duration(seconds: 30);
 
+  /// Domains to check for connectivity (tries multiple in case one is blocked)
+  static const List<String> _connectivityDomains = [
+    'cloudflare.com',    // Widely accessible globally
+    '1.1.1.1',           // Cloudflare DNS
+    'example.com',       // IANA example domain
+  ];
+
   @override
   void onInit() {
     super.onInit();
@@ -32,25 +39,31 @@ class ConnectivityService extends GetxService {
   }
 
   /// Check if device has internet connectivity
+  /// Tries multiple domains for reliability in different regions
   Future<bool> checkConnectivity() async {
     if (isChecking.value) return isConnected.value;
 
     isChecking.value = true;
 
     try {
-      // Try to lookup a well-known domain
-      final result = await InternetAddress.lookup('google.com')
-          .timeout(const Duration(seconds: 5));
+      // Try each domain until one succeeds
+      for (final domain in _connectivityDomains) {
+        try {
+          final result = await InternetAddress.lookup(domain)
+              .timeout(const Duration(seconds: 3));
 
-      final connected = result.isNotEmpty && result[0].rawAddress.isNotEmpty;
-      isConnected.value = connected;
-      isChecking.value = false;
-      return connected;
-    } on SocketException catch (_) {
-      isConnected.value = false;
-      isChecking.value = false;
-      return false;
-    } on TimeoutException catch (_) {
+          if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+            isConnected.value = true;
+            isChecking.value = false;
+            return true;
+          }
+        } catch (_) {
+          // Try next domain
+          continue;
+        }
+      }
+
+      // All domains failed
       isConnected.value = false;
       isChecking.value = false;
       return false;
