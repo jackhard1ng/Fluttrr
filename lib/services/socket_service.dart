@@ -29,6 +29,12 @@ class SocketService {
   bool _isDisposed = false;
   bool _isInitializing = false;
 
+  // Reconnection backoff state (#55)
+  int _reconnectAttempts = 0;
+  static const int _maxReconnectAttempts = 10;
+  static const int _baseReconnectDelayMs = 1000;
+  static const int _maxReconnectDelayMs = 30000;
+
   /// Ensure stream controllers are initialized (thread-safe)
   void _ensureControllersInitialized() {
     // Prevent re-initialization during dispose
@@ -103,14 +109,18 @@ class SocketService {
 
       _updateStatus(SocketStatus.connecting);
 
+      // Calculate reconnection delay with exponential backoff (#55)
+      final reconnectDelay = _calculateReconnectDelay();
+
       _socket = io.io(
         ApiEndpoints.socketUrl,
         io.OptionBuilder()
             .setTransports(['websocket'])
             .enableAutoConnect()
             .enableReconnection()
-            .setReconnectionDelay(1000)
-            .setReconnectionAttempts(5)
+            .setReconnectionDelay(reconnectDelay)
+            .setReconnectionDelayMax(_maxReconnectDelayMs)
+            .setReconnectionAttempts(_maxReconnectAttempts)
             .setAuth({'token': token})
             .build(),
       );
@@ -123,10 +133,20 @@ class SocketService {
     }
   }
 
+  /// Calculate reconnect delay with exponential backoff (#55)
+  int _calculateReconnectDelay() {
+    if (_reconnectAttempts == 0) return _baseReconnectDelayMs;
+
+    // Exponential backoff: baseDelay * 2^attempts, capped at max
+    final delay = _baseReconnectDelayMs * (1 << _reconnectAttempts.clamp(0, 10));
+    return delay.clamp(_baseReconnectDelayMs, _maxReconnectDelayMs);
+  }
+
   /// Set up socket event listeners
   void _setupEventListeners() {
     _socket?.onConnect((_) {
       debugPrint('Socket connected');
+      _reconnectAttempts = 0; // Reset on successful connection (#55)
       _updateStatus(SocketStatus.connected);
     });
 
@@ -137,6 +157,7 @@ class SocketService {
 
     _socket?.onConnectError((error) {
       debugPrint('Socket connection error: $error');
+      _reconnectAttempts++; // Increment on error (#55)
       _updateStatus(SocketStatus.error);
     });
 
@@ -147,11 +168,19 @@ class SocketService {
 
     _socket?.onReconnect((_) {
       debugPrint('Socket reconnected');
+      _reconnectAttempts = 0; // Reset on successful reconnection (#55)
       _updateStatus(SocketStatus.connected);
     });
 
     _socket?.onReconnectAttempt((attemptNumber) {
-      debugPrint('Socket reconnection attempt: $attemptNumber');
+      _reconnectAttempts = attemptNumber as int; // Track attempt number (#55)
+      final delay = _calculateReconnectDelay();
+      debugPrint('Socket reconnection attempt: $attemptNumber (delay: ${delay}ms)');
+    });
+
+    _socket?.onReconnectFailed((_) {
+      debugPrint('Socket reconnection failed after $_maxReconnectAttempts attempts');
+      _updateStatus(SocketStatus.error);
     });
 
     // Listen for new messages

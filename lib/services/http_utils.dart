@@ -75,6 +75,32 @@ class RequestConfig {
     enableCache: true,
     cacheDuration: Duration(minutes: 5),
   );
+
+  /// Configuration for file uploads (longer timeout, more retries) (#59)
+  static const RequestConfig fileUpload = RequestConfig(
+    timeout: Duration(seconds: 120),
+    maxRetries: 3,
+    useExponentialBackoff: true,
+    baseDelayMs: 2000,
+    maxDelayMs: 30000,
+  );
+
+  /// Configuration for real-time operations (shorter timeout) (#59)
+  static const RequestConfig realtime = RequestConfig(
+    timeout: Duration(seconds: 10),
+    maxRetries: 2,
+    useExponentialBackoff: false,
+    baseDelayMs: 500,
+  );
+
+  /// Configuration for payment operations (longer timeout, more retries) (#59)
+  static const RequestConfig payment = RequestConfig(
+    timeout: Duration(seconds: 60),
+    maxRetries: 4,
+    useExponentialBackoff: true,
+    baseDelayMs: 1000,
+    maxDelayMs: 16000,
+  );
 }
 
 /// HTTP utilities for retry logic, caching, and rate limiting
@@ -244,6 +270,7 @@ class HttpUtils {
   // ==================== Response Caching ====================
 
   static final Map<String, CacheEntry> _cache = {};
+  static final Map<String, Completer<http.Response?>> _pendingRequests = {}; // #56: Prevent cache race conditions
 
   /// Get cached response if available and not expired
   static http.Response? getCachedResponse(String cacheKey) {
@@ -259,7 +286,7 @@ class HttpUtils {
     return entry.response;
   }
 
-  /// Cache a response
+  /// Cache a response with race condition prevention (#56)
   static void cacheResponse(
     String cacheKey,
     http.Response response, {
@@ -272,6 +299,42 @@ class HttpUtils {
         expiresAt: DateTime.now().add(duration),
       );
       debugPrint('HttpUtils: Cached response for $cacheKey (expires in ${duration.inMinutes}m)');
+
+      // Complete any pending requests waiting for this cache entry
+      final pending = _pendingRequests.remove(cacheKey);
+      if (pending != null && !pending.isCompleted) {
+        pending.complete(response);
+      }
+    }
+  }
+
+  /// Check if a request is already pending for this cache key (#56)
+  static bool isRequestPending(String cacheKey) {
+    return _pendingRequests.containsKey(cacheKey);
+  }
+
+  /// Wait for a pending request to complete (#56)
+  static Future<http.Response?> waitForPendingRequest(String cacheKey) async {
+    final pending = _pendingRequests[cacheKey];
+    if (pending != null) {
+      debugPrint('HttpUtils: Waiting for pending request for $cacheKey');
+      return pending.future;
+    }
+    return null;
+  }
+
+  /// Mark a request as pending (#56)
+  static void markRequestPending(String cacheKey) {
+    if (!_pendingRequests.containsKey(cacheKey)) {
+      _pendingRequests[cacheKey] = Completer<http.Response?>();
+    }
+  }
+
+  /// Complete a pending request (called on error) (#56)
+  static void completePendingRequest(String cacheKey, {http.Response? response}) {
+    final pending = _pendingRequests.remove(cacheKey);
+    if (pending != null && !pending.isCompleted) {
+      pending.complete(response);
     }
   }
 

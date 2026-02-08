@@ -7,13 +7,25 @@ import 'base_repository.dart';
 
 /// Activity repository
 class ActivityRepository extends BaseRepository {
+  /// Maximum allowed page size to prevent DOS (#57)
+  static const int _maxPageSize = 100;
+
+  /// Validate and sanitize pagination parameters (#57)
+  Map<String, int> _validatePagination(int? page, int? limit) {
+    final validPage = (page != null && page >= 1) ? page : 1;
+    final validLimit = (limit != null && limit >= 1 && limit <= _maxPageSize)
+        ? limit
+        : 20;
+    return {'page': validPage, 'limit': validLimit};
+  }
+
   /// Get daily activities
   Future<ApiResponse<List<ActivityModel>>> getDailyActivities() async {
     final response = await get<dynamic>(ApiEndpoints.dailyActivities);
     return _parseActivityList(response);
   }
 
-  /// Get all activities
+  /// Get all activities with validated pagination (#57)
   Future<ApiResponse<List<ActivityModel>>> getActivities({
     int? page,
     int? limit,
@@ -22,9 +34,13 @@ class ActivityRepository extends BaseRepository {
     double? longitude,
     double? radius,
   }) async {
-    final queryParams = <String, String>{};
-    if (page != null) queryParams['page'] = page.toString();
-    if (limit != null) queryParams['limit'] = limit.toString();
+    // Validate pagination parameters (#57)
+    final pagination = _validatePagination(page, limit);
+
+    final queryParams = <String, String>{
+      'page': pagination['page'].toString(),
+      'limit': pagination['limit'].toString(),
+    };
     if (eventType != null) queryParams['eventType'] = eventType;
     if (latitude != null) queryParams['latitude'] = latitude.toString();
     if (longitude != null) queryParams['longitude'] = longitude.toString();
@@ -32,7 +48,7 @@ class ActivityRepository extends BaseRepository {
 
     final response = await get<dynamic>(
       ApiEndpoints.activityList,
-      queryParams: queryParams.isNotEmpty ? queryParams : null,
+      queryParams: queryParams,
     );
     return _parseActivityList(response);
   }

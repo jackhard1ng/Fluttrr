@@ -30,6 +30,11 @@ class ActivityController extends GetxController {
   final RxInt currentPage = 1.obs;
   final RxBool hasMorePages = true.obs;
   static const int pageSize = 20;
+  static const int maxPageSize = 100;
+
+  // Concurrent request prevention
+  bool _isCreatingActivity = false;
+  String? _lastCreateRequestHash;
 
   // Create activity form controllers
   final TextEditingController nameController = TextEditingController();
@@ -221,10 +226,26 @@ class ActivityController extends GetxController {
     }
   }
 
-  /// Create activity
+  /// Create activity with concurrent request prevention (#60)
   Future<bool> createActivity() async {
     if (!_validateCreateForm()) return false;
 
+    // Generate hash from activity data to detect duplicate submissions
+    final requestHash = _generateCreateRequestHash();
+
+    // Prevent concurrent or duplicate requests
+    if (_isCreatingActivity) {
+      debugPrint('ActivityController: Create activity request already in progress');
+      return false;
+    }
+
+    if (_lastCreateRequestHash == requestHash) {
+      debugPrint('ActivityController: Duplicate create request detected');
+      errorMessage.value = 'Activity already submitted. Please wait.';
+      return false;
+    }
+
+    _isCreatingActivity = true;
     isCreating.value = true;
     errorMessage.value = '';
 
@@ -241,9 +262,8 @@ class ActivityController extends GetxController {
         images: selectedImages.isNotEmpty ? selectedImages : null,
       );
 
-      isCreating.value = false;
-
       if (response.success) {
+        _lastCreateRequestHash = requestHash;
         _clearCreateForm();
         await loadMyActivities();
         return true;
@@ -252,10 +272,17 @@ class ActivityController extends GetxController {
         return false;
       }
     } catch (e) {
-      isCreating.value = false;
       errorMessage.value = 'Failed to create activity';
       return false;
+    } finally {
+      _isCreatingActivity = false;
+      isCreating.value = false;
     }
+  }
+
+  /// Generate hash from create activity form data for deduplication (#60)
+  String _generateCreateRequestHash() {
+    return '${nameController.text.trim()}_${selectedDateTime.value?.toIso8601String()}_${selectedLatitude.value}_${selectedLongitude.value}';
   }
 
   /// Update activity

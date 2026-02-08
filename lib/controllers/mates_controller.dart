@@ -132,8 +132,12 @@ class MatesController extends GetxController {
     await loadNearbyMates();
   }
 
-  /// Filter mates
+  /// Filter mates with pagination reset (#51)
   Future<void> filterMates() async {
+    // Reset pagination state when filters change
+    currentPage.value = 1;
+    hasMorePages.value = true;
+
     isLoading.value = true;
     errorMessage.value = '';
 
@@ -153,11 +157,15 @@ class MatesController extends GetxController {
         filteredMates.value = data;
         nearbyMates.value = data;
         currentSwipeIndex.value = 0;
+        // Update hasMorePages based on result count
+        hasMorePages.value = data.length >= pageSize;
       } else {
         errorMessage.value = response.displayMessage;
+        hasMorePages.value = false;
       }
     } catch (e) {
       errorMessage.value = 'Failed to filter mates';
+      hasMorePages.value = false;
     } finally {
       isLoading.value = false;
     }

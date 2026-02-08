@@ -258,7 +258,7 @@ abstract class BaseRepository {
     }
   }
 
-  /// Upload file with multipart request
+  /// Upload file with multipart request and retry logic (#52)
   Future<ApiResponse<T>> uploadFile<T>(
     String url, {
     required File file,
@@ -266,34 +266,85 @@ abstract class BaseRepository {
     Map<String, String>? fields,
     T Function(Map<String, dynamic>)? fromJson,
     bool requiresAuth = true,
+    RequestConfig? config,
   }) async {
-    try {
-      final request = http.MultipartRequest('POST', Uri.parse(url));
-
-      // Add headers
-      final token = await getToken();
-      if (requiresAuth && token != null) {
-        request.headers['Authorization'] = 'Bearer $token';
-      }
-
-      // Add file
-      request.files.add(await http.MultipartFile.fromPath(fieldName, file.path));
-
-      // Add additional fields
-      if (fields != null) {
-        request.fields.addAll(fields);
-      }
-
-      final streamedResponse = await request.send().timeout(_defaultTimeout);
-      final response = await http.Response.fromStream(streamedResponse);
-
-      return _handleResponse(response, fromJson);
-    } catch (e) {
-      return _handleError(e);
+    // Check connectivity first
+    if (!await _checkConnectivity()) {
+      return ApiResponse.failure(error: 'No internet connection');
     }
+
+    final uploadConfig = config ?? RequestConfig.fileUpload;
+    int attempt = 0;
+    Exception? lastException;
+
+    while (attempt < uploadConfig.maxRetries) {
+      try {
+        final request = http.MultipartRequest('POST', Uri.parse(url));
+
+        // Add headers
+        final token = await getToken();
+        if (requiresAuth && token != null) {
+          request.headers['Authorization'] = 'Bearer $token';
+        }
+
+        // Add file
+        request.files.add(await http.MultipartFile.fromPath(fieldName, file.path));
+
+        // Add additional fields
+        if (fields != null) {
+          request.fields.addAll(fields);
+        }
+
+        final streamedResponse = await request.send().timeout(uploadConfig.timeout);
+        final response = await http.Response.fromStream(streamedResponse);
+
+        // Check if we should retry based on status code
+        if (response.statusCode >= 500 || response.statusCode == 429) {
+          attempt++;
+          if (attempt < uploadConfig.maxRetries) {
+            final delay = Duration(milliseconds: uploadConfig.baseDelayMs * (1 << (attempt - 1)));
+            debugPrint('File upload retry $attempt/${uploadConfig.maxRetries} after ${delay.inMilliseconds}ms');
+            await Future.delayed(delay);
+            continue;
+          }
+        }
+
+        return _handleResponse(response, fromJson);
+      } on TimeoutException catch (e) {
+        lastException = e;
+        attempt++;
+        debugPrint('File upload timeout, attempt $attempt/${uploadConfig.maxRetries}');
+        if (attempt < uploadConfig.maxRetries) {
+          final delay = Duration(milliseconds: uploadConfig.baseDelayMs * (1 << (attempt - 1)));
+          await Future.delayed(delay);
+        }
+      } catch (e) {
+        // Check if it's a retryable network error
+        if (_isRetryableError(e) && attempt < uploadConfig.maxRetries - 1) {
+          lastException = e is Exception ? e : Exception(e.toString());
+          attempt++;
+          debugPrint('File upload network error, attempt $attempt/${uploadConfig.maxRetries}');
+          final delay = Duration(milliseconds: uploadConfig.baseDelayMs * (1 << (attempt - 1)));
+          await Future.delayed(delay);
+        } else {
+          return _handleError(e);
+        }
+      }
+    }
+
+    return _handleError(lastException ?? TimeoutException('File upload failed after ${uploadConfig.maxRetries} attempts'));
   }
 
-  /// Upload multiple files with multipart request
+  /// Check if error is retryable (#52)
+  bool _isRetryableError(dynamic error) {
+    final errorString = error.toString().toLowerCase();
+    return errorString.contains('socketexception') ||
+        errorString.contains('connection') ||
+        errorString.contains('timeout') ||
+        errorString.contains('network');
+  }
+
+  /// Upload multiple files with multipart request and retry logic (#52)
   Future<ApiResponse<T>> uploadMultipleFiles<T>(
     String url, {
     Map<String, File>? files,
@@ -302,49 +353,90 @@ abstract class BaseRepository {
     Map<String, String>? fields,
     T Function(Map<String, dynamic>)? fromJson,
     bool requiresAuth = true,
+    RequestConfig? config,
   }) async {
-    try {
-      final request = http.MultipartRequest('POST', Uri.parse(url));
-
-      // Add headers
-      final token = await getToken();
-      if (requiresAuth && token != null) {
-        request.headers['Authorization'] = 'Bearer $token';
-      }
-
-      // Add named files (e.g., profileImage, coverImage)
-      if (files != null) {
-        for (final entry in files.entries) {
-          request.files.add(
-            await http.MultipartFile.fromPath(entry.key, entry.value.path),
-          );
-        }
-      }
-
-      // Add file list (e.g., gallery images)
-      if (fileList != null) {
-        for (int i = 0; i < fileList.length; i++) {
-          request.files.add(
-            await http.MultipartFile.fromPath(
-              '$fileListFieldName[$i]',
-              fileList[i].path,
-            ),
-          );
-        }
-      }
-
-      // Add additional fields
-      if (fields != null) {
-        request.fields.addAll(fields);
-      }
-
-      final streamedResponse = await request.send().timeout(_defaultTimeout);
-      final response = await http.Response.fromStream(streamedResponse);
-
-      return _handleResponse(response, fromJson);
-    } catch (e) {
-      return _handleError(e);
+    // Check connectivity first
+    if (!await _checkConnectivity()) {
+      return ApiResponse.failure(error: 'No internet connection');
     }
+
+    final uploadConfig = config ?? RequestConfig.fileUpload;
+    int attempt = 0;
+    Exception? lastException;
+
+    while (attempt < uploadConfig.maxRetries) {
+      try {
+        final request = http.MultipartRequest('POST', Uri.parse(url));
+
+        // Add headers
+        final token = await getToken();
+        if (requiresAuth && token != null) {
+          request.headers['Authorization'] = 'Bearer $token';
+        }
+
+        // Add named files (e.g., profileImage, coverImage)
+        if (files != null) {
+          for (final entry in files.entries) {
+            request.files.add(
+              await http.MultipartFile.fromPath(entry.key, entry.value.path),
+            );
+          }
+        }
+
+        // Add file list (e.g., gallery images)
+        if (fileList != null) {
+          for (int i = 0; i < fileList.length; i++) {
+            request.files.add(
+              await http.MultipartFile.fromPath(
+                '$fileListFieldName[$i]',
+                fileList[i].path,
+              ),
+            );
+          }
+        }
+
+        // Add additional fields
+        if (fields != null) {
+          request.fields.addAll(fields);
+        }
+
+        final streamedResponse = await request.send().timeout(uploadConfig.timeout);
+        final response = await http.Response.fromStream(streamedResponse);
+
+        // Check if we should retry based on status code
+        if (response.statusCode >= 500 || response.statusCode == 429) {
+          attempt++;
+          if (attempt < uploadConfig.maxRetries) {
+            final delay = Duration(milliseconds: uploadConfig.baseDelayMs * (1 << (attempt - 1)));
+            debugPrint('Multi-file upload retry $attempt/${uploadConfig.maxRetries}');
+            await Future.delayed(delay);
+            continue;
+          }
+        }
+
+        return _handleResponse(response, fromJson);
+      } on TimeoutException catch (e) {
+        lastException = e;
+        attempt++;
+        debugPrint('Multi-file upload timeout, attempt $attempt/${uploadConfig.maxRetries}');
+        if (attempt < uploadConfig.maxRetries) {
+          final delay = Duration(milliseconds: uploadConfig.baseDelayMs * (1 << (attempt - 1)));
+          await Future.delayed(delay);
+        }
+      } catch (e) {
+        if (_isRetryableError(e) && attempt < uploadConfig.maxRetries - 1) {
+          lastException = e is Exception ? e : Exception(e.toString());
+          attempt++;
+          debugPrint('Multi-file upload network error, attempt $attempt/${uploadConfig.maxRetries}');
+          final delay = Duration(milliseconds: uploadConfig.baseDelayMs * (1 << (attempt - 1)));
+          await Future.delayed(delay);
+        } else {
+          return _handleError(e);
+        }
+      }
+    }
+
+    return _handleError(lastException ?? TimeoutException('Multi-file upload failed after ${uploadConfig.maxRetries} attempts'));
   }
 
   /// Perform a PUT with multipart request (for updates with images)

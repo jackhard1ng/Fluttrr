@@ -279,3 +279,147 @@ class TextFormatter {
     return '$count ${pluralize(count, singular, plural)}';
   }
 }
+
+/// Result of a batch operation (#58)
+class BatchOperationResult<T> {
+  final List<T> successes;
+  final List<BatchOperationError> errors;
+
+  BatchOperationResult({
+    required this.successes,
+    required this.errors,
+  });
+
+  bool get hasErrors => errors.isNotEmpty;
+  bool get allSucceeded => errors.isEmpty;
+  int get successCount => successes.length;
+  int get errorCount => errors.length;
+  int get totalCount => successes.length + errors.length;
+}
+
+/// Error from a batch operation (#58)
+class BatchOperationError {
+  final int index;
+  final dynamic error;
+  final StackTrace? stackTrace;
+
+  BatchOperationError({
+    required this.index,
+    required this.error,
+    this.stackTrace,
+  });
+
+  @override
+  String toString() => 'BatchOperationError(index: $index, error: $error)';
+}
+
+/// Utilities for batch operations with proper error handling (#58)
+class BatchOperationUtils {
+  /// Execute multiple async operations, collecting both successes and errors
+  ///
+  /// Unlike Future.wait, this doesn't fail fast on the first error.
+  /// All operations run to completion and results are aggregated.
+  ///
+  /// Example:
+  /// ```dart
+  /// final results = await BatchOperationUtils.executeAll([
+  ///   () => fetchUser(1),
+  ///   () => fetchUser(2),
+  ///   () => fetchUser(3),
+  /// ]);
+  /// print('Succeeded: ${results.successCount}, Failed: ${results.errorCount}');
+  /// ```
+  static Future<BatchOperationResult<T>> executeAll<T>(
+    List<Future<T> Function()> operations,
+  ) async {
+    final successes = <T>[];
+    final errors = <BatchOperationError>[];
+
+    for (int i = 0; i < operations.length; i++) {
+      try {
+        final result = await operations[i]();
+        successes.add(result);
+      } catch (e, stackTrace) {
+        debugPrint('BatchOperationUtils: Operation $i failed: $e');
+        errors.add(BatchOperationError(
+          index: i,
+          error: e,
+          stackTrace: stackTrace,
+        ));
+      }
+    }
+
+    return BatchOperationResult(successes: successes, errors: errors);
+  }
+
+  /// Execute multiple async operations in parallel, collecting both successes and errors
+  ///
+  /// Operations run concurrently but errors don't stop other operations.
+  static Future<BatchOperationResult<T>> executeAllParallel<T>(
+    List<Future<T> Function()> operations,
+  ) async {
+    final futures = operations.asMap().entries.map((entry) async {
+      try {
+        final result = await entry.value();
+        return _BatchResult<T>.success(entry.key, result);
+      } catch (e, stackTrace) {
+        debugPrint('BatchOperationUtils: Parallel operation ${entry.key} failed: $e');
+        return _BatchResult<T>.error(entry.key, e, stackTrace);
+      }
+    });
+
+    final results = await Future.wait(futures);
+
+    final successes = <T>[];
+    final errors = <BatchOperationError>[];
+
+    for (final result in results) {
+      if (result.isSuccess) {
+        successes.add(result.value as T);
+      } else {
+        errors.add(BatchOperationError(
+          index: result.index,
+          error: result.error,
+          stackTrace: result.stackTrace,
+        ));
+      }
+    }
+
+    return BatchOperationResult(successes: successes, errors: errors);
+  }
+
+  /// Execute operations with a callback for each result
+  static Future<void> executeWithCallback<T>(
+    List<Future<T> Function()> operations, {
+    required void Function(int index, T result) onSuccess,
+    required void Function(int index, dynamic error) onError,
+  }) async {
+    for (int i = 0; i < operations.length; i++) {
+      try {
+        final result = await operations[i]();
+        onSuccess(i, result);
+      } catch (e) {
+        debugPrint('BatchOperationUtils: Operation $i failed: $e');
+        onError(i, e);
+      }
+    }
+  }
+}
+
+/// Internal class for tracking batch results
+class _BatchResult<T> {
+  final int index;
+  final T? value;
+  final dynamic error;
+  final StackTrace? stackTrace;
+  final bool isSuccess;
+
+  _BatchResult.success(this.index, this.value)
+      : error = null,
+        stackTrace = null,
+        isSuccess = true;
+
+  _BatchResult.error(this.index, this.error, this.stackTrace)
+      : value = null,
+        isSuccess = false;
+}

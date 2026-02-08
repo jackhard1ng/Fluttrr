@@ -6,7 +6,19 @@ import 'base_repository.dart';
 
 /// Mates/matching repository
 class MatesRepository extends BaseRepository {
-  /// Get nearby mates with pagination support
+  /// Maximum allowed page size to prevent DOS (#57)
+  static const int _maxPageSize = 100;
+
+  /// Validate and sanitize pagination parameters (#57)
+  Map<String, int> _validatePagination(int? page, int? limit) {
+    final validPage = (page != null && page >= 1) ? page : 1;
+    final validLimit = (limit != null && limit >= 1 && limit <= _maxPageSize)
+        ? limit
+        : 20;
+    return {'page': validPage, 'limit': validLimit};
+  }
+
+  /// Get nearby mates with validated pagination (#57)
   Future<ApiResponse<List<MateModel>>> getNearbyMates({
     double? latitude,
     double? longitude,
@@ -14,16 +26,20 @@ class MatesRepository extends BaseRepository {
     int? page,
     int? limit,
   }) async {
-    final body = <String, dynamic>{};
+    // Validate pagination parameters (#57)
+    final pagination = _validatePagination(page, limit);
+
+    final body = <String, dynamic>{
+      'page': pagination['page'],
+      'limit': pagination['limit'],
+    };
     if (latitude != null) body['latitude'] = latitude;
     if (longitude != null) body['longitude'] = longitude;
     if (radius != null) body['radius'] = radius;
-    if (page != null) body['page'] = page;
-    if (limit != null) body['limit'] = limit;
 
     final response = await post<dynamic>(
       ApiEndpoints.nearbyMates,
-      body: body.isNotEmpty ? body : null,
+      body: body,
     );
     return _parseMatesList(response);
   }
