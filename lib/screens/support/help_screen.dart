@@ -32,7 +32,7 @@ class _HelpScreenState extends State<HelpScreen> {
       title: 'Friends & Connections',
       color: AppColors.friendlyPurple,
       faqs: [
-        _FAQ('How do I add friends?', 'You can send friend requests from someone\'s profile, or connect with people you meet at events. Go to Mates tab to see suggestions.'),
+        _FAQ('How do I add friends?', 'You can connect with people you meet at activities. Check out the Activities tab to find events and meet new people.'),
         _FAQ('Can I see mutual friends?', 'Yes! When viewing someone\'s profile, you\'ll see mutual friends and events you\'ve both attended.'),
         _FAQ('How do I block someone?', 'Go to their profile, tap the menu icon, and select "Block". They won\'t be able to see your profile or contact you.'),
       ],

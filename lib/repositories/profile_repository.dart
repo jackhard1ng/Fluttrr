@@ -101,7 +101,7 @@ class ProfileRepository extends BaseRepository {
   }
 
   /// Update Low Profile mode status
-  /// When enabled, user is hidden from Discover/Mates but can still join events
+  /// When enabled, user is hidden from Discover but can still join events
   Future<ApiResponse<dynamic>> updateLowProfileStatus(bool isLowProfile) async {
     return post(
       ApiEndpoints.updateLowProfile,
@@ -200,14 +200,10 @@ class ProfileRepository extends BaseRepository {
     return ApiResponse.failure(error: response.error);
   }
 
-  /// Get total match count with safe type conversion (#70)
+  /// Get total connections count
+  /// Note: Mates feature removed - returns 0 for backwards compatibility
   Future<ApiResponse<int>> getTotalMatchCount() async {
-    final response = await get<dynamic>(ApiEndpoints.totalMates);
-    if (response.success && response.data != null) {
-      final count = response.data['count'] ?? response.data['total'] ?? 0;
-      return ApiResponse.success(data: _safeToInt(count));
-    }
-    return ApiResponse.failure(error: response.error);
+    return ApiResponse.success(data: 0);
   }
 
   /// Get joined activities count with safe type conversion (#70)

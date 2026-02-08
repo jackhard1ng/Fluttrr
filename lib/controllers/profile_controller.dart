@@ -23,7 +23,7 @@ class ProfileController extends GetxController {
   final RxBool isUploadingImage = false.obs;
   final RxString errorMessage = ''.obs;
 
-  /// Low Profile mode - hides user from Discover/Mates but allows event participation
+  /// Low Profile mode - hides user from Discover but allows event participation
   final RxBool isLowProfile = false.obs;
 
   final RxInt profileCompletion = 0.obs;
@@ -376,7 +376,7 @@ class ProfileController extends GetxController {
   }
 
   /// Toggle Low Profile mode
-  /// When enabled, user is hidden from Discover/Mates but can still join events
+  /// When enabled, user is hidden from Discover but can still join events
   Future<bool> toggleLowProfile() async {
     final newValue = !isLowProfile.value;
 
