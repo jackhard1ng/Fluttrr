@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/api_endpoints.dart';
 import 'token_manager.dart';
@@ -84,6 +85,26 @@ class StripeService {
     return TokenManager.getToken();
   }
 
+  /// Safely parse JSON response body
+  ///
+  /// Returns null if parsing fails, preventing crashes from malformed responses.
+  Map<String, dynamic>? _safeJsonDecode(String body) {
+    try {
+      if (body.isEmpty) return null;
+      final decoded = jsonDecode(body);
+      if (decoded is Map<String, dynamic>) {
+        return decoded;
+      }
+      return null;
+    } on FormatException catch (e) {
+      debugPrint('StripeService: JSON parse error: $e');
+      return null;
+    } catch (e) {
+      debugPrint('StripeService: Unexpected error parsing JSON: $e');
+      return null;
+    }
+  }
+
   /// Create a payment intent on the server
   Future<PaymentResult> createPaymentIntent({
     required int amount,
@@ -109,9 +130,13 @@ class StripeService {
         }),
       );
 
-      final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+      final responseData = _safeJsonDecode(response.body);
+      if (responseData == null) {
+        return PaymentResult.failure('Invalid server response');
+      }
 
-      if (response.statusCode == 200 && responseData['clientSecret'] != null) {
+      // Check for 2xx status codes, not just 200
+      if (response.statusCode >= 200 && response.statusCode < 300 && responseData['clientSecret'] != null) {
         return PaymentResult.success(
           data: {
             'clientSecret': responseData['clientSecret'],
@@ -120,7 +145,7 @@ class StripeService {
         );
       } else {
         return PaymentResult.failure(
-          responseData['error'] ?? 'Failed to create payment intent',
+          responseData['error']?.toString() ?? 'Failed to create payment intent',
         );
       }
     } catch (e) {
@@ -215,6 +240,12 @@ class StripeService {
       return PaymentResult.failure('Invalid payment intent response');
     }
 
+    // Payment intent ID is required for verification
+    if (paymentIntentId == null) {
+      debugPrint('StripeService: Warning - No paymentIntentId received, payment cannot be verified');
+      return PaymentResult.failure('Payment intent ID missing - cannot verify payment');
+    }
+
     // Present payment sheet
     final sheetResult = await presentPaymentSheet(
       clientSecret: clientSecret,
@@ -225,12 +256,8 @@ class StripeService {
       return sheetResult;
     }
 
-    // Verify payment and upgrade if necessary
-    if (paymentIntentId != null) {
-      return await verifyPayment(paymentIntentId: paymentIntentId);
-    }
-
-    return PaymentResult.success(message: 'Payment successful');
+    // Always verify payment with server - never trust client-side success
+    return await verifyPayment(paymentIntentId: paymentIntentId);
   }
 
   /// Verify payment with server
@@ -254,16 +281,19 @@ class StripeService {
         }),
       );
 
-      final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+      final responseData = _safeJsonDecode(response.body);
+      if (responseData == null) {
+        return PaymentResult.failure('Invalid verification response');
+      }
 
-      if (response.statusCode == 200) {
+      if (response.statusCode >= 200 && response.statusCode < 300) {
         return PaymentResult.success(
           message: 'Payment verified successfully',
           data: responseData,
         );
       } else {
         return PaymentResult.failure(
-          responseData['error'] ?? 'Failed to verify payment',
+          responseData['error']?.toString() ?? 'Failed to verify payment',
         );
       }
     } catch (e) {
@@ -273,6 +303,9 @@ class StripeService {
   }
 
   /// Upgrade user to premium
+  ///
+  /// SECURITY: Premium status is only saved locally after server confirmation.
+  /// The local flag is used as a cache - always verify with server for critical operations.
   Future<PaymentResult> upgradeToPremium({
     required String paymentMethod,
     required String transactionId,
@@ -295,12 +328,23 @@ class StripeService {
         }),
       );
 
-      final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+      final responseData = _safeJsonDecode(response.body);
+      if (responseData == null) {
+        return PaymentResult.failure('Invalid upgrade response');
+      }
 
-      if (response.statusCode == 200) {
-        // Save premium status locally
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('isPremium', true);
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        // Only save premium status if server explicitly confirms it
+        final serverConfirmedPremium = responseData['isPremium'] == true ||
+            responseData['premium'] == true ||
+            responseData['success'] == true;
+
+        if (serverConfirmedPremium) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('isPremium', true);
+          // Also save the timestamp for cache invalidation
+          await prefs.setInt('premiumVerifiedAt', DateTime.now().millisecondsSinceEpoch);
+        }
 
         return PaymentResult.success(
           message: 'Successfully upgraded to premium',
@@ -308,7 +352,7 @@ class StripeService {
         );
       } else {
         return PaymentResult.failure(
-          responseData['error'] ?? 'Failed to upgrade to premium',
+          responseData['error']?.toString() ?? 'Failed to upgrade to premium',
         );
       }
     } catch (e) {
@@ -318,15 +362,68 @@ class StripeService {
   }
 
   /// Check if user has premium status
+  ///
+  /// Returns cached value for quick checks. For critical operations,
+  /// use [verifyPremiumStatus] to check with server.
   Future<bool> isPremium() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('isPremium') ?? false;
+    final isPremium = prefs.getBool('isPremium') ?? false;
+
+    if (!isPremium) return false;
+
+    // Check if cache is older than 24 hours
+    final verifiedAt = prefs.getInt('premiumVerifiedAt') ?? 0;
+    final cacheAge = DateTime.now().millisecondsSinceEpoch - verifiedAt;
+    final cacheDuration = const Duration(hours: 24).inMilliseconds;
+
+    if (cacheAge > cacheDuration) {
+      debugPrint('StripeService: Premium cache expired, should re-verify');
+      // Note: Don't automatically clear - let the caller decide to verify
+    }
+
+    return isPremium;
+  }
+
+  /// Verify premium status with server
+  ///
+  /// Use this for critical operations that require confirmed premium access.
+  Future<bool> verifyPremiumStatus() async {
+    try {
+      final token = await _getAuthToken();
+      if (token == null) return false;
+
+      final response = await http.get(
+        Uri.parse(ApiEndpoints.subscriptionStatus),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      final responseData = _safeJsonDecode(response.body);
+      if (responseData == null) return false;
+
+      final isPremium = responseData['isPremium'] == true ||
+          responseData['premium'] == true ||
+          responseData['active'] == true;
+
+      // Update local cache
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isPremium', isPremium);
+      await prefs.setInt('premiumVerifiedAt', DateTime.now().millisecondsSinceEpoch);
+
+      return isPremium;
+    } catch (e) {
+      debugPrint('Error verifying premium status: $e');
+      return false;
+    }
   }
 
   /// Clear premium status
   Future<void> clearPremiumStatus() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('isPremium');
+    await prefs.remove('premiumVerifiedAt');
   }
 
   /// Create a subscription
@@ -352,13 +449,16 @@ class StripeService {
         }),
       );
 
-      final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+      final responseData = _safeJsonDecode(response.body);
+      if (responseData == null) {
+        return PaymentResult.failure('Invalid subscription response');
+      }
 
-      if (response.statusCode == 200) {
+      if (response.statusCode >= 200 && response.statusCode < 300) {
         return PaymentResult.success(data: responseData);
       } else {
         return PaymentResult.failure(
-          responseData['error'] ?? 'Failed to create subscription',
+          responseData['error']?.toString() ?? 'Failed to create subscription',
         );
       }
     } catch (e) {
@@ -388,10 +488,13 @@ class StripeService {
         }),
       );
 
-      final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+      final responseData = _safeJsonDecode(response.body);
+      if (responseData == null) {
+        return PaymentResult.failure('Invalid cancellation response');
+      }
 
-      if (response.statusCode == 200) {
-        // Clear premium status locally
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        // Clear premium status locally only after server confirmation
         await clearPremiumStatus();
 
         return PaymentResult.success(
@@ -400,7 +503,7 @@ class StripeService {
         );
       } else {
         return PaymentResult.failure(
-          responseData['error'] ?? 'Failed to cancel subscription',
+          responseData['error']?.toString() ?? 'Failed to cancel subscription',
         );
       }
     } catch (e) {

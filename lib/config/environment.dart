@@ -51,7 +51,25 @@ class AppConfig {
       case Environment.staging:
         return 30;
       case Environment.production:
-        return 15;
+        return 30; // Increased from 15 - some operations need more time
     }
+  }
+
+  /// Whether to enable certificate pinning
+  /// SECURITY: Enable this in production to prevent MITM attacks
+  static bool get enableCertificatePinning {
+    switch (currentEnvironment) {
+      case Environment.development:
+        return false; // Disable for local development
+      case Environment.staging:
+        return true;  // Enable for testing
+      case Environment.production:
+        return true;  // Always enable in production
+    }
+  }
+
+  /// Whether to use secure storage for tokens
+  static bool get useSecureStorage {
+    return true; // Always use secure storage for tokens
   }
 }
