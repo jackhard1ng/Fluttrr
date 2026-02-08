@@ -65,6 +65,18 @@ class _HelpScreenState extends State<HelpScreen> {
         _FAQ('What are the benefits of a business account?', 'Business accounts can create unlimited events, access analytics, add promo codes, and feature events.'),
       ],
     ),
+    _HelpCategory(
+      icon: Icons.shield_outlined,
+      title: 'Reporting & Safety',
+      color: AppColors.error,
+      faqs: [
+        _FAQ('How do I report a user?', 'Tap the more options (⋮) button on their profile and select "Report". You can also report users from chat.'),
+        _FAQ('How do I report an event?', 'Open the event details, tap the more options (⋮) button, and select "Report event". Your report is anonymous.'),
+        _FAQ('How do I report a business?', 'On the business profile, tap the more options button and select "Report business". Our team reviews all reports.'),
+        _FAQ('What happens after I submit a report?', 'Our trust & safety team reviews all reports within 24-48 hours. We may reach out for more information.'),
+        _FAQ('How do I contact support directly?', 'Email us at support@fluttrr.com. For urgent safety concerns, include "URGENT" in your subject line.'),
+      ],
+    ),
   ];
 
   @override
@@ -144,11 +156,11 @@ class _HelpScreenState extends State<HelpScreen> {
                   onTap: () {
                     HapticFeedback.lightImpact();
                     Clipboard.setData(
-                      const ClipboardData(text: 'support@fulttrr.com'),
+                      const ClipboardData(text: 'support@fluttrr.com'),
                     );
                     Get.snackbar(
                       'Email Copied!',
-                      'support@fulttrr.com copied to clipboard',
+                      'support@fluttrr.com copied to clipboard',
                       snackPosition: SnackPosition.BOTTOM,
                       backgroundColor: AppColors.success,
                       colorText: Colors.white,
@@ -299,7 +311,7 @@ class _HelpScreenState extends State<HelpScreen> {
                             ),
                             const SizedBox(height: 4),
                             SelectableText(
-                              'support@fulttrr.com',
+                              'support@fluttrr.com',
                               style: TextStyle(
                                 color: AppColors.primaryBlue,
                                 fontWeight: FontWeight.w600,
@@ -382,11 +394,11 @@ class _HelpScreenState extends State<HelpScreen> {
                           onTap: () {
                             HapticFeedback.lightImpact();
                             Clipboard.setData(
-                              const ClipboardData(text: 'support@fulttrr.com'),
+                              const ClipboardData(text: 'support@fluttrr.com'),
                             );
                             Get.snackbar(
                               'Email Copied',
-                              'support@fulttrr.com copied to clipboard',
+                              'support@fluttrr.com copied to clipboard',
                               snackPosition: SnackPosition.BOTTOM,
                               backgroundColor: AppColors.success,
                               colorText: Colors.white,

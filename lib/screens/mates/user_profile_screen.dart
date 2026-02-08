@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../config/routes.dart';
 import '../../constants/utils.dart';
+import '../../models/chat_model.dart';
 
 class UserProfileScreen extends StatefulWidget {
   final String userId;
@@ -169,7 +171,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       icon: Icons.message,
                       label: 'Message',
                       onTap: () {
-                        // Navigate to chat
+                        final conversation = ChatConversation(
+                          id: 'conv_${widget.userId}',
+                          displayName: widget.userName,
+                          otherUserId: widget.userId,
+                          lastMessage: '',
+                          isOnline: false,
+                          unreadCount: 0,
+                        );
+                        Nav.toChat(conversation);
                       },
                     ),
                   ),
@@ -348,30 +358,67 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: AppColors.lightGrey,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
             ListTile(
-              leading: const Icon(Icons.share),
+              leading: Icon(Icons.share, color: AppColors.primaryBlue),
               title: const Text('Share Profile'),
               onTap: () {
                 Get.back();
+                Get.snackbar(
+                  'Share Link Copied',
+                  'Profile link copied to clipboard',
+                  snackPosition: SnackPosition.BOTTOM,
+                );
               },
             ),
+            const Divider(height: 1),
             ListTile(
-              leading: const Icon(Icons.block),
-              title: const Text('Block'),
+              leading: Icon(Icons.block, color: AppColors.error),
+              title: Text('Block ${widget.userName}'),
+              subtitle: Text(
+                'They won\'t be able to see your profile or contact you',
+                style: TextStyle(fontSize: 12, color: AppColors.mediumGrey),
+              ),
               onTap: () {
                 Get.back();
                 _showBlockDialog();
               },
             ),
+            const Divider(height: 1),
             ListTile(
-              leading: Icon(Icons.report, color: AppColors.error),
-              title: Text('Report', style: TextStyle(color: AppColors.error)),
+              leading: Icon(Icons.flag_outlined, color: AppColors.friendlyOrange),
+              title: Text('Report ${widget.userName}'),
+              subtitle: Text(
+                'Report inappropriate content or behavior',
+                style: TextStyle(fontSize: 12, color: AppColors.mediumGrey),
+              ),
               onTap: () {
                 Get.back();
-                // Navigate to report
+                Nav.toReport(userName: widget.userName);
               },
             ),
-            const SizedBox(height: 16),
+            const Divider(height: 1),
+            ListTile(
+              leading: Icon(Icons.help_outline, color: AppColors.primaryBlue),
+              title: const Text('Get help'),
+              subtitle: Text(
+                'Contact support at support@fluttrr.com',
+                style: TextStyle(fontSize: 12, color: AppColors.mediumGrey),
+              ),
+              onTap: () {
+                Get.back();
+                Nav.toHelp();
+              },
+            ),
+            const SizedBox(height: 8),
           ],
         ),
       ),

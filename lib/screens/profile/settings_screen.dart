@@ -24,23 +24,17 @@ class SettingsScreen extends StatelessWidget {
           _SettingsTile(
             icon: Icons.person_outline,
             title: 'Profile Information',
-            onTap: () {
-              // Navigate to profile info
-            },
+            onTap: () => Nav.toEditProfile(),
           ),
           _SettingsTile(
             icon: Icons.lock_outline,
             title: 'Change Password',
-            onTap: () {
-              // Navigate to change password
-            },
+            onTap: () => _showChangePasswordDialog(context),
           ),
           _SettingsTile(
             icon: Icons.link,
             title: 'Linked Accounts',
-            onTap: () {
-              // Navigate to linked accounts
-            },
+            onTap: () => _showComingSoonDialog(context, 'Linked Accounts'),
           ),
 
           const SizedBox(height: AppSpacing.lg),
@@ -50,16 +44,12 @@ class SettingsScreen extends StatelessWidget {
           _SettingsTile(
             icon: Icons.visibility_outlined,
             title: 'Visibility & Preferences',
-            onTap: () {
-              // Navigate to visibility settings
-            },
+            onTap: () => Nav.toPrivacy(),
           ),
           _SettingsTile(
             icon: Icons.block_outlined,
             title: 'Blocked Users',
-            onTap: () {
-              // Navigate to blocked users
-            },
+            onTap: () => Nav.toBlockedUsers(),
           ),
 
           const SizedBox(height: AppSpacing.lg),
@@ -69,9 +59,7 @@ class SettingsScreen extends StatelessWidget {
           _SettingsTile(
             icon: Icons.notifications_outlined,
             title: 'Notification Preferences',
-            onTap: () {
-              // Navigate to notification settings
-            },
+            onTap: () => _showComingSoonDialog(context, 'Notification Preferences'),
           ),
 
           const SizedBox(height: AppSpacing.lg),
@@ -81,23 +69,17 @@ class SettingsScreen extends StatelessWidget {
           _SettingsTile(
             icon: Icons.help_outline,
             title: 'Help Center',
-            onTap: () {
-              // Navigate to help center
-            },
+            onTap: () => Nav.toHelp(),
           ),
           _SettingsTile(
             icon: Icons.report_outlined,
             title: 'Report a Problem',
-            onTap: () {
-              // Navigate to report problem
-            },
+            onTap: () => Nav.toReport(),
           ),
           _SettingsTile(
             icon: Icons.info_outline,
             title: 'About Fluttrr',
-            onTap: () {
-              // Navigate to about
-            },
+            onTap: () => _showAboutDialog(context),
           ),
 
           const SizedBox(height: AppSpacing.lg),
@@ -107,16 +89,12 @@ class SettingsScreen extends StatelessWidget {
           _SettingsTile(
             icon: Icons.description_outlined,
             title: 'Terms of Service',
-            onTap: () {
-              // Open terms
-            },
+            onTap: () => _showLegalDialog(context, 'Terms of Service'),
           ),
           _SettingsTile(
             icon: Icons.privacy_tip_outlined,
             title: 'Privacy Policy',
-            onTap: () {
-              // Open privacy policy
-            },
+            onTap: () => _showLegalDialog(context, 'Privacy Policy'),
           ),
 
           const SizedBox(height: AppSpacing.xl),
@@ -199,13 +177,180 @@ class SettingsScreen extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              // Delete account
               Navigator.pop(context);
+              Get.snackbar(
+                'Account Deletion Requested',
+                'Please contact support@fluttrr.com to complete account deletion',
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: AppColors.primaryBlue,
+                colorText: Colors.white,
+                duration: const Duration(seconds: 5),
+              );
             },
             child: const Text(
               'Delete',
               style: TextStyle(color: AppColors.error),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showChangePasswordDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Change Password'),
+        content: const Text(
+          'We\'ll send a password reset link to your email address.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Get.snackbar(
+                'Email Sent',
+                'Check your inbox for the password reset link',
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: AppColors.success,
+                colorText: Colors.white,
+              );
+            },
+            child: const Text('Send Link'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showComingSoonDialog(BuildContext context, String feature) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(feature),
+        content: Text(
+          '$feature is coming soon! We\'re working hard to bring you this feature.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAboutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [AppColors.primaryBlue, AppColors.friendlyTeal],
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Center(
+                child: Text(
+                  'F',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text('Fluttrr'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'The social app for making real friendships.',
+              style: TextStyle(height: 1.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Version 1.0.0',
+              style: TextStyle(color: AppColors.mediumGrey, fontSize: 13),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Need help? Contact us at:',
+              style: TextStyle(color: AppColors.mediumGrey, fontSize: 13),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'support@fluttrr.com',
+              style: TextStyle(
+                color: AppColors.primaryBlue,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLegalDialog(BuildContext context, String title) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Last updated: February 2024',
+                style: TextStyle(
+                  color: AppColors.mediumGrey,
+                  fontSize: 12,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                title == 'Terms of Service'
+                    ? 'By using Fluttrr, you agree to use the app responsibly and respect other users. '
+                      'You must be at least 18 years old to use this service. '
+                      'We reserve the right to suspend accounts that violate our community guidelines.\n\n'
+                      'For the full terms, please visit our website or contact support@fluttrr.com.'
+                    : 'We respect your privacy and are committed to protecting your personal data. '
+                      'We collect information you provide directly and use it to improve your experience. '
+                      'We do not sell your personal information to third parties.\n\n'
+                      'For the full privacy policy, please visit our website or contact support@fluttrr.com.',
+                style: const TextStyle(height: 1.5),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
           ),
         ],
       ),

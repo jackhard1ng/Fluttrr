@@ -51,6 +51,121 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  void _showChatOptions(BuildContext context) {
+    final userName = widget.conversation.displayName;
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.lightGrey,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            if (widget.conversation.otherUserId != null && !widget.isBusiness)
+              ListTile(
+                leading: Icon(Icons.person_outline, color: AppColors.primaryBlue),
+                title: const Text('View profile'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Nav.toMateProfile(widget.conversation.otherUserId!);
+                },
+              ),
+            ListTile(
+              leading: Icon(Icons.notifications_off_outlined, color: AppColors.mediumGrey),
+              title: const Text('Mute notifications'),
+              onTap: () {
+                Navigator.pop(context);
+                Get.snackbar(
+                  'Notifications Muted',
+                  'You won\'t receive notifications from this chat',
+                  snackPosition: SnackPosition.BOTTOM,
+                );
+              },
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: Icon(Icons.block, color: AppColors.error),
+              title: Text('Block $userName'),
+              onTap: () {
+                Navigator.pop(context);
+                _showBlockConfirmation(context, userName);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.flag_outlined, color: AppColors.friendlyOrange),
+              title: Text('Report $userName'),
+              subtitle: Text(
+                'Report inappropriate messages or behavior',
+                style: TextStyle(fontSize: 12, color: AppColors.mediumGrey),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                Nav.toReport(userName: userName);
+              },
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: Icon(Icons.help_outline, color: AppColors.primaryBlue),
+              title: const Text('Get help'),
+              subtitle: Text(
+                'Contact support at support@fluttrr.com',
+                style: TextStyle(fontSize: 12, color: AppColors.mediumGrey),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                Nav.toHelp();
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showBlockConfirmation(BuildContext context, String userName) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Block $userName?'),
+        content: const Text(
+          'They won\'t be able to message you or see your profile. They won\'t be notified.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Get.snackbar(
+                'User Blocked',
+                '$userName has been blocked',
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: AppColors.success,
+                colorText: Colors.white,
+              );
+            },
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('Block'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final chatController = Get.find<ChatController>();
@@ -99,9 +214,7 @@ class _ChatScreenState extends State<ChatScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.more_vert),
-            onPressed: () {
-              // Show options
-            },
+            onPressed: () => _showChatOptions(context),
           ),
         ],
       ),

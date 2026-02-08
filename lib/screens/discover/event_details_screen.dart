@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../config/routes.dart';
 import '../../constants/utils.dart';
 import '../../widgets/event_bookmark.dart';
 import '../../widgets/share_card.dart';
@@ -27,6 +28,86 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) => const ShareMessageSheet(eventName: 'Friday Night Board Games'),
+    );
+  }
+
+  void _showEventOptionsMenu(BuildContext context) {
+    const eventName = 'Friday Night Board Games';
+    const hostName = 'Alex';
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.lightGrey,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.person_outline, color: AppColors.primaryBlue),
+              title: const Text('View host profile'),
+              subtitle: Text(
+                'See more about $hostName',
+                style: TextStyle(fontSize: 12, color: AppColors.mediumGrey),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                // Navigate to host profile
+              },
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: Icon(Icons.flag_outlined, color: AppColors.friendlyOrange),
+              title: const Text('Report event'),
+              subtitle: Text(
+                'Report inappropriate content or safety concerns',
+                style: TextStyle(fontSize: 12, color: AppColors.mediumGrey),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                Nav.toReport(eventName: eventName);
+              },
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: Icon(Icons.person_off_outlined, color: AppColors.error),
+              title: const Text('Report host'),
+              subtitle: Text(
+                'Report the event organizer',
+                style: TextStyle(fontSize: 12, color: AppColors.mediumGrey),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                Nav.toReport(userName: hostName);
+              },
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: Icon(Icons.help_outline, color: AppColors.primaryBlue),
+              title: const Text('Get help'),
+              subtitle: Text(
+                'Contact support at support@fluttrr.com',
+                style: TextStyle(fontSize: 12, color: AppColors.mediumGrey),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                Nav.toHelp();
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
     );
   }
 
@@ -86,6 +167,21 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     color: _isBookmarked ? AppColors.warmYellow : Colors.white,
                     size: 20,
                   ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  _showEventOptionsMenu(context);
+                },
+                child: Container(
+                  margin: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withAlpha(77),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.more_vert, color: Colors.white, size: 20),
                 ),
               ),
             ],

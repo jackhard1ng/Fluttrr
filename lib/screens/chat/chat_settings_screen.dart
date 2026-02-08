@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../config/routes.dart';
 import '../../constants/utils.dart';
 
 class ChatSettingsScreen extends StatefulWidget {
@@ -200,7 +201,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                       title: 'Report ${widget.userName}',
                       isDestructive: true,
                       onTap: () {
-                        // Report user
+                        Nav.toReport(userName: widget.userName);
                       },
                     ),
                   ],

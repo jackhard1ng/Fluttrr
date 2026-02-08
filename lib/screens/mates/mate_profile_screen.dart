@@ -769,7 +769,7 @@ class _MateProfileScreenState extends State<MateProfileScreen> {
               leading: Icon(Icons.help_outline, color: AppColors.primaryBlue),
               title: const Text('Get help'),
               subtitle: Text(
-                'Contact support at support@fulttrr.com',
+                'Contact support at support@fluttrr.com',
                 style: TextStyle(fontSize: 12, color: AppColors.mediumGrey),
               ),
               onTap: () {
