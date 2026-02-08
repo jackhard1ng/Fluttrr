@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -266,11 +267,110 @@ class _ChatTile extends StatelessWidget {
     this.isBusiness = false,
   });
 
+  void _showChatActions(BuildContext context) {
+    HapticFeedback.mediumImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.lightGrey,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              ListTile(
+                leading: Icon(Icons.push_pin_outlined, color: AppColors.friendlyPurple),
+                title: const Text('Pin Chat'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Get.snackbar(
+                    'Pinned',
+                    'Chat pinned to top',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: AppColors.friendlyPurple,
+                    colorText: Colors.white,
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.notifications_off_outlined, color: AppColors.friendlyOrange),
+                title: const Text('Mute Notifications'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Get.snackbar(
+                    'Muted',
+                    'Notifications muted for this chat',
+                    snackPosition: SnackPosition.BOTTOM,
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.archive_outlined, color: AppColors.primaryBlue),
+                title: const Text('Archive Chat'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Get.snackbar(
+                    'Archived',
+                    'Chat moved to archive',
+                    snackPosition: SnackPosition.BOTTOM,
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.delete_outline, color: AppColors.error),
+                title: Text('Delete Chat', style: TextStyle(color: AppColors.error)),
+                onTap: () {
+                  Navigator.pop(context);
+                  Get.snackbar(
+                    'Deleted',
+                    'Chat deleted',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: AppColors.error,
+                    colorText: Colors.white,
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: () => Nav.toChat(conversation, isBusiness: isBusiness),
-      leading: Stack(
+    return Dismissible(
+      key: Key('chat_${conversation.id}'),
+      direction: DismissDirection.endToStart,
+      confirmDismiss: (direction) async {
+        HapticFeedback.mediumImpact();
+        _showChatActions(context);
+        return false; // Don't actually dismiss, just show options
+      },
+      background: Container(
+        color: AppColors.primaryBlue,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        child: const Icon(Icons.more_horiz, color: Colors.white),
+      ),
+      child: GestureDetector(
+        onLongPress: () => _showChatActions(context),
+        child: ListTile(
+          onTap: () => Nav.toChat(conversation, isBusiness: isBusiness),
+          leading: Stack(
         children: [
           UserAvatar(
             imageUrl: conversation.profileImage,
@@ -344,6 +444,8 @@ class _ChatTile extends StatelessWidget {
           ],
         ],
       ),
+        ),
+      ),
     );
   }
 }
@@ -354,13 +456,108 @@ class _GroupChatTile extends StatelessWidget {
 
   const _GroupChatTile({required this.group});
 
+  void _showGroupActions(BuildContext context) {
+    HapticFeedback.mediumImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.lightGrey,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              ListTile(
+                leading: Icon(Icons.push_pin_outlined, color: AppColors.friendlyPurple),
+                title: const Text('Pin Group'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Get.snackbar(
+                    'Pinned',
+                    'Group pinned to top',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: AppColors.friendlyPurple,
+                    colorText: Colors.white,
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.notifications_off_outlined, color: AppColors.friendlyOrange),
+                title: const Text('Mute Group'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Get.snackbar(
+                    'Muted',
+                    'Group notifications muted',
+                    snackPosition: SnackPosition.BOTTOM,
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.people_outline, color: AppColors.primaryBlue),
+                title: const Text('View Members'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Nav.toGroupChat(groupId: group.id, groupName: group.displayName);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.exit_to_app, color: AppColors.error),
+                title: Text('Leave Group', style: TextStyle(color: AppColors.error)),
+                onTap: () {
+                  Navigator.pop(context);
+                  Get.snackbar(
+                    'Left Group',
+                    'You left ${group.displayName}',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: AppColors.error,
+                    colorText: Colors.white,
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: () {
-        Nav.toGroupChat(groupId: group.id, groupName: group.displayName);
+    return Dismissible(
+      key: Key('group_${group.id}'),
+      direction: DismissDirection.endToStart,
+      confirmDismiss: (direction) async {
+        HapticFeedback.mediumImpact();
+        _showGroupActions(context);
+        return false;
       },
-      leading: Container(
+      background: Container(
+        color: AppColors.primaryBlue,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        child: const Icon(Icons.more_horiz, color: Colors.white),
+      ),
+      child: GestureDetector(
+        onLongPress: () => _showGroupActions(context),
+        child: ListTile(
+          onTap: () {
+            Nav.toGroupChat(groupId: group.id, groupName: group.displayName);
+          },
+          leading: Container(
         width: 50,
         height: 50,
         decoration: BoxDecoration(
@@ -425,6 +622,8 @@ class _GroupChatTile extends StatelessWidget {
             ),
           ],
         ],
+      ),
+        ),
       ),
     );
   }
