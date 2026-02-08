@@ -43,9 +43,10 @@ class GuestController extends GetxController {
 
     try {
       final response = await _repository.getEventGuests(eventId: eventId);
-      if (response.success && response.data != null) {
-        currentEventGuests.value = response.data;
-        myGuests.value = response.data!.guests
+      final data = response.data;
+      if (response.success && data != null) {
+        currentEventGuests.value = data;
+        myGuests.value = data.guests
             .where((g) => g.invitedByUserId != null)
             .toList();
       } else {
@@ -85,9 +86,10 @@ class GuestController extends GetxController {
             : null,
       );
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         successMessage.value = 'Invitation sent to ${guestNameController.text.trim()}!';
-        myGuests.add(response.data!);
+        myGuests.add(data);
         _updateGuestCount();
         _clearInviteForm();
         return true;
@@ -154,10 +156,11 @@ class GuestController extends GetxController {
     try {
       final response = await _repository.checkInGuest(guestId: guestId);
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         final index = myGuests.indexWhere((g) => g.guestId == guestId);
         if (index != -1) {
-          myGuests[index] = response.data!;
+          myGuests[index] = data;
         }
         successMessage.value = 'Guest checked in!';
         return true;

@@ -38,8 +38,9 @@ class FollowController extends GetxController {
 
     try {
       final response = await _repository.getFollowedBusinesses();
-      if (response.success && response.data != null) {
-        followedBusinesses.value = response.data!.businesses;
+      final data = response.data;
+      if (response.success && data != null) {
+        followedBusinesses.value = data.businesses;
       }
     } catch (e) {
       debugPrint('Error loading followed businesses: $e');
@@ -67,13 +68,14 @@ class FollowController extends GetxController {
         fromDate: DateTime.now(),
       );
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         if (refresh) {
-          followedBusinessEvents.value = response.data!;
+          followedBusinessEvents.value = data;
         } else {
-          followedBusinessEvents.addAll(response.data!);
+          followedBusinessEvents.addAll(data);
         }
-        hasMoreEvents.value = response.data!.length >= pageSize;
+        hasMoreEvents.value = data.length >= pageSize;
         if (hasMoreEvents.value) {
           currentPage.value++;
         }

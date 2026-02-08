@@ -85,8 +85,9 @@ class ActivityController extends GetxController {
   Future<void> loadDailyActivities() async {
     try {
       final response = await _activityRepository.getDailyActivities();
-      if (response.success && response.data != null) {
-        dailyActivities.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        dailyActivities.value = data;
       }
     } catch (e) {
       debugPrint('Error loading daily activities: $e');
@@ -114,14 +115,15 @@ class ActivityController extends GetxController {
         eventType: filterEventType.value.isNotEmpty ? filterEventType.value : null,
       );
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         if (refresh) {
-          allActivities.value = response.data!;
+          allActivities.value = data;
         } else {
-          allActivities.addAll(response.data!);
+          allActivities.addAll(data);
         }
 
-        hasMorePages.value = response.data!.length >= pageSize;
+        hasMorePages.value = data.length >= pageSize;
         if (hasMorePages.value) {
           currentPage.value++;
         }
@@ -152,8 +154,9 @@ class ActivityController extends GetxController {
   Future<void> loadMyActivities() async {
     try {
       final response = await _activityRepository.getMyActivities();
-      if (response.success && response.data != null) {
-        myActivities.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        myActivities.value = data;
       }
     } catch (e) {
       debugPrint('Error loading my activities: $e');
@@ -164,8 +167,9 @@ class ActivityController extends GetxController {
   Future<void> loadJoinedActivities() async {
     try {
       final response = await _activityRepository.getJoinedActivities();
-      if (response.success && response.data != null) {
-        joinedActivities.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        joinedActivities.value = data;
       }
     } catch (e) {
       debugPrint('Error loading joined activities: $e');
@@ -176,8 +180,9 @@ class ActivityController extends GetxController {
   Future<void> loadUpcomingActivities() async {
     try {
       final response = await _activityRepository.getUpcomingActivities();
-      if (response.success && response.data != null) {
-        upcomingActivities.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        upcomingActivities.value = data;
       }
     } catch (e) {
       debugPrint('Error loading upcoming activities: $e');
@@ -220,8 +225,9 @@ class ActivityController extends GetxController {
         endDate: filterEndDate.value,
       );
 
-      if (response.success && response.data != null) {
-        searchResults.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        searchResults.value = data;
       }
     } catch (e) {
       debugPrint('Error searching activities: $e');

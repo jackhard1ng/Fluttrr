@@ -174,13 +174,14 @@ class AdminController extends GetxController {
         search: searchQuery.value.isNotEmpty ? searchQuery.value : null,
       );
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         if (refresh) {
-          businesses.value = response.data!;
+          businesses.value = data;
         } else {
-          businesses.addAll(response.data!);
+          businesses.addAll(data);
         }
-        hasMoreBusinesses.value = response.data!.length >= 20;
+        hasMoreBusinesses.value = data.length >= 20;
         businessPage.value++;
       }
     } catch (e) {
@@ -202,10 +203,11 @@ class AdminController extends GetxController {
         rejectionReason: reason,
       );
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         final index = businesses.indexWhere((b) => b.businessId == businessId);
         if (index != -1) {
-          businesses[index] = response.data!;
+          businesses[index] = data;
         }
         successMessage.value = approve ? 'Business verified' : 'Business verification rejected';
         return true;
@@ -233,10 +235,11 @@ class AdminController extends GetxController {
         durationDays: durationDays,
       );
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         final index = businesses.indexWhere((b) => b.businessId == businessId);
         if (index != -1) {
-          businesses[index] = response.data!;
+          businesses[index] = data;
         }
         successMessage.value = 'Business suspended';
         return true;
@@ -257,10 +260,11 @@ class AdminController extends GetxController {
     isProcessing.value = true;
     try {
       final response = await _repository.unsuspendBusiness(businessId);
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         final index = businesses.indexWhere((b) => b.businessId == businessId);
         if (index != -1) {
-          businesses[index] = response.data!;
+          businesses[index] = data;
         }
         successMessage.value = 'Business unsuspended';
         return true;
@@ -300,10 +304,11 @@ class AdminController extends GetxController {
   Future<bool> toggleBusinessFeatured(String businessId) async {
     try {
       final response = await _repository.toggleBusinessFeatured(businessId);
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         final index = businesses.indexWhere((b) => b.businessId == businessId);
         if (index != -1) {
-          businesses[index] = response.data!;
+          businesses[index] = data;
         }
         return true;
       }
@@ -333,8 +338,9 @@ class AdminController extends GetxController {
         autoVerify: autoVerify,
       );
 
-      if (response.success && response.data != null) {
-        businesses.insert(0, response.data!);
+      final data = response.data;
+      if (response.success && data != null) {
+        businesses.insert(0, data);
         successMessage.value = 'Business created successfully';
         return true;
       } else {
@@ -368,13 +374,14 @@ class AdminController extends GetxController {
         search: searchQuery.value.isNotEmpty ? searchQuery.value : null,
       );
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         if (refresh) {
-          events.value = response.data!;
+          events.value = data;
         } else {
-          events.addAll(response.data!);
+          events.addAll(data);
         }
-        hasMoreEvents.value = response.data!.length >= 20;
+        hasMoreEvents.value = data.length >= 20;
         eventPage.value++;
       }
     } catch (e) {
@@ -389,10 +396,11 @@ class AdminController extends GetxController {
     isProcessing.value = true;
     try {
       final response = await _repository.approveEvent(eventId);
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         final index = events.indexWhere((e) => e.eventId == eventId);
         if (index != -1) {
-          events[index] = response.data!;
+          events[index] = data;
         }
         successMessage.value = 'Event approved';
         return true;
@@ -414,10 +422,11 @@ class AdminController extends GetxController {
         eventId: eventId,
         reason: reason,
       );
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         final index = events.indexWhere((e) => e.eventId == eventId);
         if (index != -1) {
-          events[index] = response.data!;
+          events[index] = data;
         }
         successMessage.value = 'Event rejected';
         return true;
@@ -458,10 +467,11 @@ class AdminController extends GetxController {
   Future<bool> toggleEventFeatured(String eventId) async {
     try {
       final response = await _repository.toggleEventFeatured(eventId);
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         final index = events.indexWhere((e) => e.eventId == eventId);
         if (index != -1) {
-          events[index] = response.data!;
+          events[index] = data;
         }
         return true;
       }
@@ -495,8 +505,9 @@ class AdminController extends GetxController {
         maxAttendees: maxAttendees,
       );
 
-      if (response.success && response.data != null) {
-        events.insert(0, response.data!);
+      final data = response.data;
+      if (response.success && data != null) {
+        events.insert(0, data);
         successMessage.value = 'Event created successfully';
         return true;
       } else {
@@ -530,13 +541,14 @@ class AdminController extends GetxController {
         search: searchQuery.value.isNotEmpty ? searchQuery.value : null,
       );
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         if (refresh) {
-          users.value = response.data!;
+          users.value = data;
         } else {
-          users.addAll(response.data!);
+          users.addAll(data);
         }
-        hasMoreUsers.value = response.data!.length >= 20;
+        hasMoreUsers.value = data.length >= 20;
         userPage.value++;
       }
     } catch (e) {
@@ -555,10 +567,11 @@ class AdminController extends GetxController {
         reason: reason,
         durationDays: durationDays,
       );
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         final index = users.indexWhere((u) => u.userId == userId);
         if (index != -1) {
-          users[index] = response.data!;
+          users[index] = data;
         }
         successMessage.value = 'User suspended';
         return true;
@@ -577,10 +590,11 @@ class AdminController extends GetxController {
     isProcessing.value = true;
     try {
       final response = await _repository.unsuspendUser(userId);
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         final index = users.indexWhere((u) => u.userId == userId);
         if (index != -1) {
-          users[index] = response.data!;
+          users[index] = data;
         }
         successMessage.value = 'User unsuspended';
         return true;
@@ -602,10 +616,11 @@ class AdminController extends GetxController {
         userId: userId,
         reason: reason,
       );
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         final index = users.indexWhere((u) => u.userId == userId);
         if (index != -1) {
-          users[index] = response.data!;
+          users[index] = data;
         }
         successMessage.value = 'User banned';
         return true;
@@ -624,10 +639,11 @@ class AdminController extends GetxController {
     isProcessing.value = true;
     try {
       final response = await _repository.unbanUser(userId);
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         final index = users.indexWhere((u) => u.userId == userId);
         if (index != -1) {
-          users[index] = response.data!;
+          users[index] = data;
         }
         successMessage.value = 'User unbanned';
         return true;
@@ -702,13 +718,14 @@ class AdminController extends GetxController {
         status: reportFilter.value,
       );
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         if (refresh) {
-          reports.value = response.data!;
+          reports.value = data;
         } else {
-          reports.addAll(response.data!);
+          reports.addAll(data);
         }
-        hasMoreReports.value = response.data!.length >= 20;
+        hasMoreReports.value = data.length >= 20;
         reportPage.value++;
       }
     } catch (e) {
@@ -727,10 +744,11 @@ class AdminController extends GetxController {
         resolution: resolution,
         actionTaken: actionTaken,
       );
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         final index = reports.indexWhere((r) => r.reportId == reportId);
         if (index != -1) {
-          reports[index] = response.data!;
+          reports[index] = data;
         }
         successMessage.value = 'Report resolved';
         return true;
@@ -752,10 +770,11 @@ class AdminController extends GetxController {
         reportId: reportId,
         reason: reason,
       );
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         final index = reports.indexWhere((r) => r.reportId == reportId);
         if (index != -1) {
-          reports[index] = response.data!;
+          reports[index] = data;
         }
         successMessage.value = 'Report dismissed';
         return true;
@@ -777,8 +796,9 @@ class AdminController extends GetxController {
 
     try {
       final response = await _repository.getAdmins();
-      if (response.success && response.data != null) {
-        admins.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        admins.value = data;
       }
     } catch (e) {
       debugPrint('Error loading admins: $e');
@@ -796,8 +816,9 @@ class AdminController extends GetxController {
         role: role,
         permissions: permissions,
       );
-      if (response.success && response.data != null) {
-        admins.add(response.data!);
+      final data = response.data;
+      if (response.success && data != null) {
+        admins.add(data);
         successMessage.value = 'Admin added';
         return true;
       }

@@ -321,8 +321,9 @@ class BusinessController extends GetxController {
   Future<void> loadBusinessEvents() async {
     try {
       final response = await _businessRepository.getBusinessEvents();
-      if (response.success && response.data != null) {
-        businessEvents.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        businessEvents.value = data;
       }
     } catch (e) {
       debugPrint('Error loading business events: $e');
@@ -333,8 +334,9 @@ class BusinessController extends GetxController {
   Future<void> loadMyBusinessEvents() async {
     try {
       final response = await _businessRepository.getMyBusinessEvents();
-      if (response.success && response.data != null) {
-        myBusinessEvents.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        myBusinessEvents.value = data;
       }
     } catch (e) {
       debugPrint('Error loading my business events: $e');
@@ -345,8 +347,9 @@ class BusinessController extends GetxController {
   Future<void> loadSavedEvents() async {
     try {
       final response = await _businessRepository.getSavedEvents();
-      if (response.success && response.data != null) {
-        savedEvents.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        savedEvents.value = data;
       }
     } catch (e) {
       debugPrint('Error loading saved events: $e');
@@ -357,8 +360,9 @@ class BusinessController extends GetxController {
   Future<void> loadTopEvents() async {
     try {
       final response = await _businessRepository.getTopEvents();
-      if (response.success && response.data != null) {
-        topEvents.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        topEvents.value = data;
       }
     } catch (e) {
       debugPrint('Error loading top events: $e');

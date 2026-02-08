@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import '../models/story_model.dart';
@@ -39,8 +40,15 @@ class StoryController extends GetxController {
     try {
       final result = await _repository.getStories();
 
-      userStories.value = result['userStories'] as List<UserStoryGroup>;
-      eventStories.value = result['eventStories'] as List<EventStoryGroup>;
+      final userStoriesData = result['userStories'];
+      final eventStoriesData = result['eventStories'];
+
+      userStories.value = userStoriesData is List<UserStoryGroup>
+          ? userStoriesData
+          : <UserStoryGroup>[];
+      eventStories.value = eventStoriesData is List<EventStoryGroup>
+          ? eventStoriesData
+          : <EventStoryGroup>[];
 
       // Sort: unviewed first, then by latest story time
       userStories.sort((a, b) {
@@ -57,7 +65,7 @@ class StoryController extends GetxController {
             .compareTo(a.latestStory?.createdAt ?? DateTime.now());
       });
     } catch (e) {
-      print('Error loading stories: $e');
+      debugPrint('Error loading stories: $e');
     } finally {
       isLoading.value = false;
     }
@@ -68,7 +76,7 @@ class StoryController extends GetxController {
     try {
       myStories.value = await _repository.getMyStories();
     } catch (e) {
-      print('Error loading my stories: $e');
+      debugPrint('Error loading my stories: $e');
     }
   }
 
@@ -113,7 +121,7 @@ class StoryController extends GetxController {
 
       return story;
     } catch (e) {
-      print('Error creating story: $e');
+      debugPrint('Error creating story: $e');
       Get.snackbar(
         'Error',
         'Failed to post story. Please try again.',

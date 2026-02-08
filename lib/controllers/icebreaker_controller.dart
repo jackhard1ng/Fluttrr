@@ -57,8 +57,9 @@ class IcebreakerController extends GetxController {
         type: type,
         category: category,
       );
-      if (response.success && response.data != null) {
-        icebreakers.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        icebreakers.value = data;
       }
     } catch (e) {
       debugPrint('Error loading icebreakers: $e');
@@ -71,8 +72,9 @@ class IcebreakerController extends GetxController {
   Future<void> loadPopularIcebreakers() async {
     try {
       final response = await _repository.getPopularIcebreakers();
-      if (response.success && response.data != null) {
-        popularIcebreakers.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        popularIcebreakers.value = data;
       }
     } catch (e) {
       debugPrint('Error loading popular icebreakers: $e');
@@ -107,10 +109,11 @@ class IcebreakerController extends GetxController {
 
     try {
       final response = await _repository.getIcebreakerSession(eventId: eventId);
-      if (response.success && response.data != null) {
-        currentSession.value = response.data;
-        if (response.data!.currentIcebreaker != null) {
-          currentIcebreaker.value = response.data!.currentIcebreaker;
+      final data = response.data;
+      if (response.success && data != null) {
+        currentSession.value = data;
+        if (data.currentIcebreaker != null) {
+          currentIcebreaker.value = data.currentIcebreaker;
         }
       }
     } catch (e) {
@@ -139,9 +142,10 @@ class IcebreakerController extends GetxController {
         count: count,
       );
 
-      if (response.success && response.data != null) {
-        currentSession.value = response.data;
-        currentIcebreaker.value = response.data!.currentIcebreaker;
+      final data = response.data;
+      if (response.success && data != null) {
+        currentSession.value = data;
+        currentIcebreaker.value = data.currentIcebreaker;
         successMessage.value = 'Icebreaker session started!';
         return true;
       } else {
@@ -184,8 +188,9 @@ class IcebreakerController extends GetxController {
         selectedOptionIndex: hasOption ? selectedOptionIndex.value : null,
       );
 
-      if (response.success && response.data != null) {
-        responses.add(response.data!);
+      final data = response.data;
+      if (response.success && data != null) {
+        responses.add(data);
         _clearAnswerForm();
         successMessage.value = 'Response submitted!';
         return true;
@@ -211,8 +216,9 @@ class IcebreakerController extends GetxController {
         icebreakerId: icebreakerId,
         eventId: eventId,
       );
-      if (response.success && response.data != null) {
-        responses.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        responses.value = data;
       }
     } catch (e) {
       debugPrint('Error loading responses: $e');
@@ -224,9 +230,10 @@ class IcebreakerController extends GetxController {
     try {
       final response = await _repository.nextIcebreaker(eventId: eventId);
 
-      if (response.success && response.data != null) {
-        currentSession.value = response.data;
-        currentIcebreaker.value = response.data!.currentIcebreaker;
+      final data = response.data;
+      if (response.success && data != null) {
+        currentSession.value = data;
+        currentIcebreaker.value = data.currentIcebreaker;
         responses.clear();
         _clearAnswerForm();
         return true;
@@ -251,10 +258,11 @@ class IcebreakerController extends GetxController {
         emoji: emoji,
       );
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         final index = responses.indexWhere((r) => r.responseId == responseId);
         if (index != -1) {
-          responses[index] = response.data!;
+          responses[index] = data;
         }
         return true;
       }
@@ -304,8 +312,9 @@ class IcebreakerController extends GetxController {
         timeLimit: timeLimit.value > 0 ? timeLimit.value : null,
       );
 
-      if (response.success && response.data != null) {
-        icebreakers.add(response.data!);
+      final data = response.data;
+      if (response.success && data != null) {
+        icebreakers.add(data);
         _clearCreateForm();
         successMessage.value = 'Icebreaker created!';
         return true;

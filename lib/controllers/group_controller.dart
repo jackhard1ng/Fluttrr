@@ -78,13 +78,14 @@ class GroupController extends GetxController {
         limit: pageSize,
       );
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         if (refresh) {
-          allGroups.value = response.data!;
+          allGroups.value = data;
         } else {
-          allGroups.addAll(response.data!);
+          allGroups.addAll(data);
         }
-        hasMoreGroups.value = response.data!.length >= pageSize;
+        hasMoreGroups.value = data.length >= pageSize;
         if (hasMoreGroups.value) {
           currentPage.value++;
         }
@@ -101,8 +102,9 @@ class GroupController extends GetxController {
   Future<void> loadMyGroups() async {
     try {
       final response = await _repository.getMyGroups();
-      if (response.success && response.data != null) {
-        myGroups.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        myGroups.value = data;
       }
     } catch (e) {
       debugPrint('Error loading my groups: $e');
@@ -113,8 +115,9 @@ class GroupController extends GetxController {
   Future<void> loadSuggestedGroups() async {
     try {
       final response = await _repository.getSuggestedGroups();
-      if (response.success && response.data != null) {
-        suggestedGroups.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        suggestedGroups.value = data;
       }
     } catch (e) {
       debugPrint('Error loading suggested groups: $e');
@@ -144,8 +147,9 @@ class GroupController extends GetxController {
   Future<void> loadGroupMembers(String groupId) async {
     try {
       final response = await _repository.getGroupMembers(groupId: groupId);
-      if (response.success && response.data != null) {
-        groupMembers.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        groupMembers.value = data;
       }
     } catch (e) {
       debugPrint('Error loading group members: $e');
@@ -156,8 +160,9 @@ class GroupController extends GetxController {
   Future<void> loadGroupEvents(String groupId) async {
     try {
       final response = await _repository.getGroupEvents(groupId: groupId);
-      if (response.success && response.data != null) {
-        groupEvents.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        groupEvents.value = data;
       }
     } catch (e) {
       debugPrint('Error loading group events: $e');
@@ -175,8 +180,9 @@ class GroupController extends GetxController {
 
     try {
       final response = await _repository.searchGroups(query: query);
-      if (response.success && response.data != null) {
-        searchResults.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        searchResults.value = data;
       }
     } catch (e) {
       debugPrint('Error searching groups: $e');
@@ -208,8 +214,9 @@ class GroupController extends GetxController {
         longitude: selectedLongitude.value != 0 ? selectedLongitude.value : null,
       );
 
-      if (response.success && response.data != null) {
-        myGroups.add(response.data!);
+      final data = response.data;
+      if (response.success && data != null) {
+        myGroups.add(data);
         successMessage.value = 'Group created!';
         _clearForm();
         return true;
@@ -242,12 +249,13 @@ class GroupController extends GetxController {
         tags: selectedTags.isNotEmpty ? selectedTags.toList() : null,
       );
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         final index = myGroups.indexWhere((g) => g.groupId == groupId);
         if (index != -1) {
-          myGroups[index] = response.data!;
+          myGroups[index] = data;
         }
-        currentGroup.value = response.data;
+        currentGroup.value = data;
         successMessage.value = 'Group updated!';
         return true;
       } else {
@@ -369,8 +377,9 @@ class GroupController extends GetxController {
   Future<void> loadJoinRequests(String groupId) async {
     try {
       final response = await _repository.getJoinRequests(groupId: groupId);
-      if (response.success && response.data != null) {
-        joinRequests.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        joinRequests.value = data;
       }
     } catch (e) {
       debugPrint('Error loading join requests: $e');
@@ -388,10 +397,11 @@ class GroupController extends GetxController {
         approve: approve,
       );
 
+      final data = response.data;
       if (response.success) {
         joinRequests.removeWhere((r) => r.requestId == requestId);
-        if (approve && response.data != null) {
-          groupMembers.add(response.data!);
+        if (approve && data != null) {
+          groupMembers.add(data);
         }
         successMessage.value = approve ? 'Request approved' : 'Request declined';
         return true;
@@ -411,8 +421,9 @@ class GroupController extends GetxController {
 
     try {
       final response = await _repository.getGroupsByInterest(interest: interest);
-      if (response.success && response.data != null) {
-        searchResults.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        searchResults.value = data;
       }
     } catch (e) {
       debugPrint('Error loading groups by interest: $e');

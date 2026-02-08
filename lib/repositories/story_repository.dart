@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+
 import '../models/story_model.dart';
 import '../services/secure_http_client.dart';
 import '../constants/api_endpoints.dart';
@@ -32,7 +34,7 @@ class StoryRepository {
 
       return {'userStories': [], 'eventStories': []};
     } catch (e) {
-      print('Error fetching stories: $e');
+      debugPrint('Error fetching stories: $e');
       return {'userStories': [], 'eventStories': []};
     }
   }
@@ -51,7 +53,7 @@ class StoryRepository {
 
       return [];
     } catch (e) {
-      print('Error fetching event stories: $e');
+      debugPrint('Error fetching event stories: $e');
       return [];
     }
   }
@@ -70,7 +72,7 @@ class StoryRepository {
 
       return [];
     } catch (e) {
-      print('Error fetching user stories: $e');
+      debugPrint('Error fetching user stories: $e');
       return [];
     }
   }
@@ -89,7 +91,7 @@ class StoryRepository {
 
       return [];
     } catch (e) {
-      print('Error fetching my stories: $e');
+      debugPrint('Error fetching my stories: $e');
       return [];
     }
   }
@@ -121,7 +123,7 @@ class StoryRepository {
 
       return null;
     } catch (e) {
-      print('Error creating story: $e');
+      debugPrint('Error creating story: $e');
       return null;
     }
   }
@@ -135,7 +137,7 @@ class StoryRepository {
       );
       return response.statusCode == 200;
     } catch (e) {
-      print('Error marking story viewed: $e');
+      debugPrint('Error marking story viewed: $e');
       return false;
     }
   }
@@ -152,7 +154,7 @@ class StoryRepository {
       );
       return response.statusCode == 200;
     } catch (e) {
-      print('Error adding reaction: $e');
+      debugPrint('Error adding reaction: $e');
       return false;
     }
   }
@@ -165,7 +167,7 @@ class StoryRepository {
       );
       return response.statusCode == 200;
     } catch (e) {
-      print('Error deleting story: $e');
+      debugPrint('Error deleting story: $e');
       return false;
     }
   }
@@ -185,7 +187,7 @@ class StoryRepository {
 
       return [];
     } catch (e) {
-      print('Error fetching story viewers: $e');
+      debugPrint('Error fetching story viewers: $e');
       return [];
     }
   }

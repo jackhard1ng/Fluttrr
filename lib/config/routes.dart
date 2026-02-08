@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import '../models/chat_model.dart';
@@ -290,22 +291,38 @@ class AppPages {
         if (args is ChatConversation) {
           return ChatScreen(conversation: args);
         }
-        final argsMap = args as Map<String, dynamic>;
-        return ChatScreen(
-          conversation: argsMap['conversation'] as ChatConversation,
-          isBusiness: argsMap['isBusiness'] as bool? ?? false,
-        );
+        if (args is Map<String, dynamic>) {
+          final conversation = args['conversation'];
+          if (conversation is ChatConversation) {
+            return ChatScreen(
+              conversation: conversation,
+              isBusiness: args['isBusiness'] as bool? ?? false,
+            );
+          }
+        }
+        debugPrint('Invalid chat arguments: $args');
+        Get.back();
+        return const SizedBox.shrink();
       },
       transition: Transition.rightToLeft,
     ),
     GetPage(
       name: AppRoutes.groupChat,
       page: () {
-        final args = Get.arguments as Map<String, dynamic>;
-        return GroupChatScreen(
-          groupId: args['groupId'] as String,
-          groupName: args['groupName'] as String,
-        );
+        final args = Get.arguments;
+        if (args is Map<String, dynamic>) {
+          final groupId = args['groupId'];
+          final groupName = args['groupName'];
+          if (groupId is String && groupName is String) {
+            return GroupChatScreen(
+              groupId: groupId,
+              groupName: groupName,
+            );
+          }
+        }
+        debugPrint('Invalid group chat arguments: $args');
+        Get.back();
+        return const SizedBox.shrink();
       },
       transition: Transition.rightToLeft,
     ),
@@ -335,34 +352,60 @@ class AppPages {
     GetPage(
       name: AppRoutes.eventMemories,
       page: () {
-        final args = Get.arguments as Map<String, dynamic>;
-        return EventMemoriesScreen(
-          eventId: args['eventId'] as String,
-          eventName: args['eventName'] as String,
-          eventImage: args['eventImage'] as String?,
-        );
+        final args = Get.arguments;
+        if (args is Map<String, dynamic>) {
+          final eventId = args['eventId'];
+          final eventName = args['eventName'];
+          if (eventId is String && eventName is String) {
+            return EventMemoriesScreen(
+              eventId: eventId,
+              eventName: eventName,
+              eventImage: args['eventImage'] as String?,
+            );
+          }
+        }
+        debugPrint('Invalid event memories arguments: $args');
+        Get.back();
+        return const SizedBox.shrink();
       },
       transition: Transition.rightToLeft,
     ),
     GetPage(
       name: AppRoutes.memoryDetail,
       page: () {
-        final args = Get.arguments as Map<String, dynamic>;
-        return MemoryDetailScreen(
-          memory: args['memory'] as EventMemoryModel,
-          focusComments: args['focusComments'] as bool? ?? false,
-        );
+        final args = Get.arguments;
+        if (args is Map<String, dynamic>) {
+          final memory = args['memory'];
+          if (memory is EventMemoryModel) {
+            return MemoryDetailScreen(
+              memory: memory,
+              focusComments: args['focusComments'] as bool? ?? false,
+            );
+          }
+        }
+        debugPrint('Invalid memory detail arguments: $args');
+        Get.back();
+        return const SizedBox.shrink();
       },
       transition: Transition.rightToLeft,
     ),
     GetPage(
       name: AppRoutes.uploadMemory,
       page: () {
-        final args = Get.arguments as Map<String, dynamic>;
-        return UploadMemoryScreen(
-          eventId: args['eventId'] as String,
-          eventName: args['eventName'] as String,
-        );
+        final args = Get.arguments;
+        if (args is Map<String, dynamic>) {
+          final eventId = args['eventId'];
+          final eventName = args['eventName'];
+          if (eventId is String && eventName is String) {
+            return UploadMemoryScreen(
+              eventId: eventId,
+              eventName: eventName,
+            );
+          }
+        }
+        debugPrint('Invalid upload memory arguments: $args');
+        Get.back();
+        return const SizedBox.shrink();
       },
       transition: Transition.downToUp,
       fullscreenDialog: true,
@@ -377,11 +420,19 @@ class AppPages {
     GetPage(
       name: AppRoutes.stories,
       page: () {
-        final args = Get.arguments as Map<String, dynamic>;
-        return StoryViewerScreen(
-          stories: args['stories'] as List<StoryModel>,
-          initialIndex: args['initialIndex'] as int? ?? 0,
-        );
+        final args = Get.arguments;
+        if (args is Map<String, dynamic>) {
+          final stories = args['stories'];
+          if (stories is List<StoryModel>) {
+            return StoryViewerScreen(
+              stories: stories,
+              initialIndex: args['initialIndex'] as int? ?? 0,
+            );
+          }
+        }
+        debugPrint('Invalid stories arguments: $args');
+        Get.back();
+        return const SizedBox.shrink();
       },
       transition: Transition.fadeIn,
     ),
@@ -447,8 +498,13 @@ class AppPages {
     GetPage(
       name: AppRoutes.businessEventDetails,
       page: () {
-        final event = Get.arguments as BusinessEvent;
-        return BusinessEventDetailsScreen(event: event);
+        final event = Get.arguments;
+        if (event is BusinessEvent) {
+          return BusinessEventDetailsScreen(event: event);
+        }
+        debugPrint('Invalid business event details arguments: $event');
+        Get.back();
+        return const SizedBox.shrink();
       },
       transition: Transition.rightToLeft,
     ),
