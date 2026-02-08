@@ -6,6 +6,7 @@ enum WaitlistStatus {
   declined,
   expired,
   removed,
+  cancelled,
 }
 
 /// Waitlist entry model
@@ -234,6 +235,8 @@ WaitlistStatus _parseWaitlistStatus(dynamic value) {
         return WaitlistStatus.expired;
       case 'removed':
         return WaitlistStatus.removed;
+      case 'cancelled':
+        return WaitlistStatus.cancelled;
       default:
         return WaitlistStatus.waiting;
     }

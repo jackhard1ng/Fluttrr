@@ -20,7 +20,7 @@ class RecurringEventScreen extends StatelessWidget {
     final controller = Get.put(RecurringEventController());
 
     if (seriesId != null) {
-      controller.loadSeries(seriesId!);
+      controller.loadSeriesById(seriesId!);
     }
 
     return Scaffold(
@@ -434,29 +434,21 @@ class RecurringEventScreen extends StatelessWidget {
   }
 
   Widget _buildInstanceCard(
-    RecurringEventInstanceModel instance,
+    RecurringEventInstance instance,
     RecurringEventController controller,
   ) {
     Color statusColor;
     String statusText;
 
-    switch (instance.status) {
-      case InstanceStatus.scheduled:
-        statusColor = Colors.blue;
-        statusText = 'Scheduled';
-        break;
-      case InstanceStatus.modified:
-        statusColor = Colors.orange;
-        statusText = 'Modified';
-        break;
-      case InstanceStatus.cancelled:
-        statusColor = Colors.red;
-        statusText = 'Cancelled';
-        break;
-      case InstanceStatus.completed:
-        statusColor = Colors.green;
-        statusText = 'Completed';
-        break;
+    if (instance.isCancelled) {
+      statusColor = Colors.red;
+      statusText = 'Cancelled';
+    } else if (instance.isModified) {
+      statusColor = Colors.orange;
+      statusText = 'Modified';
+    } else {
+      statusColor = Colors.blue;
+      statusText = 'Scheduled';
     }
 
     return Card(
@@ -499,14 +491,14 @@ class RecurringEventScreen extends StatelessWidget {
   }
 
   void _confirmCancelInstance(
-    RecurringEventInstanceModel instance,
+    RecurringEventInstance instance,
     RecurringEventController controller,
   ) {
     Get.dialog(
       AlertDialog(
         title: const Text('Cancel This Occurrence?'),
         content: Text(
-          'This will cancel the event on ${_formatDate(instance.instanceDate!)}. '
+          'This will cancel the event on ${_formatDate(instance.date!)}. '
           'Other occurrences will not be affected.',
         ),
         actions: [
@@ -517,7 +509,7 @@ class RecurringEventScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               Get.back();
-              controller.cancelInstance(instance.instanceId!);
+              controller.skipInstance(instance.instanceId!);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Cancel'),
@@ -529,7 +521,7 @@ class RecurringEventScreen extends StatelessWidget {
 
   void _saveRecurrence(RecurringEventController controller) {
     if (isEditing && seriesId != null) {
-      controller.updateSeries(seriesId!);
+      controller.updateSeries(seriesId: seriesId.toString());
     } else {
       controller.createSeries();
     }

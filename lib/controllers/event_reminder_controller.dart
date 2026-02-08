@@ -288,4 +288,53 @@ class EventReminderController extends GetxController {
 
   /// Get upcoming event count
   int get upcomingEventCount => upcomingReminders.length;
+
+  // Additional methods for widget compatibility
+
+  /// Push notifications enabled
+  final RxBool pushEnabled = true.obs;
+
+  /// Email notifications enabled
+  final RxBool emailEnabled = false.obs;
+
+  /// Get reminder for a specific event
+  EventReminderModel? getReminder(int eventId) {
+    try {
+      return eventReminders.firstWhere((r) => r.eventId == eventId);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Check if event has an active reminder
+  bool hasActiveReminder(int eventId) {
+    final reminder = getReminder(eventId);
+    return reminder != null && reminder.isEnabled;
+  }
+
+  /// Cancel a reminder for an event
+  Future<void> cancelReminder(int eventId) async {
+    final reminder = getReminder(eventId);
+    if (reminder?.reminderId != null) {
+      await deleteReminder(reminder!.reminderId!);
+    }
+  }
+
+  /// Set reminder with specific types
+  Future<void> setReminder({
+    required int eventId,
+    required List<ReminderType> types,
+    bool? pushEnabled,
+    bool? emailEnabled,
+  }) async {
+    for (final type in types) {
+      selectedReminderType.value = type;
+      selectedDeliveryMethods.value = [
+        if (pushEnabled ?? this.pushEnabled.value) ReminderDeliveryMethod.push,
+        ReminderDeliveryMethod.inApp,
+        if (emailEnabled ?? this.emailEnabled.value) ReminderDeliveryMethod.email,
+      ];
+      await createReminder(eventId: eventId);
+    }
+  }
 }

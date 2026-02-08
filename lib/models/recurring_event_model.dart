@@ -1,9 +1,11 @@
 /// Recurrence frequency
 enum RecurrenceFrequency {
+  once,
   daily,
   weekly,
   biweekly,
   monthly,
+  yearly,
   custom,
 }
 
@@ -90,6 +92,8 @@ class RecurrenceRuleModel {
 
   String get frequencyDisplay {
     switch (frequency) {
+      case RecurrenceFrequency.once:
+        return 'One Time';
       case RecurrenceFrequency.daily:
         return interval == 1 ? 'Daily' : 'Every $interval days';
       case RecurrenceFrequency.weekly:
@@ -98,6 +102,8 @@ class RecurrenceRuleModel {
         return 'Every 2 weeks';
       case RecurrenceFrequency.monthly:
         return interval == 1 ? 'Monthly' : 'Every $interval months';
+      case RecurrenceFrequency.yearly:
+        return interval == 1 ? 'Yearly' : 'Every $interval years';
       case RecurrenceFrequency.custom:
         return 'Custom';
     }
@@ -140,14 +146,18 @@ class RecurrenceRuleModel {
 
   DateTime _nextDate(DateTime current) {
     switch (frequency) {
+      case RecurrenceFrequency.once:
+        return current.add(const Duration(days: 365 * 10)); // Far future to stop iteration
       case RecurrenceFrequency.daily:
         return current.add(Duration(days: interval));
       case RecurrenceFrequency.weekly:
-        return current.add(Duration(days: 1));
+        return current.add(const Duration(days: 1));
       case RecurrenceFrequency.biweekly:
         return current.add(Duration(days: 14 * interval));
       case RecurrenceFrequency.monthly:
         return DateTime(current.year, current.month + interval, current.day);
+      case RecurrenceFrequency.yearly:
+        return DateTime(current.year + interval, current.month, current.day);
       case RecurrenceFrequency.custom:
         return current.add(Duration(days: interval));
     }
@@ -366,12 +376,16 @@ RecurrenceFrequency _parseFrequency(dynamic value) {
   if (value == null) return RecurrenceFrequency.weekly;
   if (value is String) {
     switch (value.toLowerCase()) {
+      case 'once':
+        return RecurrenceFrequency.once;
       case 'daily':
         return RecurrenceFrequency.daily;
       case 'biweekly':
         return RecurrenceFrequency.biweekly;
       case 'monthly':
         return RecurrenceFrequency.monthly;
+      case 'yearly':
+        return RecurrenceFrequency.yearly;
       case 'custom':
         return RecurrenceFrequency.custom;
       default:

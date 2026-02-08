@@ -263,4 +263,46 @@ class WaitlistController extends GetxController {
 
   /// Check if has pending offers
   bool get hasPendingOffers => pendingOffers.isNotEmpty;
+
+  // Additional methods for screen compatibility
+
+  /// Alias for loadEventWaitlist
+  Future<void> loadWaitlist(int eventId) => loadEventWaitlist(eventId);
+
+  /// Alias for currentUserEntry
+  Rx<WaitlistEntryModel?> get userWaitlistEntry => currentUserEntry;
+
+  /// Get waitlist entries from current event
+  List<WaitlistEntryModel> get waitlistEntries =>
+      currentEventWaitlist.value?.entries ?? [];
+
+  /// Loading state for leaving
+  final RxBool isLeaving = false.obs;
+
+  /// Loading state for offering spots
+  final RxBool isOffering = false.obs;
+
+  /// Accept offer by event ID
+  Future<bool> acceptOffer(int eventId) async {
+    final entry = currentUserEntry.value;
+    if (entry?.waitlistId == null) return false;
+    return respondToOffer(waitlistId: entry!.waitlistId!, accept: true);
+  }
+
+  /// Decline offer by event ID
+  Future<bool> declineOffer(int eventId) async {
+    final entry = currentUserEntry.value;
+    if (entry?.waitlistId == null) return false;
+    return respondToOffer(waitlistId: entry!.waitlistId!, accept: false);
+  }
+
+  /// Alias for offerSpotToNextUser
+  Future<bool> offerSpotToNext(int eventId) async {
+    isOffering.value = true;
+    try {
+      return await offerSpotToNextUser(eventId);
+    } finally {
+      isOffering.value = false;
+    }
+  }
 }

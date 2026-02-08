@@ -411,4 +411,65 @@ class RecurringEventController extends GetxController {
     }
     return text;
   }
+
+  // Additional methods for screen compatibility
+
+  /// Alias for frequency
+  Rx<RecurrenceFrequency> get selectedFrequency => frequency;
+
+  /// Selected days as indices (0=Monday, 6=Sunday)
+  RxSet<int> get selectedDays {
+    final set = <int>{};
+    for (final day in selectedDaysOfWeek) {
+      set.add(day.index);
+    }
+    return set.obs;
+  }
+
+  /// Alias for dayOfMonth
+  RxInt get selectedDayOfMonth => dayOfMonth;
+
+  /// End type selection (never, count, date)
+  final RxString endType = 'never'.obs;
+
+  /// Alias for maxOccurrences
+  RxInt get occurrenceCount => maxOccurrences;
+
+  /// Alias for seriesEndDate
+  Rx<DateTime?> get endDate => seriesEndDate;
+
+  /// Alias for upcomingInstances
+  RxList<RecurringEventInstance> get instances => upcomingInstances;
+
+  /// Get recurrence preview text
+  String getRecurrencePreview() {
+    return recurrenceDisplayText;
+  }
+
+  /// Get next occurrences based on current settings
+  List<DateTime> getNextOccurrences(int count) {
+    final rule = RecurrenceRuleModel(
+      frequency: frequency.value,
+      interval: interval.value,
+      daysOfWeek: selectedDaysOfWeek.toList(),
+      dayOfMonth: dayOfMonth.value,
+      startDate: seriesStartDate.value ?? DateTime.now(),
+      endDate: seriesEndDate.value,
+      maxOccurrences: maxOccurrences.value > 0 ? maxOccurrences.value : null,
+    );
+    return rule.generateOccurrences(count: count);
+  }
+
+  /// Skip an instance
+  Future<bool> skipInstance(String instanceId) async {
+    final seriesId = currentSeries.value?.seriesId;
+    if (seriesId == null) return false;
+    return cancelInstance(seriesId: seriesId, instanceId: instanceId, reason: 'Skipped');
+  }
+
+  /// Alias for createRecurringSeries
+  Future<bool> createSeries() => createRecurringSeries();
+
+  /// Load series with int ID (converts to String)
+  Future<void> loadSeriesById(int seriesId) => loadSeries(seriesId.toString());
 }
