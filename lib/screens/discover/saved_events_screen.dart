@@ -240,7 +240,7 @@ class _SavedEventsScreenState extends State<SavedEventsScreen> {
               onTap: () {
                 Navigator.pop(context);
                 HapticFeedback.lightImpact();
-                Nav.toMatches();
+                Nav.toChatList();
               },
             ),
             const Divider(),

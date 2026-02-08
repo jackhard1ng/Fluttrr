@@ -60,19 +60,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.person_outline, color: AppColors.primaryBlue),
-              title: const Text('View host profile'),
-              subtitle: Text(
-                'See more about $hostName',
-                style: TextStyle(fontSize: 12, color: AppColors.mediumGrey),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                Nav.toMateProfile(userId: 'host-alex');
-              },
-            ),
-            const Divider(height: 1),
-            ListTile(
               leading: Icon(Icons.flag_outlined, color: AppColors.friendlyOrange),
               title: const Text('Report event'),
               subtitle: Text(

@@ -430,7 +430,7 @@ class _SearchScreenState extends State<SearchScreen> {
         Nav.toDiscover();
         break;
       case SearchTab.people:
-        Nav.toMatches();
+        Nav.toChatList();
         break;
       case SearchTab.places:
         Nav.toDiscover();

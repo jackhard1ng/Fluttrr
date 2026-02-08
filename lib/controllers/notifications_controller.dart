@@ -117,8 +117,7 @@ class NotificationsController extends GetxController {
         key = 'Earlier';
       }
 
-      grouped.putIfAbsent(key, () => []);
-      grouped[key]!.add(notification);
+      (grouped[key] ??= []).add(notification);
     }
 
     return grouped;

@@ -52,8 +52,9 @@ class PhoneVerificationModel {
   String get fullPhoneNumber => '${countryCode ?? ''}${phoneNumber ?? ''}';
 
   String get maskedPhoneNumber {
-    if (phoneNumber == null || phoneNumber!.length < 4) return '****';
-    return '****${phoneNumber!.substring(phoneNumber!.length - 4)}';
+    final phone = phoneNumber;
+    if (phone == null || phone.length < 4) return '****';
+    return '****${phone.substring(phone.length - 4)}';
   }
 
   PhoneVerificationModel copyWith({

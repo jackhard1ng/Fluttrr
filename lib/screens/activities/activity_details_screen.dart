@@ -8,7 +8,6 @@ import '../../constants/utils.dart';
 import '../../config/routes.dart';
 import '../../controllers/activity_controller.dart';
 import '../../controllers/chat_controller.dart';
-import '../../controllers/mates_controller.dart';
 import '../../widgets/common_widgets.dart';
 
 /// Activity details screen
@@ -106,7 +105,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
     // Check if context is still mounted before showing bottom sheet (#93)
     if (!context.mounted) return;
 
-    final matesController = Get.find<MatesController>();
+    final chatController = Get.find<ChatController>();
 
     showModalBottomSheet(
       context: context,
@@ -146,26 +145,26 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
 
               Expanded(
                 child: Obx(() {
-                  final connections = matesController.matches;
+                  final conversations = chatController.conversations;
 
-                  if (connections.isEmpty) {
+                  if (conversations.isEmpty) {
                     return Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            Icons.people_outline,
+                            Icons.chat_bubble_outline,
                             size: 64,
                             color: AppColors.mediumGrey,
                           ),
                           const SizedBox(height: AppSpacing.md),
                           const Text(
-                            'No connections yet',
+                            'No conversations yet',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: AppSpacing.xs),
                           Text(
-                            'Connect with people on the Mates tab to share activities!',
+                            'Start chatting with people to share activities!',
                             textAlign: TextAlign.center,
                             style: TextStyle(color: AppColors.mediumGrey),
                           ),
@@ -176,18 +175,15 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
 
                   return ListView.builder(
                     controller: scrollController,
-                    itemCount: connections.length,
+                    itemCount: conversations.length,
                     itemBuilder: (context, index) {
-                      final friend = connections[index];
-                      // Safely extract image URL with null-safe chain
-                      final images = friend.matchedUser?.profile?.images;
-                      final imageUrl = (images != null && images.isNotEmpty) ? images.first : null;
+                      final conversation = conversations[index];
                       return ListTile(
                         leading: UserAvatar(
-                          imageUrl: imageUrl,
+                          imageUrl: conversation.otherUserImage,
                           size: 45,
                         ),
-                        title: Text(friend.matchedUser?.userName ?? 'Friend'),
+                        title: Text(conversation.otherUserName ?? 'Friend'),
                         subtitle: Text(
                           'Tap to send activity',
                           style: TextStyle(color: AppColors.mediumGrey, fontSize: 12),
@@ -212,7 +208,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
                         ),
                         onTap: () {
                           Navigator.pop(context);
-                          _sendToFriend(friend, activity);
+                          _sendToConversation(conversation, activity);
                         },
                       );
                     },
@@ -226,17 +222,14 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
     );
   }
 
-  void _sendToFriend(dynamic friend, dynamic activity) async {
+  void _sendToConversation(dynamic conversation, dynamic activity) async {
     HapticFeedback.mediumImpact();
 
-    // Get ChatController and send the activity share message
     final chatController = Get.find<ChatController>();
-    final friendUserId = friend.matchedUser?.userId ?? friend.userId;
-    final friendName = friend.matchedUser?.userName ?? 'your friend';
+    final friendName = conversation.otherUserName ?? 'your friend';
 
-    if (friendUserId != null) {
-      // Create a message about the activity
-      final activityMessage = '''Check out this activity!
+    // Create a message about the activity
+    final activityMessage = '''Check out this activity!
 
 ${activity.displayName}
 ${activity.location ?? 'Location TBD'}
@@ -244,34 +237,14 @@ ${activity.dateTime != null ? DateFormat('EEEE, MMMM d at h:mm a').format(activi
 
 Want to join me?''';
 
-      // Send the message via ChatController
-      final success = await chatController.sendMessage(content: activityMessage);
+    // Navigate to the chat and send the message
+    Nav.toChat(conversation);
 
-      if (success) {
-        Get.snackbar(
-          'Activity Shared!',
-          'Sent "${activity.displayName}" to $friendName',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: AppColors.success,
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(AppSpacing.md),
-          duration: const Duration(seconds: 3),
-          icon: const Icon(Icons.check_circle, color: Colors.white),
-        );
-      } else {
-        // If direct send failed, navigate to chat with the user
-        Nav.toChatList();
-        Get.snackbar(
-          'Open Chat',
-          'Navigate to $friendName to share the activity',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: AppColors.primaryBlue,
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(AppSpacing.md),
-          duration: const Duration(seconds: 3),
-        );
-      }
-    } else {
+    // Give time for navigation then send the message
+    await Future.delayed(const Duration(milliseconds: 300));
+    final success = await chatController.sendMessage(content: activityMessage);
+
+    if (success) {
       Get.snackbar(
         'Activity Shared!',
         'Sent "${activity.displayName}" to $friendName',
@@ -473,28 +446,25 @@ Join me! 🎉
                           itemCount: activity.attendees.length,
                           itemBuilder: (context, index) {
                             final attendee = activity.attendees[index];
-                            return GestureDetector(
-                              onTap: () => Nav.toMateProfile(attendee.userId!),
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(right: AppSpacing.md),
-                                child: Column(
-                                  children: [
-                                    UserAvatar(
-                                      imageUrl: attendee.profileImage,
-                                      size: 50,
-                                    ),
-                                    const SizedBox(height: AppSpacing.xs),
-                                    Text(
-                                      attendee.name ?? 'User',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.only(right: AppSpacing.md),
+                              child: Column(
+                                children: [
+                                  UserAvatar(
+                                    imageUrl: attendee.profileImage,
+                                    size: 50,
+                                  ),
+                                  const SizedBox(height: AppSpacing.xs),
+                                  Text(
+                                    attendee.name ?? 'User',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
                               ),
                             );
                           },

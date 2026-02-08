@@ -42,9 +42,10 @@ class BusinessRewardsController extends GetxController {
 
     try {
       final response = await _repository.getRewardsSummary();
-      if (response.success && response.data != null) {
-        rewardsSummary.value = response.data;
-        pendingRewards.value = response.data!.recentRewards
+      final data = response.data;
+      if (response.success && data != null) {
+        rewardsSummary.value = data;
+        pendingRewards.value = data.recentRewards
             .where((r) => r.status == RewardStatus.pending)
             .toList();
       } else {
@@ -80,13 +81,14 @@ class BusinessRewardsController extends GetxController {
         limit: pageSize,
       );
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         if (refresh) {
-          rewards.value = response.data!;
+          rewards.value = data;
         } else {
-          rewards.addAll(response.data!);
+          rewards.addAll(data);
         }
-        hasMoreRewards.value = response.data!.length >= pageSize;
+        hasMoreRewards.value = data.length >= pageSize;
         if (hasMoreRewards.value) {
           currentPage.value++;
         }

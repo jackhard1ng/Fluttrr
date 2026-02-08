@@ -110,14 +110,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                   label: 'Home',
                 ),
                 const BottomNavigationBarItem(
-                  icon: Icon(Icons.people_outline),
-                  activeIcon: Icon(Icons.people),
-                  label: 'Mates',
-                ),
-                const BottomNavigationBarItem(
-                  icon: Icon(Icons.event_outlined),
-                  activeIcon: Icon(Icons.event),
-                  label: 'Activities',
+                  icon: Icon(Icons.explore_outlined),
+                  activeIcon: Icon(Icons.explore),
+                  label: 'Explore',
                 ),
                 BottomNavigationBarItem(
                   icon: _buildChatIcon(false),

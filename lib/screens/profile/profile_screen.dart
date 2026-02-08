@@ -83,9 +83,8 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: AppSpacing.lg),
 
                   // Bio
-                  if (profileController.bio != null &&
-                      profileController.bio!.isNotEmpty)
-                    _BioSection(bio: profileController.bio!),
+                  if (profileController.bio case final bio? when bio.isNotEmpty)
+                    _BioSection(bio: bio),
 
                   const SizedBox(height: AppSpacing.lg),
 
@@ -377,7 +376,7 @@ class _StatCard extends StatelessWidget {
         Nav.toDiscover();
         break;
       case 'friends':
-        Nav.toMatches();
+        Nav.toChatList();
         break;
       case 'attended':
         Get.snackbar(

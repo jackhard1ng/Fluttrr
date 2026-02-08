@@ -19,9 +19,6 @@ import '../screens/discover/saved_events_screen.dart';
 import '../screens/discover/create_event_screen.dart';
 import '../screens/discover/quick_hangout_screen.dart';
 import '../screens/discover/swipe_discover_screen.dart';
-import '../screens/mates/friends_list_screen.dart';
-import '../screens/mates/matches_screen.dart';
-import '../screens/mates/mate_profile_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/profile/settings_screen.dart';
 import '../screens/profile/privacy_settings_screen.dart';
@@ -81,10 +78,6 @@ class AppRoutes {
   static const quickHangout = '/quick-hangout';
   static const swipeDiscover = '/discover';
 
-  // Mates
-  static const friends = '/friends';
-  static const matches = '/matches';
-  static const mateProfile = '/mate-profile';
 
   // Profile
   static const profile = '/profile';
@@ -224,26 +217,6 @@ class AppPages {
       name: AppRoutes.swipeDiscover,
       page: () => const SwipeDiscoverScreen(),
       transition: Transition.fadeIn,
-    ),
-
-    // Mates
-    GetPage(
-      name: AppRoutes.friends,
-      page: () => const FriendsListScreen(),
-      transition: Transition.rightToLeft,
-    ),
-    GetPage(
-      name: AppRoutes.matches,
-      page: () => const MatchesScreen(),
-      transition: Transition.rightToLeft,
-    ),
-    GetPage(
-      name: AppRoutes.mateProfile,
-      page: () {
-        final userId = Get.arguments as int? ?? 0;
-        return MateProfileScreen(userId: userId);
-      },
-      transition: Transition.rightToLeft,
     ),
 
     // Profile
@@ -570,14 +543,6 @@ class Nav {
   static void toCreateEvent() => Get.toNamed(AppRoutes.createEvent);
   static void toQuickHangout() => Get.toNamed(AppRoutes.quickHangout);
   static void toSwipeDiscover() => Get.toNamed(AppRoutes.swipeDiscover);
-
-  // Mates
-  static void toFriends() => Get.toNamed(AppRoutes.friends);
-  static void toMatches() => Get.toNamed(AppRoutes.matches);
-  static void toMateProfile(int userId) => Get.toNamed(
-        AppRoutes.mateProfile,
-        arguments: userId,
-      );
 
   // Profile
   static void toProfile() => Get.toNamed(AppRoutes.profile);

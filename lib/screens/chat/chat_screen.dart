@@ -76,15 +76,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            if (widget.conversation.otherUserId != null && !widget.isBusiness)
-              ListTile(
-                leading: Icon(Icons.person_outline, color: AppColors.primaryBlue),
-                title: const Text('View profile'),
-                onTap: () {
-                  Navigator.pop(context);
-                  Nav.toMateProfile(widget.conversation.otherUserId!);
-                },
-              ),
             ListTile(
               leading: Icon(Icons.notifications_off_outlined, color: AppColors.mediumGrey),
               title: const Text('Mute notifications'),
@@ -180,43 +171,38 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
-        title: GestureDetector(
-          onTap: widget.conversation.otherUserId != null && !widget.isBusiness
-              ? () => Nav.toMateProfile(widget.conversation.otherUserId!)
-              : null,
-          child: Row(
-            children: [
-              UserAvatar(
-                imageUrl: widget.conversation.profileImage,
-                size: 40,
-                showOnlineIndicator: true,
-                isOnline: widget.conversation.isOnline,
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.conversation.displayName,
-                      style: Theme.of(context).textTheme.titleMedium,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+        title: Row(
+          children: [
+            UserAvatar(
+              imageUrl: widget.conversation.profileImage,
+              size: 40,
+              showOnlineIndicator: true,
+              isOnline: widget.conversation.isOnline,
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.conversation.displayName,
+                    style: Theme.of(context).textTheme.titleMedium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    widget.conversation.isOnline ? 'Online' : 'Offline',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: widget.conversation.isOnline
+                          ? AppColors.success
+                          : AppColors.grey,
                     ),
-                    Text(
-                      widget.conversation.isOnline ? 'Online' : 'Offline',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: widget.conversation.isOnline
-                            ? AppColors.success
-                            : AppColors.grey,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
         actions: [
           IconButton(
@@ -389,20 +375,21 @@ class _DateSeparator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (date == null) return const SizedBox.shrink();
+    final dateValue = date;
+    if (dateValue == null) return const SizedBox.shrink();
 
     String text;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
-    final messageDate = DateTime(date!.year, date!.month, date!.day);
+    final messageDate = DateTime(dateValue.year, dateValue.month, dateValue.day);
 
     if (messageDate == today) {
       text = 'Today';
     } else if (messageDate == yesterday) {
       text = 'Yesterday';
     } else {
-      text = DateFormat('MMMM d, y').format(date!);
+      text = DateFormat('MMMM d, y').format(dateValue);
     }
 
     return Padding(

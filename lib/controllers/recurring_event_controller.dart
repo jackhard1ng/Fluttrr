@@ -81,9 +81,10 @@ class RecurringEventController extends GetxController {
 
     try {
       final response = await _repository.getRecurringSeries(seriesId: seriesId);
-      if (response.success && response.data != null) {
-        currentSeries.value = response.data;
-        upcomingInstances.value = response.data!.upcomingInstances;
+      final data = response.data;
+      if (response.success && data != null) {
+        currentSeries.value = data;
+        upcomingInstances.value = data.upcomingInstances;
       } else {
         errorMessage.value = response.error ?? 'Failed to load series';
       }

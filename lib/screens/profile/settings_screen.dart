@@ -525,7 +525,7 @@ class _AdminPanelTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Check if admin controller exists and user is admin
-    final AdminController? adminController;
+    final AdminController adminController;
     try {
       adminController = Get.find<AdminController>();
     } catch (_) {
@@ -535,7 +535,7 @@ class _AdminPanelTile extends StatelessWidget {
     }
 
     return Obx(() {
-      if (!adminController!.isAdmin) {
+      if (!adminController.isAdmin) {
         return const SizedBox.shrink();
       }
 

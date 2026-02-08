@@ -114,8 +114,9 @@ class WaitlistEntryModel {
   bool get offerExpired => offerExpiresAt?.isBefore(DateTime.now()) ?? false;
 
   Duration? get timeUntilOfferExpires {
-    if (offerExpiresAt == null) return null;
-    return offerExpiresAt!.difference(DateTime.now());
+    final expiresAt = offerExpiresAt;
+    if (expiresAt == null) return null;
+    return expiresAt.difference(DateTime.now());
   }
 
   String get positionDisplay => '#$position';

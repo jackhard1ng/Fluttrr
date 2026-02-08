@@ -102,9 +102,10 @@ class FollowController extends GetxController {
         enableNotifications: enableNotifications,
       );
 
-      if (response.success && response.data != null) {
-        followedBusinesses.add(response.data!);
-        successMessage.value = 'Now following ${response.data!.businessName}';
+      final data = response.data;
+      if (response.success && data != null) {
+        followedBusinesses.add(data);
+        successMessage.value = 'Now following ${data.businessName}';
         return true;
       } else {
         errorMessage.value = response.error ?? 'Failed to follow business';
@@ -174,17 +175,18 @@ class FollowController extends GetxController {
         updates: updates,
       );
 
-      if (response.success && response.data != null) {
-        notificationSettings[businessId] = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        notificationSettings[businessId] = data;
 
         // Update in followed businesses list
         final index = followedBusinesses.indexWhere((b) => b.businessId == businessId);
         if (index != -1) {
           followedBusinesses[index] = followedBusinesses[index].copyWith(
-            notificationsEnabled: response.data!.newEvents ||
-                response.data!.eventReminders ||
-                response.data!.promotions ||
-                response.data!.updates,
+            notificationsEnabled: data.newEvents ||
+                data.eventReminders ||
+                data.promotions ||
+                data.updates,
           );
         }
 

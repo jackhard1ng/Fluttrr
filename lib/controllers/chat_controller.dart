@@ -277,7 +277,7 @@ class ChatController extends GetxController {
     final text = content ?? messageController.text.trim();
     if (text.isEmpty && imageUrl == null) return false;
     final conv = currentConversation.value;
-    if (conv?.otherUserId == null) return false;
+    if (conv == null || conv.otherUserId == null) return false;
 
     isSending.value = true;
     messageController.clear();
@@ -286,7 +286,7 @@ class ChatController extends GetxController {
     final tempMessage = ChatMessage(
       messageId: DateTime.now().millisecondsSinceEpoch.toString(),
       senderId: _currentUserId ?? 1,
-      receiverId: conv!.otherUserId,
+      receiverId: conv.otherUserId,
       content: text.isNotEmpty ? text : null,
       imageUrl: imageUrl,
       timestamp: DateTime.now(),
@@ -376,16 +376,17 @@ class ChatController extends GetxController {
 
   /// Load cached messages
   void _loadCachedMessages(int? userId) {
-    if (userId == null || _chatBox == null) return;
+    final chatBox = _chatBox;
+    if (userId == null || chatBox == null) return;
 
     try {
       final messages = <ChatMessage>[];
 
-      for (var key in _chatBox!.keys) {
+      for (var key in chatBox.keys) {
         final keyStr = key.toString();
         if (keyStr.contains('${_currentUserId}_$userId') ||
             keyStr.contains('${userId}_$_currentUserId')) {
-          final data = _chatBox!.get(key);
+          final data = chatBox.get(key);
           if (data != null) {
             messages.add(ChatMessage.fromJson(Map<String, dynamic>.from(data)));
           }

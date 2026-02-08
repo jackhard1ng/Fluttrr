@@ -421,23 +421,27 @@ class SocketService {
     disconnect();
 
     // Close and nullify stream controllers
-    if (_statusController != null && !_statusController!.isClosed) {
-      _statusController!.close();
+    final statusController = _statusController;
+    if (statusController != null && !statusController.isClosed) {
+      statusController.close();
     }
     _statusController = null;
 
-    if (_messageController != null && !_messageController!.isClosed) {
-      _messageController!.close();
+    final messageController = _messageController;
+    if (messageController != null && !messageController.isClosed) {
+      messageController.close();
     }
     _messageController = null;
 
-    if (_typingController != null && !_typingController!.isClosed) {
-      _typingController!.close();
+    final typingController = _typingController;
+    if (typingController != null && !typingController.isClosed) {
+      typingController.close();
     }
     _typingController = null;
 
-    if (_onlineController != null && !_onlineController!.isClosed) {
-      _onlineController!.close();
+    final onlineController = _onlineController;
+    if (onlineController != null && !onlineController.isClosed) {
+      onlineController.close();
     }
     _onlineController = null;
   }

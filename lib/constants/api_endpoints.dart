@@ -71,6 +71,7 @@ class ApiEndpoints {
   static String get searchActivities => '$apiBase/activity/search';
   static String get updateActivity => '$apiBase/activity/update';
   static String get deleteActivity => '$apiBase/activity/delete';
+  static String get activityImages => '$apiBase/activity/images';
   static String get upcomingActivities => '$apiBase/activity/upcoming';
   static String get createdActivitiesCount => '$apiBase/activity/created-activities-count';
   static String get joinedActivitiesCount => '$apiBase/activity/joined-activities-count';

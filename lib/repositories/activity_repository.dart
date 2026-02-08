@@ -133,9 +133,28 @@ class ActivityRepository extends BaseRepository {
       fromJson: ActivityModel.fromJson,
     );
 
-    // TODO: Handle image uploads separately if needed
+    // Upload images if activity was created successfully and images provided
+    if (response.success && response.data != null && images != null && images.isNotEmpty) {
+      final activityId = response.data?.activityId;
+      if (activityId != null) {
+        await _uploadActivityImages(activityId, images);
+      }
+    }
 
     return response;
+  }
+
+  /// Upload images for an activity
+  Future<ApiResponse<dynamic>> _uploadActivityImages(int activityId, List<File> images) async {
+    final files = <String, File>{};
+    for (var i = 0; i < images.length; i++) {
+      files['image_$i'] = images[i];
+    }
+
+    return uploadMultipleFiles<dynamic>(
+      '${ApiEndpoints.activityImages}/$activityId',
+      files: files,
+    );
   }
 
   /// Update activity
@@ -149,6 +168,7 @@ class ActivityRepository extends BaseRepository {
     DateTime? dateTime,
     String? eventType,
     int? totalSlots,
+    List<File>? images,
   }) async {
     final body = <String, dynamic>{};
     if (name != null) body['name'] = name;
@@ -160,11 +180,18 @@ class ActivityRepository extends BaseRepository {
     if (eventType != null) body['event_type'] = eventType;
     if (totalSlots != null) body['total_slots'] = totalSlots;
 
-    return put<ActivityModel>(
+    final response = await put<ActivityModel>(
       '${ApiEndpoints.updateActivity}/$activityId',
       body: body,
       fromJson: ActivityModel.fromJson,
     );
+
+    // Upload new images if provided
+    if (response.success && images != null && images.isNotEmpty) {
+      await _uploadActivityImages(activityId, images);
+    }
+
+    return response;
   }
 
   /// Delete activity

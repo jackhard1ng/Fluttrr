@@ -299,7 +299,7 @@ class PushNotificationService {
         }
         break;
       case 'match':
-        Nav.toMatches();
+        Nav.toChatList();
         break;
       case 'activity':
         if (id != null) {
@@ -310,7 +310,7 @@ class PushNotificationService {
         }
         break;
       case 'like':
-        Nav.toMatches();
+        Nav.toChatList();
         break;
       default:
         // Navigate to home

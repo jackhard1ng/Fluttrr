@@ -18,7 +18,6 @@ class HomeBindings extends Bindings {
   void dependencies() {
     Get.lazyPut(() => ProfileController());
     Get.lazyPut(() => DiscoverController());
-    Get.lazyPut(() => MatesController());
     Get.lazyPut(() => ActivityController());
     Get.lazyPut(() => NotificationsController());
   }
@@ -56,9 +55,6 @@ class AppBindings {
     if (!Get.isRegistered<DiscoverController>()) {
       Get.put(DiscoverController());
     }
-    if (!Get.isRegistered<MatesController>()) {
-      Get.put(MatesController());
-    }
     if (!Get.isRegistered<NotificationsController>()) {
       Get.put(NotificationsController());
     }
@@ -68,7 +64,6 @@ class AppBindings {
     // Clean up when leaving home
     Get.delete<ProfileController>();
     Get.delete<DiscoverController>();
-    Get.delete<MatesController>();
     Get.delete<NotificationsController>();
   }
 }

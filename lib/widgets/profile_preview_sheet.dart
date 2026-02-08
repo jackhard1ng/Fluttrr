@@ -261,7 +261,7 @@ class _ProfilePreviewContent extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
 
           // Interests
-          if (mate.interests != null && mate.interests!.isNotEmpty)
+          if (mate.interests case final interests? when interests.isNotEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
               child: Builder(
@@ -271,13 +271,13 @@ class _ProfilePreviewContent extends StatelessWidget {
                   try {
                     final profileController = Get.find<ProfileController>();
                     final currentUserInterests = profileController.currentUser.value?.profile?.interests ?? [];
-                    matchCount = mate.interests!
+                    matchCount = interests
                         .where((interest) => currentUserInterests
                             .any((userInterest) => userInterest.toLowerCase() == interest.toLowerCase()))
                         .length;
                   } catch (e) {
                     // ProfileController not available, use fallback
-                    matchCount = (mate.interests!.length * 0.6).round();
+                    matchCount = (interests.length * 0.6).round();
                   }
 
                   return Column(
@@ -302,7 +302,7 @@ class _ProfilePreviewContent extends StatelessWidget {
                           const Spacer(),
                           InterestMatchIndicator(
                             matchCount: matchCount,
-                            totalInterests: mate.interests!.length,
+                            totalInterests: interests.length,
                             compact: true,
                           ),
                         ],
@@ -311,7 +311,7 @@ class _ProfilePreviewContent extends StatelessWidget {
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: mate.interests!.take(6).map((interest) {
+                        children: interests.take(6).map((interest) {
                           return Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
@@ -412,34 +412,6 @@ class _ProfilePreviewContent extends StatelessWidget {
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-
-          // View full profile
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              if (mate.userId != null) {
-                Nav.toMateProfile(mate.userId!);
-              }
-            },
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'View Full Profile',
-                  style: TextStyle(
-                    color: AppColors.primaryBlue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                const Icon(
-                  Icons.arrow_forward,
-                  size: 16,
-                  color: AppColors.primaryBlue,
                 ),
               ],
             ),

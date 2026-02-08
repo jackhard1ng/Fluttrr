@@ -303,7 +303,7 @@ class _FreeNowCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
-        Nav.toMatches();
+        Nav.toChatList();
       },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),

@@ -211,8 +211,8 @@ class GuestController extends GetxController {
     }
 
     // Check if we can invite more guests
-    if (currentEventGuests.value != null &&
-        !currentEventGuests.value!.canInviteMore) {
+    final guests = currentEventGuests.value;
+    if (guests != null && !guests.canInviteMore) {
       errorMessage.value = 'Maximum number of guests reached';
       return false;
     }

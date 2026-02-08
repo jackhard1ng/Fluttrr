@@ -285,7 +285,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   void _navigateByType(NotificationType type) {
     switch (type) {
       case NotificationType.friend:
-        Nav.toMatches();
+        Nav.toChatList();
         break;
       case NotificationType.event:
         Nav.toDiscover();

@@ -105,7 +105,7 @@ class _ChatSettingsScreenState extends State<ChatSettingsScreen> {
                     icon: Icons.person,
                     label: 'Profile',
                     onTap: () {
-                      Nav.toMatches();
+                      Nav.toProfile();
                     },
                   ),
                   _ActionButton(
