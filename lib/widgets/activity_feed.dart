@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 
 import '../constants/utils.dart';
 
@@ -67,11 +69,235 @@ class _FeedItemCard extends StatelessWidget {
 
   const _FeedItemCard({required this.item});
 
+  void _showActivityOptions(BuildContext context) {
+    HapticFeedback.mediumImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.lightGrey,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: item.action.color.withAlpha(51),
+                    ),
+                    child: Center(
+                      child: Text(
+                        item.userName[0],
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: item.action.color,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.userName,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          '${item.action.text} ${item.eventName ?? ''}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.mediumGrey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(),
+            ListTile(
+              leading: Icon(Icons.person, color: AppColors.primaryBlue),
+              title: Text('View ${item.userName}\'s Profile'),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.lightImpact();
+                Nav.toUserProfile(
+                  userId: 'feed_${item.userName.toLowerCase().replaceAll(' ', '_')}',
+                  userName: item.userName,
+                );
+              },
+            ),
+            if (item.eventName != null)
+              ListTile(
+                leading: Icon(Icons.event, color: item.action.color),
+                title: Text('View ${item.eventName}'),
+                onTap: () {
+                  Navigator.pop(context);
+                  HapticFeedback.lightImpact();
+                  Nav.toDiscover();
+                },
+              ),
+            ListTile(
+              leading: Icon(Icons.thumb_up, color: AppColors.success),
+              title: const Text('Like This'),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.lightImpact();
+                Get.snackbar(
+                  '👍 Liked!',
+                  '${item.userName} will see your reaction',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: const Duration(seconds: 2),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.comment, color: AppColors.friendlyTeal),
+              title: const Text('Comment'),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.lightImpact();
+                _showCommentDialog(context);
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: Icon(Icons.visibility_off, color: AppColors.mediumGrey),
+              title: const Text('Hide This Update'),
+              onTap: () {
+                Navigator.pop(context);
+                HapticFeedback.lightImpact();
+                Get.snackbar(
+                  'Update Hidden',
+                  'You won\'t see similar updates from ${item.userName}',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: const Duration(seconds: 2),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showCommentDialog(BuildContext context) {
+    final commentController = TextEditingController();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          left: 16,
+          right: 16,
+          top: 16,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Comment on ${item.userName}\'s activity',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: commentController,
+              autofocus: true,
+              maxLines: 3,
+              decoration: InputDecoration(
+                hintText: 'Write a comment...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    if (commentController.text.trim().isNotEmpty) {
+                      Get.snackbar(
+                        'Comment Posted!',
+                        '${item.userName} will be notified',
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: AppColors.success,
+                        colorText: Colors.white,
+                        duration: const Duration(seconds: 2),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryBlue,
+                  ),
+                  child: const Text('Post', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        if (item.eventName != null) {
+          Nav.toDiscover();
+        } else {
+          Nav.toUserProfile(
+            userId: 'feed_${item.userName.toLowerCase().replaceAll(' ', '_')}',
+            userName: item.userName,
+          );
+        }
+      },
+      onLongPress: () => _showActivityOptions(context),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Avatar
@@ -139,6 +365,7 @@ class _FeedItemCard extends StatelessWidget {
             color: item.action.color,
           ),
         ],
+      ),
       ),
     );
   }
