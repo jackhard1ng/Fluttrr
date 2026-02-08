@@ -9,6 +9,7 @@ import '../../config/routes.dart';
 import '../../controllers/activity_controller.dart';
 import '../../controllers/profile_controller.dart';
 import '../../models/activity_model.dart';
+import '../../utils/debouncer.dart';
 import '../../widgets/common_widgets.dart';
 import '../../widgets/advanced_ux.dart';
 
@@ -267,6 +268,12 @@ class _ActivitiesMapView extends StatefulWidget {
 class _ActivitiesMapViewState extends State<_ActivitiesMapView> {
   final MapController _mapController = MapController();
   ActivityModel? _selectedActivity;
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -847,10 +854,12 @@ class _SearchBottomSheet extends StatefulWidget {
 
 class _SearchBottomSheetState extends State<_SearchBottomSheet> {
   final TextEditingController _searchController = TextEditingController();
+  final Debouncer _searchDebouncer = Debouncer(delay: const Duration(milliseconds: 400));
 
   @override
   void dispose() {
     _searchController.dispose();
+    _searchDebouncer.dispose();
     super.dispose();
   }
 
@@ -872,7 +881,12 @@ class _SearchBottomSheetState extends State<_SearchBottomSheet> {
             controller: _searchController,
             hintText: 'Search activities...',
             prefixIcon: const Icon(Icons.search),
-            onChanged: (value) => activityController.searchActivities(value),
+            onChanged: (value) {
+              // Debounce search to avoid excessive API calls
+              _searchDebouncer.run(() {
+                activityController.searchActivities(value);
+              });
+            },
           ),
           const SizedBox(height: AppSpacing.md),
 

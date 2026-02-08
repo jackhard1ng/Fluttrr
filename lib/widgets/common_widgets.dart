@@ -5,6 +5,12 @@ import '../constants/api_endpoints.dart';
 import '../constants/utils.dart';
 
 /// Safe network image widget that handles invalid URLs gracefully
+///
+/// Features:
+/// - Automatic caching with configurable memory size
+/// - Placeholder during loading with smooth transitions
+/// - Error widget on failure
+/// - Memory-efficient image resizing via cacheWidth/cacheHeight
 class SafeNetworkImage extends StatelessWidget {
   final String? imageUrl;
   final double? width;
@@ -13,6 +19,10 @@ class SafeNetworkImage extends StatelessWidget {
   final Widget? placeholder;
   final Widget? errorWidget;
   final BorderRadius? borderRadius;
+  /// Cache width for memory efficiency (auto-calculated from display width if not set)
+  final int? cacheWidth;
+  /// Cache height for memory efficiency (auto-calculated from display height if not set)
+  final int? cacheHeight;
 
   const SafeNetworkImage({
     super.key,
@@ -23,6 +33,8 @@ class SafeNetworkImage extends StatelessWidget {
     this.placeholder,
     this.errorWidget,
     this.borderRadius,
+    this.cacheWidth,
+    this.cacheHeight,
   });
 
   @override
@@ -33,16 +45,36 @@ class SafeNetworkImage extends StatelessWidget {
       return _buildPlaceholder();
     }
 
+    // Calculate cache dimensions for memory efficiency
+    // Use 2x for retina displays, capped at reasonable maximums
+    final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+    final effectiveCacheWidth = cacheWidth ??
+        (width != null ? (width! * devicePixelRatio).toInt().clamp(0, 1200) : null);
+    final effectiveCacheHeight = cacheHeight ??
+        (height != null ? (height! * devicePixelRatio).toInt().clamp(0, 1200) : null);
+
     Widget image = Image.network(
       fullUrl,
       width: width,
       height: height,
       fit: fit,
+      cacheWidth: effectiveCacheWidth,
+      cacheHeight: effectiveCacheHeight,
+      frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+        if (wasSynchronouslyLoaded) return child;
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: frame != null
+              ? child
+              : placeholder ?? _buildPlaceholder(),
+        );
+      },
       loadingBuilder: (context, child, loadingProgress) {
         if (loadingProgress == null) return child;
         return placeholder ?? _buildPlaceholder();
       },
       errorBuilder: (context, error, stackTrace) {
+        debugPrint('SafeNetworkImage error for $imageUrl: $error');
         return errorWidget ?? _buildPlaceholder();
       },
     );
@@ -946,6 +978,7 @@ class _EventTagsInputState extends State<EventTagsInput> {
               onPressed: _addTag,
               icon: const Icon(Icons.add_circle),
               color: AppColors.primaryBlue,
+              tooltip: 'Add tag',
             ),
           ],
         ),

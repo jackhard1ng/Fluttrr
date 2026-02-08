@@ -147,13 +147,14 @@ class ChatController extends GetxController {
     try {
       final senderId = data['senderId'] as int?;
       if (senderId != null) {
-        // Update messages as read
-        for (var i = 0; i < currentMessages.length; i++) {
-          if (currentMessages[i].senderId == _currentUserId &&
-              !currentMessages[i].isRead) {
-            currentMessages[i] = currentMessages[i].copyWith(isRead: true);
+        // Update messages as read - create a new list to avoid concurrent modification
+        final updatedMessages = currentMessages.map((message) {
+          if (message.senderId == _currentUserId && !message.isRead) {
+            return message.copyWith(isRead: true);
           }
-        }
+          return message;
+        }).toList();
+        currentMessages.value = updatedMessages;
       }
     } catch (e) {
       debugPrint('Error handling message read: $e');
@@ -173,9 +174,10 @@ class ChatController extends GetxController {
         : message.senderId;
 
     final index = conversations.indexWhere((c) => c.otherUserId == userId);
-    if (index != -1) {
+    // Double-check bounds to prevent race conditions with reactive lists
+    if (index != -1 && index < conversations.length) {
       final conv = conversations[index];
-      conversations[index] = ChatConversation(
+      final updatedConversation = ChatConversation(
         conversationId: conv.conversationId,
         otherUserId: conv.otherUserId,
         otherUserName: conv.otherUserName,
@@ -188,9 +190,11 @@ class ChatController extends GetxController {
         isOnline: conv.isOnline,
       );
 
-      // Move to top
-      final conversation = conversations.removeAt(index);
-      conversations.insert(0, conversation);
+      // Move to top - verify index is still valid before removeAt
+      if (index < conversations.length) {
+        conversations.removeAt(index);
+        conversations.insert(0, updatedConversation);
+      }
     }
   }
 
@@ -321,7 +325,8 @@ class ChatController extends GetxController {
 
       // Update conversation unread count
       final index = conversations.indexWhere((c) => c.otherUserId == senderId);
-      if (index != -1) {
+      // Double-check bounds to prevent race conditions with reactive lists
+      if (index != -1 && index < conversations.length) {
         final conv = conversations[index];
         conversations[index] = ChatConversation(
           conversationId: conv.conversationId,

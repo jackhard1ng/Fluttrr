@@ -12,12 +12,18 @@ import 'common_widgets.dart';
 /// Shows a quick profile preview bottom sheet
 class ProfilePreviewSheet {
   static void show(BuildContext context, MateModel mate) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _ProfilePreviewContent(mate: mate),
-    );
+    // Guard against invalid context
+    if (!context.mounted) return;
+    try {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) => _ProfilePreviewContent(mate: mate),
+      );
+    } catch (e) {
+      debugPrint('Error showing profile preview: $e');
+    }
   }
 }
 

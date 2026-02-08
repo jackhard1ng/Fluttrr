@@ -3,6 +3,52 @@ import 'package:intl/intl.dart';
 
 /// Date and time formatting utilities
 class DateTimeFormatter {
+  /// Safely parse a date string, returning fallback on failure
+  ///
+  /// Handles null, empty strings, and malformed dates gracefully
+  static DateTime? tryParse(dynamic value, {DateTime? fallback}) {
+    if (value == null) return fallback;
+    if (value is DateTime) return value;
+    if (value is! String) return fallback;
+    if (value.isEmpty) return fallback;
+
+    try {
+      return DateTime.parse(value);
+    } catch (e) {
+      // Try alternative formats
+      try {
+        // Try common formats: "MM/dd/yyyy", "dd-MM-yyyy", etc.
+        final formats = [
+          'yyyy-MM-dd',
+          'MM/dd/yyyy',
+          'dd/MM/yyyy',
+          'yyyy/MM/dd',
+          'MM-dd-yyyy',
+        ];
+        for (final format in formats) {
+          try {
+            return DateFormat(format).parse(value);
+          } catch (_) {
+            continue;
+          }
+        }
+      } catch (_) {
+        // Ignore format errors
+      }
+      debugPrint('DateTimeFormatter.tryParse: Failed to parse "$value"');
+      return fallback;
+    }
+  }
+
+  /// Parse date string, throwing if invalid (use tryParse for safe parsing)
+  static DateTime parse(dynamic value, {DateTime? fallback}) {
+    final result = tryParse(value, fallback: fallback);
+    if (result == null) {
+      throw FormatException('Unable to parse date: $value');
+    }
+    return result;
+  }
+
   /// Format date as "Mon, Jan 15"
   static String formatShortDate(DateTime date) {
     return DateFormat('E, MMM d').format(date);

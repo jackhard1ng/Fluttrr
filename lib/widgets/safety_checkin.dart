@@ -104,24 +104,36 @@ class SafetyCheckIn extends StatelessWidget {
   }
 
   void _showShareLocationSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => _ShareLocationSheet(
-        eventName: eventName,
-        eventLocation: eventLocation,
-        eventTime: eventTime,
-      ),
-    );
+    // Guard against invalid context
+    if (!context.mounted) return;
+    try {
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        isScrollControlled: true,
+        builder: (context) => _ShareLocationSheet(
+          eventName: eventName,
+          eventLocation: eventLocation,
+          eventTime: eventTime,
+        ),
+      );
+    } catch (e) {
+      debugPrint('Error showing share location sheet: $e');
+    }
   }
 
   void _showCheckInSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _CheckInSheet(eventName: eventName),
-    );
+    // Guard against invalid context
+    if (!context.mounted) return;
+    try {
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (context) => _CheckInSheet(eventName: eventName),
+      );
+    } catch (e) {
+      debugPrint('Error showing check-in sheet: $e');
+    }
   }
 }
 

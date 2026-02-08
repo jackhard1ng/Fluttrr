@@ -139,6 +139,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
               color: AppColors.mediumGrey,
               onPressed: _clearText,
               padding: EdgeInsets.zero,
+              tooltip: 'Clear search',
               constraints: const BoxConstraints(
                 minWidth: 40,
                 minHeight: 40,

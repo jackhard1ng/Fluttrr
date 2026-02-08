@@ -128,9 +128,16 @@ class ProfileController extends GetxController {
         _profileRepository.getJoinedActivitiesCount(),
       ], eagerError: false);
 
-      if (results[0].success) totalActivities.value = results[0].data ?? 0;
-      if (results[1].success) totalMatches.value = results[1].data ?? 0;
-      if (results[2].success) joinedActivities.value = results[2].data ?? 0;
+      // Safely access results with bounds checking
+      if (results.isNotEmpty && results[0].success) {
+        totalActivities.value = results[0].data ?? 0;
+      }
+      if (results.length > 1 && results[1].success) {
+        totalMatches.value = results[1].data ?? 0;
+      }
+      if (results.length > 2 && results[2].success) {
+        joinedActivities.value = results[2].data ?? 0;
+      }
     } catch (e) {
       debugPrint('Error loading statistics: $e');
     }

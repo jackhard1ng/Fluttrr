@@ -3,12 +3,14 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 import '../config/environment.dart';
 import '../models/api_response.dart';
 import '../services/token_manager.dart';
 import '../services/auth_event_handler.dart';
+import '../services/connectivity_service.dart';
 import '../services/http_utils.dart';
 
 /// Base repository with common HTTP operations
@@ -18,7 +20,22 @@ import '../services/http_utils.dart';
 /// - Configurable timeouts per request
 /// - Response caching for GET requests
 /// - Rate limiting handling
+/// - Network connectivity checks
 abstract class BaseRepository {
+  /// Check network connectivity before making requests
+  Future<bool> _checkConnectivity() async {
+    try {
+      if (Get.isRegistered<ConnectivityService>()) {
+        final connectivity = Get.find<ConnectivityService>();
+        return await connectivity.checkConnectivity();
+      }
+      // If service not registered, assume connected
+      return true;
+    } catch (e) {
+      // If check fails, proceed anyway
+      return true;
+    }
+  }
   /// Default timeout from environment config
   Duration get _defaultTimeout => Duration(seconds: AppConfig.requestTimeout);
 
@@ -62,6 +79,11 @@ abstract class BaseRepository {
     Map<String, String>? queryParams,
     RequestConfig? config,
   }) async {
+    // Check connectivity first
+    if (!await _checkConnectivity()) {
+      return ApiResponse.failure(error: 'No internet connection');
+    }
+
     try {
       var uri = Uri.parse(url);
       if (queryParams != null && queryParams.isNotEmpty) {
@@ -109,6 +131,11 @@ abstract class BaseRepository {
     bool requiresAuth = true,
     RequestConfig? config,
   }) async {
+    // Check connectivity first
+    if (!await _checkConnectivity()) {
+      return ApiResponse.failure(error: 'No internet connection');
+    }
+
     try {
       final uri = Uri.parse(url);
       final headers = await getHeaders(requiresAuth: requiresAuth);
@@ -139,6 +166,11 @@ abstract class BaseRepository {
     bool requiresAuth = true,
     RequestConfig? config,
   }) async {
+    // Check connectivity first
+    if (!await _checkConnectivity()) {
+      return ApiResponse.failure(error: 'No internet connection');
+    }
+
     try {
       final uri = Uri.parse(url);
       final headers = await getHeaders(requiresAuth: requiresAuth);
@@ -169,6 +201,11 @@ abstract class BaseRepository {
     bool requiresAuth = true,
     RequestConfig? config,
   }) async {
+    // Check connectivity first
+    if (!await _checkConnectivity()) {
+      return ApiResponse.failure(error: 'No internet connection');
+    }
+
     try {
       final uri = Uri.parse(url);
       final headers = await getHeaders(requiresAuth: requiresAuth);
@@ -198,6 +235,11 @@ abstract class BaseRepository {
     bool requiresAuth = true,
     RequestConfig? config,
   }) async {
+    // Check connectivity first
+    if (!await _checkConnectivity()) {
+      return ApiResponse.failure(error: 'No internet connection');
+    }
+
     try {
       final uri = Uri.parse(url);
       final headers = await getHeaders(requiresAuth: requiresAuth);

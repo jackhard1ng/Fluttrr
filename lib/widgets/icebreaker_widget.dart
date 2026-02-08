@@ -212,6 +212,7 @@ class _IcebreakerWidgetState extends State<IcebreakerWidget>
                   IconButton(
                     onPressed: widget.onDismiss,
                     icon: const Icon(Icons.close, color: Colors.white70),
+                    tooltip: 'Dismiss',
                   ),
               ],
             ),

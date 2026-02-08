@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/formatters.dart';
+
 /// Event model
 class EventModel {
   final String id;
@@ -64,7 +66,8 @@ class EventModel {
       description: json['description'],
       hostId: json['host_id'] ?? '',
       hostName: json['host_name'] ?? '',
-      date: DateTime.parse(json['date']),
+      // Use safe date parsing with fallback to current date
+      date: DateTimeFormatter.tryParse(json['date']) ?? DateTime.now(),
       startTime: _parseTime(json['start_time']),
       endTime: json['end_time'] != null ? _parseTime(json['end_time']) : null,
       location: json['location'] ?? '',
@@ -84,10 +87,9 @@ class EventModel {
         (s) => s.name == json['status'],
         orElse: () => EventStatus.upcoming,
       ),
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'])
-          : null,
+      // Use safe date parsing with fallback to current date
+      createdAt: DateTimeFormatter.tryParse(json['created_at']) ?? DateTime.now(),
+      updatedAt: DateTimeFormatter.tryParse(json['updated_at']),
     );
   }
 
@@ -226,12 +228,12 @@ class EventAttendee {
             )
           : null,
       isCheckedIn: json['is_checked_in'] ?? false,
-      checkedInAt: json['checked_in_at'] != null
-          ? DateTime.parse(json['checked_in_at'])
-          : null,
+      // Use safe date parsing
+      checkedInAt: DateTimeFormatter.tryParse(json['checked_in_at']),
       hasPlusOne: json['has_plus_one'] ?? false,
       plusOneName: json['plus_one_name'],
-      createdAt: DateTime.parse(json['created_at']),
+      // Use safe date parsing with fallback
+      createdAt: DateTimeFormatter.tryParse(json['created_at']) ?? DateTime.now(),
     );
   }
 }

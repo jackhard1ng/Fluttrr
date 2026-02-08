@@ -264,6 +264,7 @@ class _EventChatScreenState extends State<EventChatScreen> {
           IconButton(
             icon: const Icon(Icons.people_outline),
             onPressed: () => _showAttendees(context),
+            tooltip: 'View attendees',
           ),
         ],
       ),

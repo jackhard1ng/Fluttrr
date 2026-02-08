@@ -362,15 +362,21 @@ class _ShakeDetectorState extends State<ShakeDetector> {
 
 /// Show shake-to-report feedback dialog
 void showShakeFeedbackDialog(BuildContext context) {
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: Colors.white,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (context) => const _FeedbackSheet(),
-  );
+  // Guard against invalid context
+  try {
+    if (!context.mounted) return;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => const _FeedbackSheet(),
+    );
+  } catch (e) {
+    debugPrint('Error showing feedback dialog: $e');
+  }
 }
 
 class _FeedbackSheet extends StatefulWidget {
@@ -441,6 +447,7 @@ class _FeedbackSheetState extends State<_FeedbackSheet> {
               IconButton(
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.close),
+                tooltip: 'Close',
               ),
             ],
           ),
@@ -865,37 +872,45 @@ Future<bool> showConfirmDialog({
   String cancelText = 'Cancel',
   bool isDangerous = false,
 }) async {
-  HapticFeedback.mediumImpact();
+  // Guard against invalid context
+  if (!context.mounted) return false;
 
-  final result = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(title),
-      content: Text(message),
-      actions: [
-        TextButton(
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            Navigator.pop(context, false);
-          },
-          child: Text(cancelText),
-        ),
-        TextButton(
-          onPressed: () {
-            HapticFeedback.mediumImpact();
-            Navigator.pop(context, true);
-          },
-          child: Text(
-            confirmText,
-            style: TextStyle(
-              color: isDangerous ? AppColors.error : AppColors.primaryBlue,
-              fontWeight: FontWeight.bold,
+  try {
+    HapticFeedback.mediumImpact();
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              Navigator.pop(context, false);
+            },
+            child: Text(cancelText),
+          ),
+          TextButton(
+            onPressed: () {
+              HapticFeedback.mediumImpact();
+              Navigator.pop(context, true);
+            },
+            child: Text(
+              confirmText,
+              style: TextStyle(
+                color: isDangerous ? AppColors.error : AppColors.primaryBlue,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
 
-  return result ?? false;
+    return result ?? false;
+  } catch (e) {
+    debugPrint('Error showing confirm dialog: $e');
+    return false;
+  }
 }

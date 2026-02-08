@@ -368,11 +368,12 @@ class ActivityController extends GetxController {
     }
   }
 
-  /// Update activity join status in lists
+  /// Update activity join status in lists with bounds checking
   void _updateActivityJoinStatus(int activityId, bool joined) {
     void updateList(RxList<ActivityModel> list) {
       final index = list.indexWhere((a) => a.activityId == activityId);
-      if (index != -1) {
+      // Double-check bounds to prevent race conditions with reactive lists
+      if (index != -1 && index < list.length) {
         list[index] = list[index].copyWith(userJoined: joined);
       }
     }
@@ -392,11 +393,12 @@ class ActivityController extends GetxController {
     }
   }
 
-  /// Update activity save status in lists
+  /// Update activity save status in lists with bounds checking
   void _updateActivitySaveStatus(int activityId) {
     void updateList(RxList<ActivityModel> list) {
       final index = list.indexWhere((a) => a.activityId == activityId);
-      if (index != -1) {
+      // Double-check bounds to prevent race conditions with reactive lists
+      if (index != -1 && index < list.length) {
         final activity = list[index];
         list[index] = activity.copyWith(userSaved: !activity.userSaved);
       }
