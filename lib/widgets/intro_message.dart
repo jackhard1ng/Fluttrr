@@ -238,7 +238,10 @@ class ConnectionPrompt extends StatelessWidget {
             ),
           ),
           GestureDetector(
-            onTap: onConnect,
+            onTap: () {
+              HapticFeedback.mediumImpact();
+              onConnect?.call();
+            },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
@@ -257,7 +260,10 @@ class ConnectionPrompt extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           GestureDetector(
-            onTap: onDismiss,
+            onTap: () {
+              HapticFeedback.lightImpact();
+              onDismiss?.call();
+            },
             child: Icon(
               Icons.close,
               size: 20,
