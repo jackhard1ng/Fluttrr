@@ -29,7 +29,12 @@ class GoingWithBadge extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        if (onTap != null) {
+          HapticFeedback.lightImpact();
+          onTap!();
+        }
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
@@ -213,7 +218,12 @@ class SquadBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        if (onTap != null) {
+          HapticFeedback.lightImpact();
+          onTap!();
+        }
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(

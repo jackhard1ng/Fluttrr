@@ -139,7 +139,10 @@ class FeedbackPrompt extends StatelessWidget {
               ),
               if (onDismiss != null)
                 GestureDetector(
-                  onTap: onDismiss,
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    onDismiss!();
+                  },
                   child: Icon(Icons.close, size: 20, color: AppColors.mediumGrey),
                 ),
             ],
