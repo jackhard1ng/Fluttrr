@@ -445,6 +445,9 @@ class _EditEventScreenState extends State<EditEventScreen> {
   }
 
   void _showCancelEventDialog() {
+    // Check if context is still mounted before showing dialog (#96)
+    if (!context.mounted) return;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

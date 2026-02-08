@@ -193,6 +193,9 @@ class _FriendTile extends StatelessWidget {
   const _FriendTile({required this.friend});
 
   void _showFriendActions(BuildContext context) {
+    // Check if context is still mounted before showing bottom sheet (#91)
+    if (!context.mounted) return;
+
     HapticFeedback.mediumImpact();
     showModalBottomSheet(
       context: context,
@@ -329,6 +332,9 @@ class _FriendTile extends StatelessWidget {
   }
 
   void _confirmRemoveFriend(BuildContext context) {
+    // Check if context is still mounted before showing dialog (#91)
+    if (!context.mounted) return;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -447,6 +453,9 @@ class _PendingTile extends StatelessWidget {
   const _PendingTile({required this.friend});
 
   void _showPendingActions(BuildContext context, bool isReceived) {
+    // Check if context is still mounted before showing bottom sheet (#91)
+    if (!context.mounted) return;
+
     HapticFeedback.mediumImpact();
     showModalBottomSheet(
       context: context,

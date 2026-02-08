@@ -662,14 +662,22 @@ class BusinessController extends GetxController {
     }
   }
 
-  /// Record event click
+  /// Record event click with error handling (#90)
   Future<void> recordEventClick(int eventId) async {
-    await _businessRepository.recordEventClick(eventId);
+    try {
+      await _businessRepository.recordEventClick(eventId);
+    } catch (e) {
+      debugPrint('Error recording event click: $e');
+    }
   }
 
-  /// Record event view
+  /// Record event view with error handling (#90)
   Future<void> recordEventView(int eventId) async {
-    await _businessRepository.recordEventView(eventId);
+    try {
+      await _businessRepository.recordEventView(eventId);
+    } catch (e) {
+      debugPrint('Error recording event view: $e');
+    }
   }
 
   /// Create subscription

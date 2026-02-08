@@ -53,6 +53,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _showChatOptions(BuildContext context) {
+    // Check if context is still mounted before showing bottom sheet (#95)
+    if (!context.mounted) return;
+
     final userName = widget.conversation.displayName;
 
     showModalBottomSheet(
@@ -136,6 +139,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _showBlockConfirmation(BuildContext context, String userName) {
+    // Check if context is still mounted before showing dialog (#95)
+    if (!context.mounted) return;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -307,6 +313,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _showAttachmentOptions() {
+    // Check if context is still mounted before showing bottom sheet (#95)
+    if (!context.mounted) return;
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -426,6 +435,9 @@ class _MessageBubble extends StatelessWidget {
   });
 
   void _showMessageOptions(BuildContext context) {
+    // Check if context is still mounted before showing bottom sheet (#95)
+    if (!context.mounted) return;
+
     HapticFeedback.mediumImpact();
     showModalBottomSheet(
       context: context,

@@ -51,12 +51,16 @@ class MatesController extends GetxController {
     loadInitialData();
   }
 
-  /// Load initial data
+  /// Load initial data with proper error handling (#89)
   Future<void> loadInitialData() async {
-    await Future.wait([
-      loadNearbyMates(),
-      loadMatches(),
-    ]);
+    // Use eagerError: false so all operations complete even if one fails
+    await Future.wait(
+      [
+        loadNearbyMates(),
+        loadMatches(),
+      ],
+      eagerError: false,
+    );
   }
 
   /// Set current location

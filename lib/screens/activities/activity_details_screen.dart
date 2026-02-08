@@ -34,6 +34,9 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
   }
 
   void _showShareOptions(BuildContext context, dynamic activity) {
+    // Check if context is still mounted before showing bottom sheet (#93)
+    if (!context.mounted) return;
+
     HapticFeedback.mediumImpact();
     showModalBottomSheet(
       context: context,
@@ -100,6 +103,9 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
   }
 
   void _showFriendPicker(BuildContext context, dynamic activity) {
+    // Check if context is still mounted before showing bottom sheet (#93)
+    if (!context.mounted) return;
+
     final matesController = Get.find<MatesController>();
 
     showModalBottomSheet(

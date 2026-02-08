@@ -69,12 +69,16 @@ class ActivityController extends GetxController {
     super.onClose();
   }
 
-  /// Load initial data
+  /// Load initial data with proper error handling (#88)
   Future<void> loadInitialData() async {
-    await Future.wait([
-      loadDailyActivities(),
-      loadActivities(),
-    ]);
+    // Use eagerError: false so all operations complete even if one fails
+    await Future.wait(
+      [
+        loadDailyActivities(),
+        loadActivities(),
+      ],
+      eagerError: false,
+    );
   }
 
   /// Load daily activities

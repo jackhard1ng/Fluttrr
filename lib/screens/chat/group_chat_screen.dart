@@ -562,6 +562,9 @@ class _MessageBubble extends StatelessWidget {
   });
 
   void _showMessageOptions(BuildContext context) {
+    // Check if context is still mounted before showing bottom sheet (#94)
+    if (!context.mounted) return;
+
     HapticFeedback.mediumImpact();
     showModalBottomSheet(
       context: context,

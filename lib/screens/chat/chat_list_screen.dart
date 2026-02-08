@@ -280,6 +280,9 @@ class _ChatTile extends StatelessWidget {
   });
 
   void _showChatActions(BuildContext context) {
+    // Check if context is still mounted before showing bottom sheet (#92)
+    if (!context.mounted) return;
+
     HapticFeedback.mediumImpact();
     showModalBottomSheet(
       context: context,
@@ -469,6 +472,9 @@ class _GroupChatTile extends StatelessWidget {
   const _GroupChatTile({required this.group});
 
   void _showGroupActions(BuildContext context) {
+    // Check if context is still mounted before showing bottom sheet (#92)
+    if (!context.mounted) return;
+
     HapticFeedback.mediumImpact();
     showModalBottomSheet(
       context: context,
