@@ -72,7 +72,7 @@ class ChatController extends GetxController {
     if (_currentUserId == null) return;
 
     try {
-      _socket = io.io(
+      final socket = io.io(
         ApiEndpoints.baseUrl,
         io.OptionBuilder()
             .setTransports(['websocket'])
@@ -84,21 +84,23 @@ class ChatController extends GetxController {
             .build(),
       );
 
-      _socket!.onConnect((_) {
+      _socket = socket;
+
+      socket.onConnect((_) {
         debugPrint('Socket connected');
         isConnected.value = true;
       });
 
-      _socket!.onDisconnect((_) {
+      socket.onDisconnect((_) {
         debugPrint('Socket disconnected');
         isConnected.value = false;
       });
 
-      _socket!.on('newMessage', _handleNewMessage);
-      _socket!.on('messageRead', _handleMessageRead);
-      _socket!.on('typing', _handleTyping);
+      socket.on('newMessage', _handleNewMessage);
+      socket.on('messageRead', _handleMessageRead);
+      socket.on('typing', _handleTyping);
 
-      _socket!.connect();
+      socket.connect();
     } catch (e) {
       debugPrint('Socket connection error: $e');
     }
@@ -351,11 +353,13 @@ class ChatController extends GetxController {
 
   /// Send typing indicator
   void sendTypingIndicator() {
+    final socket = _socket;
     final conv = currentConversation.value;
-    if (_socket != null && conv?.otherUserId != null) {
-      _socket!.emit('typing', {
+    final otherUserId = conv?.otherUserId;
+    if (socket != null && otherUserId != null) {
+      socket.emit('typing', {
         'senderId': _currentUserId,
-        'receiverId': conv!.otherUserId,
+        'receiverId': otherUserId,
       });
     }
   }

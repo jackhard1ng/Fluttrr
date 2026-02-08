@@ -1,21 +1,23 @@
+import '../constants/api_endpoints.dart';
 import '../models/admin_model.dart';
+import '../models/api_response.dart';
 import 'base_repository.dart';
 
 /// Repository for admin operations
 class AdminRepository extends BaseRepository {
   /// Check if current user is an admin
   Future<ApiResponse<AdminUserModel>> checkAdminStatus() async {
-    return makeRequest(
-      () => api.get('/admin/status'),
-      (data) => AdminUserModel.fromJson(data),
+    return await get<AdminUserModel>(
+      '${ApiEndpoints.apiBase}/admin/status',
+      fromJson: (data) => AdminUserModel.fromJson(data['data'] ?? data),
     );
   }
 
   /// Get dashboard statistics
   Future<ApiResponse<AdminStatsModel>> getDashboardStats() async {
-    return makeRequest(
-      () => api.get('/admin/stats'),
-      (data) => AdminStatsModel.fromJson(data),
+    return await get<AdminStatsModel>(
+      '${ApiEndpoints.apiBase}/admin/stats',
+      fromJson: (data) => AdminStatsModel.fromJson(data['data'] ?? data),
     );
   }
 
@@ -28,19 +30,20 @@ class AdminRepository extends BaseRepository {
     DateTime? fromDate,
     DateTime? toDate,
   }) async {
-    return makeRequest(
-      () => api.get('/admin/logs', queryParameters: {
-        'page': page,
-        'limit': limit,
-        if (adminId != null) 'admin_id': adminId,
-        if (entityType != null) 'entity_type': entityType.name,
-        if (fromDate != null) 'from_date': fromDate.toIso8601String(),
-        if (toDate != null) 'to_date': toDate.toIso8601String(),
-      }),
-      (data) => (data as List)
-          .map((e) => AdminActionLogModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+    final queryParams = <String, String>{
+      'page': page.toString(),
+      'limit': limit.toString(),
+      if (adminId != null) 'admin_id': adminId,
+      if (entityType != null) 'entity_type': entityType.name,
+      if (fromDate != null) 'from_date': fromDate.toIso8601String(),
+      if (toDate != null) 'to_date': toDate.toIso8601String(),
+    };
+
+    final response = await get<dynamic>(
+      '${ApiEndpoints.apiBase}/admin/logs',
+      queryParams: queryParams,
     );
+    return parseListResponse(response, AdminActionLogModel.fromJson);
   }
 
   // ============ BUSINESS MANAGEMENT ============
@@ -55,27 +58,28 @@ class AdminRepository extends BaseRepository {
     String? sortBy,
     bool descending = true,
   }) async {
-    return makeRequest(
-      () => api.get('/admin/businesses', queryParameters: {
-        'page': page,
-        'limit': limit,
-        if (status != null) 'status': status.name,
-        if (search != null && search.isNotEmpty) 'search': search,
-        if (hasReports != null) 'has_reports': hasReports,
-        if (sortBy != null) 'sort_by': sortBy,
-        'descending': descending,
-      }),
-      (data) => (data as List)
-          .map((e) => ManagedBusinessModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+    final queryParams = <String, String>{
+      'page': page.toString(),
+      'limit': limit.toString(),
+      if (status != null) 'status': status.name,
+      if (search != null && search.isNotEmpty) 'search': search,
+      if (hasReports != null) 'has_reports': hasReports.toString(),
+      if (sortBy != null) 'sort_by': sortBy,
+      'descending': descending.toString(),
+    };
+
+    final response = await get<dynamic>(
+      '${ApiEndpoints.apiBase}/admin/businesses',
+      queryParams: queryParams,
     );
+    return parseListResponse(response, ManagedBusinessModel.fromJson);
   }
 
   /// Get business details
   Future<ApiResponse<ManagedBusinessModel>> getBusinessDetails(String businessId) async {
-    return makeRequest(
-      () => api.get('/admin/businesses/$businessId'),
-      (data) => ManagedBusinessModel.fromJson(data),
+    return await get<ManagedBusinessModel>(
+      '${ApiEndpoints.apiBase}/admin/businesses/$businessId',
+      fromJson: (data) => ManagedBusinessModel.fromJson(data['data'] ?? data),
     );
   }
 
@@ -85,12 +89,13 @@ class AdminRepository extends BaseRepository {
     bool approve = true,
     String? rejectionReason,
   }) async {
-    return makeRequest(
-      () => api.post('/admin/businesses/$businessId/verify', data: {
+    return await post<ManagedBusinessModel>(
+      '${ApiEndpoints.apiBase}/admin/businesses/$businessId/verify',
+      body: {
         'approved': approve,
         if (!approve && rejectionReason != null) 'reason': rejectionReason,
-      }),
-      (data) => ManagedBusinessModel.fromJson(data),
+      },
+      fromJson: (data) => ManagedBusinessModel.fromJson(data['data'] ?? data),
     );
   }
 
@@ -100,20 +105,21 @@ class AdminRepository extends BaseRepository {
     required String reason,
     int? durationDays,
   }) async {
-    return makeRequest(
-      () => api.post('/admin/businesses/$businessId/suspend', data: {
+    return await post<ManagedBusinessModel>(
+      '${ApiEndpoints.apiBase}/admin/businesses/$businessId/suspend',
+      body: {
         'reason': reason,
         if (durationDays != null) 'duration_days': durationDays,
-      }),
-      (data) => ManagedBusinessModel.fromJson(data),
+      },
+      fromJson: (data) => ManagedBusinessModel.fromJson(data['data'] ?? data),
     );
   }
 
   /// Unsuspend a business
   Future<ApiResponse<ManagedBusinessModel>> unsuspendBusiness(String businessId) async {
-    return makeRequest(
-      () => api.post('/admin/businesses/$businessId/unsuspend'),
-      (data) => ManagedBusinessModel.fromJson(data),
+    return await post<ManagedBusinessModel>(
+      '${ApiEndpoints.apiBase}/admin/businesses/$businessId/unsuspend',
+      fromJson: (data) => ManagedBusinessModel.fromJson(data['data'] ?? data),
     );
   }
 
@@ -122,19 +128,22 @@ class AdminRepository extends BaseRepository {
     required String businessId,
     required String reason,
   }) async {
-    return makeRequest(
-      () => api.delete('/admin/businesses/$businessId', data: {
-        'reason': reason,
-      }),
-      (data) => true,
+    final response = await delete<dynamic>(
+      '${ApiEndpoints.apiBase}/admin/businesses/$businessId',
+    );
+    return ApiResponse<bool>(
+      success: response.success,
+      data: response.success,
+      error: response.error,
+      statusCode: response.statusCode,
     );
   }
 
   /// Toggle business featured status
   Future<ApiResponse<ManagedBusinessModel>> toggleBusinessFeatured(String businessId) async {
-    return makeRequest(
-      () => api.post('/admin/businesses/$businessId/toggle-featured'),
-      (data) => ManagedBusinessModel.fromJson(data),
+    return await post<ManagedBusinessModel>(
+      '${ApiEndpoints.apiBase}/admin/businesses/$businessId/toggle-featured',
+      fromJson: (data) => ManagedBusinessModel.fromJson(data['data'] ?? data),
     );
   }
 
@@ -147,16 +156,17 @@ class AdminRepository extends BaseRepository {
     String? ownerId,
     bool autoVerify = false,
   }) async {
-    return makeRequest(
-      () => api.post('/admin/businesses', data: {
+    return await post<ManagedBusinessModel>(
+      '${ApiEndpoints.apiBase}/admin/businesses',
+      body: {
         'name': name,
         'email': email,
         if (phone != null) 'phone': phone,
         if (description != null) 'description': description,
         if (ownerId != null) 'owner_id': ownerId,
         'auto_verify': autoVerify,
-      }),
-      (data) => ManagedBusinessModel.fromJson(data),
+      },
+      fromJson: (data) => ManagedBusinessModel.fromJson(data['data'] ?? data),
     );
   }
 
@@ -174,37 +184,38 @@ class AdminRepository extends BaseRepository {
     String? sortBy,
     bool descending = true,
   }) async {
-    return makeRequest(
-      () => api.get('/admin/events', queryParameters: {
-        'page': page,
-        'limit': limit,
-        if (status != null) 'status': status.name,
-        if (search != null && search.isNotEmpty) 'search': search,
-        if (businessId != null) 'business_id': businessId,
-        if (hasReports != null) 'has_reports': hasReports,
-        if (isPast != null) 'is_past': isPast,
-        if (sortBy != null) 'sort_by': sortBy,
-        'descending': descending,
-      }),
-      (data) => (data as List)
-          .map((e) => ManagedEventModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+    final queryParams = <String, String>{
+      'page': page.toString(),
+      'limit': limit.toString(),
+      if (status != null) 'status': status.name,
+      if (search != null && search.isNotEmpty) 'search': search,
+      if (businessId != null) 'business_id': businessId,
+      if (hasReports != null) 'has_reports': hasReports.toString(),
+      if (isPast != null) 'is_past': isPast.toString(),
+      if (sortBy != null) 'sort_by': sortBy,
+      'descending': descending.toString(),
+    };
+
+    final response = await get<dynamic>(
+      '${ApiEndpoints.apiBase}/admin/events',
+      queryParams: queryParams,
     );
+    return parseListResponse(response, ManagedEventModel.fromJson);
   }
 
   /// Get event details
   Future<ApiResponse<ManagedEventModel>> getEventDetails(String eventId) async {
-    return makeRequest(
-      () => api.get('/admin/events/$eventId'),
-      (data) => ManagedEventModel.fromJson(data),
+    return await get<ManagedEventModel>(
+      '${ApiEndpoints.apiBase}/admin/events/$eventId',
+      fromJson: (data) => ManagedEventModel.fromJson(data['data'] ?? data),
     );
   }
 
   /// Approve an event
   Future<ApiResponse<ManagedEventModel>> approveEvent(String eventId) async {
-    return makeRequest(
-      () => api.post('/admin/events/$eventId/approve'),
-      (data) => ManagedEventModel.fromJson(data),
+    return await post<ManagedEventModel>(
+      '${ApiEndpoints.apiBase}/admin/events/$eventId/approve',
+      fromJson: (data) => ManagedEventModel.fromJson(data['data'] ?? data),
     );
   }
 
@@ -213,11 +224,10 @@ class AdminRepository extends BaseRepository {
     required String eventId,
     required String reason,
   }) async {
-    return makeRequest(
-      () => api.post('/admin/events/$eventId/reject', data: {
-        'reason': reason,
-      }),
-      (data) => ManagedEventModel.fromJson(data),
+    return await post<ManagedEventModel>(
+      '${ApiEndpoints.apiBase}/admin/events/$eventId/reject',
+      body: {'reason': reason},
+      fromJson: (data) => ManagedEventModel.fromJson(data['data'] ?? data),
     );
   }
 
@@ -227,20 +237,22 @@ class AdminRepository extends BaseRepository {
     required String reason,
     bool notifyAttendees = true,
   }) async {
-    return makeRequest(
-      () => api.delete('/admin/events/$eventId', data: {
-        'reason': reason,
-        'notify_attendees': notifyAttendees,
-      }),
-      (data) => true,
+    final response = await delete<dynamic>(
+      '${ApiEndpoints.apiBase}/admin/events/$eventId',
+    );
+    return ApiResponse<bool>(
+      success: response.success,
+      data: response.success,
+      error: response.error,
+      statusCode: response.statusCode,
     );
   }
 
   /// Toggle event featured status
   Future<ApiResponse<ManagedEventModel>> toggleEventFeatured(String eventId) async {
-    return makeRequest(
-      () => api.post('/admin/events/$eventId/toggle-featured'),
-      (data) => ManagedEventModel.fromJson(data),
+    return await post<ManagedEventModel>(
+      '${ApiEndpoints.apiBase}/admin/events/$eventId/toggle-featured',
+      fromJson: (data) => ManagedEventModel.fromJson(data['data'] ?? data),
     );
   }
 
@@ -254,8 +266,9 @@ class AdminRepository extends BaseRepository {
     String? businessId,
     int? maxAttendees,
   }) async {
-    return makeRequest(
-      () => api.post('/admin/events', data: {
+    return await post<ManagedEventModel>(
+      '${ApiEndpoints.apiBase}/admin/events',
+      body: {
         'title': title,
         'description': description,
         'location': location,
@@ -263,8 +276,8 @@ class AdminRepository extends BaseRepository {
         if (endDate != null) 'end_date': endDate.toIso8601String(),
         if (businessId != null) 'business_id': businessId,
         if (maxAttendees != null) 'max_attendees': maxAttendees,
-      }),
-      (data) => ManagedEventModel.fromJson(data),
+      },
+      fromJson: (data) => ManagedEventModel.fromJson(data['data'] ?? data),
     );
   }
 
@@ -281,28 +294,29 @@ class AdminRepository extends BaseRepository {
     String? sortBy,
     bool descending = true,
   }) async {
-    return makeRequest(
-      () => api.get('/admin/users', queryParameters: {
-        'page': page,
-        'limit': limit,
-        if (status != null) 'status': status.name,
-        if (search != null && search.isNotEmpty) 'search': search,
-        if (isBusinessOwner != null) 'is_business_owner': isBusinessOwner,
-        if (hasReports != null) 'has_reports': hasReports,
-        if (sortBy != null) 'sort_by': sortBy,
-        'descending': descending,
-      }),
-      (data) => (data as List)
-          .map((e) => ManagedUserModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+    final queryParams = <String, String>{
+      'page': page.toString(),
+      'limit': limit.toString(),
+      if (status != null) 'status': status.name,
+      if (search != null && search.isNotEmpty) 'search': search,
+      if (isBusinessOwner != null) 'is_business_owner': isBusinessOwner.toString(),
+      if (hasReports != null) 'has_reports': hasReports.toString(),
+      if (sortBy != null) 'sort_by': sortBy,
+      'descending': descending.toString(),
+    };
+
+    final response = await get<dynamic>(
+      '${ApiEndpoints.apiBase}/admin/users',
+      queryParams: queryParams,
     );
+    return parseListResponse(response, ManagedUserModel.fromJson);
   }
 
   /// Get user details
   Future<ApiResponse<ManagedUserModel>> getUserDetails(String userId) async {
-    return makeRequest(
-      () => api.get('/admin/users/$userId'),
-      (data) => ManagedUserModel.fromJson(data),
+    return await get<ManagedUserModel>(
+      '${ApiEndpoints.apiBase}/admin/users/$userId',
+      fromJson: (data) => ManagedUserModel.fromJson(data['data'] ?? data),
     );
   }
 
@@ -312,20 +326,21 @@ class AdminRepository extends BaseRepository {
     required String reason,
     int? durationDays,
   }) async {
-    return makeRequest(
-      () => api.post('/admin/users/$userId/suspend', data: {
+    return await post<ManagedUserModel>(
+      '${ApiEndpoints.apiBase}/admin/users/$userId/suspend',
+      body: {
         'reason': reason,
         if (durationDays != null) 'duration_days': durationDays,
-      }),
-      (data) => ManagedUserModel.fromJson(data),
+      },
+      fromJson: (data) => ManagedUserModel.fromJson(data['data'] ?? data),
     );
   }
 
   /// Unsuspend a user
   Future<ApiResponse<ManagedUserModel>> unsuspendUser(String userId) async {
-    return makeRequest(
-      () => api.post('/admin/users/$userId/unsuspend'),
-      (data) => ManagedUserModel.fromJson(data),
+    return await post<ManagedUserModel>(
+      '${ApiEndpoints.apiBase}/admin/users/$userId/unsuspend',
+      fromJson: (data) => ManagedUserModel.fromJson(data['data'] ?? data),
     );
   }
 
@@ -334,19 +349,18 @@ class AdminRepository extends BaseRepository {
     required String userId,
     required String reason,
   }) async {
-    return makeRequest(
-      () => api.post('/admin/users/$userId/ban', data: {
-        'reason': reason,
-      }),
-      (data) => ManagedUserModel.fromJson(data),
+    return await post<ManagedUserModel>(
+      '${ApiEndpoints.apiBase}/admin/users/$userId/ban',
+      body: {'reason': reason},
+      fromJson: (data) => ManagedUserModel.fromJson(data['data'] ?? data),
     );
   }
 
   /// Unban a user
   Future<ApiResponse<ManagedUserModel>> unbanUser(String userId) async {
-    return makeRequest(
-      () => api.post('/admin/users/$userId/unban'),
-      (data) => ManagedUserModel.fromJson(data),
+    return await post<ManagedUserModel>(
+      '${ApiEndpoints.apiBase}/admin/users/$userId/unban',
+      fromJson: (data) => ManagedUserModel.fromJson(data['data'] ?? data),
     );
   }
 
@@ -357,13 +371,19 @@ class AdminRepository extends BaseRepository {
     String? relatedEntityType,
     String? relatedEntityId,
   }) async {
-    return makeRequest(
-      () => api.post('/admin/users/$userId/warn', data: {
+    final response = await post<dynamic>(
+      '${ApiEndpoints.apiBase}/admin/users/$userId/warn',
+      body: {
         'message': message,
         if (relatedEntityType != null) 'entity_type': relatedEntityType,
         if (relatedEntityId != null) 'entity_id': relatedEntityId,
-      }),
-      (data) => true,
+      },
+    );
+    return ApiResponse<bool>(
+      success: response.success,
+      data: response.success,
+      error: response.error,
+      statusCode: response.statusCode,
     );
   }
 
@@ -372,11 +392,14 @@ class AdminRepository extends BaseRepository {
     required String userId,
     required String reason,
   }) async {
-    return makeRequest(
-      () => api.delete('/admin/users/$userId', data: {
-        'reason': reason,
-      }),
-      (data) => true,
+    final response = await delete<dynamic>(
+      '${ApiEndpoints.apiBase}/admin/users/$userId',
+    );
+    return ApiResponse<bool>(
+      success: response.success,
+      data: response.success,
+      error: response.error,
+      statusCode: response.statusCode,
     );
   }
 
@@ -393,28 +416,29 @@ class AdminRepository extends BaseRepository {
     String? sortBy,
     bool descending = true,
   }) async {
-    return makeRequest(
-      () => api.get('/admin/reports', queryParameters: {
-        'page': page,
-        'limit': limit,
-        if (status != null) 'status': status.name,
-        if (type != null) 'type': type.name,
-        if (entityType != null) 'entity_type': entityType.name,
-        if (assignedTo != null) 'assigned_to': assignedTo,
-        if (sortBy != null) 'sort_by': sortBy,
-        'descending': descending,
-      }),
-      (data) => (data as List)
-          .map((e) => ContentReportModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+    final queryParams = <String, String>{
+      'page': page.toString(),
+      'limit': limit.toString(),
+      if (status != null) 'status': status.name,
+      if (type != null) 'type': type.name,
+      if (entityType != null) 'entity_type': entityType.name,
+      if (assignedTo != null) 'assigned_to': assignedTo,
+      if (sortBy != null) 'sort_by': sortBy,
+      'descending': descending.toString(),
+    };
+
+    final response = await get<dynamic>(
+      '${ApiEndpoints.apiBase}/admin/reports',
+      queryParams: queryParams,
     );
+    return parseListResponse(response, ContentReportModel.fromJson);
   }
 
   /// Get report details
   Future<ApiResponse<ContentReportModel>> getReportDetails(String reportId) async {
-    return makeRequest(
-      () => api.get('/admin/reports/$reportId'),
-      (data) => ContentReportModel.fromJson(data),
+    return await get<ContentReportModel>(
+      '${ApiEndpoints.apiBase}/admin/reports/$reportId',
+      fromJson: (data) => ContentReportModel.fromJson(data['data'] ?? data),
     );
   }
 
@@ -423,11 +447,10 @@ class AdminRepository extends BaseRepository {
     required String reportId,
     required String adminId,
   }) async {
-    return makeRequest(
-      () => api.post('/admin/reports/$reportId/assign', data: {
-        'admin_id': adminId,
-      }),
-      (data) => ContentReportModel.fromJson(data),
+    return await post<ContentReportModel>(
+      '${ApiEndpoints.apiBase}/admin/reports/$reportId/assign',
+      body: {'admin_id': adminId},
+      fromJson: (data) => ContentReportModel.fromJson(data['data'] ?? data),
     );
   }
 
@@ -437,12 +460,13 @@ class AdminRepository extends BaseRepository {
     required String resolution,
     String? actionTaken,
   }) async {
-    return makeRequest(
-      () => api.post('/admin/reports/$reportId/resolve', data: {
+    return await post<ContentReportModel>(
+      '${ApiEndpoints.apiBase}/admin/reports/$reportId/resolve',
+      body: {
         'resolution': resolution,
         if (actionTaken != null) 'action_taken': actionTaken,
-      }),
-      (data) => ContentReportModel.fromJson(data),
+      },
+      fromJson: (data) => ContentReportModel.fromJson(data['data'] ?? data),
     );
   }
 
@@ -451,11 +475,12 @@ class AdminRepository extends BaseRepository {
     required String reportId,
     String? reason,
   }) async {
-    return makeRequest(
-      () => api.post('/admin/reports/$reportId/dismiss', data: {
+    return await post<ContentReportModel>(
+      '${ApiEndpoints.apiBase}/admin/reports/$reportId/dismiss',
+      body: {
         if (reason != null) 'reason': reason,
-      }),
-      (data) => ContentReportModel.fromJson(data),
+      },
+      fromJson: (data) => ContentReportModel.fromJson(data['data'] ?? data),
     );
   }
 
@@ -463,12 +488,10 @@ class AdminRepository extends BaseRepository {
 
   /// Get all admins
   Future<ApiResponse<List<AdminUserModel>>> getAdmins() async {
-    return makeRequest(
-      () => api.get('/admin/admins'),
-      (data) => (data as List)
-          .map((e) => AdminUserModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+    final response = await get<dynamic>(
+      '${ApiEndpoints.apiBase}/admin/admins',
     );
+    return parseListResponse(response, AdminUserModel.fromJson);
   }
 
   /// Add a new admin
@@ -477,13 +500,14 @@ class AdminRepository extends BaseRepository {
     required AdminRole role,
     List<String>? permissions,
   }) async {
-    return makeRequest(
-      () => api.post('/admin/admins', data: {
+    return await post<AdminUserModel>(
+      '${ApiEndpoints.apiBase}/admin/admins',
+      body: {
         'user_id': userId,
         'role': role.name,
         if (permissions != null) 'permissions': permissions,
-      }),
-      (data) => AdminUserModel.fromJson(data),
+      },
+      fromJson: (data) => AdminUserModel.fromJson(data['data'] ?? data),
     );
   }
 
@@ -493,20 +517,26 @@ class AdminRepository extends BaseRepository {
     required AdminRole role,
     List<String>? permissions,
   }) async {
-    return makeRequest(
-      () => api.put('/admin/admins/$adminId', data: {
+    return await put<AdminUserModel>(
+      '${ApiEndpoints.apiBase}/admin/admins/$adminId',
+      body: {
         'role': role.name,
         if (permissions != null) 'permissions': permissions,
-      }),
-      (data) => AdminUserModel.fromJson(data),
+      },
+      fromJson: (data) => AdminUserModel.fromJson(data['data'] ?? data),
     );
   }
 
   /// Remove admin
   Future<ApiResponse<bool>> removeAdmin(String adminId) async {
-    return makeRequest(
-      () => api.delete('/admin/admins/$adminId'),
-      (data) => true,
+    final response = await delete<dynamic>(
+      '${ApiEndpoints.apiBase}/admin/admins/$adminId',
+    );
+    return ApiResponse<bool>(
+      success: response.success,
+      data: response.success,
+      error: response.error,
+      statusCode: response.statusCode,
     );
   }
 
@@ -522,17 +552,35 @@ class AdminRepository extends BaseRepository {
     String? sortBy,
     bool descending = true,
   }) async {
-    return makeRequest(
-      () => api.get('/admin/chats', queryParameters: {
-        'page': page,
-        'limit': limit,
-        if (userId != null) 'user_id': userId,
-        if (search != null && search.isNotEmpty) 'search': search,
-        if (hasReports != null) 'has_reports': hasReports,
-        if (sortBy != null) 'sort_by': sortBy,
-        'descending': descending,
-      }),
-      (data) => (data as List).cast<Map<String, dynamic>>(),
+    final queryParams = <String, String>{
+      'page': page.toString(),
+      'limit': limit.toString(),
+      if (userId != null) 'user_id': userId,
+      if (search != null && search.isNotEmpty) 'search': search,
+      if (hasReports != null) 'has_reports': hasReports.toString(),
+      if (sortBy != null) 'sort_by': sortBy,
+      'descending': descending.toString(),
+    };
+
+    final response = await get<dynamic>(
+      '${ApiEndpoints.apiBase}/admin/chats',
+      queryParams: queryParams,
+    );
+
+    if (!response.success) {
+      return ApiResponse<List<Map<String, dynamic>>>(
+        success: false,
+        error: response.error,
+        statusCode: response.statusCode,
+      );
+    }
+
+    final data = response.data;
+    final list = extractList(data);
+    return ApiResponse<List<Map<String, dynamic>>>(
+      success: true,
+      data: list.cast<Map<String, dynamic>>(),
+      statusCode: response.statusCode,
     );
   }
 
@@ -542,12 +590,28 @@ class AdminRepository extends BaseRepository {
     int page = 1,
     int limit = 50,
   }) async {
-    return makeRequest(
-      () => api.get('/admin/chats/$chatId/messages', queryParameters: {
-        'page': page,
-        'limit': limit,
-      }),
-      (data) => (data as List).cast<Map<String, dynamic>>(),
+    final response = await get<dynamic>(
+      '${ApiEndpoints.apiBase}/admin/chats/$chatId/messages',
+      queryParams: {
+        'page': page.toString(),
+        'limit': limit.toString(),
+      },
+    );
+
+    if (!response.success) {
+      return ApiResponse<List<Map<String, dynamic>>>(
+        success: false,
+        error: response.error,
+        statusCode: response.statusCode,
+      );
+    }
+
+    final data = response.data;
+    final list = extractList(data);
+    return ApiResponse<List<Map<String, dynamic>>>(
+      success: true,
+      data: list.cast<Map<String, dynamic>>(),
+      statusCode: response.statusCode,
     );
   }
 
@@ -557,11 +621,14 @@ class AdminRepository extends BaseRepository {
     required String messageId,
     required String reason,
   }) async {
-    return makeRequest(
-      () => api.delete('/admin/chats/$chatId/messages/$messageId', data: {
-        'reason': reason,
-      }),
-      (data) => true,
+    final response = await delete<dynamic>(
+      '${ApiEndpoints.apiBase}/admin/chats/$chatId/messages/$messageId',
+    );
+    return ApiResponse<bool>(
+      success: response.success,
+      data: response.success,
+      error: response.error,
+      statusCode: response.statusCode,
     );
   }
 
@@ -571,12 +638,14 @@ class AdminRepository extends BaseRepository {
     required String reason,
     bool notifyParticipants = true,
   }) async {
-    return makeRequest(
-      () => api.delete('/admin/chats/$chatId', data: {
-        'reason': reason,
-        'notify_participants': notifyParticipants,
-      }),
-      (data) => true,
+    final response = await delete<dynamic>(
+      '${ApiEndpoints.apiBase}/admin/chats/$chatId',
+    );
+    return ApiResponse<bool>(
+      success: response.success,
+      data: response.success,
+      error: response.error,
+      statusCode: response.statusCode,
     );
   }
 
@@ -585,11 +654,29 @@ class AdminRepository extends BaseRepository {
     required String chatId,
     String format = 'json',
   }) async {
-    return makeRequest(
-      () => api.get('/admin/chats/$chatId/export', queryParameters: {
-        'format': format,
-      }),
-      (data) => data['export_url'] as String,
+    final response = await get<dynamic>(
+      '${ApiEndpoints.apiBase}/admin/chats/$chatId/export',
+      queryParams: {'format': format},
+    );
+
+    if (!response.success) {
+      return ApiResponse<String>(
+        success: false,
+        error: response.error,
+        statusCode: response.statusCode,
+      );
+    }
+
+    final data = response.data;
+    String? exportUrl;
+    if (data is Map<String, dynamic>) {
+      exportUrl = data['export_url'] as String?;
+    }
+
+    return ApiResponse<String>(
+      success: true,
+      data: exportUrl ?? '',
+      statusCode: response.statusCode,
     );
   }
 
@@ -600,13 +687,19 @@ class AdminRepository extends BaseRepository {
     required String message,
     String? messageId,
   }) async {
-    return makeRequest(
-      () => api.post('/admin/chats/$chatId/warn', data: {
+    final response = await post<dynamic>(
+      '${ApiEndpoints.apiBase}/admin/chats/$chatId/warn',
+      body: {
         'user_id': userId,
         'message': message,
         if (messageId != null) 'message_id': messageId,
-      }),
-      (data) => true,
+      },
+    );
+    return ApiResponse<bool>(
+      success: response.success,
+      data: response.success,
+      error: response.error,
+      statusCode: response.statusCode,
     );
   }
 
@@ -614,9 +707,31 @@ class AdminRepository extends BaseRepository {
 
   /// Get system settings
   Future<ApiResponse<Map<String, dynamic>>> getSystemSettings() async {
-    return makeRequest(
-      () => api.get('/admin/settings'),
-      (data) => data as Map<String, dynamic>,
+    final response = await get<dynamic>(
+      '${ApiEndpoints.apiBase}/admin/settings',
+    );
+
+    if (!response.success) {
+      return ApiResponse<Map<String, dynamic>>(
+        success: false,
+        error: response.error,
+        statusCode: response.statusCode,
+      );
+    }
+
+    final data = response.data;
+    if (data is Map<String, dynamic>) {
+      return ApiResponse<Map<String, dynamic>>(
+        success: true,
+        data: data['data'] as Map<String, dynamic>? ?? data,
+        statusCode: response.statusCode,
+      );
+    }
+
+    return ApiResponse<Map<String, dynamic>>(
+      success: true,
+      data: <String, dynamic>{},
+      statusCode: response.statusCode,
     );
   }
 
@@ -624,9 +739,32 @@ class AdminRepository extends BaseRepository {
   Future<ApiResponse<Map<String, dynamic>>> updateSystemSettings(
     Map<String, dynamic> settings,
   ) async {
-    return makeRequest(
-      () => api.put('/admin/settings', data: settings),
-      (data) => data as Map<String, dynamic>,
+    final response = await put<dynamic>(
+      '${ApiEndpoints.apiBase}/admin/settings',
+      body: settings,
+    );
+
+    if (!response.success) {
+      return ApiResponse<Map<String, dynamic>>(
+        success: false,
+        error: response.error,
+        statusCode: response.statusCode,
+      );
+    }
+
+    final data = response.data;
+    if (data is Map<String, dynamic>) {
+      return ApiResponse<Map<String, dynamic>>(
+        success: true,
+        data: data['data'] as Map<String, dynamic>? ?? data,
+        statusCode: response.statusCode,
+      );
+    }
+
+    return ApiResponse<Map<String, dynamic>>(
+      success: true,
+      data: <String, dynamic>{},
+      statusCode: response.statusCode,
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../../controllers/memory_controller.dart';
@@ -408,9 +409,7 @@ class _MemoryCard extends StatelessWidget {
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.share_outlined),
-                  onPressed: () {
-                    // TODO: Share functionality
-                  },
+                  onPressed: () => _shareMemory(context),
                 ),
               ],
             ),
@@ -505,6 +504,30 @@ class _MemoryCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _shareMemory(BuildContext context) async {
+    HapticFeedback.lightImpact();
+
+    final shareText = StringBuffer();
+    shareText.write('Check out this memory from "${memory.eventName}"');
+
+    if (memory.caption != null && memory.caption!.isNotEmpty) {
+      shareText.write('\n\n"${memory.caption}"');
+    }
+
+    shareText.write('\n\nShared via Fluttrr');
+
+    // Get the render box for share position (important for iPad)
+    final box = context.findRenderObject() as RenderBox?;
+
+    await Share.share(
+      shareText.toString(),
+      subject: 'Memory from ${memory.eventName}',
+      sharePositionOrigin: box != null
+          ? box.localToGlobal(Offset.zero) & box.size
+          : null,
     );
   }
 

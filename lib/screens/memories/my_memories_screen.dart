@@ -270,14 +270,17 @@ class _MyMemoriesScreenState extends State<MyMemoriesScreen>
   }
 
   void _showEditCaptionDialog(EventMemoryModel memory) {
-    final controller = TextEditingController(text: memory.caption);
+    final textController = TextEditingController(text: memory.caption);
+    final isUpdating = false.obs;
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => Obx(() => AlertDialog(
         title: const Text('Edit Caption'),
         content: TextField(
-          controller: controller,
+          controller: textController,
           maxLines: 3,
+          enabled: !isUpdating.value,
           decoration: const InputDecoration(
             hintText: 'Write a caption...',
             border: OutlineInputBorder(),
@@ -285,23 +288,48 @@ class _MyMemoriesScreenState extends State<MyMemoriesScreen>
         ),
         actions: [
           TextButton(
-            onPressed: () => Get.back(),
+            onPressed: isUpdating.value ? null : () => Get.back(),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
-              Get.back();
-              // TODO: Implement update caption API call
-              Get.snackbar(
-                'Updated',
-                'Caption updated successfully',
-                snackPosition: SnackPosition.BOTTOM,
+            onPressed: isUpdating.value ? null : () async {
+              final newCaption = textController.text.trim();
+              isUpdating.value = true;
+
+              final success = await _controller.updateCaption(
+                memoryId: memory.memoryId,
+                caption: newCaption,
               );
+
+              isUpdating.value = false;
+
+              if (success) {
+                Get.back();
+                Get.snackbar(
+                  'Updated',
+                  'Caption updated successfully',
+                  snackPosition: SnackPosition.BOTTOM,
+                );
+              } else {
+                Get.snackbar(
+                  'Error',
+                  _controller.errorMessage.value,
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: AppColors.error,
+                  colorText: Colors.white,
+                );
+              }
             },
-            child: const Text('Save'),
+            child: isUpdating.value
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('Save'),
           ),
         ],
-      ),
+      )),
     );
   }
 

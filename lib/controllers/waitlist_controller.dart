@@ -42,9 +42,10 @@ class WaitlistController extends GetxController {
 
     try {
       final response = await _repository.getEventWaitlist(eventId: eventId);
-      if (response.success && response.data != null) {
-        currentEventWaitlist.value = response.data;
-        currentUserEntry.value = response.data!.userEntry;
+      final data = response.data;
+      if (response.success && data != null) {
+        currentEventWaitlist.value = data;
+        currentUserEntry.value = data.userEntry;
       } else {
         errorMessage.value = response.error ?? 'Failed to load waitlist';
       }
@@ -59,8 +60,9 @@ class WaitlistController extends GetxController {
   Future<void> loadMyWaitlists() async {
     try {
       final response = await _repository.getUserWaitlists();
-      if (response.success && response.data != null) {
-        myWaitlists.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        myWaitlists.value = data;
       }
     } catch (e) {
       debugPrint('Error loading my waitlists: $e');
@@ -82,10 +84,11 @@ class WaitlistController extends GetxController {
         guestsCount: guestsCount.value > 0 ? guestsCount.value : null,
       );
 
-      if (response.success && response.data != null) {
-        currentUserEntry.value = response.data;
-        myWaitlists.add(response.data!);
-        successMessage.value = 'You\'re on the waitlist! Position: #${response.data!.position}';
+      final data = response.data;
+      if (response.success && data != null) {
+        currentUserEntry.value = data;
+        myWaitlists.add(data);
+        successMessage.value = 'You\'re on the waitlist! Position: #${data.position}';
         _clearForm();
         return true;
       } else {
@@ -140,13 +143,14 @@ class WaitlistController extends GetxController {
         accept: accept,
       );
 
-      if (response.success && response.data != null) {
-        currentUserEntry.value = response.data;
+      final data = response.data;
+      if (response.success && data != null) {
+        currentUserEntry.value = data;
 
         // Update in myWaitlists
         final index = myWaitlists.indexWhere((w) => w.waitlistId == waitlistId);
         if (index != -1) {
-          myWaitlists[index] = response.data!;
+          myWaitlists[index] = data;
         }
 
         if (accept) {
@@ -186,8 +190,9 @@ class WaitlistController extends GetxController {
     try {
       final response = await _repository.offerSpotToNextUser(eventId: eventId);
 
-      if (response.success && response.data != null) {
-        successMessage.value = 'Spot offered to ${response.data!.userName}';
+      final data = response.data;
+      if (response.success && data != null) {
+        successMessage.value = 'Spot offered to ${data.userName}';
         await loadEventWaitlist(eventId);
         return true;
       } else {
@@ -252,10 +257,11 @@ class WaitlistController extends GetxController {
   bool get hasOffer => currentUserEntry.value?.hasOffer ?? false;
   int get waitlistPosition => currentUserEntry.value?.position ?? 0;
   int get totalWaiting => currentEventWaitlist.value?.totalWaiting ?? 0;
-  bool get canJoinWaitlist =>
-      currentEventWaitlist.value?.waitlistEnabled == true &&
-      !currentEventWaitlist.value!.isFull &&
-      !isOnWaitlist;
+  bool get canJoinWaitlist {
+    final waitlist = currentEventWaitlist.value;
+    if (waitlist == null) return false;
+    return waitlist.waitlistEnabled && !waitlist.isFull && !isOnWaitlist;
+  }
 
   /// Get waitlist entries with pending offers
   List<WaitlistEntryModel> get pendingOffers =>
@@ -285,15 +291,17 @@ class WaitlistController extends GetxController {
   /// Accept offer by event ID
   Future<bool> acceptOffer(int eventId) async {
     final entry = currentUserEntry.value;
-    if (entry?.waitlistId == null) return false;
-    return respondToOffer(waitlistId: entry!.waitlistId!, accept: true);
+    final waitlistId = entry?.waitlistId;
+    if (waitlistId == null) return false;
+    return respondToOffer(waitlistId: waitlistId, accept: true);
   }
 
   /// Decline offer by event ID
   Future<bool> declineOffer(int eventId) async {
     final entry = currentUserEntry.value;
-    if (entry?.waitlistId == null) return false;
-    return respondToOffer(waitlistId: entry!.waitlistId!, accept: false);
+    final waitlistId = entry?.waitlistId;
+    if (waitlistId == null) return false;
+    return respondToOffer(waitlistId: waitlistId, accept: false);
   }
 
   /// Alias for offerSpotToNextUser

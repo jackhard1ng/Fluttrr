@@ -289,6 +289,40 @@ class MemoryController extends GetxController {
     }
   }
 
+  /// Update memory caption
+  Future<bool> updateCaption({
+    required String memoryId,
+    required String caption,
+  }) async {
+    try {
+      final response = await _repository.updateMemory(
+        memoryId: memoryId,
+        caption: caption,
+      );
+
+      if (response.success) {
+        final updatedMemory = response.data;
+        if (updatedMemory != null) {
+          _updateMemoryInLists(updatedMemory);
+        } else {
+          // If API doesn't return updated memory, update locally
+          final memory = _findMemory(memoryId);
+          if (memory != null) {
+            _updateMemoryInLists(memory.copyWith(caption: caption));
+          }
+        }
+        successMessage.value = 'Caption updated';
+        return true;
+      }
+      errorMessage.value = response.error ?? 'Failed to update caption';
+      return false;
+    } catch (e) {
+      errorMessage.value = 'Failed to update caption';
+      debugPrint('Error updating caption: $e');
+      return false;
+    }
+  }
+
   /// Delete a memory
   Future<bool> deleteMemory(String memoryId) async {
     try {

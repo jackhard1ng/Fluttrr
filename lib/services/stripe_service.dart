@@ -264,45 +264,73 @@ class StripeService {
   }
 
   /// Verify payment with server
+  ///
+  /// Uses retry logic with exponential backoff to handle transient failures.
+  /// This is critical because payment may have succeeded on Stripe's side
+  /// even if our verification request fails.
   Future<PaymentResult> verifyPayment({
     required String paymentIntentId,
+    int maxRetries = 3,
   }) async {
-    try {
-      final token = await _getAuthToken();
-      if (token == null) {
-        return PaymentResult.failure('User not authenticated');
-      }
-
-      final response = await http.post(
-        Uri.parse(ApiEndpoints.verifyPayment),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({
-          'paymentIntentId': paymentIntentId,
-        }),
-      ).timeout(_requestTimeout);
-
-      final responseData = _safeJsonDecode(response.body);
-      if (responseData == null) {
-        return PaymentResult.failure('Invalid verification response');
-      }
-
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        return PaymentResult.success(
-          message: 'Payment verified successfully',
-          data: responseData,
-        );
-      } else {
-        return PaymentResult.failure(
-          responseData['error']?.toString() ?? 'Failed to verify payment',
-        );
-      }
-    } catch (e) {
-      debugPrint('Error verifying payment: $e');
-      return PaymentResult.failure('Verification error: ${e.toString()}');
+    final token = await _getAuthToken();
+    if (token == null) {
+      return PaymentResult.failure('User not authenticated');
     }
+
+    int retryCount = 0;
+    Duration backoffDelay = const Duration(seconds: 2);
+
+    while (retryCount <= maxRetries) {
+      try {
+        final response = await http.post(
+          Uri.parse(ApiEndpoints.verifyPayment),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            'paymentIntentId': paymentIntentId,
+          }),
+        ).timeout(_requestTimeout);
+
+        final responseData = _safeJsonDecode(response.body);
+        if (responseData == null) {
+          // Invalid response - retry
+          throw Exception('Invalid verification response');
+        }
+
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          return PaymentResult.success(
+            message: 'Payment verified successfully',
+            data: responseData,
+          );
+        } else if (response.statusCode >= 500) {
+          // Server error - retry
+          throw Exception('Server error: ${response.statusCode}');
+        } else {
+          // Client error (4xx) - don't retry, return failure
+          return PaymentResult.failure(
+            responseData['error']?.toString() ?? 'Failed to verify payment',
+          );
+        }
+      } catch (e) {
+        debugPrint('Payment verification attempt ${retryCount + 1} failed: $e');
+
+        if (retryCount >= maxRetries) {
+          debugPrint('Payment verification failed after $maxRetries retries');
+          return PaymentResult.failure(
+            'Verification failed. Please check your purchase history or contact support.',
+          );
+        }
+
+        // Wait with exponential backoff before retrying
+        await Future.delayed(backoffDelay);
+        backoffDelay *= 2; // Double the delay for next retry
+        retryCount++;
+      }
+    }
+
+    return PaymentResult.failure('Verification failed after retries');
   }
 
   /// Upgrade user to premium
