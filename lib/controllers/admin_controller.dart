@@ -3,6 +3,15 @@ import 'package:get/get.dart';
 
 import '../models/admin_model.dart';
 import '../repositories/admin_repository.dart';
+import 'profile_controller.dart';
+
+/// Owner/admin emails that have full admin access
+/// Add your email here to get admin access without backend setup
+const List<String> _ownerEmails = [
+  // Add your email(s) here, for example:
+  // 'your-email@example.com',
+  // 'another-admin@example.com',
+];
 
 /// Controller for admin panel operations
 class AdminController extends GetxController {
@@ -68,6 +77,12 @@ class AdminController extends GetxController {
   Future<bool> checkAdminStatus() async {
     isLoading.value = true;
     try {
+      // First check if user's email is in the owner list (for quick setup without backend)
+      if (_checkEmailBasedAccess()) {
+        return true;
+      }
+
+      // Otherwise, check with the backend
       final response = await _repository.checkAdminStatus();
       if (response.success && response.data != null) {
         currentAdmin.value = response.data;
@@ -76,10 +91,37 @@ class AdminController extends GetxController {
       return false;
     } catch (e) {
       debugPrint('Error checking admin status: $e');
-      return false;
+      // If backend fails, still allow email-based access
+      return _checkEmailBasedAccess();
     } finally {
       isLoading.value = false;
     }
+  }
+
+  /// Check if current user's email is in the owner/admin list
+  bool _checkEmailBasedAccess() {
+    try {
+      final profileController = Get.find<ProfileController>();
+      final userEmail = profileController.currentUser.value?.email?.toLowerCase();
+
+      if (userEmail != null && _ownerEmails.any((e) => e.toLowerCase() == userEmail)) {
+        // Create an owner admin model for this user
+        currentAdmin.value = AdminUserModel(
+          adminId: 'local_owner',
+          userId: profileController.currentUser.value?.id?.toString() ?? 'owner',
+          name: profileController.currentUser.value?.userName ?? 'Owner',
+          email: userEmail,
+          role: AdminRole.owner,
+          permissions: ['all'], // Full permissions
+          isActive: true,
+          createdAt: DateTime.now(),
+        );
+        return true;
+      }
+    } catch (e) {
+      debugPrint('Error checking email-based access: $e');
+    }
+    return false;
   }
 
   /// Check if user has admin access
