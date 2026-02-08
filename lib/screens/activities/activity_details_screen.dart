@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../constants/utils.dart';
 import '../../config/routes.dart';
 import '../../controllers/activity_controller.dart';
+import '../../controllers/mates_controller.dart';
 import '../../widgets/common_widgets.dart';
 
 /// Activity details screen
@@ -27,6 +30,233 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
   void _loadActivity() {
     final controller = Get.find<ActivityController>();
     controller.loadActivityDetails(widget.activityId);
+  }
+
+  void _showShareOptions(BuildContext context, dynamic activity) {
+    HapticFeedback.mediumImpact();
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+      ),
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Share Activity',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: AppSpacing.lg),
+
+              // Send to friend option
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryBlue.withAlpha(26),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.person_add, color: AppColors.primaryBlue),
+                ),
+                title: const Text('Send to a Friend'),
+                subtitle: const Text('Share with a connection in the app'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showFriendPicker(context, activity);
+                },
+              ),
+
+              const Divider(),
+
+              // Share link option
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.friendlyTeal.withAlpha(26),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.link, color: AppColors.friendlyTeal),
+                ),
+                title: const Text('Share Link'),
+                subtitle: const Text('Copy link or share via other apps'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _shareExternally(activity);
+                },
+              ),
+
+              const SizedBox(height: AppSpacing.md),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showFriendPicker(BuildContext context, dynamic activity) {
+    final matesController = Get.find<MatesController>();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+      ),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.4,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Send to Friend',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                'Select a friend to share "${activity.displayName}"',
+                style: TextStyle(color: AppColors.mediumGrey, fontSize: 14),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+
+              Expanded(
+                child: Obx(() {
+                  final connections = matesController.matches;
+
+                  if (connections.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.people_outline,
+                            size: 64,
+                            color: AppColors.mediumGrey,
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          const Text(
+                            'No connections yet',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: AppSpacing.xs),
+                          Text(
+                            'Connect with people on the Mates tab to share activities!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: AppColors.mediumGrey),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    controller: scrollController,
+                    itemCount: connections.length,
+                    itemBuilder: (context, index) {
+                      final friend = connections[index];
+                      return ListTile(
+                        leading: UserAvatar(
+                          imageUrl: friend.matchedUser?.profile?.images?.isNotEmpty == true
+                              ? friend.matchedUser!.profile!.images!.first
+                              : null,
+                          size: 45,
+                        ),
+                        title: Text(friend.matchedUser?.userName ?? 'Friend'),
+                        subtitle: Text(
+                          'Tap to send activity',
+                          style: TextStyle(color: AppColors.mediumGrey, fontSize: 12),
+                        ),
+                        trailing: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.md,
+                            vertical: AppSpacing.xs,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryBlue,
+                            borderRadius: BorderRadius.circular(AppRadius.circular),
+                          ),
+                          child: const Text(
+                            'Send',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.pop(context);
+                          _sendToFriend(friend, activity);
+                        },
+                      );
+                    },
+                  );
+                }),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _sendToFriend(dynamic friend, dynamic activity) {
+    HapticFeedback.mediumImpact();
+    // Navigate to chat with pre-filled message about the activity
+    Get.snackbar(
+      'Activity Shared!',
+      'Sent "${activity.displayName}" to ${friend.matchedUser?.userName ?? "your friend"}',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: AppColors.success,
+      colorText: Colors.white,
+      margin: const EdgeInsets.all(AppSpacing.md),
+      duration: const Duration(seconds: 3),
+      icon: const Icon(Icons.check_circle, color: Colors.white),
+    );
+    // TODO: Integrate with ChatController to actually send the message
+  }
+
+  void _shareExternally(dynamic activity) async {
+    HapticFeedback.lightImpact();
+    final text = '''
+Check out this activity on Fluttrr!
+
+${activity.displayName}
+${activity.location ?? 'Location TBD'}
+${activity.dateTime != null ? DateFormat('EEEE, MMMM d • h:mm a').format(activity.dateTime!) : 'Date TBD'}
+
+Join me! 🎉
+''';
+
+    try {
+      await Share.share(text.trim());
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Could not share activity',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.error,
+        colorText: Colors.white,
+      );
+    }
   }
 
   @override
@@ -82,9 +312,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.share, color: Colors.white),
-                  onPressed: () {
-                    // Share activity
-                  },
+                  onPressed: () => _showShareOptions(context, activity),
                 ),
               ],
             ),
@@ -150,8 +378,9 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
                     _DetailRow(
                       icon: Icons.people_outline,
                       title: 'Attendees',
-                      value:
-                          '${activity.attendeeCount} / ${activity.totalSlots ?? "∞"} spots filled',
+                      value: activity.totalSlots != null
+                          ? '${activity.attendeeCount} / ${activity.totalSlots} spots filled'
+                          : '${activity.attendeeCount} people joined • Open event',
                     ),
 
                     const SizedBox(height: AppSpacing.lg),

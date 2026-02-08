@@ -42,6 +42,9 @@ class ProfileController extends GetxController {
   final RxList<String> selectedInterests = <String>[].obs;
   final RxList<String> selectedLanguages = <String>[].obs;
 
+  /// Browse location for finding events in different cities (travel mode)
+  final RxString browseLocation = ''.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -255,6 +258,11 @@ class ProfileController extends GetxController {
     if (locationController.text.trim().isNotEmpty) completion += 10;
     if (selectedInterests.isNotEmpty) completion += 20;
     profileCompletion.value = completion.clamp(0, 100);
+  }
+
+  /// Set browse location for finding events in different cities (travel mode)
+  void setBrowseLocation(String city) {
+    browseLocation.value = city;
   }
 
   /// Update location

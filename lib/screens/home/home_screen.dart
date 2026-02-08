@@ -7,6 +7,7 @@ import '../../config/routes.dart';
 import '../../controllers/profile_controller.dart';
 import '../../controllers/discover_controller.dart';
 import '../../controllers/notifications_controller.dart';
+import '../../models/event_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -111,20 +112,23 @@ class _HomeAppBar extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppColors.primaryBlue, AppColors.friendlyPurple],
-              ),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Center(
-              child: Text('🦋', style: TextStyle(fontSize: 20)),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.asset(
+                'assets/lgo1.png',
+                width: 36,
+                height: 36,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           const SizedBox(width: 10),
           ShaderMask(
             blendMode: BlendMode.srcIn,
-            shaderCallback: (bounds) => LinearGradient(
-              colors: [AppColors.primaryBlue, AppColors.friendlyPurple],
+            shaderCallback: (bounds) => const LinearGradient(
+              colors: [Color(0xFF0D1B4D), Color(0xFF38B6FF)], // Dark blue to light blue
             ).createShader(bounds),
             child: const Text(
               'fluttrr',
@@ -334,6 +338,9 @@ class _YourEventsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final profileController = Get.find<ProfileController>();
+    final canCreateEvents = profileController.currentUser.value?.canCreateEvents ?? false;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -378,7 +385,7 @@ class _YourEventsSection extends StatelessWidget {
                 attendees: 5,
                 color: AppColors.success,
               ),
-              const _AddEventCard(),
+              if (canCreateEvents) const _AddEventCard(),
             ],
           ),
         ),
@@ -773,11 +780,14 @@ class _TodayEventsSection extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Text(
-                    'See all',
-                    style: TextStyle(
-                      color: AppColors.primaryBlue,
-                      fontWeight: FontWeight.w600,
+                  GestureDetector(
+                    onTap: () => Nav.toActivities(),
+                    child: Text(
+                      'See all',
+                      style: TextStyle(
+                        color: AppColors.primaryBlue,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
@@ -797,6 +807,7 @@ class _TodayEventsSection extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final event = events[index];
                   return _EventListItem(
+                    eventId: event.id,
                     emoji: event.emoji ?? '📅',
                     title: event.title,
                     location: event.location,
@@ -804,6 +815,14 @@ class _TodayEventsSection extends StatelessWidget {
                     attendees: event.currentAttendees,
                     maxAttendees: event.maxAttendees,
                     hostName: event.hostName,
+                    onJoin: () {
+                      HapticFeedback.mediumImpact();
+                      controller.rsvpToEvent(event.id, RsvpStatus.going);
+                    },
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      // Navigate to event details when available
+                    },
                   );
                 },
               );
@@ -853,6 +872,7 @@ class _EmptyTodayCard extends StatelessWidget {
 }
 
 class _EventListItem extends StatelessWidget {
+  final String eventId;
   final String emoji;
   final String title;
   final String location;
@@ -860,8 +880,12 @@ class _EventListItem extends StatelessWidget {
   final int attendees;
   final int maxAttendees;
   final String hostName;
+  final bool hasJoined;
+  final VoidCallback? onJoin;
+  final VoidCallback? onTap;
 
   const _EventListItem({
+    required this.eventId,
     required this.emoji,
     required this.title,
     required this.location,
@@ -869,93 +893,155 @@ class _EventListItem extends StatelessWidget {
     required this.attendees,
     required this.maxAttendees,
     required this.hostName,
+    this.hasJoined = false,
+    this.onJoin,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(13),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: AppColors.primaryBlue.withAlpha(26),
-              borderRadius: BorderRadius.circular(AppRadius.md),
+    final bool isFull = maxAttendees > 0 && attendees >= maxAttendees;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(13),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
             ),
-            child: Center(
-              child: Text(emoji, style: const TextStyle(fontSize: 26)),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: AppColors.primaryBlue.withAlpha(26),
+                borderRadius: BorderRadius.circular(AppRadius.md),
+              ),
+              child: Center(
+                child: Text(emoji, style: const TextStyle(fontSize: 26)),
+              ),
             ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(Icons.location_on, size: 14, color: AppColors.mediumGrey),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        location,
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.location_on, size: 14, color: AppColors.mediumGrey),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          location,
+                          style: TextStyle(color: AppColors.mediumGrey, fontSize: 12),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.schedule, size: 14, color: AppColors.primaryBlue),
+                      const SizedBox(width: 4),
+                      Text(
+                        time,
+                        style: TextStyle(
+                          color: AppColors.primaryBlue,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Icon(Icons.people, size: 14, color: AppColors.mediumGrey),
+                      const SizedBox(width: 4),
+                      Text(
+                        maxAttendees > 0 ? '$attendees/$maxAttendees' : '$attendees joined',
                         style: TextStyle(color: AppColors.mediumGrey, fontSize: 12),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(Icons.schedule, size: 14, color: AppColors.primaryBlue),
-                    const SizedBox(width: 4),
-                    Text(
-                      time,
-                      style: TextStyle(
-                        color: AppColors.primaryBlue,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Icon(Icons.people, size: 14, color: AppColors.mediumGrey),
-                    const SizedBox(width: 4),
-                    Text(
-                      '$attendees/$maxAttendees',
-                      style: TextStyle(color: AppColors.mediumGrey, fontSize: 12),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.mediumGrey),
-        ],
+            const SizedBox(width: 8),
+            // Join button
+            if (hasJoined)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.success.withAlpha(26),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+                child: const Text(
+                  'Joined',
+                  style: TextStyle(
+                    color: AppColors.success,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
+            else if (!isFull && onJoin != null)
+              GestureDetector(
+                onTap: onJoin,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryBlue,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                  child: const Text(
+                    'Join',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              )
+            else if (isFull)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.mediumGrey.withAlpha(51),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+                child: Text(
+                  'Full',
+                  style: TextStyle(
+                    color: AppColors.mediumGrey,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
+            else
+              Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.mediumGrey),
+          ],
+        ),
       ),
     );
   }
@@ -1121,8 +1207,15 @@ class _TrendingCard extends StatelessWidget {
   }
 }
 
-class _SuggestedSection extends StatelessWidget {
+class _SuggestedSection extends StatefulWidget {
   const _SuggestedSection();
+
+  @override
+  State<_SuggestedSection> createState() => _SuggestedSectionState();
+}
+
+class _SuggestedSectionState extends State<_SuggestedSection> {
+  bool _hasJoined = false;
 
   @override
   Widget build(BuildContext context) {
@@ -1216,17 +1309,27 @@ class _SuggestedSection extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                decoration: BoxDecoration(
-                  color: AppColors.friendlyPurple,
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                ),
-                child: const Text(
-                  'Join',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+              GestureDetector(
+                onTap: () {
+                  if (!_hasJoined) {
+                    HapticFeedback.mediumImpact();
+                    setState(() => _hasJoined = true);
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: _hasJoined
+                        ? AppColors.success.withAlpha(26)
+                        : AppColors.friendlyPurple,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                  child: Text(
+                    _hasJoined ? 'Joined' : 'Join',
+                    style: TextStyle(
+                      color: _hasJoined ? AppColors.success : Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -1243,6 +1346,14 @@ class _CreateEventPrompt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final profileController = Get.find<ProfileController>();
+    final canCreateEvents = profileController.currentUser.value?.canCreateEvents ?? false;
+
+    // Only show for business accounts
+    if (!canCreateEvents) {
+      return const SizedBox.shrink();
+    }
+
     return Container(
       margin: const EdgeInsets.all(AppSpacing.md),
       padding: const EdgeInsets.all(AppSpacing.lg),

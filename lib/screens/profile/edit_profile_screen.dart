@@ -150,13 +150,18 @@ class EditProfileScreen extends StatelessWidget {
 
             const SizedBox(height: AppSpacing.lg),
 
-            // Location
+            // Home Location
             CustomTextField(
               controller: profileController.locationController,
-              labelText: 'Location',
-              hintText: 'Enter your city',
-              prefixIcon: const Icon(Icons.location_on_outlined),
+              labelText: 'Home Location',
+              hintText: 'Enter your home city',
+              prefixIcon: const Icon(Icons.home_outlined),
             ),
+
+            const SizedBox(height: AppSpacing.lg),
+
+            // Browse Location (for events)
+            _BrowseLocationSection(controller: profileController),
 
             const SizedBox(height: AppSpacing.lg),
 
@@ -211,6 +216,188 @@ class EditProfileScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Browse location section for finding events in different cities
+class _BrowseLocationSection extends StatelessWidget {
+  final ProfileController controller;
+
+  const _BrowseLocationSection({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              'Browse Events In',
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColors.friendlyTeal.withAlpha(26),
+                borderRadius: BorderRadius.circular(AppRadius.xs),
+              ),
+              child: const Text(
+                'Travel Mode',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: AppColors.friendlyTeal,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          'Set a different city to find events when traveling',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppColors.mediumGrey,
+              ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+
+        // Current browse location
+        Obx(() {
+          final browseLocation = controller.browseLocation.value;
+          final isUsingCurrentLocation = browseLocation.isEmpty;
+
+          return Container(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: isUsingCurrentLocation
+                  ? AppColors.primaryBlue.withAlpha(13)
+                  : AppColors.friendlyTeal.withAlpha(13),
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              border: Border.all(
+                color: isUsingCurrentLocation
+                    ? AppColors.primaryBlue.withAlpha(51)
+                    : AppColors.friendlyTeal.withAlpha(51),
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: isUsingCurrentLocation
+                        ? AppColors.primaryBlue.withAlpha(26)
+                        : AppColors.friendlyTeal.withAlpha(26),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    isUsingCurrentLocation
+                        ? Icons.my_location
+                        : Icons.flight,
+                    size: 20,
+                    color: isUsingCurrentLocation
+                        ? AppColors.primaryBlue
+                        : AppColors.friendlyTeal,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isUsingCurrentLocation
+                            ? 'Using Current Location'
+                            : 'Browsing in: $browseLocation',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        isUsingCurrentLocation
+                            ? 'Events shown near your actual location'
+                            : 'Events shown in your selected city',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.mediumGrey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (!isUsingCurrentLocation)
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 20),
+                    onPressed: () => controller.setBrowseLocation(''),
+                    color: AppColors.mediumGrey,
+                  ),
+              ],
+            ),
+          );
+        }),
+
+        const SizedBox(height: AppSpacing.md),
+
+        // Popular cities
+        Text(
+          'Popular Cities',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
+          children: [
+            'New York',
+            'Los Angeles',
+            'Chicago',
+            'Houston',
+            'Miami',
+            'Seattle',
+            'Denver',
+            'Austin',
+          ].map((city) {
+            return GestureDetector(
+              onTap: () => controller.setBrowseLocation(city),
+              child: Obx(() => Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.sm,
+                    ),
+                    decoration: BoxDecoration(
+                      color: controller.browseLocation.value == city
+                          ? AppColors.friendlyTeal
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(AppRadius.circular),
+                      border: Border.all(
+                        color: controller.browseLocation.value == city
+                            ? AppColors.friendlyTeal
+                            : AppColors.lightGrey,
+                      ),
+                    ),
+                    child: Text(
+                      city,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: controller.browseLocation.value == city
+                            ? Colors.white
+                            : AppColors.darkGrey,
+                        fontWeight: controller.browseLocation.value == city
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                    ),
+                  )),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 }

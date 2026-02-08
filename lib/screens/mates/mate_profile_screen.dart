@@ -22,6 +22,7 @@ class MateProfileScreen extends StatefulWidget {
 class _MateProfileScreenState extends State<MateProfileScreen> {
   final PageController _photoController = PageController();
   int _currentPhotoIndex = 0;
+  bool _isDetailedView = true;
 
   @override
   void initState() {
@@ -311,6 +312,91 @@ class _MateProfileScreenState extends State<MateProfileScreen> {
                       ],
                     ),
 
+                    const SizedBox(height: AppSpacing.lg),
+
+                    // View mode toggle
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: AppColors.lightGrey,
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => setState(() => _isDetailedView = false),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: !_isDetailedView
+                                      ? Colors.white
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                                  boxShadow: !_isDetailedView
+                                      ? [
+                                          BoxShadow(
+                                            color: Colors.black.withAlpha(13),
+                                            blurRadius: 4,
+                                          ),
+                                        ]
+                                      : null,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'Simple',
+                                    style: TextStyle(
+                                      fontWeight: !_isDetailedView
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      color: !_isDetailedView
+                                          ? AppColors.primaryBlue
+                                          : AppColors.mediumGrey,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => setState(() => _isDetailedView = true),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: _isDetailedView
+                                      ? Colors.white
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                                  boxShadow: _isDetailedView
+                                      ? [
+                                          BoxShadow(
+                                            color: Colors.black.withAlpha(13),
+                                            blurRadius: 4,
+                                          ),
+                                        ]
+                                      : null,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'Detailed',
+                                    style: TextStyle(
+                                      fontWeight: _isDetailedView
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      color: _isDetailedView
+                                          ? AppColors.primaryBlue
+                                          : AppColors.mediumGrey,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
                     const SizedBox(height: AppSpacing.xl),
 
                     // About section
@@ -333,7 +419,7 @@ class _MateProfileScreenState extends State<MateProfileScreen> {
                       const SizedBox(height: AppSpacing.xl),
                     ],
 
-                    // Interests section
+                    // Interests section (always shown)
                     if (user.profile?.interests != null &&
                         user.profile!.interests!.isNotEmpty) ...[
                       _SectionHeader(title: 'Interests', icon: Icons.favorite_border),
@@ -341,117 +427,152 @@ class _MateProfileScreenState extends State<MateProfileScreen> {
                       Wrap(
                         spacing: AppSpacing.sm,
                         runSpacing: AppSpacing.sm,
-                        children: user.profile!.interests!.map((interest) {
+                        children: user.profile!.interests!.take(_isDetailedView ? 100 : 5).map((interest) {
                           return _InterestChip(label: interest);
                         }).toList(),
                       ),
+                      if (!_isDetailedView && (user.profile?.interests?.length ?? 0) > 5)
+                        Padding(
+                          padding: const EdgeInsets.only(top: AppSpacing.sm),
+                          child: Text(
+                            '+${(user.profile?.interests?.length ?? 0) - 5} more',
+                            style: TextStyle(
+                              color: AppColors.primaryBlue,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
                       const SizedBox(height: AppSpacing.xl),
                     ],
 
-                    // Details section
-                    _SectionHeader(title: 'Details', icon: Icons.info_outline),
-                    const SizedBox(height: AppSpacing.sm),
-                    Container(
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      decoration: BoxDecoration(
-                        color: AppColors.lightGrey,
-                        borderRadius: BorderRadius.circular(AppRadius.md),
+                    // Detailed view sections
+                    if (_isDetailedView) ...[
+                      // Details section
+                      _SectionHeader(title: 'Details', icon: Icons.info_outline),
+                      const SizedBox(height: AppSpacing.sm),
+                      Container(
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        decoration: BoxDecoration(
+                          color: AppColors.lightGrey,
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                        ),
+                        child: Column(
+                          children: [
+                            if (user.profile?.gender != null)
+                              _DetailRow(
+                                icon: Icons.person_outline,
+                                label: 'Gender',
+                                value: user.profile!.gender!,
+                              ),
+                            if (user.profile?.location != null)
+                              _DetailRow(
+                                icon: Icons.location_on_outlined,
+                                label: 'Location',
+                                value: user.profile!.location!,
+                              ),
+                            if (user.profile?.languages != null &&
+                                user.profile!.languages!.isNotEmpty)
+                              _DetailRow(
+                                icon: Icons.language,
+                                label: 'Languages',
+                                value: user.profile!.languages!.join(', '),
+                              ),
+                          ],
+                        ),
                       ),
-                      child: Column(
+
+                      const SizedBox(height: AppSpacing.xl),
+
+                      // What I'm looking for section (mock data for demo)
+                      _SectionHeader(title: 'Looking for', icon: Icons.search),
+                      const SizedBox(height: AppSpacing.sm),
+                      Container(
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        decoration: BoxDecoration(
+                          color: AppColors.friendlyTeal.withAlpha(13),
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                          border: Border.all(color: AppColors.friendlyTeal.withAlpha(51)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _LookingForItem(emoji: '☕', text: 'Coffee buddies'),
+                            _LookingForItem(emoji: '🎮', text: 'Gaming partners'),
+                            _LookingForItem(emoji: '🚴', text: 'Workout companions'),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: AppSpacing.xl),
+
+                      // Activity stats
+                      _SectionHeader(title: 'Activity', icon: Icons.trending_up),
+                      const SizedBox(height: AppSpacing.sm),
+                      Row(
                         children: [
-                          if (user.profile?.gender != null)
-                            _DetailRow(
-                              icon: Icons.person_outline,
-                              label: 'Gender',
-                              value: user.profile!.gender!,
+                          Expanded(
+                            child: _StatCard(
+                              icon: Icons.event,
+                              value: '${user.activities?.created ?? 0}',
+                              label: 'Events Created',
+                              color: AppColors.friendlyPurple,
                             ),
-                          if (user.profile?.location != null)
-                            _DetailRow(
-                              icon: Icons.location_on_outlined,
-                              label: 'Location',
-                              value: user.profile!.location!,
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: _StatCard(
+                              icon: Icons.group,
+                              value: '${user.activities?.joined ?? 0}',
+                              label: 'Events Joined',
+                              color: AppColors.friendlyTeal,
                             ),
-                          if (user.profile?.languages != null &&
-                              user.profile!.languages!.isNotEmpty)
-                            _DetailRow(
-                              icon: Icons.language,
-                              label: 'Languages',
-                              value: user.profile!.languages!.join(', '),
-                            ),
+                          ),
                         ],
                       ),
-                    ),
 
-                    const SizedBox(height: AppSpacing.xl),
-
-                    // Activity stats
-                    _SectionHeader(title: 'Activity', icon: Icons.trending_up),
-                    const SizedBox(height: AppSpacing.sm),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _StatCard(
-                            icon: Icons.event,
-                            value: '${user.activities?.created ?? 0}',
-                            label: 'Events Created',
-                            color: AppColors.friendlyPurple,
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        Expanded(
-                          child: _StatCard(
-                            icon: Icons.group,
-                            value: '${user.activities?.joined ?? 0}',
-                            label: 'Events Joined',
-                            color: AppColors.friendlyTeal,
+                      // Photo gallery thumbnails
+                      if (photos.length > 1) ...[
+                        const SizedBox(height: AppSpacing.xl),
+                        _SectionHeader(title: 'Photos', icon: Icons.photo_library_outlined),
+                        const SizedBox(height: AppSpacing.sm),
+                        SizedBox(
+                          height: 100,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: photos.length,
+                            itemBuilder: (context, index) {
+                              return GestureDetector(
+                                onTap: () {
+                                  _photoController.animateToPage(
+                                    index,
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                  );
+                                },
+                                child: Container(
+                                  width: 100,
+                                  margin: EdgeInsets.only(
+                                    right: index < photos.length - 1 ? AppSpacing.sm : 0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(AppRadius.md),
+                                    border: Border.all(
+                                      color: _currentPhotoIndex == index
+                                          ? AppColors.primaryBlue
+                                          : Colors.transparent,
+                                      width: 2,
+                                    ),
+                                    image: DecorationImage(
+                                      image: NetworkImage(photos[index]),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ],
-                    ),
-
-                    // Photo gallery thumbnails
-                    if (photos.length > 1) ...[
-                      const SizedBox(height: AppSpacing.xl),
-                      _SectionHeader(title: 'Photos', icon: Icons.photo_library_outlined),
-                      const SizedBox(height: AppSpacing.sm),
-                      SizedBox(
-                        height: 100,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: photos.length,
-                          itemBuilder: (context, index) {
-                            return GestureDetector(
-                              onTap: () {
-                                _photoController.animateToPage(
-                                  index,
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                );
-                                // Scroll to top
-                              },
-                              child: Container(
-                                width: 100,
-                                margin: EdgeInsets.only(
-                                  right: index < photos.length - 1 ? AppSpacing.sm : 0,
-                                ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(AppRadius.md),
-                                  border: Border.all(
-                                    color: _currentPhotoIndex == index
-                                        ? AppColors.primaryBlue
-                                        : Colors.transparent,
-                                    width: 2,
-                                  ),
-                                  image: DecorationImage(
-                                    image: NetworkImage(photos[index]),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
                     ],
 
                     // Platonic friendship note
@@ -818,6 +939,37 @@ class _StatCard extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Looking for item
+class _LookingForItem extends StatelessWidget {
+  final String emoji;
+  final String text;
+
+  const _LookingForItem({
+    required this.emoji,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+      child: Row(
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 18)),
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            text,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),

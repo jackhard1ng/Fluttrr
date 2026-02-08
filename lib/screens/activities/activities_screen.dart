@@ -1,19 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:get/get.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../constants/utils.dart';
 import '../../config/routes.dart';
 import '../../controllers/activity_controller.dart';
+import '../../controllers/profile_controller.dart';
 import '../../models/activity_model.dart';
 import '../../widgets/common_widgets.dart';
 
-/// Activities main screen
-class ActivitiesScreen extends StatelessWidget {
+/// Activities main screen with list and map view toggle
+class ActivitiesScreen extends StatefulWidget {
   const ActivitiesScreen({super.key});
+
+  @override
+  State<ActivitiesScreen> createState() => _ActivitiesScreenState();
+}
+
+class _ActivitiesScreenState extends State<ActivitiesScreen> {
+  bool _isMapView = false;
 
   @override
   Widget build(BuildContext context) {
     final activityController = Get.find<ActivityController>();
+    final profileController = Get.find<ProfileController>();
+    final canCreateEvents = profileController.currentUser.value?.canCreateEvents ?? false;
 
     return Scaffold(
       body: SafeArea(
@@ -34,6 +46,62 @@ class ActivitiesScreen extends StatelessWidget {
                   ),
                   Row(
                     children: [
+                      // Map/List toggle
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.lightGrey,
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                        ),
+                        child: Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () => setState(() => _isMapView = false),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.sm,
+                                  vertical: AppSpacing.xs,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: !_isMapView
+                                      ? AppColors.primaryBlue
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                                ),
+                                child: Icon(
+                                  Icons.list,
+                                  size: 20,
+                                  color: !_isMapView
+                                      ? Colors.white
+                                      : AppColors.darkGrey,
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => setState(() => _isMapView = true),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.sm,
+                                  vertical: AppSpacing.xs,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _isMapView
+                                      ? AppColors.primaryBlue
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                                ),
+                                child: Icon(
+                                  Icons.map,
+                                  size: 20,
+                                  color: _isMapView
+                                      ? Colors.white
+                                      : AppColors.darkGrey,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
                       IconButton(
                         icon: const Icon(Icons.filter_list),
                         onPressed: () => _showFilterBottomSheet(context),
@@ -51,7 +119,7 @@ class ActivitiesScreen extends StatelessWidget {
             // Filter chips
             const _FilterChips(),
 
-            // Activities list
+            // Activities list or map
             Expanded(
               child: Obx(() {
                 if (activityController.isLoading.value &&
@@ -63,13 +131,22 @@ class ActivitiesScreen extends StatelessWidget {
                   return EmptyState(
                     icon: Icons.event_busy,
                     title: 'No Activities Found',
-                    subtitle: 'Be the first to create an activity!',
-                    action: GradientButton(
-                      text: 'Create Activity',
-                      width: 180,
-                      onPressed: () =>
-                          Nav.toCreateActivity(),
-                    ),
+                    subtitle: canCreateEvents
+                        ? 'Be the first to create an activity!'
+                        : 'Check back later for new activities!',
+                    action: canCreateEvents
+                        ? GradientButton(
+                            text: 'Create Activity',
+                            width: 180,
+                            onPressed: () => Nav.toCreateActivity(),
+                          )
+                        : null,
+                  );
+                }
+
+                if (_isMapView) {
+                  return _ActivitiesMapView(
+                    activities: activityController.allActivities,
                   );
                 }
 
@@ -96,13 +173,15 @@ class ActivitiesScreen extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Nav.toCreateActivity(),
-        icon: const Icon(Icons.add),
-        label: const Text('Create'),
-        backgroundColor: AppColors.primaryBlue,
-        foregroundColor: Colors.white,
-      ),
+      floatingActionButton: canCreateEvents
+          ? FloatingActionButton.extended(
+              onPressed: () => Nav.toCreateActivity(),
+              icon: const Icon(Icons.add),
+              label: const Text('Create'),
+              backgroundColor: AppColors.primaryBlue,
+              foregroundColor: Colors.white,
+            )
+          : null,
     );
   }
 
@@ -146,6 +225,280 @@ class ActivitiesScreen extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
       ),
       builder: (context) => const _SearchBottomSheet(),
+    );
+  }
+}
+
+/// Map view for activities
+class _ActivitiesMapView extends StatefulWidget {
+  final List<ActivityModel> activities;
+
+  const _ActivitiesMapView({required this.activities});
+
+  @override
+  State<_ActivitiesMapView> createState() => _ActivitiesMapViewState();
+}
+
+class _ActivitiesMapViewState extends State<_ActivitiesMapView> {
+  final MapController _mapController = MapController();
+  ActivityModel? _selectedActivity;
+
+  @override
+  Widget build(BuildContext context) {
+    // Get activities with valid locations
+    final activitiesWithLocation = widget.activities
+        .where((a) => a.hasLocation)
+        .toList();
+
+    // Default center (Kansas City)
+    LatLng center = const LatLng(39.0997, -94.5786);
+
+    if (activitiesWithLocation.isNotEmpty) {
+      // Center on first activity
+      center = LatLng(
+        activitiesWithLocation.first.latitude!,
+        activitiesWithLocation.first.longitude!,
+      );
+    }
+
+    return Stack(
+      children: [
+        FlutterMap(
+          mapController: _mapController,
+          options: MapOptions(
+            initialCenter: center,
+            initialZoom: 12.0,
+            onTap: (_, __) => setState(() => _selectedActivity = null),
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'com.fluttrr.app',
+            ),
+            MarkerLayer(
+              markers: activitiesWithLocation.map((activity) {
+                final isSelected = _selectedActivity?.activityId == activity.activityId;
+                return Marker(
+                  point: LatLng(activity.latitude!, activity.longitude!),
+                  width: isSelected ? 50 : 40,
+                  height: isSelected ? 50 : 40,
+                  child: GestureDetector(
+                    onTap: () => setState(() => _selectedActivity = activity),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? AppColors.primaryBlue
+                            : AppColors.friendlyTeal,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 3,
+                        ),
+                        boxShadow: AppShadows.medium,
+                      ),
+                      child: Icon(
+                        Icons.event,
+                        color: Colors.white,
+                        size: isSelected ? 24 : 20,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+
+        // Selected activity card
+        if (_selectedActivity != null)
+          Positioned(
+            bottom: AppSpacing.lg,
+            left: AppSpacing.md,
+            right: AppSpacing.md,
+            child: _MapActivityCard(
+              activity: _selectedActivity!,
+              onClose: () => setState(() => _selectedActivity = null),
+            ),
+          ),
+
+        // Empty state for no locations
+        if (activitiesWithLocation.isEmpty)
+          Center(
+            child: Container(
+              margin: const EdgeInsets.all(AppSpacing.xl),
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+                boxShadow: AppShadows.medium,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.location_off,
+                    size: 48,
+                    color: AppColors.mediumGrey,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  const Text(
+                    'No activities with locations',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    'Activities will appear on the map once they have location data',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: AppColors.mediumGrey,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Activity card shown on map when marker is selected
+class _MapActivityCard extends StatelessWidget {
+  final ActivityModel activity;
+  final VoidCallback onClose;
+
+  const _MapActivityCard({
+    required this.activity,
+    required this.onClose,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Nav.toActivityDetails(activity.activityId!),
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          boxShadow: AppShadows.large,
+        ),
+        child: Row(
+          children: [
+            // Image
+            Container(
+              width: 70,
+              height: 70,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppRadius.md),
+                image: activity.primaryImage != null
+                    ? DecorationImage(
+                        image: NetworkImage(activity.primaryImage!),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
+                color: AppColors.lightGrey,
+              ),
+              child: activity.primaryImage == null
+                  ? const Icon(Icons.event, color: AppColors.grey)
+                  : null,
+            ),
+            const SizedBox(width: AppSpacing.md),
+            // Content
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (activity.eventType != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.xs,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryBlue.withAlpha(26),
+                        borderRadius: BorderRadius.circular(AppRadius.xs),
+                      ),
+                      child: Text(
+                        activity.eventType!,
+                        style: const TextStyle(
+                          color: AppColors.primaryBlue,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    activity.displayName,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.location_on,
+                        size: 12,
+                        color: AppColors.mediumGrey,
+                      ),
+                      const SizedBox(width: 2),
+                      Expanded(
+                        child: Text(
+                          activity.location ?? 'Location TBD',
+                          style: TextStyle(
+                            color: AppColors.mediumGrey,
+                            fontSize: 12,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.people,
+                        size: 12,
+                        color: AppColors.mediumGrey,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        activity.totalSlots != null
+                            ? '${activity.attendeeCount}/${activity.totalSlots}'
+                            : '${activity.attendeeCount} joined',
+                        style: TextStyle(
+                          color: AppColors.mediumGrey,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // Close button
+            IconButton(
+              onPressed: onClose,
+              icon: Icon(
+                Icons.close,
+                color: AppColors.mediumGrey,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -327,7 +680,9 @@ class ActivityCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '${activity.attendeeCount}/${activity.totalSlots ?? "∞"}',
+                            activity.totalSlots != null
+                                ? '${activity.attendeeCount}/${activity.totalSlots}'
+                                : '${activity.attendeeCount} joined',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],

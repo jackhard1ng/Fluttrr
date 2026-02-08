@@ -306,7 +306,7 @@ class _ProfileCompletion extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   percentage < 1
-                      ? 'Complete your profile to get more matches!'
+                      ? 'Complete your profile to make more connections!'
                       : 'Your profile is complete!',
                   style: TextStyle(
                     color: Colors.white.withAlpha(204),
@@ -339,15 +339,15 @@ class _StatsSection extends StatelessWidget {
         ),
         const SizedBox(width: AppSpacing.md),
         _StatCard(
-          label: 'Matches',
+          label: 'Connections',
           value: controller.totalMatches.value.toString(),
-          icon: Icons.favorite,
+          icon: Icons.people,
         ),
         const SizedBox(width: AppSpacing.md),
         _StatCard(
           label: 'Joined',
           value: controller.joinedActivities.value.toString(),
-          icon: Icons.group,
+          icon: Icons.check_circle,
         ),
       ],
     );
