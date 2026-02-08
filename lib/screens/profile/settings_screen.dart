@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
@@ -135,6 +136,7 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showLogoutDialog(BuildContext context) {
+    HapticFeedback.mediumImpact();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -142,11 +144,15 @@ class SettingsScreen extends StatelessWidget {
         content: const Text('Are you sure you want to logout?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              Navigator.pop(context);
+            },
             child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () async {
+              HapticFeedback.mediumImpact();
               Navigator.pop(context);
               final authController = Get.find<AuthController>();
               await authController.logout();
@@ -163,6 +169,7 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showDeleteAccountDialog(BuildContext context) {
+    HapticFeedback.mediumImpact();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -172,11 +179,15 @@ class SettingsScreen extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              Navigator.pop(context);
+            },
             child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
+              HapticFeedback.mediumImpact();
               Navigator.pop(context);
               Get.snackbar(
                 'Account Deletion Requested',
@@ -229,19 +240,94 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showComingSoonDialog(BuildContext context, String feature) {
-    showDialog(
+    HapticFeedback.lightImpact();
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(feature),
-        content: Text(
-          '$feature is coming soon! We\'re working hard to bring you this feature.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryBlue.withAlpha(26),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.construction,
+                  size: 30,
+                  color: AppColors.primaryBlue,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                feature,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'This feature is coming soon! We\'re working hard to bring it to you.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.mediumGrey,
+                ),
+              ),
+              const SizedBox(height: 24),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                  HapticFeedback.lightImpact();
+                  Get.snackbar(
+                    '🔔 You\'re on the list!',
+                    'We\'ll notify you when $feature is ready',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: AppColors.success,
+                    colorText: Colors.white,
+                    duration: const Duration(seconds: 2),
+                  );
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF0D1B4D), Color(0xFF38B6FF)],
+                    ),
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'Notify Me When Ready',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'Maybe Later',
+                  style: TextStyle(color: AppColors.mediumGrey),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -398,7 +484,10 @@ class _SettingsTile extends StatelessWidget {
       leading: Icon(icon, color: AppColors.grey),
       title: Text(title),
       trailing: trailing ?? const Icon(Icons.chevron_right, color: AppColors.grey),
-      onTap: onTap,
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
       contentPadding: EdgeInsets.zero,
     );
   }
