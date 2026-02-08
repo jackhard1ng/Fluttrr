@@ -100,6 +100,15 @@ class ProfileRepository extends BaseRepository {
     return post(ApiEndpoints.setOffline);
   }
 
+  /// Update Low Profile mode status
+  /// When enabled, user is hidden from Discover/Mates but can still join events
+  Future<ApiResponse<dynamic>> updateLowProfileStatus(bool isLowProfile) async {
+    return post(
+      ApiEndpoints.updateLowProfile,
+      body: {'isLowProfile': isLowProfile},
+    );
+  }
+
   /// Get profile completion percentage with safe type conversion (#70)
   Future<ApiResponse<int>> getProfileCompletion() async {
     final response = await get<dynamic>(ApiEndpoints.profileCompletion);

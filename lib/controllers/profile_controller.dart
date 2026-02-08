@@ -23,6 +23,9 @@ class ProfileController extends GetxController {
   final RxBool isUploadingImage = false.obs;
   final RxString errorMessage = ''.obs;
 
+  /// Low Profile mode - hides user from Discover/Mates but allows event participation
+  final RxBool isLowProfile = false.obs;
+
   final RxInt profileCompletion = 0.obs;
   final RxInt totalActivities = 0.obs;
   final RxInt totalMatches = 0.obs;
@@ -90,6 +93,7 @@ class ProfileController extends GetxController {
       selectedGender.value = user.profile?.gender ?? '';
       selectedInterests.value = user.profile?.interests ?? [];
       selectedLanguages.value = user.profile?.languages ?? [];
+      isLowProfile.value = user.isLowProfile;
     }
   }
 
@@ -364,6 +368,29 @@ class ProfileController extends GetxController {
   /// Set gender
   void setGender(String gender) {
     selectedGender.value = gender;
+  }
+
+  /// Toggle Low Profile mode
+  /// When enabled, user is hidden from Discover/Mates but can still join events
+  Future<bool> toggleLowProfile() async {
+    final newValue = !isLowProfile.value;
+
+    try {
+      final response = await _profileRepository.updateLowProfileStatus(newValue);
+
+      if (response.success) {
+        isLowProfile.value = newValue;
+        // Update the user model
+        if (currentUser.value != null) {
+          currentUser.value = currentUser.value!.copyWith(isLowProfile: newValue);
+        }
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint('Error toggling Low Profile mode: $e');
+      return false;
+    }
   }
 
   /// Refresh profile

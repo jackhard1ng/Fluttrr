@@ -15,6 +15,7 @@ class UserModel {
   final int? completionPercentage;
   final AccountType accountType;
   final String? businessName;
+  final bool isLowProfile;
 
   const UserModel({
     this.userId,
@@ -26,6 +27,7 @@ class UserModel {
     this.completionPercentage,
     this.accountType = AccountType.regular,
     this.businessName,
+    this.isLowProfile = false,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -45,6 +47,7 @@ class UserModel {
           ? AccountType.business
           : AccountType.regular,
       businessName: json['businessName'] as String?,
+      isLowProfile: json['isLowProfile'] as bool? ?? false,
     );
   }
 
@@ -59,6 +62,7 @@ class UserModel {
       'completionPercentage': completionPercentage,
       'accountType': accountType == AccountType.business ? 'business' : 'regular',
       'businessName': businessName,
+      'isLowProfile': isLowProfile,
     };
   }
 
@@ -72,6 +76,7 @@ class UserModel {
     int? completionPercentage,
     AccountType? accountType,
     String? businessName,
+    bool? isLowProfile,
   }) {
     return UserModel(
       userId: userId ?? this.userId,
@@ -83,6 +88,7 @@ class UserModel {
       completionPercentage: completionPercentage ?? this.completionPercentage,
       accountType: accountType ?? this.accountType,
       businessName: businessName ?? this.businessName,
+      isLowProfile: isLowProfile ?? this.isLowProfile,
     );
   }
 

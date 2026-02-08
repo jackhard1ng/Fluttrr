@@ -6,6 +6,7 @@ import '../../constants/utils.dart';
 import '../../constants/api_endpoints.dart';
 import '../../config/routes.dart';
 import '../../controllers/mates_controller.dart';
+import '../../controllers/profile_controller.dart';
 import '../../models/mate_model.dart';
 import '../../widgets/common_widgets.dart';
 
@@ -54,6 +55,9 @@ class MatesScreen extends StatelessWidget {
                   ),
                   Row(
                     children: [
+                      // Low Profile toggle
+                      _LowProfileButton(),
+                      const SizedBox(width: AppSpacing.sm),
                       // Filter button
                       Container(
                         decoration: BoxDecoration(
@@ -1065,5 +1069,63 @@ class _ReportOption extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// Low Profile quick toggle button
+class _LowProfileButton extends StatelessWidget {
+  const _LowProfileButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final profileController = Get.find<ProfileController>();
+
+    return Obx(() {
+      final isLowProfile = profileController.isLowProfile.value;
+
+      return Tooltip(
+        message: isLowProfile
+            ? 'Low Profile: Hidden from Discover'
+            : 'Tap to enable Low Profile',
+        child: GestureDetector(
+          onTap: () async {
+            HapticFeedback.mediumImpact();
+            final success = await profileController.toggleLowProfile();
+            if (success) {
+              Get.snackbar(
+                profileController.isLowProfile.value
+                    ? 'Low Profile Enabled'
+                    : 'Low Profile Disabled',
+                profileController.isLowProfile.value
+                    ? 'You\'re hidden from Discover but can still join events'
+                    : 'You\'re now visible to everyone nearby',
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: AppColors.primaryBlue,
+                colorText: Colors.white,
+                duration: const Duration(seconds: 2),
+              );
+            }
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: isLowProfile
+                  ? AppColors.primaryBlue.withAlpha(26)
+                  : AppColors.lightGrey,
+              shape: BoxShape.circle,
+              border: isLowProfile
+                  ? Border.all(color: AppColors.primaryBlue, width: 2)
+                  : null,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Icon(
+                isLowProfile ? Icons.visibility_off : Icons.visibility_off_outlined,
+                color: isLowProfile ? AppColors.primaryBlue : AppColors.darkGrey,
+              ),
+            ),
+          ),
+        ),
+      );
+    });
   }
 }

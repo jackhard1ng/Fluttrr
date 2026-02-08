@@ -52,6 +52,7 @@ class ApiEndpoints {
   static String get updateFcmToken => '$apiBase/user/token';
   static String get setOnline => '$apiBase/user/online';
   static String get setOffline => '$apiBase/user/offline';
+  static String get updateLowProfile => '$apiBase/user/low-profile';
   static String get profileCompletion => '$apiBase/user/monitoring';
 
   // Gallery endpoints

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../../constants/utils.dart';
 import '../../config/routes.dart';
 import '../../controllers/auth_controller.dart';
+import '../../controllers/profile_controller.dart';
 import '../../widgets/common_widgets.dart';
 
 /// Settings screen
@@ -42,6 +43,7 @@ class SettingsScreen extends StatelessWidget {
 
           // Privacy section
           _SectionHeader(title: 'Privacy'),
+          _LowProfileTile(),
           _SettingsTile(
             icon: Icons.visibility_outlined,
             title: 'Visibility & Preferences',
@@ -508,5 +510,57 @@ class _SettingsTile extends StatelessWidget {
       },
       contentPadding: EdgeInsets.zero,
     );
+  }
+}
+
+/// Low Profile mode toggle tile
+class _LowProfileTile extends StatelessWidget {
+  const _LowProfileTile();
+
+  @override
+  Widget build(BuildContext context) {
+    final profileController = Get.find<ProfileController>();
+
+    return Obx(() => ListTile(
+          leading: Icon(
+            profileController.isLowProfile.value
+                ? Icons.visibility_off
+                : Icons.visibility_off_outlined,
+            color: profileController.isLowProfile.value
+                ? AppColors.primaryBlue
+                : AppColors.grey,
+          ),
+          title: const Text('Low Profile'),
+          subtitle: Text(
+            profileController.isLowProfile.value
+                ? 'Hidden from Discover - Events only'
+                : 'Visible to everyone nearby',
+            style: TextStyle(
+              fontSize: 12,
+              color: AppColors.mediumGrey,
+            ),
+          ),
+          trailing: Switch.adaptive(
+            value: profileController.isLowProfile.value,
+            onChanged: (value) async {
+              HapticFeedback.mediumImpact();
+              final success = await profileController.toggleLowProfile();
+              if (success) {
+                Get.snackbar(
+                  value ? 'Low Profile Enabled' : 'Low Profile Disabled',
+                  value
+                      ? 'You\'re hidden from Discover but can still join events'
+                      : 'You\'re now visible to everyone nearby',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: AppColors.primaryBlue,
+                  colorText: Colors.white,
+                  duration: const Duration(seconds: 2),
+                );
+              }
+            },
+            activeColor: AppColors.primaryBlue,
+          ),
+          contentPadding: EdgeInsets.zero,
+        ));
   }
 }
