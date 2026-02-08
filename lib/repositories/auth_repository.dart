@@ -24,8 +24,9 @@ class AuthRepository extends BaseRepository {
     );
 
     // Save token if login successful
-    if (response.success && response.data?.token != null) {
-      await saveToken(response.data!.token!);
+    final token = response.data?.token;
+    if (response.success && token != null) {
+      await saveToken(token);
     }
 
     return response;
@@ -61,8 +62,9 @@ class AuthRepository extends BaseRepository {
     );
 
     // Save token if verification successful
-    if (response.success && response.data?.token != null) {
-      await saveToken(response.data!.token!);
+    final token = response.data?.token;
+    if (response.success && token != null) {
+      await saveToken(token);
     }
 
     return response;
@@ -144,8 +146,9 @@ class AuthRepository extends BaseRepository {
       );
 
       // Save token if successful
-      if (response.success && response.data?.token != null) {
-        await saveToken(response.data!.token!);
+      final token = response.data?.token;
+      if (response.success && token != null) {
+        await saveToken(token);
       }
 
       return response;
@@ -190,8 +193,9 @@ class AuthRepository extends BaseRepository {
     );
 
     // Save token if login successful
-    if (response.success && response.data?.token != null) {
-      await saveToken(response.data!.token!);
+    final token = response.data?.token;
+    if (response.success && token != null) {
+      await saveToken(token);
     }
 
     return response;
@@ -219,8 +223,9 @@ class AuthRepository extends BaseRepository {
     );
 
     // Save token if registration successful
-    if (response.success && response.data?.token != null) {
-      await saveToken(response.data!.token!);
+    final token = response.data?.token;
+    if (response.success && token != null) {
+      await saveToken(token);
     }
 
     return response;

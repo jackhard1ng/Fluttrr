@@ -93,43 +93,51 @@ class ProfileController extends GetxController {
     }
   }
 
-  /// Load additional profile data
+  /// Load additional profile data with individual error handling
   Future<void> _loadAdditionalData() async {
-    try {
-      // Load in parallel
-      await Future.wait([
-        _loadProfileCompletion(),
-        _loadStatistics(),
-        _loadGallery(),
-      ]);
-    } catch (e) {
-      debugPrint('Error loading additional profile data: $e');
-    }
+    // Load in parallel - each method handles its own errors
+    await Future.wait([
+      _loadProfileCompletion(),
+      _loadStatistics(),
+      _loadGallery(),
+    ], eagerError: false);
   }
 
   Future<void> _loadProfileCompletion() async {
-    final response = await _profileRepository.getProfileCompletion();
-    if (response.success && response.data != null) {
-      profileCompletion.value = response.data!;
+    try {
+      final response = await _profileRepository.getProfileCompletion();
+      if (response.success && response.data != null) {
+        profileCompletion.value = response.data!;
+      }
+    } catch (e) {
+      debugPrint('Error loading profile completion: $e');
     }
   }
 
   Future<void> _loadStatistics() async {
-    final results = await Future.wait([
-      _profileRepository.getTotalActivityCount(),
-      _profileRepository.getTotalMatchCount(),
-      _profileRepository.getJoinedActivitiesCount(),
-    ]);
+    try {
+      final results = await Future.wait([
+        _profileRepository.getTotalActivityCount(),
+        _profileRepository.getTotalMatchCount(),
+        _profileRepository.getJoinedActivitiesCount(),
+      ], eagerError: false);
 
-    if (results[0].success) totalActivities.value = results[0].data ?? 0;
-    if (results[1].success) totalMatches.value = results[1].data ?? 0;
-    if (results[2].success) joinedActivities.value = results[2].data ?? 0;
+      if (results[0].success) totalActivities.value = results[0].data ?? 0;
+      if (results[1].success) totalMatches.value = results[1].data ?? 0;
+      if (results[2].success) joinedActivities.value = results[2].data ?? 0;
+    } catch (e) {
+      debugPrint('Error loading statistics: $e');
+    }
   }
 
   Future<void> _loadGallery() async {
-    final response = await _profileRepository.getGalleryImages();
-    if (response.success && response.data != null) {
-      galleryImages.value = response.data!;
+    try {
+      final response = await _profileRepository.getGalleryImages();
+      if (response.success && response.data != null) {
+        galleryImages.value = response.data!;
+      }
+    } catch (e) {
+      debugPrint('Error loading gallery: $e');
     }
   }
 

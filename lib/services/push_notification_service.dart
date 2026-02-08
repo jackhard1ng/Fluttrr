@@ -101,17 +101,22 @@ class PushNotificationService {
   Future<void> _getFcmToken() async {
     try {
       _fcmToken = await _firebaseMessaging.getToken();
-      debugPrint('FCM Token: $_fcmToken');
+      debugPrint('FCM Token retrieved successfully');
 
       if (_fcmToken != null) {
         await _saveFcmToken(_fcmToken!);
       }
 
-      // Listen for token refresh
-      _firebaseMessaging.onTokenRefresh.listen((newToken) async {
-        _fcmToken = newToken;
-        await _saveFcmToken(newToken);
-      });
+      // Listen for token refresh with error handling
+      _firebaseMessaging.onTokenRefresh.listen(
+        (newToken) async {
+          _fcmToken = newToken;
+          await _saveFcmToken(newToken);
+        },
+        onError: (error) {
+          debugPrint('Error on token refresh: $error');
+        },
+      );
     } catch (e) {
       debugPrint('Error getting FCM token: $e');
     }

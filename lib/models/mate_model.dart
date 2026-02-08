@@ -30,13 +30,13 @@ class MateModel {
 
   factory MateModel.fromJson(Map<String, dynamic> json) {
     return MateModel(
-      userId: json['user_id'] ?? json['userId'] as int?,
-      userName: json['userName'] ?? json['user_name'] as String?,
+      userId: (json['user_id'] ?? json['userId']) as int?,
+      userName: (json['userName'] ?? json['user_name']) as String?,
       age: json['age'] as int?,
       gender: json['gender'] as String?,
       bio: json['bio'] as String?,
       location: json['location'] as String?,
-      onlineStatus: json['onlineStatus'] ?? json['online_status'] as String?,
+      onlineStatus: (json['onlineStatus'] ?? json['online_status']) as String?,
       images: _parseStringList(json['images']),
       interests: _parseStringList(json['interests']),
       distance: (json['distance'] as num?)?.toDouble(),
@@ -122,7 +122,7 @@ class MatesListResponse {
     return MatesListResponse(
       message: json['message'] as String?,
       data: _parseMatesList(json['data']),
-      totalCount: json['total_count'] ?? json['totalCount'] as int?,
+      totalCount: (json['total_count'] ?? json['totalCount']) as int?,
     );
   }
 }
@@ -146,8 +146,8 @@ class MatchModel {
   factory MatchModel.fromJson(Map<String, dynamic> json) {
     return MatchModel(
       matchId: json['match_id'] as int?,
-      userId: json['user_id'] ?? json['userId'] as int?,
-      userName: json['userName'] ?? json['user_name'] as String?,
+      userId: (json['user_id'] ?? json['userId']) as int?,
+      userName: (json['userName'] ?? json['user_name']) as String?,
       images: _parseStringList(json['images']),
       matchedAt: json['matched_at'] != null
           ? DateTime.tryParse(json['matched_at'])

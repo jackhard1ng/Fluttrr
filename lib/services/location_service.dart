@@ -162,6 +162,9 @@ class LocationService {
       distanceFilter: distanceFilter,
     );
 
+    // Cancel existing subscription before creating a new one
+    await _locationSubscription?.cancel();
+
     _locationSubscription = Geolocator.getPositionStream(
       locationSettings: locationSettings,
     ).listen(
@@ -170,12 +173,18 @@ class LocationService {
           latitude: position.latitude,
           longitude: position.longitude,
         );
-        _locationController.add(_currentLocation!);
+        if (!_locationController.isClosed) {
+          _locationController.add(_currentLocation!);
+        }
         await _cacheLocation(_currentLocation!);
       },
       onError: (error) {
         debugPrint('Location stream error: $error');
+        // Clean up subscription on error
+        _locationSubscription?.cancel();
+        _locationSubscription = null;
       },
+      cancelOnError: false,
     );
   }
 

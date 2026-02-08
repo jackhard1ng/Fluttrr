@@ -27,16 +27,29 @@ class SocketService {
   StreamController<Map<String, dynamic>>? _onlineController;
 
   bool _isDisposed = false;
+  bool _isInitializing = false;
 
-  /// Ensure stream controllers are initialized
+  /// Ensure stream controllers are initialized (thread-safe)
   void _ensureControllersInitialized() {
-    if (_isDisposed) {
-      _isDisposed = false;
+    // Prevent re-initialization during dispose
+    if (_isDisposed || _isInitializing) return;
+
+    _isInitializing = true;
+    try {
+      _statusController ??= StreamController<SocketStatus>.broadcast();
+      _messageController ??= StreamController<Map<String, dynamic>>.broadcast();
+      _typingController ??= StreamController<Map<String, dynamic>>.broadcast();
+      _onlineController ??= StreamController<Map<String, dynamic>>.broadcast();
+    } finally {
+      _isInitializing = false;
     }
-    _statusController ??= StreamController<SocketStatus>.broadcast();
-    _messageController ??= StreamController<Map<String, dynamic>>.broadcast();
-    _typingController ??= StreamController<Map<String, dynamic>>.broadcast();
-    _onlineController ??= StreamController<Map<String, dynamic>>.broadcast();
+  }
+
+  /// Safely add to stream controller
+  void _safeAdd<T>(StreamController<T>? controller, T data) {
+    if (controller != null && !controller.isClosed && !_isDisposed) {
+      controller.add(data);
+    }
   }
 
   /// Stream of connection status changes
@@ -144,49 +157,49 @@ class SocketService {
 
     // Listen for new messages
     _socket?.on('new_message', (data) {
-      debugPrint('New message received: $data');
-      if (data is Map<String, dynamic> && _messageController != null && !_messageController!.isClosed) {
-        _messageController!.add(data);
+      debugPrint('New message received');
+      if (data is Map<String, dynamic>) {
+        _safeAdd(_messageController, data);
       }
     });
 
     // Listen for typing indicators
     _socket?.on('typing', (data) {
-      if (data is Map<String, dynamic> && _typingController != null && !_typingController!.isClosed) {
-        _typingController!.add(data);
+      if (data is Map<String, dynamic>) {
+        _safeAdd(_typingController, data);
       }
     });
 
     _socket?.on('stop_typing', (data) {
-      if (data is Map<String, dynamic> && _typingController != null && !_typingController!.isClosed) {
-        _typingController!.add({...data, 'isTyping': false});
+      if (data is Map<String, dynamic>) {
+        _safeAdd(_typingController, {...data, 'isTyping': false});
       }
     });
 
     // Listen for online status changes
     _socket?.on('user_online', (data) {
-      if (data is Map<String, dynamic> && _onlineController != null && !_onlineController!.isClosed) {
-        _onlineController!.add({...data, 'isOnline': true});
+      if (data is Map<String, dynamic>) {
+        _safeAdd(_onlineController, {...data, 'isOnline': true});
       }
     });
 
     _socket?.on('user_offline', (data) {
-      if (data is Map<String, dynamic> && _onlineController != null && !_onlineController!.isClosed) {
-        _onlineController!.add({...data, 'isOnline': false});
+      if (data is Map<String, dynamic>) {
+        _safeAdd(_onlineController, {...data, 'isOnline': false});
       }
     });
 
     // Listen for message read receipts
     _socket?.on('message_read', (data) {
-      if (data is Map<String, dynamic> && _messageController != null && !_messageController!.isClosed) {
-        _messageController!.add({...data, 'type': 'read_receipt'});
+      if (data is Map<String, dynamic>) {
+        _safeAdd(_messageController, {...data, 'type': 'read_receipt'});
       }
     });
 
     // Listen for message deleted
     _socket?.on('message_deleted', (data) {
-      if (data is Map<String, dynamic> && _messageController != null && !_messageController!.isClosed) {
-        _messageController!.add({...data, 'type': 'deleted'});
+      if (data is Map<String, dynamic>) {
+        _safeAdd(_messageController, {...data, 'type': 'deleted'});
       }
     });
   }
@@ -194,9 +207,7 @@ class SocketService {
   /// Update status and notify listeners
   void _updateStatus(SocketStatus newStatus) {
     _status = newStatus;
-    if (_statusController != null && !_statusController!.isClosed) {
-      _statusController!.add(newStatus);
-    }
+    _safeAdd(_statusController, newStatus);
   }
 
   /// Disconnect socket
