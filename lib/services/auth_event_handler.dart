@@ -55,18 +55,33 @@ class AuthEventHandler {
   /// Track if we're already handling a 401 to prevent multiple redirects
   bool _isHandlingUnauthorized = false;
 
+  /// Timestamp of when unauthorized handling started (for timeout detection)
+  DateTime? _unauthorizedHandlingStartTime;
+
+  /// Maximum time to wait for unauthorized handling before allowing retry
+  static const Duration _maxHandlingDuration = Duration(seconds: 10);
+
   /// Handle a 401 Unauthorized response
   ///
   /// This is called from BaseRepository when a 401 is received.
   /// First attempts to refresh the token, then logs out if refresh fails.
   Future<void> handleUnauthorized({String? message}) async {
-    // Prevent multiple simultaneous handling
+    // Prevent multiple simultaneous handling with timeout fallback
     if (_isHandlingUnauthorized) {
-      debugPrint('AuthEventHandler: Already handling unauthorized, skipping');
-      return;
+      // Check if previous handling has timed out
+      final startTime = _unauthorizedHandlingStartTime;
+      if (startTime != null) {
+        final elapsed = DateTime.now().difference(startTime);
+        if (elapsed < _maxHandlingDuration) {
+          debugPrint('AuthEventHandler: Already handling unauthorized, skipping');
+          return;
+        }
+        debugPrint('AuthEventHandler: Previous handling timed out, proceeding');
+      }
     }
 
     _isHandlingUnauthorized = true;
+    _unauthorizedHandlingStartTime = DateTime.now();
 
     try {
       debugPrint('AuthEventHandler: Handling 401 Unauthorized');
@@ -113,10 +128,9 @@ class AuthEventHandler {
     } catch (e) {
       debugPrint('AuthEventHandler: Error handling unauthorized: $e');
     } finally {
-      // Reset the flag after a short delay to allow for navigation
-      Future.delayed(const Duration(seconds: 2), () {
-        _isHandlingUnauthorized = false;
-      });
+      // Reset the flag immediately - no race condition with Future.delayed
+      _isHandlingUnauthorized = false;
+      _unauthorizedHandlingStartTime = null;
     }
   }
 

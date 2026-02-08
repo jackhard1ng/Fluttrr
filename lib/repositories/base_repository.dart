@@ -242,7 +242,7 @@ abstract class BaseRepository {
         request.fields.addAll(fields);
       }
 
-      final streamedResponse = await request.send().timeout(_timeout);
+      final streamedResponse = await request.send().timeout(_defaultTimeout);
       final response = await http.Response.fromStream(streamedResponse);
 
       return _handleResponse(response, fromJson);
@@ -296,7 +296,7 @@ abstract class BaseRepository {
         request.fields.addAll(fields);
       }
 
-      final streamedResponse = await request.send().timeout(_timeout);
+      final streamedResponse = await request.send().timeout(_defaultTimeout);
       final response = await http.Response.fromStream(streamedResponse);
 
       return _handleResponse(response, fromJson);
@@ -336,7 +336,7 @@ abstract class BaseRepository {
         request.fields.addAll(fields);
       }
 
-      final streamedResponse = await request.send().timeout(_timeout);
+      final streamedResponse = await request.send().timeout(_defaultTimeout);
       final response = await http.Response.fromStream(streamedResponse);
 
       return _handleResponse(response, fromJson);

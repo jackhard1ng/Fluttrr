@@ -38,6 +38,9 @@ class StripeService {
   factory StripeService() => _instance;
   StripeService._internal();
 
+  /// Default timeout for payment-related HTTP requests
+  static const Duration _requestTimeout = Duration(seconds: 30);
+
   /// Stripe publishable key from environment variable
   /// IMPORTANT: This must be set via --dart-define=STRIPE_PUBLISHABLE_KEY=your_key
   static const String? _publishableKey = String.fromEnvironment(
@@ -128,7 +131,7 @@ class StripeService {
           'currency': currency,
           if (metadata != null) 'metadata': metadata,
         }),
-      );
+      ).timeout(_requestTimeout);
 
       final responseData = _safeJsonDecode(response.body);
       if (responseData == null) {
@@ -279,7 +282,7 @@ class StripeService {
         body: jsonEncode({
           'paymentIntentId': paymentIntentId,
         }),
-      );
+      ).timeout(_requestTimeout);
 
       final responseData = _safeJsonDecode(response.body);
       if (responseData == null) {
@@ -326,7 +329,7 @@ class StripeService {
           'paymentMethod': paymentMethod,
           'transactionId': transactionId,
         }),
-      );
+      ).timeout(_requestTimeout);
 
       final responseData = _safeJsonDecode(response.body);
       if (responseData == null) {
@@ -398,7 +401,7 @@ class StripeService {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-      );
+      ).timeout(_requestTimeout);
 
       final responseData = _safeJsonDecode(response.body);
       if (responseData == null) return false;
@@ -447,7 +450,7 @@ class StripeService {
           'priceId': priceId,
           if (metadata != null) 'metadata': metadata,
         }),
-      );
+      ).timeout(_requestTimeout);
 
       final responseData = _safeJsonDecode(response.body);
       if (responseData == null) {
@@ -486,7 +489,7 @@ class StripeService {
         body: jsonEncode({
           'subscriptionId': subscriptionId,
         }),
-      );
+      ).timeout(_requestTimeout);
 
       final responseData = _safeJsonDecode(response.body);
       if (responseData == null) {

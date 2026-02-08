@@ -216,14 +216,76 @@ class SocketService {
     _updateStatus(SocketStatus.disconnected);
   }
 
+  // ==================== Input Validation ====================
+
+  /// Maximum allowed length for room IDs
+  static const int _maxRoomIdLength = 256;
+
+  /// Maximum allowed length for message content
+  static const int _maxContentLength = 5000;
+
+  /// Maximum allowed length for IDs (user, message)
+  static const int _maxIdLength = 128;
+
+  /// Maximum allowed URL length
+  static const int _maxUrlLength = 2048;
+
+  /// Validate room ID
+  bool _isValidRoomId(String roomId) {
+    if (roomId.isEmpty || roomId.length > _maxRoomIdLength) {
+      debugPrint('SocketService: Invalid roomId - empty or too long');
+      return false;
+    }
+    return true;
+  }
+
+  /// Validate message content
+  bool _isValidContent(String content) {
+    if (content.isEmpty || content.length > _maxContentLength) {
+      debugPrint('SocketService: Invalid content - empty or too long (max $_maxContentLength chars)');
+      return false;
+    }
+    return true;
+  }
+
+  /// Validate ID (user ID, message ID, etc.)
+  bool _isValidId(String id, String fieldName) {
+    if (id.isEmpty || id.length > _maxIdLength) {
+      debugPrint('SocketService: Invalid $fieldName - empty or too long');
+      return false;
+    }
+    return true;
+  }
+
+  /// Validate optional URL
+  bool _isValidUrl(String? url) {
+    if (url == null) return true;
+    if (url.length > _maxUrlLength) {
+      debugPrint('SocketService: Invalid URL - too long');
+      return false;
+    }
+    final uri = Uri.tryParse(url);
+    if (uri == null || !uri.hasScheme) {
+      debugPrint('SocketService: Invalid URL format');
+      return false;
+    }
+    return true;
+  }
+
+  // ==================== Socket Operations ====================
+
   /// Join a chat room
   void joinRoom(String roomId) {
+    if (!_isValidRoomId(roomId)) return;
+
     _socket?.emit('join_room', {'roomId': roomId});
     debugPrint('Joined room: $roomId');
   }
 
   /// Leave a chat room
   void leaveRoom(String roomId) {
+    if (!_isValidRoomId(roomId)) return;
+
     _socket?.emit('leave_room', {'roomId': roomId});
     debugPrint('Left room: $roomId');
   }
@@ -235,6 +297,12 @@ class SocketService {
     required String receiverId,
     String? imageUrl,
   }) {
+    // Validate all inputs
+    if (!_isValidRoomId(roomId)) return;
+    if (!_isValidContent(content)) return;
+    if (!_isValidId(receiverId, 'receiverId')) return;
+    if (!_isValidUrl(imageUrl)) return;
+
     _socket?.emit('send_message', {
       'roomId': roomId,
       'content': content,
@@ -249,6 +317,9 @@ class SocketService {
     required String receiverId,
     required bool isTyping,
   }) {
+    if (!_isValidRoomId(roomId)) return;
+    if (!_isValidId(receiverId, 'receiverId')) return;
+
     _socket?.emit(isTyping ? 'typing' : 'stop_typing', {
       'roomId': roomId,
       'receiverId': receiverId,
@@ -260,6 +331,9 @@ class SocketService {
     required String messageId,
     required String roomId,
   }) {
+    if (!_isValidId(messageId, 'messageId')) return;
+    if (!_isValidRoomId(roomId)) return;
+
     _socket?.emit('mark_read', {
       'messageId': messageId,
       'roomId': roomId,
@@ -271,6 +345,9 @@ class SocketService {
     required String messageId,
     required String roomId,
   }) {
+    if (!_isValidId(messageId, 'messageId')) return;
+    if (!_isValidRoomId(roomId)) return;
+
     _socket?.emit('delete_message', {
       'messageId': messageId,
       'roomId': roomId,

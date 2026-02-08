@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -21,6 +22,11 @@ class PushNotificationService {
   final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
 
   String? _fcmToken;
+
+  // Store subscriptions for proper cleanup
+  StreamSubscription<String>? _tokenRefreshSubscription;
+  StreamSubscription<RemoteMessage>? _onMessageSubscription;
+  StreamSubscription<RemoteMessage>? _onMessageOpenedSubscription;
 
   /// Get current FCM token
   String? get fcmToken => _fcmToken;
@@ -108,15 +114,22 @@ class PushNotificationService {
         await _saveFcmToken(_fcmToken!);
       }
 
-      // Listen for token refresh with error handling
-      _firebaseMessaging.onTokenRefresh.listen(
-        (newToken) async {
+      // Cancel existing subscription before creating new one
+      await _tokenRefreshSubscription?.cancel();
+
+      // Listen for token refresh with proper error handling
+      _tokenRefreshSubscription = _firebaseMessaging.onTokenRefresh.listen(
+        (newToken) {
           _fcmToken = newToken;
-          await _saveFcmToken(newToken);
+          // Use catchError instead of await to handle async errors properly
+          _saveFcmToken(newToken).catchError((error) {
+            debugPrint('Error saving refreshed FCM token: $error');
+          });
         },
         onError: (error) {
-          debugPrint('Error on token refresh: $error');
+          debugPrint('Error on token refresh stream: $error');
         },
+        cancelOnError: false,
       );
     } catch (e) {
       debugPrint('Error getting FCM token: $e');
@@ -162,11 +175,27 @@ class PushNotificationService {
 
   /// Set up message handlers
   void _setupMessageHandlers() {
+    // Cancel existing subscriptions before creating new ones
+    _onMessageSubscription?.cancel();
+    _onMessageOpenedSubscription?.cancel();
+
     // Handle foreground messages
-    FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+    _onMessageSubscription = FirebaseMessaging.onMessage.listen(
+      _handleForegroundMessage,
+      onError: (error) {
+        debugPrint('Error on foreground message stream: $error');
+      },
+      cancelOnError: false,
+    );
 
     // Handle background message tap
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpenedApp);
+    _onMessageOpenedSubscription = FirebaseMessaging.onMessageOpenedApp.listen(
+      _handleMessageOpenedApp,
+      onError: (error) {
+        debugPrint('Error on message opened stream: $error');
+      },
+      cancelOnError: false,
+    );
 
     // Check for initial message (app opened from terminated state)
     _checkInitialMessage();
@@ -321,6 +350,19 @@ class PushNotificationService {
   Future<bool> requestPermission() async {
     final settings = await _firebaseMessaging.requestPermission();
     return settings.authorizationStatus == AuthorizationStatus.authorized;
+  }
+
+  /// Dispose of all subscriptions to prevent memory leaks
+  Future<void> dispose() async {
+    await _tokenRefreshSubscription?.cancel();
+    await _onMessageSubscription?.cancel();
+    await _onMessageOpenedSubscription?.cancel();
+
+    _tokenRefreshSubscription = null;
+    _onMessageSubscription = null;
+    _onMessageOpenedSubscription = null;
+
+    debugPrint('PushNotificationService: Disposed all subscriptions');
   }
 }
 
