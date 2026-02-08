@@ -8,15 +8,13 @@ import '../repositories/activity_repository.dart';
 class DiscoverController extends GetxController {
   final ActivityRepository _activityRepository = ActivityRepository();
 
-  /// Flag to indicate if using mock data (for debugging/demo purposes)
-  final RxBool useMockData = false.obs;
-
   // State
   final isLoading = false.obs;
   final events = <EventModel>[].obs;
   final savedEventIds = <String>{}.obs;
   final searchQuery = ''.obs;
   final selectedCategories = <String>[].obs;
+  final errorMessage = ''.obs;
 
   // Filters
   final dateFilter = Rxn<DateTime>();
@@ -31,11 +29,11 @@ class DiscoverController extends GetxController {
 
   Future<void> loadEvents() async {
     isLoading.value = true;
+    errorMessage.value = '';
+
     try {
-      // Try to load from API first
       final response = await _activityRepository.getActivities();
-      if (response.success && response.data != null && response.data!.isNotEmpty) {
-        // Convert activities to events
+      if (response.success && response.data != null) {
         events.value = response.data!.map((activity) => EventModel(
           id: activity.activityId?.toString() ?? '',
           title: activity.name ?? '',
@@ -53,24 +51,15 @@ class DiscoverController extends GetxController {
           vibe: null,
           createdAt: activity.createdAt ?? DateTime.now(),
         )).toList();
-        useMockData.value = false;
       } else {
-        // Fall back to mock data if API returns empty
-        _loadMockEvents();
+        errorMessage.value = response.displayMessage;
       }
     } catch (e) {
       debugPrint('Error loading events: $e');
-      // Fall back to mock data on error
-      _loadMockEvents();
+      errorMessage.value = 'Failed to load events. Please try again.';
     } finally {
       isLoading.value = false;
     }
-  }
-
-  /// Load mock events for demo/fallback
-  void _loadMockEvents() {
-    useMockData.value = true;
-    events.value = _mockEvents;
   }
 
   Future<void> refreshEvents() async {
@@ -257,62 +246,4 @@ class DiscoverController extends GetxController {
       isLoading.value = false;
     }
   }
-
-  // Mock data
-  List<EventModel> get _mockEvents => [
-    EventModel(
-      id: '1',
-      title: 'Friday Night Board Games',
-      description: 'Join us for a fun night of board games!',
-      hostId: 'user1',
-      hostName: 'Alex',
-      date: DateTime.now().add(const Duration(days: 2)),
-      startTime: const TimeOfDay(hour: 19, minute: 0),
-      endTime: const TimeOfDay(hour: 22, minute: 0),
-      location: 'The Game Cafe',
-      maxAttendees: 12,
-      currentAttendees: 8,
-      categories: ['games', 'social'],
-      tags: ['board games', 'catan', 'beginners welcome'],
-      vibe: 'chill',
-      emoji: '🎮',
-      createdAt: DateTime.now().subtract(const Duration(days: 3)),
-    ),
-    EventModel(
-      id: '2',
-      title: 'Weekend Hiking Adventure',
-      description: 'Moderate difficulty trail with beautiful views.',
-      hostId: 'user2',
-      hostName: 'Jordan',
-      date: DateTime.now().add(const Duration(days: 4)),
-      startTime: const TimeOfDay(hour: 8, minute: 0),
-      endTime: const TimeOfDay(hour: 14, minute: 0),
-      location: 'Mountain Trail Park',
-      maxAttendees: 15,
-      currentAttendees: 6,
-      categories: ['outdoor', 'sports'],
-      tags: ['hiking', 'nature', 'exercise'],
-      vibe: 'energetic',
-      emoji: '🥾',
-      createdAt: DateTime.now().subtract(const Duration(days: 5)),
-    ),
-    EventModel(
-      id: '3',
-      title: 'Coffee & Networking',
-      description: 'Casual networking for professionals.',
-      hostId: 'user3',
-      hostName: 'Taylor',
-      date: DateTime.now().add(const Duration(days: 1)),
-      startTime: const TimeOfDay(hour: 10, minute: 0),
-      endTime: const TimeOfDay(hour: 12, minute: 0),
-      location: 'The Roastery',
-      maxAttendees: 20,
-      currentAttendees: 12,
-      categories: ['social', 'learning'],
-      tags: ['networking', 'coffee', 'professionals'],
-      vibe: 'casual',
-      emoji: '☕',
-      createdAt: DateTime.now().subtract(const Duration(days: 2)),
-    ),
-  ];
 }

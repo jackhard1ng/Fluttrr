@@ -5,14 +5,10 @@ import 'package:get/get.dart';
 
 import '../models/activity_model.dart';
 import '../repositories/activity_repository.dart';
-import '../services/mock_data_service.dart';
 
-/// Activity controller with mock data fallback
+/// Activity controller for managing activities/events
 class ActivityController extends GetxController {
   final ActivityRepository _activityRepository = ActivityRepository();
-
-  /// Flag to use mock data when API fails (disabled by default, enabled on API failure)
-  final RxBool useMockData = false.obs;
 
   // State
   final RxList<ActivityModel> dailyActivities = <ActivityModel>[].obs;
@@ -76,71 +72,19 @@ class ActivityController extends GetxController {
     ]);
   }
 
-  /// Load daily activities (with mock data fallback)
+  /// Load daily activities
   Future<void> loadDailyActivities() async {
     try {
       final response = await _activityRepository.getDailyActivities();
-      if (response.success && response.data != null && response.data!.isNotEmpty) {
+      if (response.success && response.data != null) {
         dailyActivities.value = response.data!;
-        useMockData.value = false;
-      } else {
-        _loadMockDailyActivities();
       }
     } catch (e) {
-      _loadMockDailyActivities();
+      debugPrint('Error loading daily activities: $e');
     }
   }
 
-  /// Load mock daily activities for demo
-  void _loadMockDailyActivities() {
-    useMockData.value = true;
-    final mockData = MockDataService.generateMockActivities(5);
-    dailyActivities.value = _convertMockToActivities(mockData);
-  }
-
-  /// Convert mock data to ActivityModel list
-  List<ActivityModel> _convertMockToActivities(List<Map<String, dynamic>> mockData) {
-    return mockData.map((data) {
-      final attendeeCount = data['attendeeCount'] as int;
-      final maxAttendees = data['maxAttendees'] as int?;
-
-      // Calculate remaining slots - null means no limit
-      final int? remainingSlots = maxAttendees != null
-          ? (maxAttendees - attendeeCount).clamp(0, maxAttendees)
-          : null;
-
-      // Use pre-generated attendees from mock data
-      final attendeesList = data['attendees'] as List<dynamic>?;
-      final attendees = attendeesList?.map((a) {
-        final attendeeMap = a as Map<String, dynamic>;
-        return Attendee(
-          userId: attendeeMap['userId'] as int,
-          name: attendeeMap['name'] as String,
-          images: [attendeeMap['profileImage'] as String],
-        );
-      }).toList() ?? [];
-
-      return ActivityModel(
-        activityId: data['activityId'] as int,
-        name: data['name'] as String,
-        description: data['description'] as String,
-        location: data['location'] as String,
-        dateTime: DateTime.tryParse(data['date'] as String),
-        eventType: data['eventType'] as String,
-        images: [],
-        totalSlots: maxAttendees,
-        remainingSlots: remainingSlots,
-        attendees: attendees,
-        userJoined: data['userJoined'] as bool,
-        userSaved: data['isSaved'] as bool,
-        creatorId: data['hostId'] as int,
-        creatorName: data['hostName'] as String,
-        creatorImages: [data['hostImage'] as String],
-      );
-    }).toList();
-  }
-
-  /// Load all activities (with mock data fallback)
+  /// Load all activities with pagination
   Future<void> loadActivities({bool refresh = false}) async {
     if (refresh) {
       currentPage.value = 1;
@@ -161,7 +105,7 @@ class ActivityController extends GetxController {
         eventType: filterEventType.value.isNotEmpty ? filterEventType.value : null,
       );
 
-      if (response.success && response.data != null && response.data!.isNotEmpty) {
+      if (response.success && response.data != null) {
         if (refresh) {
           allActivities.value = response.data!;
         } else {
@@ -172,25 +116,20 @@ class ActivityController extends GetxController {
         if (hasMorePages.value) {
           currentPage.value++;
         }
-        useMockData.value = false;
       } else {
-        _loadMockAllActivities();
+        if (allActivities.isEmpty) {
+          errorMessage.value = response.displayMessage;
+        }
+        hasMorePages.value = false;
       }
     } catch (e) {
-      _loadMockAllActivities();
+      if (allActivities.isEmpty) {
+        errorMessage.value = 'Failed to load activities. Please try again.';
+      }
+      debugPrint('Error loading activities: $e');
     } finally {
       isLoading.value = false;
       isLoadingMore.value = false;
-    }
-  }
-
-  /// Load mock all activities for demo
-  void _loadMockAllActivities() {
-    if (allActivities.isEmpty) {
-      useMockData.value = true;
-      final mockData = MockDataService.generateMockActivities(12);
-      allActivities.value = _convertMockToActivities(mockData);
-      hasMorePages.value = false;
     }
   }
 

@@ -6,6 +6,5 @@ export 'stripe_service.dart';
 export 'socket_service.dart';
 export 'location_service.dart';
 export 'api_service.dart';
-export 'mock_data_service.dart';
 export 'storage_service.dart';
 export 'connectivity_service.dart';

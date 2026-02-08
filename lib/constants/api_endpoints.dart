@@ -1,10 +1,12 @@
+import '../config/environment.dart';
+
 /// API endpoint configuration
 class ApiEndpoints {
   ApiEndpoints._();
 
-  // Base URL configuration
-  static const String baseUrl = 'http://82.180.139.134';
-  static const String apiBase = '$baseUrl/api';
+  // Base URL from environment configuration
+  static String get baseUrl => AppConfig.baseUrl;
+  static String get apiBase => '$baseUrl/api';
 
   /// Get the full URL for an image path
   /// Handles relative paths and ensures the URL is valid
@@ -32,126 +34,126 @@ class ApiEndpoints {
   }
 
   // Authentication endpoints
-  static const String login = '$apiBase/user/login';
-  static const String verifyOtp = '$apiBase/user/verify-otp';
-  static const String sendOtp = '$apiBase/user/send-otp';
-  static const String googleLogin = '$apiBase/user/google-login';
-  static const String changePassword = '$apiBase/user/change-password';
-  static const String resetPassword = '$apiBase/user/reset-password';
-  static const String requestOtp = '$apiBase/user/request-otp';
-  static const String verifyResetOtp = '$apiBase/user/verify-reset-otp';
+  static String get login => '$apiBase/user/login';
+  static String get verifyOtp => '$apiBase/user/verify-otp';
+  static String get sendOtp => '$apiBase/user/send-otp';
+  static String get googleLogin => '$apiBase/user/google-login';
+  static String get changePassword => '$apiBase/user/change-password';
+  static String get resetPassword => '$apiBase/user/reset-password';
+  static String get requestOtp => '$apiBase/user/request-otp';
+  static String get verifyResetOtp => '$apiBase/user/verify-reset-otp';
 
   // Profile endpoints
-  static const String profile = '$apiBase/user/profile';
-  static const String updateProfile = '$apiBase/user/update';
-  static const String createProfile = '$apiBase/user/create-profile';
-  static const String updateLocation = '$apiBase/user/update-location';
-  static const String updateFcmToken = '$apiBase/user/token';
-  static const String setOnline = '$apiBase/user/online';
-  static const String setOffline = '$apiBase/user/offline';
-  static const String profileCompletion = '$apiBase/user/monitoring';
+  static String get profile => '$apiBase/user/profile';
+  static String get updateProfile => '$apiBase/user/update';
+  static String get createProfile => '$apiBase/user/create-profile';
+  static String get updateLocation => '$apiBase/user/update-location';
+  static String get updateFcmToken => '$apiBase/user/token';
+  static String get setOnline => '$apiBase/user/online';
+  static String get setOffline => '$apiBase/user/offline';
+  static String get profileCompletion => '$apiBase/user/monitoring';
 
   // Gallery endpoints
-  static const String galleryList = '$apiBase/gallery/list';
-  static const String galleryUpload = '$apiBase/gallery/upload';
+  static String get galleryList => '$apiBase/gallery/list';
+  static String get galleryUpload => '$apiBase/gallery/upload';
 
   // Activity endpoints
-  static const String dailyActivities = '$apiBase/activity/daily-activities';
-  static const String activityList = '$apiBase/activity/list';
-  static const String createActivity = '$apiBase/activity/create-activity';
-  static const String activityDetails = '$apiBase/activity/activity-details';
-  static const String myActivities = '$apiBase/activity/my-activity';
-  static const String joinActivity = '$apiBase/activity/join';
-  static const String leaveActivity = '$apiBase/activity/leave';
-  static const String saveActivity = '$apiBase/activity/save';
-  static const String searchActivities = '$apiBase/activity/search';
-  static const String updateActivity = '$apiBase/activity/update';
-  static const String deleteActivity = '$apiBase/activity/delete';
-  static const String upcomingActivities = '$apiBase/activity/upcoming';
-  static const String createdActivitiesCount = '$apiBase/activity/created-activities-count';
-  static const String joinedActivitiesCount = '$apiBase/activity/joined-activities-count';
-  static const String userActivities = '$apiBase/activity/user-activities';
+  static String get dailyActivities => '$apiBase/activity/daily-activities';
+  static String get activityList => '$apiBase/activity/list';
+  static String get createActivity => '$apiBase/activity/create-activity';
+  static String get activityDetails => '$apiBase/activity/activity-details';
+  static String get myActivities => '$apiBase/activity/my-activity';
+  static String get joinActivity => '$apiBase/activity/join';
+  static String get leaveActivity => '$apiBase/activity/leave';
+  static String get saveActivity => '$apiBase/activity/save';
+  static String get searchActivities => '$apiBase/activity/search';
+  static String get updateActivity => '$apiBase/activity/update';
+  static String get deleteActivity => '$apiBase/activity/delete';
+  static String get upcomingActivities => '$apiBase/activity/upcoming';
+  static String get createdActivitiesCount => '$apiBase/activity/created-activities-count';
+  static String get joinedActivitiesCount => '$apiBase/activity/joined-activities-count';
+  static String get userActivities => '$apiBase/activity/user-activities';
 
   // Mates endpoints
-  static const String filterMates = '$apiBase/mate/filter';
-  static const String nearbyMates = '$apiBase/mate/nearby';
-  static const String findNearbyMates = '$apiBase/mate/find-nearby-mates';
-  static const String likeMate = '$apiBase/mate/like';
-  static const String likedMates = '$apiBase/mate/liked-mates';
-  static const String totalMates = '$apiBase/mate/total-mates';
-  static const String matchList = '$apiBase/user/match';
-  static const String searchUsers = '$apiBase/user/search';
-  static const String userList = '$apiBase/user/List';
+  static String get filterMates => '$apiBase/mate/filter';
+  static String get nearbyMates => '$apiBase/mate/nearby';
+  static String get findNearbyMates => '$apiBase/mate/find-nearby-mates';
+  static String get likeMate => '$apiBase/mate/like';
+  static String get likedMates => '$apiBase/mate/liked-mates';
+  static String get totalMates => '$apiBase/mate/total-mates';
+  static String get matchList => '$apiBase/user/match';
+  static String get searchUsers => '$apiBase/user/search';
+  static String get userList => '$apiBase/user/List';
 
   // Privacy endpoints
-  static const String privacyProfile = '$apiBase/privacy/profile';
-  static const String updatePrivacy = '$apiBase/privacy/updatePrivacy';
-  static const String getPrivacy = '$apiBase/privacy/getPrivacySettings';
+  static String get privacyProfile => '$apiBase/privacy/profile';
+  static String get updatePrivacy => '$apiBase/privacy/updatePrivacy';
+  static String get getPrivacy => '$apiBase/privacy/getPrivacySettings';
 
   // Chat endpoints
-  static const String sendMessage = '$apiBase/message/send';
-  static const String chatList = '$apiBase/message/chatlist';
-  static const String groupList = '$apiBase/message/grouplist';
-  static const String markAsRead = '$apiBase/message/markAsRead';
-  static const String businessChatList = '$apiBase/message/getChatList';
-  static const String sendBusinessMessage = '$apiBase/message/sendB';
+  static String get sendMessage => '$apiBase/message/send';
+  static String get chatList => '$apiBase/message/chatlist';
+  static String get groupList => '$apiBase/message/grouplist';
+  static String get markAsRead => '$apiBase/message/markAsRead';
+  static String get businessChatList => '$apiBase/message/getChatList';
+  static String get sendBusinessMessage => '$apiBase/message/sendB';
 
   // Business authentication endpoints
-  static const String businessLogin = '$apiBase/business/login';
-  static const String businessRegister = '$apiBase/business/register';
-  static const String businessRequestOtp = '$apiBase/business/request-otp';
-  static const String businessVerify = '$apiBase/business/verify';
-  static const String businessProfile = '$apiBase/business/profile';
-  static const String createBusinessProfile = '$apiBase/business/create-profile';
-  static const String updateBusinessProfile = '$apiBase/business/update/';
-  static const String businessStatus = '$apiBase/business/status';
-  static const String businessProfileImage = '$apiBase/business/upload-profile-image';
-  static const String businessCoverImage = '$apiBase/business/upload-cover-image';
+  static String get businessLogin => '$apiBase/business/login';
+  static String get businessRegister => '$apiBase/business/register';
+  static String get businessRequestOtp => '$apiBase/business/request-otp';
+  static String get businessVerify => '$apiBase/business/verify';
+  static String get businessProfile => '$apiBase/business/profile';
+  static String get createBusinessProfile => '$apiBase/business/create-profile';
+  static String get updateBusinessProfile => '$apiBase/business/update/';
+  static String get businessStatus => '$apiBase/business/status';
+  static String get businessProfileImage => '$apiBase/business/upload-profile-image';
+  static String get businessCoverImage => '$apiBase/business/upload-cover-image';
 
   // Business events endpoints
-  static const String businessEventList = '$apiBase/business/list';
-  static const String createBusinessEvent = '$apiBase/business/create-event';
-  static const String myBusinessEvents = '$apiBase/business/event-list';
-  static const String updateBusinessEvent = '$apiBase/business/update-event/';
-  static const String deleteBusinessEvent = '$apiBase/business/delete-event/';
-  static const String businessEventDetails = '$apiBase/business/event/';
-  static const String joinBusinessEvent = '$apiBase/business/join-event';
-  static const String leaveBusinessEvent = '$apiBase/business/leave-event';
-  static const String saveBusinessEvent = '$apiBase/business/save-event';
-  static const String savedEventsList = '$apiBase/business/saved-list';
-  static const String topEvents = '$apiBase/business/top-events';
-  static const String eventClicks = '$apiBase/business/events/';
-  static const String eventViews = '$apiBase/business/events/';
+  static String get businessEventList => '$apiBase/business/list';
+  static String get createBusinessEvent => '$apiBase/business/create-event';
+  static String get myBusinessEvents => '$apiBase/business/event-list';
+  static String get updateBusinessEvent => '$apiBase/business/update-event/';
+  static String get deleteBusinessEvent => '$apiBase/business/delete-event/';
+  static String get businessEventDetails => '$apiBase/business/event/';
+  static String get joinBusinessEvent => '$apiBase/business/join-event';
+  static String get leaveBusinessEvent => '$apiBase/business/leave-event';
+  static String get saveBusinessEvent => '$apiBase/business/save-event';
+  static String get savedEventsList => '$apiBase/business/saved-list';
+  static String get topEvents => '$apiBase/business/top-events';
+  static String get eventClicks => '$apiBase/business/events/';
+  static String get eventViews => '$apiBase/business/events/';
 
   // Business social endpoints
-  static const String followBusiness = '$apiBase/business/follow';
-  static const String unfollowBusiness = '$apiBase/business/unfollow';
+  static String get followBusiness => '$apiBase/business/follow';
+  static String get unfollowBusiness => '$apiBase/business/unfollow';
 
   // Business subscription endpoints
-  static const String createSubscription = '$apiBase/business/create';
-  static const String cancelSubscription = '$apiBase/business/cancel';
-  static const String subscriptionStatus = '$apiBase/business/subscription-status';
-  static const String businessAnalytics = '$apiBase/business/analytics';
+  static String get createSubscription => '$apiBase/business/create';
+  static String get cancelSubscription => '$apiBase/business/cancel';
+  static String get subscriptionStatus => '$apiBase/business/subscription-status';
+  static String get businessAnalytics => '$apiBase/business/analytics';
 
   // Badges & achievements endpoints
-  static const String badgesList = '$apiBase/user/achievement-list';
-  static const String claimBadge = '$apiBase/user/claimed';
-  static const String leaderboard = '$apiBase/user/ranking';
+  static String get badgesList => '$apiBase/user/achievement-list';
+  static String get claimBadge => '$apiBase/user/claimed';
+  static String get leaderboard => '$apiBase/user/ranking';
 
   // Notifications endpoints
-  static const String notifications = '$apiBase/mate/list_notifications';
+  static String get notifications => '$apiBase/mate/list_notifications';
 
   // Support endpoints
-  static const String submitComplaint = '$apiBase/admin/complain';
+  static String get submitComplaint => '$apiBase/admin/complain';
 
   // Payment endpoints
-  static const String createPaymentIntent = '$apiBase/payment/stripe/create-payment-intent';
-  static const String verifyPayment = '$apiBase/payment/verify';
-  static const String upgradeToPremium = '$apiBase/payment/upgrade-to-premium';
+  static String get createPaymentIntent => '$apiBase/payment/stripe/create-payment-intent';
+  static String get verifyPayment => '$apiBase/payment/verify';
+  static String get upgradeToPremium => '$apiBase/payment/upgrade-to-premium';
 
   // Device/FCM endpoints
-  static const String registerDevice = '$apiBase/user/register-device';
+  static String get registerDevice => '$apiBase/user/register-device';
 
   // Socket URL
-  static const String socketUrl = baseUrl;
+  static String get socketUrl => AppConfig.socketUrl;
 }

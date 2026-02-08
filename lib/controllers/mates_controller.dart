@@ -4,14 +4,10 @@ import 'package:get/get.dart';
 import '../models/mate_model.dart';
 import '../models/user_model.dart';
 import '../repositories/mates_repository.dart';
-import '../services/mock_data_service.dart';
 
-/// Mates/matching controller with mock data fallback
+/// Mates/matching controller for finding and connecting with users
 class MatesController extends GetxController {
   final MatesRepository _matesRepository = MatesRepository();
-
-  /// Flag to use mock data when API fails (disabled by default, enabled on API failure)
-  final RxBool useMockData = false.obs;
 
   // State
   final RxList<MateModel> nearbyMates = <MateModel>[].obs;
@@ -70,7 +66,7 @@ class MatesController extends GetxController {
     loadNearbyMates();
   }
 
-  /// Load nearby mates (with pagination and mock data fallback)
+  /// Load nearby mates with pagination
   Future<void> loadNearbyMates({bool refresh = false}) async {
     // Reset pagination on refresh
     if (refresh) {
@@ -95,24 +91,22 @@ class MatesController extends GetxController {
         limit: pageSize,
       );
 
-      if (response.success && response.data != null && response.data!.isNotEmpty) {
+      if (response.success && response.data != null) {
         if (refresh || nearbyMates.isEmpty) {
           nearbyMates.value = response.data!;
         } else {
           nearbyMates.addAll(response.data!);
         }
-        useMockData.value = false;
 
         // Check if there are more pages
         hasMorePages.value = response.data!.length >= pageSize;
         if (hasMorePages.value) {
           currentPage.value++;
         }
-      } else if (nearbyMates.isEmpty) {
-        // Use mock data as fallback only if list is empty
-        _loadMockNearbyMates();
       } else {
-        // No more data - end of list
+        if (nearbyMates.isEmpty) {
+          errorMessage.value = response.displayMessage;
+        }
         hasMorePages.value = false;
       }
 
@@ -120,12 +114,10 @@ class MatesController extends GetxController {
         currentSwipeIndex.value = 0;
       }
     } catch (e) {
-      // Use mock data on error only if list is empty
       if (nearbyMates.isEmpty) {
-        _loadMockNearbyMates();
-      } else {
-        errorMessage.value = 'Failed to load more people';
+        errorMessage.value = 'Failed to load nearby people. Please try again.';
       }
+      debugPrint('Error loading nearby mates: $e');
     } finally {
       isLoading.value = false;
       isLoadingMore.value = false;
@@ -136,26 +128,6 @@ class MatesController extends GetxController {
   Future<void> loadMoreMates() async {
     if (isLoadingMore.value || !hasMorePages.value) return;
     await loadNearbyMates();
-  }
-
-  /// Load mock nearby mates for demo
-  void _loadMockNearbyMates() {
-    useMockData.value = true;
-    final mockData = MockDataService.generateMockUsers(15);
-    nearbyMates.value = mockData.map((data) => MateModel(
-      userId: data['userId'] as int,
-      userName: data['name'] as String,
-      age: data['age'] as int,
-      gender: data['gender'] as String,
-      bio: data['bio'] as String,
-      location: data['location'] as String,
-      onlineStatus: (data['isOnline'] as bool) ? 'online' : 'offline',
-      images: [data['profileImage'] as String],
-      interests: List<String>.from(data['interests'] as List),
-      distance: double.tryParse(data['distance'] as String),
-      isLiked: false,
-      isMatched: false,
-    )).toList();
   }
 
   /// Filter mates
@@ -283,30 +255,16 @@ class MatesController extends GetxController {
     }
   }
 
-  /// Load matches (with mock data fallback)
+  /// Load matches
   Future<void> loadMatches() async {
     try {
       final response = await _matesRepository.getMatches();
-      if (response.success && response.data != null && response.data!.isNotEmpty) {
+      if (response.success && response.data != null) {
         matches.value = response.data!;
-      } else {
-        _loadMockMatches();
       }
     } catch (e) {
-      _loadMockMatches();
+      debugPrint('Error loading matches: $e');
     }
-  }
-
-  /// Load mock matches for demo
-  void _loadMockMatches() {
-    final mockData = MockDataService.generateMockMatches(8);
-    matches.value = mockData.map((data) => MatchModel(
-      matchId: data['userId'] as int,
-      userId: data['userId'] as int,
-      userName: data['name'] as String,
-      images: [data['profileImage'] as String],
-      matchedAt: DateTime.tryParse(data['matchedAt'] as String),
-    )).toList();
   }
 
   /// View mate profile

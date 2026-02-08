@@ -6,14 +6,10 @@ import 'package:get/get.dart';
 import '../models/user_model.dart';
 import '../models/badge_model.dart';
 import '../repositories/profile_repository.dart';
-import '../services/mock_data_service.dart';
 
-/// Profile controller with mock data fallback for demo
+/// Profile controller for managing user profile data
 class ProfileController extends GetxController {
   final ProfileRepository _profileRepository = ProfileRepository();
-
-  /// Flag to use mock data when API fails (disabled by default, enabled on API failure)
-  final RxBool useMockData = false.obs;
 
   // State
   final Rx<UserModel?> currentUser = Rx<UserModel?>(null);
@@ -60,7 +56,7 @@ class ProfileController extends GetxController {
     super.onClose();
   }
 
-  /// Load user profile (with mock data fallback)
+  /// Load user profile
   Future<void> loadProfile() async {
     isLoading.value = true;
     errorMessage.value = '';
@@ -70,48 +66,17 @@ class ProfileController extends GetxController {
 
       if (response.success && response.data != null) {
         currentUser.value = response.data;
-        useMockData.value = false;
         _populateEditControllers();
         await _loadAdditionalData();
       } else {
-        // Use mock data when API fails
-        _loadMockProfile();
+        errorMessage.value = response.displayMessage;
       }
     } catch (e) {
-      // Use mock data on error
-      _loadMockProfile();
+      errorMessage.value = 'Failed to load profile. Please try again.';
+      debugPrint('Error loading profile: $e');
     } finally {
       isLoading.value = false;
     }
-  }
-
-  /// Load mock profile for demo
-  void _loadMockProfile() {
-    useMockData.value = true;
-    final mockData = MockDataService.getDemoProfile();
-
-    currentUser.value = UserModel(
-      userId: mockData['userId'] as int,
-      userName: mockData['name'] as String,
-      email: mockData['email'] as String,
-      onlineStatus: (mockData['isOnline'] as bool) ? 'online' : 'offline',
-      accountType: AccountType.regular, // Regular account for demo
-      profile: Profile(
-        age: mockData['age'] as int,
-        gender: mockData['gender'] as String,
-        bio: mockData['bio'] as String,
-        location: mockData['location'] as String,
-        interests: List<String>.from(mockData['interests'] as List),
-        images: [mockData['profileImage'] as String],
-      ),
-    );
-
-    profileCompletion.value = mockData['profileCompletion'] as int;
-    totalActivities.value = 3;
-    totalMatches.value = 8;
-    joinedActivities.value = 5;
-
-    _populateEditControllers();
   }
 
   /// Populate edit controllers with current data
@@ -168,17 +133,10 @@ class ProfileController extends GetxController {
     }
   }
 
-  /// Update profile (with mock mode support)
+  /// Update profile
   Future<bool> updateProfile() async {
     isUpdating.value = true;
     errorMessage.value = '';
-
-    // In mock mode, just update the local user data
-    if (useMockData.value) {
-      _updateMockProfile();
-      isUpdating.value = false;
-      return true;
-    }
 
     try {
       final response = await _profileRepository.updateProfile(
@@ -211,52 +169,6 @@ class ProfileController extends GetxController {
       errorMessage.value = 'Failed to update profile';
       return false;
     }
-  }
-
-  /// Update mock profile with form data
-  void _updateMockProfile() {
-    final current = currentUser.value;
-    if (current == null) return;
-
-    final newName = userNameController.text.trim().isNotEmpty
-        ? userNameController.text.trim()
-        : current.userName;
-
-    // Generate new avatar URL based on name
-    final newAvatarUrl = MockDataService.getAvatarUrl(newName ?? 'User');
-
-    currentUser.value = UserModel(
-      userId: current.userId,
-      userName: newName,
-      email: current.email,
-      onlineStatus: current.onlineStatus,
-      accountType: current.accountType,
-      profile: Profile(
-        age: int.tryParse(ageController.text) ?? current.profile?.age,
-        gender: selectedGender.value.isNotEmpty ? selectedGender.value : current.profile?.gender,
-        bio: bioController.text.trim().isNotEmpty ? bioController.text.trim() : current.profile?.bio,
-        location: locationController.text.trim().isNotEmpty
-            ? locationController.text.trim()
-            : current.profile?.location,
-        interests: selectedInterests.isNotEmpty
-            ? List<String>.from(selectedInterests)
-            : current.profile?.interests,
-        languages: selectedLanguages.isNotEmpty
-            ? List<String>.from(selectedLanguages)
-            : current.profile?.languages,
-        images: [newAvatarUrl],
-      ),
-    );
-
-    // Update profile completion based on fields filled
-    int completion = 20;
-    if (userNameController.text.trim().isNotEmpty) completion += 15;
-    if (bioController.text.trim().isNotEmpty) completion += 15;
-    if (ageController.text.isNotEmpty) completion += 10;
-    if (selectedGender.value.isNotEmpty) completion += 10;
-    if (locationController.text.trim().isNotEmpty) completion += 10;
-    if (selectedInterests.isNotEmpty) completion += 20;
-    profileCompletion.value = completion.clamp(0, 100);
   }
 
   /// Set browse location for finding events in different cities (travel mode)
