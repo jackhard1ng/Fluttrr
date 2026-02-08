@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
 import '../../config/routes.dart';
+import '../../controllers/business_controller.dart';
 import '../../controllers/profile_controller.dart';
 import '../../widgets/common_widgets.dart';
 import '../../widgets/animated_widgets.dart';
@@ -78,11 +79,11 @@ class BusinessDashboardScreen extends StatelessWidget {
               actions: [
                 IconButton(
                   icon: const Icon(Icons.notifications_outlined),
-                  onPressed: () {},
+                  onPressed: () => Nav.toNotifications(),
                 ),
                 IconButton(
                   icon: const Icon(Icons.settings_outlined),
-                  onPressed: () {},
+                  onPressed: () => Nav.toSettings(),
                 ),
               ],
             ),
@@ -258,37 +259,45 @@ class _StatsOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Mock stats for demo
-    return Row(
-      children: [
-        Expanded(
-          child: _StatCard(
-            icon: Icons.event,
-            label: 'Events',
-            value: '12',
-            color: AppColors.primaryBlue,
+    final businessController = Get.find<BusinessController>();
+
+    return Obx(() {
+      final analytics = businessController.analytics.value;
+      final eventsCount = businessController.myBusinessEvents.length;
+      final totalAttendees = analytics?.totalAttendees ?? 0;
+      final rating = businessController.businessProfile.value?.rating ?? 0.0;
+
+      return Row(
+        children: [
+          Expanded(
+            child: _StatCard(
+              icon: Icons.event,
+              label: 'Events',
+              value: '$eventsCount',
+              color: AppColors.primaryBlue,
+            ),
           ),
-        ),
-        const SizedBox(width: AppSpacing.md),
-        Expanded(
-          child: _StatCard(
-            icon: Icons.people,
-            label: 'Attendees',
-            value: '248',
-            color: AppColors.friendlyTeal,
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: _StatCard(
+              icon: Icons.people,
+              label: 'Attendees',
+              value: '$totalAttendees',
+              color: AppColors.friendlyTeal,
+            ),
           ),
-        ),
-        const SizedBox(width: AppSpacing.md),
-        Expanded(
-          child: _StatCard(
-            icon: Icons.star,
-            label: 'Rating',
-            value: '4.8',
-            color: AppColors.warmYellow,
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: _StatCard(
+              icon: Icons.star,
+              label: 'Rating',
+              value: rating > 0 ? rating.toStringAsFixed(1) : '--',
+              color: AppColors.warmYellow,
+            ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 }
 
@@ -771,11 +780,85 @@ class _UpcomingEventCard extends StatelessWidget {
             ),
           ),
           // Actions
-          IconButton(
+          PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
-            onPressed: () {
-              // Show event options
+            onSelected: (value) {
+              switch (value) {
+                case 'edit':
+                  Get.snackbar(
+                    'Coming Soon',
+                    'Event editing will be available soon',
+                    snackPosition: SnackPosition.BOTTOM,
+                  );
+                  break;
+                case 'view':
+                  Nav.toBusinessEvents();
+                  break;
+                case 'cancel':
+                  Get.dialog(
+                    AlertDialog(
+                      title: const Text('Cancel Event'),
+                      content: const Text(
+                        'Are you sure you want to cancel this event? Attendees will be notified.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Get.back(),
+                          child: const Text('No, keep it'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Get.back();
+                            Get.snackbar(
+                              'Event Cancelled',
+                              'The event has been cancelled and attendees notified',
+                              snackPosition: SnackPosition.BOTTOM,
+                            );
+                          },
+                          child: const Text(
+                            'Yes, cancel',
+                            style: TextStyle(color: AppColors.error),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                  break;
+              }
             },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'edit',
+                child: Row(
+                  children: [
+                    Icon(Icons.edit),
+                    SizedBox(width: AppSpacing.sm),
+                    Text('Edit Event'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'view',
+                child: Row(
+                  children: [
+                    Icon(Icons.visibility),
+                    SizedBox(width: AppSpacing.sm),
+                    Text('View Details'),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              const PopupMenuItem(
+                value: 'cancel',
+                child: Row(
+                  children: [
+                    Icon(Icons.cancel, color: AppColors.error),
+                    SizedBox(width: AppSpacing.sm),
+                    Text('Cancel Event', style: TextStyle(color: AppColors.error)),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),

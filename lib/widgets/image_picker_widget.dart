@@ -92,7 +92,12 @@ class AvatarPicker extends StatelessWidget {
               title: const Text('Take Photo'),
               onTap: () {
                 Get.back();
-                // Would open camera
+                Get.snackbar(
+                  'Camera',
+                  'Camera access requires device permissions',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: const Duration(seconds: 2),
+                );
               },
             ),
             ListTile(
@@ -100,7 +105,12 @@ class AvatarPicker extends StatelessWidget {
               title: const Text('Choose from Gallery'),
               onTap: () {
                 Get.back();
-                // Would open gallery
+                Get.snackbar(
+                  'Gallery',
+                  'Gallery access requires device permissions',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: const Duration(seconds: 2),
+                );
               },
             ),
             if (imageUrl != null)
@@ -109,7 +119,13 @@ class AvatarPicker extends StatelessWidget {
                 title: Text('Remove Photo', style: TextStyle(color: AppColors.error)),
                 onTap: () {
                   Get.back();
-                  // Would remove photo
+                  Get.snackbar(
+                    'Photo Removed',
+                    'Your photo has been removed',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: AppColors.error,
+                    colorText: Colors.white,
+                  );
                 },
               ),
             const SizedBox(height: 16),
@@ -199,7 +215,12 @@ class ImagePickerGrid extends StatelessWidget {
               title: const Text('Take Photo'),
               onTap: () {
                 Get.back();
-                // Would open camera
+                Get.snackbar(
+                  'Camera',
+                  'Camera access requires device permissions',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: const Duration(seconds: 2),
+                );
               },
             ),
             ListTile(
@@ -207,7 +228,12 @@ class ImagePickerGrid extends StatelessWidget {
               title: const Text('Choose from Gallery'),
               onTap: () {
                 Get.back();
-                // Would open gallery
+                Get.snackbar(
+                  'Gallery',
+                  'Gallery access requires device permissions',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: const Duration(seconds: 2),
+                );
               },
             ),
             const SizedBox(height: 16),

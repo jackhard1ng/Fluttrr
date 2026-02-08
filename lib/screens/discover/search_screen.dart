@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../config/routes.dart';
 import '../../constants/utils.dart';
 import '../../widgets/category_chips.dart';
 import '../../widgets/empty_states.dart';
@@ -262,9 +263,243 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildResults() {
-    // Mock results - in real app would fetch from API
-    return const Center(
-      child: NoResultsState(),
+    // Filter results based on query and active tab
+    final results = _getFilteredResults();
+
+    if (results.isEmpty) {
+      return const Center(
+        child: NoResultsState(),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      itemCount: results.length,
+      itemBuilder: (context, index) {
+        final result = results[index];
+        return _SearchResultItem(
+          result: result,
+          onTap: () {
+            HapticFeedback.lightImpact();
+            // Add to recent searches if not already there
+            if (!_recentSearches.contains(_query)) {
+              setState(() {
+                _recentSearches.insert(0, _query);
+                if (_recentSearches.length > 5) {
+                  _recentSearches.removeLast();
+                }
+              });
+            }
+            // Navigate based on result type
+            _navigateToResult(result);
+          },
+        );
+      },
+    );
+  }
+
+  List<_SearchResult> _getFilteredResults() {
+    final queryLower = _query.toLowerCase();
+
+    // Mock data - in real app would fetch from API
+    final List<_SearchResult> allEvents = [
+      _SearchResult(
+        type: SearchTab.events,
+        title: 'Friday Night Board Games',
+        subtitle: 'The Game Parlor • Tomorrow, 7 PM',
+        icon: Icons.casino,
+      ),
+      _SearchResult(
+        type: SearchTab.events,
+        title: 'Coffee & Chat Morning',
+        subtitle: 'The Roastery • Saturday, 10 AM',
+        icon: Icons.coffee,
+      ),
+      _SearchResult(
+        type: SearchTab.events,
+        title: 'Weekend Hiking Group',
+        subtitle: 'Mountain Trail Park • Sunday, 8 AM',
+        icon: Icons.hiking,
+      ),
+      _SearchResult(
+        type: SearchTab.events,
+        title: 'Yoga in the Park',
+        subtitle: 'Central Park • Daily, 6 AM',
+        icon: Icons.self_improvement,
+      ),
+      _SearchResult(
+        type: SearchTab.events,
+        title: 'Photography Walk',
+        subtitle: 'Downtown • This Saturday, 3 PM',
+        icon: Icons.camera_alt,
+      ),
+    ];
+
+    final List<_SearchResult> allPeople = [
+      _SearchResult(
+        type: SearchTab.people,
+        title: 'Sarah Mitchell',
+        subtitle: 'Loves hiking and photography',
+        icon: Icons.person,
+      ),
+      _SearchResult(
+        type: SearchTab.people,
+        title: 'Mike Johnson',
+        subtitle: 'Board game enthusiast',
+        icon: Icons.person,
+      ),
+      _SearchResult(
+        type: SearchTab.people,
+        title: 'Jordan Lee',
+        subtitle: 'Coffee lover, yoga practitioner',
+        icon: Icons.person,
+      ),
+    ];
+
+    final List<_SearchResult> allPlaces = [
+      _SearchResult(
+        type: SearchTab.places,
+        title: 'The Game Parlor',
+        subtitle: 'Board game cafe • 0.5 miles away',
+        icon: Icons.store,
+      ),
+      _SearchResult(
+        type: SearchTab.places,
+        title: 'The Roastery',
+        subtitle: 'Coffee shop • 0.3 miles away',
+        icon: Icons.store,
+      ),
+      _SearchResult(
+        type: SearchTab.places,
+        title: 'Mountain Trail Park',
+        subtitle: 'Outdoor area • 5 miles away',
+        icon: Icons.park,
+      ),
+      _SearchResult(
+        type: SearchTab.places,
+        title: 'Central Park',
+        subtitle: 'Public park • 1.2 miles away',
+        icon: Icons.park,
+      ),
+    ];
+
+    List<_SearchResult> results;
+    switch (_activeTab) {
+      case SearchTab.events:
+        results = allEvents;
+        break;
+      case SearchTab.people:
+        results = allPeople;
+        break;
+      case SearchTab.places:
+        results = allPlaces;
+        break;
+    }
+
+    // Filter by query
+    return results.where((result) {
+      return result.title.toLowerCase().contains(queryLower) ||
+          result.subtitle.toLowerCase().contains(queryLower);
+    }).toList();
+  }
+
+  void _navigateToResult(_SearchResult result) {
+    switch (result.type) {
+      case SearchTab.events:
+        Nav.toDiscover();
+        break;
+      case SearchTab.people:
+        Nav.toMatches();
+        break;
+      case SearchTab.places:
+        Nav.toDiscover();
+        break;
+    }
+  }
+}
+
+class _SearchResult {
+  final SearchTab type;
+  final String title;
+  final String subtitle;
+  final IconData icon;
+
+  _SearchResult({
+    required this.type,
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+  });
+}
+
+class _SearchResultItem extends StatelessWidget {
+  final _SearchResult result;
+  final VoidCallback onTap;
+
+  const _SearchResultItem({
+    required this.result,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: AppColors.lightGrey.withAlpha(128),
+              width: 1,
+            ),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppColors.primaryBlue.withAlpha(26),
+                borderRadius: BorderRadius.circular(AppRadius.md),
+              ),
+              child: Icon(
+                result.icon,
+                color: AppColors.primaryBlue,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    result.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    result.subtitle,
+                    style: TextStyle(
+                      color: AppColors.mediumGrey,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: AppColors.mediumGrey,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

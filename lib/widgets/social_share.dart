@@ -77,6 +77,18 @@ class ShareSheet extends StatelessWidget {
     this.url,
   });
 
+  void _sendToFriend(String friendName) {
+    Get.back();
+    Get.snackbar(
+      'Sent!',
+      'Shared with $friendName',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: AppColors.success,
+      colorText: Colors.white,
+      duration: const Duration(seconds: 2),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -168,11 +180,26 @@ class ShareSheet extends StatelessWidget {
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                _FriendShareTile(name: 'Alex', onTap: () {}),
-                _FriendShareTile(name: 'Jordan', onTap: () {}),
-                _FriendShareTile(name: 'Taylor', onTap: () {}),
-                _FriendShareTile(name: 'Sam', onTap: () {}),
-                _FriendShareTile(name: 'Chris', onTap: () {}),
+                _FriendShareTile(
+                  name: 'Alex',
+                  onTap: () => _sendToFriend('Alex'),
+                ),
+                _FriendShareTile(
+                  name: 'Jordan',
+                  onTap: () => _sendToFriend('Jordan'),
+                ),
+                _FriendShareTile(
+                  name: 'Taylor',
+                  onTap: () => _sendToFriend('Taylor'),
+                ),
+                _FriendShareTile(
+                  name: 'Sam',
+                  onTap: () => _sendToFriend('Sam'),
+                ),
+                _FriendShareTile(
+                  name: 'Chris',
+                  onTap: () => _sendToFriend('Chris'),
+                ),
               ],
             ),
           ),

@@ -117,9 +117,7 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
             _OptionTile(
               title: 'Blocked users',
               subtitle: 'Manage people you\'ve blocked',
-              onTap: () {
-                // Navigate to blocked users
-              },
+              onTap: () => _showBlockedUsers(),
             ),
             const SizedBox(height: 24),
 
@@ -217,6 +215,72 @@ class _PrivacySettingsScreenState extends State<PrivacySettingsScreen> {
                 },
               );
             }),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showBlockedUsers() {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Blocked Users',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => Get.back(),
+                  child: Icon(Icons.close, color: AppColors.mediumGrey),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Container(
+              height: 200,
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.block,
+                    size: 48,
+                    color: AppColors.mediumGrey,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'No blocked users',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.darkGrey,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Users you block will appear here',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.mediumGrey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 16),
           ],
         ),

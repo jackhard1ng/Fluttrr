@@ -471,7 +471,8 @@ class _GallerySection extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                // View all photos
+                // Navigate to edit profile to manage gallery
+                Nav.toEditProfile();
               },
               child: const Text('See All'),
             ),

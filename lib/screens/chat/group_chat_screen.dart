@@ -206,7 +206,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                   GestureDetector(
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      // Show attachment options
+                      _showAttachmentOptions();
                     },
                     child: Icon(Icons.add_circle_outline, color: AppColors.mediumGrey),
                   ),
@@ -285,7 +285,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
               title: 'Members',
               onTap: () {
                 Get.back();
-                // Show members
+                _showMembersList();
               },
             ),
             _InfoTile(
@@ -293,7 +293,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
               title: 'Shared Media',
               onTap: () {
                 Get.back();
-                // Show media
+                _showSharedMedia();
               },
             ),
             _InfoTile(
@@ -363,6 +363,172 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
             child: Text('Leave', style: TextStyle(color: AppColors.error)),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showAttachmentOptions() {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Icons.photo, color: AppColors.primaryBlue),
+              title: const Text('Photo'),
+              onTap: () {
+                Get.back();
+                Get.snackbar(
+                  'Photo',
+                  'Photo sharing requires device permissions',
+                  snackPosition: SnackPosition.BOTTOM,
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.camera_alt, color: AppColors.friendlyTeal),
+              title: const Text('Camera'),
+              onTap: () {
+                Get.back();
+                Get.snackbar(
+                  'Camera',
+                  'Camera access requires device permissions',
+                  snackPosition: SnackPosition.BOTTOM,
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.location_on, color: AppColors.friendlyOrange),
+              title: const Text('Location'),
+              onTap: () {
+                Get.back();
+                Get.snackbar(
+                  'Location',
+                  'Location sharing requires device permissions',
+                  snackPosition: SnackPosition.BOTTOM,
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showMembersList() {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Group Members',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _MemberTile(name: 'Alex', role: 'Admin'),
+            _MemberTile(name: 'Jordan', role: 'Member'),
+            _MemberTile(name: 'Taylor', role: 'Member'),
+            _MemberTile(name: 'You', role: 'Member'),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showSharedMedia() {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Shared Media',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              height: 150,
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.photo_library, size: 48, color: AppColors.mediumGrey),
+                  const SizedBox(height: 8),
+                  Text(
+                    'No media shared yet',
+                    style: TextStyle(color: AppColors.mediumGrey),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MemberTile extends StatelessWidget {
+  final String name;
+  final String role;
+
+  const _MemberTile({required this.name, required this.role});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: AppColors.primaryBlue.withAlpha(26),
+        child: Text(
+          name[0],
+          style: TextStyle(
+            color: AppColors.primaryBlue,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      title: Text(name),
+      trailing: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: role == 'Admin'
+              ? AppColors.warmYellow.withAlpha(26)
+              : AppColors.lightGrey,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Text(
+          role,
+          style: TextStyle(
+            fontSize: 12,
+            color: role == 'Admin' ? AppColors.warmYellow : AppColors.mediumGrey,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ),
     );
   }
