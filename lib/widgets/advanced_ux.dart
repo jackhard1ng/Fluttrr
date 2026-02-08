@@ -284,6 +284,8 @@ class _DoubleBackToExitState extends State<DoubleBackToExit> {
             now.difference(_lastBackPress!) > widget.duration) {
           _lastBackPress = now;
           HapticFeedback.lightImpact();
+          // Check if widget is still mounted before showing snackbar (#81)
+          if (!mounted) return;
           Get.showSnackbar(
             GetSnackBar(
               message: widget.message,

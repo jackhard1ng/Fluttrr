@@ -345,6 +345,9 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showAboutDialog(BuildContext context) {
+    // Check if context is still mounted before showing dialog (#85)
+    if (!context.mounted) return;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -413,6 +416,9 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showLegalDialog(BuildContext context, String title) {
+    // Check if context is still mounted before showing dialog (#86)
+    if (!context.mounted) return;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

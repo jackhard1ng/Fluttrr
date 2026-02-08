@@ -325,6 +325,9 @@ class _SwipeDiscoverScreenState extends State<SwipeDiscoverScreen>
   }
 
   void _showFilters(BuildContext context) {
+    // Check if context is still mounted before showing bottom sheet (#83)
+    if (!context.mounted) return;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,

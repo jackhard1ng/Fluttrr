@@ -153,6 +153,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   void _showNotificationActions(BuildContext context, _NotificationData notification, int index) {
+    // Check if context is still mounted before showing bottom sheet (#84)
+    if (!context.mounted) return;
+
     HapticFeedback.mediumImpact();
     showModalBottomSheet(
       context: context,

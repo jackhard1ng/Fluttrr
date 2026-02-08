@@ -727,6 +727,9 @@ class _MateProfileScreenState extends State<MateProfileScreen> {
   }
 
   void _showOptionsMenu(BuildContext context) {
+    // Check if context is still mounted before showing bottom sheet (#82)
+    if (!context.mounted) return;
+
     final matesController = Get.find<MatesController>();
     final user = matesController.viewedProfile.value;
     final userName = user?.displayName ?? 'User';
