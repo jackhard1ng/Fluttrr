@@ -100,6 +100,96 @@ class _BusinessEventDetailsScreenState
     );
   }
 
+  void _showEditComingSoon(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: AppColors.friendlyPurple.withAlpha(26),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.edit_calendar,
+                  size: 30,
+                  color: AppColors.friendlyPurple,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Event Editing',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'The ability to edit events is coming soon! We\'re working hard to bring you this feature.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.mediumGrey,
+                ),
+              ),
+              const SizedBox(height: 24),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                  HapticFeedback.lightImpact();
+                  Get.snackbar(
+                    '🔔 You\'re on the list!',
+                    'We\'ll notify you when event editing is ready',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: AppColors.success,
+                    colorText: Colors.white,
+                    duration: const Duration(seconds: 2),
+                  );
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: BoxDecoration(
+                    color: AppColors.friendlyPurple,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'Notify Me When Ready',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'Maybe Later',
+                  style: TextStyle(color: AppColors.mediumGrey),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -170,12 +260,8 @@ class _BusinessEventDetailsScreenState
                 onSelected: (value) {
                   switch (value) {
                     case 'edit':
-                      // Navigate to edit screen
-                      Get.snackbar(
-                        'Coming Soon',
-                        'Event editing will be available soon',
-                        snackPosition: SnackPosition.BOTTOM,
-                      );
+                      HapticFeedback.lightImpact();
+                      _showEditComingSoon(context);
                       break;
                     case 'share':
                       final eventId = widget.event.eventId ?? widget.event.id;
