@@ -33,9 +33,6 @@ class DefaultFirebaseOptions {
       case TargetPlatform.fuchsia:
         // Fuchsia uses web config as fallback
         return web;
-      default:
-        // Return web config as fallback for any unknown platform
-        return web;
     }
   }
 

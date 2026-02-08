@@ -3,7 +3,7 @@
 // Core widgets
 // Note: common_widgets.dart re-exports some widgets that also exist in dedicated files.
 // Hide duplicates to avoid ambiguous exports.
-export 'common_widgets.dart' hide LoadingIndicator, ShimmerCard, EmptyState, CustomTextField, UserAvatar, EventTagsInput;
+export 'common_widgets.dart' hide LoadingIndicator, ShimmerCard, EmptyState, ErrorState, CustomTextField, UserAvatar, EventTagsInput;
 export 'animated_widgets.dart';
 export 'loading_widgets.dart';
 export 'shimmer_loading.dart';
@@ -24,7 +24,7 @@ export 'user_list_tile.dart';
 
 // Profile & social
 export 'profile_preview_sheet.dart';
-export 'profile_stats.dart';
+export 'profile_stats.dart' hide VerifiedBadge;
 export 'simple_badges.dart' hide UserBadge;
 export 'badge_widgets.dart';
 export 'streak_counter.dart';
@@ -41,7 +41,7 @@ export 'icebreaker_widget.dart';
 export 'intro_message.dart';
 
 // Safety features
-export 'safety_features.dart' hide SafetyCheckin;
+export 'safety_features.dart' hide SafetyCheckIn;
 export 'safety_checkin.dart';
 
 // Activity & timeline

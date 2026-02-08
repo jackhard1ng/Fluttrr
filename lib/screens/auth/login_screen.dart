@@ -5,7 +5,6 @@ import '../../constants/utils.dart';
 import '../../config/routes.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/profile_controller.dart';
-import '../../widgets/common_widgets.dart';
 
 /// Modern login screen with brand identity
 class LoginScreen extends StatelessWidget {

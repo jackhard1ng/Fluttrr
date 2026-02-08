@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../models/api_response.dart';
 import '../repositories/auth_repository.dart';
 
 /// Authentication controller
