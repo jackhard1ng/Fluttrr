@@ -51,6 +51,16 @@ class EditProfileScreen extends StatelessWidget {
                             backgroundColor: AppColors.success,
                             colorText: Colors.white,
                           );
+                        } else {
+                          Get.snackbar(
+                            'Error',
+                            profileController.errorMessage.value.isNotEmpty
+                                ? profileController.errorMessage.value
+                                : 'Failed to update profile. Please try again.',
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: AppColors.error,
+                            colorText: Colors.white,
+                          );
                         }
                       },
                 child: profileController.isUpdating.value

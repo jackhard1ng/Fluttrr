@@ -272,14 +272,24 @@ class _MateProfileScreenState extends State<MateProfileScreen> {
                             label: 'Wave',
                             color: AppColors.friendlyTeal,
                             onTap: () async {
-                              await matesController.likeMate(widget.userId);
-                              Get.snackbar(
-                                'Waved!',
-                                'You waved at ${user.displayName}',
-                                snackPosition: SnackPosition.BOTTOM,
-                                backgroundColor: AppColors.friendlyTeal,
-                                colorText: Colors.white,
-                              );
+                              final success = await matesController.likeMate(widget.userId);
+                              if (success) {
+                                Get.snackbar(
+                                  'Waved!',
+                                  'You waved at ${user.displayName}',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: AppColors.friendlyTeal,
+                                  colorText: Colors.white,
+                                );
+                              } else {
+                                Get.snackbar(
+                                  'Oops!',
+                                  'Could not send wave. Please try again.',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: AppColors.error,
+                                  colorText: Colors.white,
+                                );
+                              }
                             },
                           ),
                         ),
@@ -290,9 +300,10 @@ class _MateProfileScreenState extends State<MateProfileScreen> {
                             label: 'Message',
                             color: AppColors.primaryBlue,
                             onTap: () {
+                              if (user.userId == null) return;
                               final conversation = ChatConversation(
                                 otherUserId: user.userId,
-                                otherUserName: user.userName,
+                                otherUserName: user.userName ?? 'User',
                                 otherUserImages: user.profile?.images ?? [],
                               );
                               Nav.toChat(conversation);

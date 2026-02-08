@@ -79,7 +79,11 @@ class _MatchCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Nav.toMateProfile(match.userId!),
+      onTap: () {
+        if (match.userId != null) {
+          Nav.toMateProfile(match.userId!);
+        }
+      },
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -137,9 +141,10 @@ class _MatchCard extends StatelessWidget {
                   const SizedBox(height: AppSpacing.sm),
                   GestureDetector(
                     onTap: () {
+                      if (match.userId == null) return;
                       final conversation = ChatConversation(
                         otherUserId: match.userId,
-                        otherUserName: match.userName,
+                        otherUserName: match.userName ?? 'User',
                         otherUserImages: match.images,
                       );
                       Nav.toChat(conversation);

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
+import '../../controllers/business_controller.dart';
 import '../../widgets/common_widgets.dart';
 
 /// Public-facing business profile that users can view and review
@@ -23,6 +25,7 @@ class _PublicBusinessProfileScreenState
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   bool _isFollowing = false;
+  bool _isFollowLoading = false;
 
   @override
   void initState() {
@@ -36,6 +39,52 @@ class _PublicBusinessProfileScreenState
     super.dispose();
   }
 
+  Future<void> _toggleFollow() async {
+    if (_isFollowLoading) return;
+
+    setState(() => _isFollowLoading = true);
+
+    try {
+      final businessController = Get.find<BusinessController>();
+      final businessId = int.tryParse(widget.businessId);
+
+      if (businessId != null) {
+        final success = await businessController.toggleFollowBusiness(businessId);
+
+        if (success) {
+          setState(() => _isFollowing = !_isFollowing);
+          Get.snackbar(
+            _isFollowing ? 'Following!' : 'Unfollowed',
+            _isFollowing
+                ? 'You\'ll see their events in your feed'
+                : 'You won\'t see their events anymore',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: _isFollowing ? AppColors.success : AppColors.mediumGrey,
+            colorText: Colors.white,
+          );
+        } else {
+          Get.snackbar(
+            'Error',
+            'Could not update follow status. Please try again.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: AppColors.error,
+            colorText: Colors.white,
+          );
+        }
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Something went wrong. Please try again.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.error,
+        colorText: Colors.white,
+      );
+    } finally {
+      setState(() => _isFollowLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,18 +93,8 @@ class _PublicBusinessProfileScreenState
           // Header with cover image
           _BusinessHeader(
             isFollowing: _isFollowing,
-            onFollowTap: () {
-              setState(() => _isFollowing = !_isFollowing);
-              Get.snackbar(
-                _isFollowing ? 'Following!' : 'Unfollowed',
-                _isFollowing
-                    ? 'You\'ll see their events in your feed'
-                    : 'You won\'t see their events anymore',
-                snackPosition: SnackPosition.BOTTOM,
-                backgroundColor: _isFollowing ? AppColors.success : AppColors.mediumGrey,
-                colorText: Colors.white,
-              );
-            },
+            isLoading: _isFollowLoading,
+            onFollowTap: _toggleFollow,
           ),
 
           // Tab bar
@@ -109,11 +148,13 @@ class _PublicBusinessProfileScreenState
 
 class _BusinessHeader extends StatelessWidget {
   final bool isFollowing;
+  final bool isLoading;
   final VoidCallback onFollowTap;
 
   const _BusinessHeader({
     required this.isFollowing,
     required this.onFollowTap,
+    this.isLoading = false,
   });
 
   @override
@@ -261,12 +302,23 @@ class _BusinessHeader extends StatelessWidget {
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: onFollowTap,
-                            icon: Icon(
-                              isFollowing ? Icons.check : Icons.add,
-                              size: 18,
-                            ),
-                            label: Text(isFollowing ? 'Following' : 'Follow'),
+                            onPressed: isLoading ? null : onFollowTap,
+                            icon: isLoading
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    ),
+                                  )
+                                : Icon(
+                                    isFollowing ? Icons.check : Icons.add,
+                                    size: 18,
+                                  ),
+                            label: Text(isLoading
+                                ? ''
+                                : (isFollowing ? 'Following' : 'Follow')),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: isFollowing
                                   ? Colors.white.withAlpha(51)
@@ -289,11 +341,16 @@ class _BusinessHeader extends StatelessWidget {
                           ),
                           child: IconButton(
                             onPressed: () {
-                              // Share business
+                              // Share business - copy link to clipboard
+                              const shareUrl = 'https://fluttrr.app/business/the-social-hub';
+                              Clipboard.setData(const ClipboardData(text: shareUrl));
+                              HapticFeedback.lightImpact();
                               Get.snackbar(
-                                'Share',
-                                'Link copied to clipboard',
+                                'Link Copied!',
+                                'Share link copied to clipboard',
                                 snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: AppColors.success,
+                                colorText: Colors.white,
                               );
                             },
                             icon: const Icon(
