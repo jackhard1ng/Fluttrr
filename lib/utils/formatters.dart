@@ -368,8 +368,8 @@ class BatchOperationUtils {
       }
     });
 
-    // No eagerError needed - each future is wrapped in try-catch and never throws (#74)
-    final results = await Future.wait(futures);
+    // Use eagerError: false for defensive programming (#110)
+    final results = await Future.wait(futures, eagerError: false);
 
     final successes = <T>[];
     final errors = <BatchOperationError>[];

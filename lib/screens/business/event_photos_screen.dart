@@ -815,6 +815,8 @@ class _PhotoViewerScreen extends StatelessWidget {
           ),
           IconButton(
             onPressed: () {
+              // Check if context is still mounted before showing dialog (#109)
+              if (!context.mounted) return;
               // Delete photo
               showDialog(
                 context: context,

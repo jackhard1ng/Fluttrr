@@ -424,6 +424,9 @@ class _EditEventScreenState extends State<EditEventScreen> {
   }
 
   Future<bool> _showDiscardDialog() async {
+    // Check if context is still mounted before showing dialog (#108)
+    if (!context.mounted) return false;
+
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
