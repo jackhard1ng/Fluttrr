@@ -4,15 +4,14 @@ import 'package:get/get.dart';
 import '../../constants/utils.dart';
 import '../../controllers/profile_controller.dart';
 import '../../controllers/activity_controller.dart';
-import '../../controllers/mates_controller.dart';
 import '../../controllers/chat_controller.dart';
 import 'home_screen.dart';
-import '../mates/mates_screen.dart';
 import '../activities/activities_screen.dart';
 import '../chat/chat_list_screen.dart';
 import '../profile/profile_screen.dart';
 
 /// Main screen with bottom navigation
+/// 4 tabs: Home (event feed), Explore (browse events), Chat, Profile
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -25,7 +24,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const MatesScreen(),
     const ActivitiesScreen(),
     const ChatListScreen(),
     const ProfileScreen(),
@@ -41,7 +39,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   void _initControllers() {
     // Initialize all required controllers
     Get.put(ActivityController());
-    Get.put(MatesController());
     Get.put(ChatController());
 
     // Set user online
