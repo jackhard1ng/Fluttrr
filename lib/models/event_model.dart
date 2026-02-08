@@ -122,9 +122,12 @@ class EventModel {
 
   static TimeOfDay _parseTime(String time) {
     final parts = time.split(':');
+    if (parts.length < 2) {
+      return const TimeOfDay(hour: 0, minute: 0);
+    }
     return TimeOfDay(
-      hour: int.parse(parts[0]),
-      minute: int.parse(parts[1]),
+      hour: int.tryParse(parts[0]) ?? 0,
+      minute: int.tryParse(parts[1]) ?? 0,
     );
   }
 

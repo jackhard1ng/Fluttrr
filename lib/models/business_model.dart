@@ -241,7 +241,9 @@ class BusinessEvent {
 
   String get priceText {
     if (isFree) return 'Free';
-    return '${currency ?? '\$'}${price!.toStringAsFixed(2)}';
+    final priceValue = price;
+    if (priceValue == null) return 'Free';
+    return '${currency ?? '\$'}${priceValue.toStringAsFixed(2)}';
   }
 }
 

@@ -581,6 +581,7 @@ class BusinessController extends GetxController {
       }
       return false;
     } catch (e) {
+      debugPrint('Error deleting business event: $e');
       return false;
     }
   }
@@ -595,6 +596,7 @@ class BusinessController extends GetxController {
       }
       return false;
     } catch (e) {
+      debugPrint('Error joining business event: $e');
       return false;
     }
   }
@@ -609,6 +611,7 @@ class BusinessController extends GetxController {
       }
       return false;
     } catch (e) {
+      debugPrint('Error leaving business event: $e');
       return false;
     }
   }
@@ -623,6 +626,7 @@ class BusinessController extends GetxController {
       }
       return false;
     } catch (e) {
+      debugPrint('Error toggling save event: $e');
       return false;
     }
   }
@@ -637,6 +641,7 @@ class BusinessController extends GetxController {
 
       return response.success;
     } catch (e) {
+      debugPrint('Error toggling follow business: $e');
       return false;
     }
   }
@@ -676,6 +681,7 @@ class BusinessController extends GetxController {
       }
       return false;
     } catch (e) {
+      debugPrint('Error creating subscription: $e');
       return false;
     }
   }
@@ -690,6 +696,7 @@ class BusinessController extends GetxController {
       }
       return false;
     } catch (e) {
+      debugPrint('Error canceling subscription: $e');
       return false;
     }
   }

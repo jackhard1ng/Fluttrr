@@ -94,9 +94,10 @@ class UserModel {
 
   String get displayName => userName ?? 'User';
 
-  String? get profileImage => profile?.images?.isNotEmpty == true
-      ? profile!.images!.first
-      : null;
+  String? get profileImage {
+    final images = profile?.images;
+    return (images != null && images.isNotEmpty) ? images.first : null;
+  }
 }
 
 /// User profile details

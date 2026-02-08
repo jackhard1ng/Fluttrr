@@ -205,6 +205,7 @@ class ProfileController extends GetxController {
       }
       return false;
     } catch (e) {
+      debugPrint('Error updating location: $e');
       return false;
     }
   }
@@ -225,6 +226,7 @@ class ProfileController extends GetxController {
       return false;
     } catch (e) {
       isUploadingImage.value = false;
+      debugPrint('Error uploading gallery image: $e');
       return false;
     }
   }
@@ -269,6 +271,7 @@ class ProfileController extends GetxController {
       }
       return false;
     } catch (e) {
+      debugPrint('Error claiming badge: $e');
       return false;
     }
   }
