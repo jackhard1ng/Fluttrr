@@ -301,7 +301,14 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.report,
-      page: () => const ReportScreen(),
+      page: () {
+        final args = Get.arguments as Map<String, String?>?;
+        return ReportScreen(
+          userName: args?['userName'],
+          eventName: args?['eventName'],
+          businessName: args?['businessName'],
+        );
+      },
       transition: Transition.downToUp,
       fullscreenDialog: true,
     ),
@@ -438,7 +445,15 @@ class Nav {
 
   // Support
   static void toHelp() => Get.toNamed(AppRoutes.help);
-  static void toReport() => Get.toNamed(AppRoutes.report);
+  static void toReport({String? userName, String? eventName, String? businessName}) =>
+      Get.toNamed(
+        AppRoutes.report,
+        arguments: {
+          'userName': userName,
+          'eventName': eventName,
+          'businessName': businessName,
+        },
+      );
 
   // Business
   static void toBusinessWelcome() => Get.toNamed(AppRoutes.businessWelcome);

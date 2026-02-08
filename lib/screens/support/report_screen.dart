@@ -7,8 +7,9 @@ import '../../constants/utils.dart';
 class ReportScreen extends StatefulWidget {
   final String? userName;
   final String? eventName;
+  final String? businessName;
 
-  const ReportScreen({super.key, this.userName, this.eventName});
+  const ReportScreen({super.key, this.userName, this.eventName, this.businessName});
 
   @override
   State<ReportScreen> createState() => _ReportScreenState();
@@ -28,8 +29,12 @@ class _ReportScreenState extends State<ReportScreen> {
   String get _reportingWhat {
     if (widget.userName != null) return widget.userName!;
     if (widget.eventName != null) return widget.eventName!;
+    if (widget.businessName != null) return widget.businessName!;
     return 'this content';
   }
+
+  bool get _isUserReport => widget.userName != null;
+  bool get _isBusinessReport => widget.businessName != null;
 
   @override
   Widget build(BuildContext context) {
@@ -173,8 +178,8 @@ class _ReportScreenState extends State<ReportScreen> {
             ),
             const SizedBox(height: 20),
 
-            // Block option
-            if (widget.userName != null)
+            // Block option (for users and businesses)
+            if (_isUserReport || _isBusinessReport)
               GestureDetector(
                 onTap: () {
                   HapticFeedback.lightImpact();
@@ -203,11 +208,15 @@ class _ReportScreenState extends State<ReportScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Also block ${widget.userName}',
+                              _isUserReport
+                                  ? 'Also block ${widget.userName}'
+                                  : 'Also unfollow ${widget.businessName}',
                               style: const TextStyle(fontWeight: FontWeight.w600),
                             ),
                             Text(
-                              'They won\'t be able to see your profile or contact you',
+                              _isUserReport
+                                  ? 'They won\'t be able to see your profile or contact you'
+                                  : 'You won\'t see their events in your feed',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: AppColors.mediumGrey,

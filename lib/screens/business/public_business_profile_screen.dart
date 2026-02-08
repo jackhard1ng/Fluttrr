@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../config/routes.dart';
 import '../../constants/utils.dart';
 import '../../controllers/business_controller.dart';
 import '../../widgets/common_widgets.dart';
@@ -375,12 +376,79 @@ class _BusinessHeader extends StatelessWidget {
                             ),
                           ),
                         ),
+                        const SizedBox(width: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withAlpha(51),
+                            borderRadius: BorderRadius.circular(AppRadius.md),
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              _showBusinessOptionsMenu(context);
+                            },
+                            icon: const Icon(
+                              Icons.more_vert,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ],
                 ),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showBusinessOptionsMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.lightGrey,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.flag_outlined, color: AppColors.error),
+              title: const Text('Report business'),
+              subtitle: Text(
+                'Report inappropriate content or behavior',
+                style: TextStyle(fontSize: 12, color: AppColors.mediumGrey),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                Nav.toReport(businessName: 'The Social Hub');
+              },
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: Icon(Icons.help_outline, color: AppColors.primaryBlue),
+              title: const Text('Get help'),
+              subtitle: Text(
+                'Contact support at support@fulttrr.com',
+                style: TextStyle(fontSize: 12, color: AppColors.mediumGrey),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                Nav.toHelp();
+              },
+            ),
+            const SizedBox(height: 8),
           ],
         ),
       ),

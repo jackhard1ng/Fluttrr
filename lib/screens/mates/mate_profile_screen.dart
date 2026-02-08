@@ -717,6 +717,10 @@ class _MateProfileScreenState extends State<MateProfileScreen> {
   }
 
   void _showOptionsMenu(BuildContext context) {
+    final matesController = Get.find<MatesController>();
+    final user = matesController.viewedProfile.value;
+    final userName = user?.displayName ?? 'User';
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -726,24 +730,88 @@ class _MateProfileScreenState extends State<MateProfileScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.lightGrey,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
             ListTile(
-              leading: const Icon(Icons.block),
+              leading: Icon(Icons.block, color: AppColors.error),
               title: const Text('Block user'),
+              subtitle: Text(
+                'They won\'t be able to see your profile or contact you',
+                style: TextStyle(fontSize: 12, color: AppColors.mediumGrey),
+              ),
               onTap: () {
                 Navigator.pop(context);
-                // Block user
+                _showBlockConfirmation(context, userName);
               },
             ),
+            const Divider(height: 1),
             ListTile(
-              leading: const Icon(Icons.flag_outlined),
+              leading: Icon(Icons.flag_outlined, color: AppColors.friendlyOrange),
               title: const Text('Report user'),
+              subtitle: Text(
+                'Report inappropriate content or behavior',
+                style: TextStyle(fontSize: 12, color: AppColors.mediumGrey),
+              ),
               onTap: () {
                 Navigator.pop(context);
-                // Report user
+                Nav.toReport(userName: userName);
               },
             ),
+            const Divider(height: 1),
+            ListTile(
+              leading: Icon(Icons.help_outline, color: AppColors.primaryBlue),
+              title: const Text('Get help'),
+              subtitle: Text(
+                'Contact support at support@fulttrr.com',
+                style: TextStyle(fontSize: 12, color: AppColors.mediumGrey),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                Nav.toHelp();
+              },
+            ),
+            const SizedBox(height: 8),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showBlockConfirmation(BuildContext context, String userName) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Block $userName?'),
+        content: const Text(
+          'They won\'t be able to see your profile, send you messages, or find you in search. They won\'t be notified.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Get.snackbar(
+                'User Blocked',
+                '$userName has been blocked',
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: AppColors.success,
+                colorText: Colors.white,
+              );
+            },
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('Block'),
+          ),
+        ],
       ),
     );
   }

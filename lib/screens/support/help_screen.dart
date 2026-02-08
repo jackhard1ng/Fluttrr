@@ -143,10 +143,15 @@ class _HelpScreenState extends State<HelpScreen> {
                   label: 'Contact Us',
                   onTap: () {
                     HapticFeedback.lightImpact();
+                    Clipboard.setData(
+                      const ClipboardData(text: 'support@fulttrr.com'),
+                    );
                     Get.snackbar(
-                      'Contact Us',
-                      'Email us at support@fluttrr.com',
+                      'Email Copied!',
+                      'support@fulttrr.com copied to clipboard',
                       snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: AppColors.success,
+                      colorText: Colors.white,
                     );
                   },
                 ),
@@ -156,6 +161,7 @@ class _HelpScreenState extends State<HelpScreen> {
                   label: 'Report Bug',
                   onTap: () {
                     HapticFeedback.lightImpact();
+                    Get.toNamed('/report');
                   },
                 ),
                 const SizedBox(width: 12),
@@ -164,6 +170,7 @@ class _HelpScreenState extends State<HelpScreen> {
                   label: 'Suggest',
                   onTap: () {
                     HapticFeedback.lightImpact();
+                    Get.toNamed('/report');
                   },
                 ),
               ],
@@ -249,11 +256,81 @@ class _HelpScreenState extends State<HelpScreen> {
             }),
             const SizedBox(height: 24),
 
+            // Contact Support section
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primaryBlue.withAlpha(26),
+                    AppColors.friendlyTeal.withAlpha(26),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+                border: Border.all(color: AppColors.primaryBlue.withAlpha(51)),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryBlue.withAlpha(26),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.email_outlined,
+                          color: AppColors.primaryBlue,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Email Support',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            SelectableText(
+                              'support@fulttrr.com',
+                              style: TextStyle(
+                                color: AppColors.primaryBlue,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Our support team typically responds within 24 hours. For urgent issues, please include "URGENT" in your subject line.',
+                    style: TextStyle(
+                      color: AppColors.mediumGrey,
+                      fontSize: 13,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
             // Still need help
             Container(
               padding: const EdgeInsets.all(AppSpacing.md),
               decoration: BoxDecoration(
-                color: AppColors.primaryBlue.withAlpha(13),
+                color: AppColors.lightGrey.withAlpha(128),
                 borderRadius: BorderRadius.circular(AppRadius.lg),
               ),
               child: Column(
@@ -269,28 +346,71 @@ class _HelpScreenState extends State<HelpScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Our support team is here for you',
+                    'Report an issue or submit feedback',
                     style: TextStyle(color: AppColors.mediumGrey),
                   ),
                   const SizedBox(height: 16),
-                  GestureDetector(
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryBlue,
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                      ),
-                      child: const Text(
-                        'Contact Support',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            Get.toNamed('/report');
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              color: AppColors.friendlyOrange,
+                              borderRadius: BorderRadius.circular(AppRadius.md),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                'Report Issue',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            Clipboard.setData(
+                              const ClipboardData(text: 'support@fulttrr.com'),
+                            );
+                            Get.snackbar(
+                              'Email Copied',
+                              'support@fulttrr.com copied to clipboard',
+                              snackPosition: SnackPosition.BOTTOM,
+                              backgroundColor: AppColors.success,
+                              colorText: Colors.white,
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryBlue,
+                              borderRadius: BorderRadius.circular(AppRadius.md),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                'Copy Email',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
