@@ -208,7 +208,7 @@ class ActivityController extends GetxController {
         myActivities.value = response.data!;
       }
     } catch (e) {
-      // Ignore errors
+      debugPrint('Error loading my activities: $e');
     }
   }
 
@@ -220,7 +220,7 @@ class ActivityController extends GetxController {
         joinedActivities.value = response.data!;
       }
     } catch (e) {
-      // Ignore errors
+      debugPrint('Error loading joined activities: $e');
     }
   }
 
@@ -232,7 +232,7 @@ class ActivityController extends GetxController {
         upcomingActivities.value = response.data!;
       }
     } catch (e) {
-      // Ignore errors
+      debugPrint('Error loading upcoming activities: $e');
     }
   }
 
@@ -276,7 +276,7 @@ class ActivityController extends GetxController {
         searchResults.value = response.data!;
       }
     } catch (e) {
-      // Ignore errors
+      debugPrint('Error searching activities: $e');
     } finally {
       isLoading.value = false;
     }

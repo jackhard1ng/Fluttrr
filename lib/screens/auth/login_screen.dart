@@ -12,7 +12,8 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authController = Get.put(AuthController());
+    // Use find since AuthController is already registered in InitialBindings
+    final authController = Get.find<AuthController>();
     final formKey = GlobalKey<FormState>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -206,7 +207,9 @@ class LoginScreen extends StatelessWidget {
                       if (formKey.currentState?.validate() ?? false) {
                         final success = await authController.login();
                         if (success) {
-                          Get.put(ProfileController());
+                          if (!Get.isRegistered<ProfileController>()) {
+                            Get.put(ProfileController());
+                          }
                           Nav.toHome();
                         }
                       }
@@ -250,7 +253,9 @@ class LoginScreen extends StatelessWidget {
                     onPressed: () async {
                       final success = await authController.signInWithGoogle();
                       if (success) {
-                        Get.put(ProfileController());
+                        if (!Get.isRegistered<ProfileController>()) {
+                          Get.put(ProfileController());
+                        }
                         Nav.toHome();
                       }
                     },

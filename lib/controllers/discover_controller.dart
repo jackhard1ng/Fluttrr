@@ -25,8 +25,7 @@ class DiscoverController extends GetxController {
   Future<void> loadEvents() async {
     isLoading.value = true;
     try {
-      // Mock data - in real app would fetch from API
-      await Future.delayed(const Duration(seconds: 1));
+      // In production, replace with actual API call
       events.value = _mockEvents;
     } finally {
       isLoading.value = false;
@@ -140,9 +139,7 @@ class DiscoverController extends GetxController {
   }) async {
     isLoading.value = true;
     try {
-      // In real app would call API
-      await Future.delayed(const Duration(seconds: 1));
-
+      // In production, replace with actual API call
       final event = EventModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         title: title,

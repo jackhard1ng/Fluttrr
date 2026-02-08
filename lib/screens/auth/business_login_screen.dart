@@ -214,7 +214,9 @@ class BusinessLoginScreen extends StatelessWidget {
                       if (formKey.currentState?.validate() ?? false) {
                         final success = await authController.loginBusiness();
                         if (success) {
-                          Get.put(ProfileController());
+                          if (!Get.isRegistered<ProfileController>()) {
+                            Get.put(ProfileController());
+                          }
                           // Navigate to business dashboard instead of regular home
                           Nav.toBusinessDashboard();
                         }

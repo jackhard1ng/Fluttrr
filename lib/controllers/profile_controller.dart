@@ -138,7 +138,7 @@ class ProfileController extends GetxController {
         _loadGallery(),
       ]);
     } catch (e) {
-      // Ignore errors for additional data
+      debugPrint('Error loading additional profile data: $e');
     }
   }
 
@@ -175,7 +175,6 @@ class ProfileController extends GetxController {
 
     // In mock mode, just update the local user data
     if (useMockData.value) {
-      await Future.delayed(const Duration(milliseconds: 500)); // Simulate network
       _updateMockProfile();
       isUpdating.value = false;
       return true;
@@ -318,7 +317,7 @@ class ProfileController extends GetxController {
         badges.value = response.data!;
       }
     } catch (e) {
-      // Ignore errors
+      debugPrint('Error loading badges: $e');
     }
   }
 
@@ -363,7 +362,7 @@ class ProfileController extends GetxController {
         currentUserRank.value = response.data!.currentUser;
       }
     } catch (e) {
-      // Ignore errors
+      debugPrint('Error loading leaderboard: $e');
     }
   }
 

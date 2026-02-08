@@ -329,7 +329,9 @@ class BusinessRegisterScreen extends StatelessWidget {
                           final success =
                               await authController.registerBusiness();
                           if (success) {
-                            Get.put(ProfileController());
+                            if (!Get.isRegistered<ProfileController>()) {
+                              Get.put(ProfileController());
+                            }
                             Get.snackbar(
                               'Account Created',
                               'Welcome to Fluttrr for Business!',

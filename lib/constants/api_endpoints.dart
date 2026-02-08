@@ -39,7 +39,7 @@ class ApiEndpoints {
   static const String changePassword = '$apiBase/user/change-password';
   static const String resetPassword = '$apiBase/user/reset-password';
   static const String requestOtp = '$apiBase/user/request-otp';
-  static const String verifyResetOtp = '$apiBase/user/verifys-otp';
+  static const String verifyResetOtp = '$apiBase/user/verify-reset-otp';
 
   // Profile endpoints
   static const String profile = '$apiBase/user/profile';
@@ -49,7 +49,7 @@ class ApiEndpoints {
   static const String updateFcmToken = '$apiBase/user/token';
   static const String setOnline = '$apiBase/user/online';
   static const String setOffline = '$apiBase/user/offline';
-  static const String profileCompletion = '$apiBase/user/monitring';
+  static const String profileCompletion = '$apiBase/user/monitoring';
 
   // Gallery endpoints
   static const String galleryList = '$apiBase/gallery/list';
@@ -90,49 +90,49 @@ class ApiEndpoints {
 
   // Chat endpoints
   static const String sendMessage = '$apiBase/message/send';
-  static const String chatList = '$apiBase/message/cheatlist';
+  static const String chatList = '$apiBase/message/chatlist';
   static const String groupList = '$apiBase/message/grouplist';
   static const String markAsRead = '$apiBase/message/markAsRead';
   static const String businessChatList = '$apiBase/message/getChatList';
   static const String sendBusinessMessage = '$apiBase/message/sendB';
 
   // Business authentication endpoints
-  static const String businessLogin = '$apiBase/bussness/login';
-  static const String businessRegister = '$apiBase/bussness/register';
-  static const String businessRequestOtp = '$apiBase/bussness/request-otp';
-  static const String businessVerify = '$apiBase/bussness/verify';
-  static const String businessProfile = '$apiBase/bussness/busness';
-  static const String createBusinessProfile = '$apiBase/bussness/create-profile';
-  static const String updateBusinessProfile = '$apiBase/bussness/updates/';
-  static const String businessStatus = '$apiBase/bussness/bussnesStatus';
+  static const String businessLogin = '$apiBase/business/login';
+  static const String businessRegister = '$apiBase/business/register';
+  static const String businessRequestOtp = '$apiBase/business/request-otp';
+  static const String businessVerify = '$apiBase/business/verify';
+  static const String businessProfile = '$apiBase/business/profile';
+  static const String createBusinessProfile = '$apiBase/business/create-profile';
+  static const String updateBusinessProfile = '$apiBase/business/update/';
+  static const String businessStatus = '$apiBase/business/status';
 
   // Business events endpoints
-  static const String businessEventList = '$apiBase/bussness/list';
-  static const String createBusinessEvent = '$apiBase/bussness/createEvent';
-  static const String myBusinessEvents = '$apiBase/bussness/eventList';
-  static const String updateBusinessEvent = '$apiBase/bussness/updateEvent/';
-  static const String deleteBusinessEvent = '$apiBase/bussness/deleteEvent/';
-  static const String businessEventDetails = '$apiBase/bussness/eventById/';
-  static const String joinBusinessEvent = '$apiBase/bussness/joinEvent';
-  static const String leaveBusinessEvent = '$apiBase/bussness/leaveEvent';
-  static const String saveBusinessEvent = '$apiBase/bussness/saveEvent';
-  static const String savedEventsList = '$apiBase/bussness/saveList';
-  static const String topEvents = '$apiBase/bussness/topEvent';
-  static const String eventClicks = '$apiBase/bussness/events/';
-  static const String eventViews = '$apiBase/bussness/events/';
+  static const String businessEventList = '$apiBase/business/list';
+  static const String createBusinessEvent = '$apiBase/business/create-event';
+  static const String myBusinessEvents = '$apiBase/business/event-list';
+  static const String updateBusinessEvent = '$apiBase/business/update-event/';
+  static const String deleteBusinessEvent = '$apiBase/business/delete-event/';
+  static const String businessEventDetails = '$apiBase/business/event/';
+  static const String joinBusinessEvent = '$apiBase/business/join-event';
+  static const String leaveBusinessEvent = '$apiBase/business/leave-event';
+  static const String saveBusinessEvent = '$apiBase/business/save-event';
+  static const String savedEventsList = '$apiBase/business/saved-list';
+  static const String topEvents = '$apiBase/business/top-events';
+  static const String eventClicks = '$apiBase/business/events/';
+  static const String eventViews = '$apiBase/business/events/';
 
   // Business social endpoints
-  static const String followBusiness = '$apiBase/bussness/follow';
-  static const String unfollowBusiness = '$apiBase/bussness/unfollow';
+  static const String followBusiness = '$apiBase/business/follow';
+  static const String unfollowBusiness = '$apiBase/business/unfollow';
 
   // Business subscription endpoints
-  static const String createSubscription = '$apiBase/bussness/create';
-  static const String cancelSubscription = '$apiBase/bussness/cancel';
-  static const String subscriptionStatus = '$apiBase/bussness/subscription-status';
-  static const String businessAnalytics = '$apiBase/bussness/analytics';
+  static const String createSubscription = '$apiBase/business/create';
+  static const String cancelSubscription = '$apiBase/business/cancel';
+  static const String subscriptionStatus = '$apiBase/business/subscription-status';
+  static const String businessAnalytics = '$apiBase/business/analytics';
 
   // Badges & achievements endpoints
-  static const String badgesList = '$apiBase/user/achiveList';
+  static const String badgesList = '$apiBase/user/achievement-list';
   static const String claimBadge = '$apiBase/user/claimed';
   static const String leaderboard = '$apiBase/user/ranking';
 

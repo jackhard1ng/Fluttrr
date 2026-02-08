@@ -734,8 +734,9 @@ class BusinessController extends GetxController {
     updateList(businessEvents);
     updateList(topEvents);
 
-    if (selectedEvent.value?.eventId == eventId) {
-      final event = selectedEvent.value!;
+    final currentSelectedEvent = selectedEvent.value;
+    if (currentSelectedEvent?.eventId == eventId) {
+      final event = currentSelectedEvent!;
       selectedEvent.value = BusinessEvent(
         id: event.id,
         eventId: event.eventId,

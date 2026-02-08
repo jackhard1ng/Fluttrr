@@ -88,16 +88,18 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _checkAuthAndNavigate() async {
-    // Wait for animations to complete
-    await Future.delayed(const Duration(seconds: 3));
+    // Wait for animations to complete (reduced from 3s for better UX)
+    await Future.delayed(const Duration(milliseconds: 1500));
 
-    // Initialize auth controller
-    final authController = Get.put(AuthController());
+    // Get auth controller (should already be registered in InitialBindings)
+    final authController = Get.find<AuthController>();
     final isLoggedIn = await authController.isLoggedIn();
 
     if (isLoggedIn) {
-      // Initialize profile controller for logged-in users
-      Get.put(ProfileController());
+      // Initialize profile controller for logged-in users if not registered
+      if (!Get.isRegistered<ProfileController>()) {
+        Get.put(ProfileController());
+      }
       Nav.toHome();
     } else {
       Nav.toLogin();

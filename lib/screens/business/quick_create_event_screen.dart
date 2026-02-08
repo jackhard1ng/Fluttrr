@@ -95,8 +95,8 @@ class _QuickCreateEventScreenState extends State<QuickCreateEventScreen> {
 
     setState(() => _isCreating = true);
 
-    // Simulate creation delay
-    await Future.delayed(const Duration(seconds: 1));
+    // TODO: Replace with actual API call to create event
+    // final success = await activityController.createEvent(...);
 
     setState(() => _isCreating = false);
 

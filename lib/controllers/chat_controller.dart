@@ -122,9 +122,10 @@ class ChatController extends GetxController {
       final message = ChatMessage.fromJson(data as Map<String, dynamic>);
 
       // Add to current messages if in the same conversation
-      if (currentConversation.value != null &&
-          (message.senderId == currentConversation.value!.otherUserId ||
-              message.receiverId == currentConversation.value!.otherUserId)) {
+      final conv = currentConversation.value;
+      if (conv != null &&
+          (message.senderId == conv.otherUserId ||
+              message.receiverId == conv.otherUserId)) {
         currentMessages.add(message);
       }
 
@@ -252,7 +253,7 @@ class ChatController extends GetxController {
         groupChats.value = response.data!;
       }
     } catch (e) {
-      // Ignore errors
+      debugPrint('Error loading group chats: $e');
     }
   }
 
@@ -264,7 +265,7 @@ class ChatController extends GetxController {
         businessChats.value = response.data!;
       }
     } catch (e) {
-      // Ignore errors
+      debugPrint('Error loading business chats: $e');
     }
   }
 
@@ -313,7 +314,8 @@ class ChatController extends GetxController {
   Future<bool> sendMessage({String? content, String? imageUrl}) async {
     final text = content ?? messageController.text.trim();
     if (text.isEmpty && imageUrl == null) return false;
-    if (currentConversation.value?.otherUserId == null) return false;
+    final conv = currentConversation.value;
+    if (conv?.otherUserId == null) return false;
 
     isSending.value = true;
     messageController.clear();
@@ -322,7 +324,7 @@ class ChatController extends GetxController {
     final tempMessage = ChatMessage(
       messageId: DateTime.now().millisecondsSinceEpoch.toString(),
       senderId: _currentUserId ?? 1,
-      receiverId: currentConversation.value!.otherUserId,
+      receiverId: conv!.otherUserId,
       content: text.isNotEmpty ? text : null,
       imageUrl: imageUrl,
       timestamp: DateTime.now(),
@@ -343,7 +345,7 @@ class ChatController extends GetxController {
 
       // Update last message in conversation list
       final convIndex = conversations.indexWhere(
-        (c) => c.otherUserId == currentConversation.value!.otherUserId
+        (c) => c.otherUserId == conv.otherUserId
       );
       if (convIndex != -1) {
         final conv = conversations[convIndex];
@@ -367,7 +369,7 @@ class ChatController extends GetxController {
 
     try {
       final response = await _chatRepository.sendMessage(
-        receiverId: currentConversation.value!.otherUserId!,
+        receiverId: conv.otherUserId,
         content: text,
         imageUrl: imageUrl,
       );
@@ -395,15 +397,17 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Simulate a mock reply from the other user
+  /// Simulate a mock reply from the other user (for demo purposes)
   Future<void> _simulateMockReply() async {
     if (currentConversation.value == null) return;
 
     // Random chance to get a reply
     if (MockDataService.generateMockUser()['isOnline'] as bool) {
-      await Future.delayed(Duration(seconds: 2 + DateTime.now().second % 3));
+      // Short delay to feel more natural
+      await Future.delayed(const Duration(milliseconds: 800));
 
-      if (currentConversation.value == null) return; // Check if still in conversation
+      final conv = currentConversation.value;
+      if (conv == null) return; // Check if still in conversation
 
       final replies = [
         "That sounds great!",
@@ -417,7 +421,7 @@ class ChatController extends GetxController {
 
       final replyMessage = ChatMessage(
         messageId: DateTime.now().millisecondsSinceEpoch.toString(),
-        senderId: currentConversation.value!.otherUserId,
+        senderId: conv.otherUserId,
         receiverId: _currentUserId ?? 1,
         content: replies[DateTime.now().second % replies.length],
         timestamp: DateTime.now(),
@@ -450,16 +454,17 @@ class ChatController extends GetxController {
         );
       }
     } catch (e) {
-      // Ignore errors
+      debugPrint('Error marking messages as read: $e');
     }
   }
 
   /// Send typing indicator
   void sendTypingIndicator() {
-    if (_socket != null && currentConversation.value?.otherUserId != null) {
+    final conv = currentConversation.value;
+    if (_socket != null && conv?.otherUserId != null) {
       _socket!.emit('typing', {
         'senderId': _currentUserId,
-        'receiverId': currentConversation.value!.otherUserId,
+        'receiverId': conv!.otherUserId,
       });
     }
   }
