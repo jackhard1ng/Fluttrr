@@ -394,9 +394,9 @@ class BusinessController extends GetxController {
         startTime: eventStartTime.value!,
         endTime: eventEndTime.value,
         eventType: eventType.value,
-        totalSlots: int.parse(eventSlotsController.text),
+        totalSlots: int.tryParse(eventSlotsController.text) ?? 0,
         price: eventPriceController.text.isNotEmpty
-            ? double.parse(eventPriceController.text)
+            ? double.tryParse(eventPriceController.text)
             : null,
         images: eventImages.isNotEmpty ? eventImages : null,
       );
@@ -487,10 +487,10 @@ class BusinessController extends GetxController {
         endTime: eventEndTime.value,
         eventType: eventType.value.isNotEmpty ? eventType.value : null,
         totalSlots: eventSlotsController.text.isNotEmpty
-            ? int.parse(eventSlotsController.text)
+            ? int.tryParse(eventSlotsController.text)
             : null,
         price: eventPriceController.text.isNotEmpty
-            ? double.parse(eventPriceController.text)
+            ? double.tryParse(eventPriceController.text)
             : null,
       );
 

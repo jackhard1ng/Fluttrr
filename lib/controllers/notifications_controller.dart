@@ -1,12 +1,17 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import '../models/notification_model.dart';
+import '../repositories/notification_repository.dart';
 
 class NotificationsController extends GetxController {
+  final NotificationRepository _notificationRepository = NotificationRepository();
+
   // State
   final isLoading = false.obs;
   final notifications = <NotificationModel>[].obs;
   final unreadCount = 0.obs;
+  final errorMessage = ''.obs;
 
   @override
   void onInit() {
@@ -16,11 +21,20 @@ class NotificationsController extends GetxController {
 
   Future<void> loadNotifications() async {
     isLoading.value = true;
+    errorMessage.value = '';
+
     try {
-      // Mock data - in real app would fetch from API
-      await Future.delayed(const Duration(milliseconds: 500));
-      notifications.value = _mockNotifications;
-      _updateUnreadCount();
+      final response = await _notificationRepository.getNotifications();
+
+      if (response.success && response.data != null) {
+        notifications.value = response.data!;
+        _updateUnreadCount();
+      } else {
+        errorMessage.value = response.displayMessage;
+      }
+    } catch (e) {
+      errorMessage.value = 'Failed to load notifications';
+      debugPrint('Error loading notifications: $e');
     } finally {
       isLoading.value = false;
     }
@@ -86,56 +100,4 @@ class NotificationsController extends GetxController {
 
     return grouped;
   }
-
-  // Mock data
-  List<NotificationModel> get _mockNotifications => [
-    NotificationModel(
-      notificationId: '1',
-      type: NotificationType.friendRequest,
-      title: 'New friend request',
-      body: 'Alex wants to connect with you',
-      createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-      relatedId: 1,
-      relatedType: 'user',
-    ),
-    NotificationModel(
-      notificationId: '2',
-      type: NotificationType.eventReminder,
-      title: 'Event starting soon',
-      body: 'Board Game Night starts in 2 hours',
-      createdAt: DateTime.now().subtract(const Duration(hours: 3)),
-      relatedId: 1,
-      relatedType: 'event',
-    ),
-    NotificationModel(
-      notificationId: '3',
-      type: NotificationType.newMessage,
-      title: 'New message',
-      body: 'Jordan: Hey, are you coming tonight?',
-      createdAt: DateTime.now().subtract(const Duration(hours: 5)),
-      isRead: true,
-      relatedId: 1,
-      relatedType: 'chat',
-    ),
-    NotificationModel(
-      notificationId: '4',
-      type: NotificationType.eventUpdate,
-      title: 'Event updated',
-      body: 'Hiking Adventure location has changed',
-      createdAt: DateTime.now().subtract(const Duration(days: 1)),
-      isRead: true,
-      relatedId: 2,
-      relatedType: 'event',
-    ),
-    NotificationModel(
-      notificationId: '5',
-      type: NotificationType.newAttendee,
-      title: 'New attendee',
-      body: 'Taylor is going to your Coffee Meetup',
-      createdAt: DateTime.now().subtract(const Duration(days: 2)),
-      isRead: true,
-      relatedId: 3,
-      relatedType: 'event',
-    ),
-  ];
 }

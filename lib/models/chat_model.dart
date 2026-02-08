@@ -27,11 +27,11 @@ class ChatMessage {
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
     return ChatMessage(
       messageId: json['message_id']?.toString() ?? json['_id']?.toString(),
-      senderId: json['sender_id'] ?? json['senderId'] as int?,
-      receiverId: json['receiver_id'] ?? json['receiverId'] as int?,
-      senderName: json['sender_name'] ?? json['senderName'] as String?,
-      content: json['content'] ?? json['message'] as String?,
-      imageUrl: json['image_url'] ?? json['imageUrl'] as String?,
+      senderId: (json['sender_id'] ?? json['senderId']) as int?,
+      receiverId: (json['receiver_id'] ?? json['receiverId']) as int?,
+      senderName: (json['sender_name'] ?? json['senderName']) as String?,
+      content: (json['content'] ?? json['message']) as String?,
+      imageUrl: (json['image_url'] ?? json['imageUrl']) as String?,
       timestamp: _parseTimestamp(json['timestamp'] ?? json['createdAt']),
       isRead: json['is_read'] == true || json['isRead'] == true,
       isSent: json['is_sent'] != false,
@@ -123,15 +123,15 @@ class ChatConversation {
   factory ChatConversation.fromJson(Map<String, dynamic> json) {
     return ChatConversation(
       conversationId: json['conversation_id']?.toString() ?? json['_id']?.toString(),
-      otherUserId: json['other_user_id'] ?? json['userId'] as int?,
-      otherUserName: json['other_user_name'] ?? json['userName'] as String?,
+      otherUserId: (json['other_user_id'] ?? json['userId']) as int?,
+      otherUserName: (json['other_user_name'] ?? json['userName']) as String?,
       otherUserImages: _parseStringList(json['other_user_images'] ?? json['images']),
-      lastMessage: json['last_message'] ?? json['lastMessage'] as String?,
+      lastMessage: (json['last_message'] ?? json['lastMessage']) as String?,
       lastMessageTime: _parseTimestamp(json['last_message_time'] ?? json['lastMessageTime']),
-      unreadCount: json['unread_count'] ?? json['unreadCount'] ?? 0,
+      unreadCount: (json['unread_count'] ?? json['unreadCount'] ?? 0) as int,
       isOnline: json['is_online'] == true || json['isOnline'] == true,
       isGroup: json['is_group'] == true || json['isGroup'] == true,
-      groupName: json['group_name'] ?? json['groupName'] as String?,
+      groupName: (json['group_name'] ?? json['groupName']) as String?,
       memberIds: _parseIntList(json['member_ids'] ?? json['members']),
     );
   }
@@ -207,14 +207,14 @@ class GroupChat {
   factory GroupChat.fromJson(Map<String, dynamic> json) {
     return GroupChat(
       groupId: json['group_id']?.toString() ?? json['_id']?.toString(),
-      groupName: json['group_name'] ?? json['groupName'] as String?,
-      groupImage: json['group_image'] ?? json['groupImage'] as String?,
-      activityId: json['activity_id'] ?? json['activityId'] as int?,
-      activityName: json['activity_name'] ?? json['activityName'] as String?,
+      groupName: (json['group_name'] ?? json['groupName']) as String?,
+      groupImage: (json['group_image'] ?? json['groupImage']) as String?,
+      activityId: (json['activity_id'] ?? json['activityId']) as int?,
+      activityName: (json['activity_name'] ?? json['activityName']) as String?,
       members: _parseGroupMembers(json['members']),
-      lastMessage: json['last_message'] ?? json['lastMessage'] as String?,
+      lastMessage: (json['last_message'] ?? json['lastMessage']) as String?,
       lastMessageTime: _parseTimestamp(json['last_message_time'] ?? json['lastMessageTime']),
-      unreadCount: json['unread_count'] ?? json['unreadCount'] ?? 0,
+      unreadCount: (json['unread_count'] ?? json['unreadCount'] ?? 0) as int,
     );
   }
 
@@ -253,9 +253,9 @@ class GroupMember {
 
   factory GroupMember.fromJson(Map<String, dynamic> json) {
     return GroupMember(
-      userId: json['user_id'] ?? json['userId'] as int?,
-      userName: json['user_name'] ?? json['userName'] as String?,
-      profileImage: json['profile_image'] ?? json['profileImage'] as String?,
+      userId: (json['user_id'] ?? json['userId']) as int?,
+      userName: (json['user_name'] ?? json['userName']) as String?,
+      profileImage: (json['profile_image'] ?? json['profileImage']) as String?,
       isAdmin: json['is_admin'] == true || json['isAdmin'] == true,
     );
   }

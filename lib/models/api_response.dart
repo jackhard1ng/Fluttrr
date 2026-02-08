@@ -70,7 +70,7 @@ class AuthResponse {
       success: json['success'] == true || json['token'] != null,
       message: json['message'] as String?,
       token: json['token'] as String?,
-      userId: json['userId'] ?? json['user_id'] as int?,
+      userId: (json['userId'] ?? json['user_id']) as int?,
       isNewUser: json['is_new_user'] == true || json['isNewUser'] == true,
       requiresProfileSetup: json['requires_profile_setup'] == true ||
           json['requiresProfileSetup'] == true,

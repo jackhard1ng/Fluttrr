@@ -237,7 +237,7 @@ class ActivityController extends GetxController {
         longitude: selectedLongitude.value,
         dateTime: selectedDateTime.value!,
         eventType: selectedEventType.value,
-        totalSlots: int.parse(slotsController.text),
+        totalSlots: int.tryParse(slotsController.text) ?? 0,
         images: selectedImages.isNotEmpty ? selectedImages : null,
       );
 
@@ -277,7 +277,7 @@ class ActivityController extends GetxController {
         longitude: selectedLongitude.value != 0 ? selectedLongitude.value : null,
         dateTime: selectedDateTime.value,
         eventType: selectedEventType.value.isNotEmpty ? selectedEventType.value : null,
-        totalSlots: slotsController.text.isNotEmpty ? int.parse(slotsController.text) : null,
+        totalSlots: slotsController.text.isNotEmpty ? int.tryParse(slotsController.text) : null,
       );
 
       isCreating.value = false;

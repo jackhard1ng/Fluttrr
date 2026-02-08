@@ -50,8 +50,8 @@ class BusinessModel {
 
   factory BusinessModel.fromJson(Map<String, dynamic> json) {
     return BusinessModel(
-      businessId: json['business_id'] ?? json['businessId'] as int?,
-      businessName: json['business_name'] ?? json['businessName'] as String?,
+      businessId: (json['business_id'] ?? json['businessId']) as int?,
+      businessName: (json['business_name'] ?? json['businessName']) as String?,
       name: json['name'] as String?,
       email: json['email'] as String?,
       phone: json['phone'] as String?,
@@ -65,11 +65,11 @@ class BusinessModel {
       facebook: json['facebook'] as String?,
       instagram: json['instagram'] as String?,
       images: _parseStringList(json['images']),
-      profileImage: json['profile_image'] ?? json['profileImage'] as String?,
-      coverImage: json['cover_image'] ?? json['coverImage'] as String?,
+      profileImage: (json['profile_image'] ?? json['profileImage']) as String?,
+      coverImage: (json['cover_image'] ?? json['coverImage']) as String?,
       isVerified: json['is_verified'] == true || json['isVerified'] == true,
-      followerCount: json['follower_count'] ?? json['followerCount'] ?? 0,
-      eventCount: json['event_count'] ?? json['eventCount'] ?? 0,
+      followerCount: (json['follower_count'] ?? json['followerCount'] ?? 0) as int,
+      eventCount: (json['event_count'] ?? json['eventCount'] ?? 0) as int,
       isFollowing: json['is_following'] == true || json['isFollowing'] == true,
       subscriptionStatus: json['subscription_status'] != null
           ? SubscriptionStatus.fromJson(json['subscription_status'])
@@ -170,30 +170,30 @@ class BusinessEvent {
   factory BusinessEvent.fromJson(Map<String, dynamic> json) {
     return BusinessEvent(
       id: json['id'] as int?,
-      eventId: json['event_id'] ?? json['eventId'] as int?,
-      businessId: json['business_id'] ?? json['businessId'] as int?,
+      eventId: (json['event_id'] ?? json['eventId']) as int?,
+      businessId: (json['business_id'] ?? json['businessId']) as int?,
       name: json['name'] as String?,
       description: json['description'] as String?,
       location: json['location'] as String?,
-      locationName: json['location_name'] ?? json['locationName'] as String?,
+      locationName: (json['location_name'] ?? json['locationName']) as String?,
       latitude: (json['latitude'] as num?)?.toDouble(),
       longitude: (json['longitude'] as num?)?.toDouble(),
       startDate: _parseDateTime(json['start_date'] ?? json['startDate'] ?? json['start_time'] ?? json['startTime']),
       endDate: _parseDateTime(json['end_date'] ?? json['endDate'] ?? json['end_time'] ?? json['endTime']),
-      eventType: json['event_type'] ?? json['eventType'] as String?,
+      eventType: (json['event_type'] ?? json['eventType']) as String?,
       privacy: json['privacy'] as String?,
       image: json['image'] as String?,
       images: _parseStringList(json['images']),
-      totalSlots: json['total_slots'] ?? json['totalSlots'] as int?,
-      maxAttendees: json['max_attendees'] ?? json['maxAttendees'] as int?,
-      remainingSlots: json['remaining_slots'] ?? json['remainingSlots'] as int?,
+      totalSlots: (json['total_slots'] ?? json['totalSlots']) as int?,
+      maxAttendees: (json['max_attendees'] ?? json['maxAttendees']) as int?,
+      remainingSlots: (json['remaining_slots'] ?? json['remainingSlots']) as int?,
       price: (json['price'] as num?)?.toDouble(),
       currency: json['currency'] as String?,
-      ticketUrl: json['ticket_url'] ?? json['ticketUrl'] as String?,
-      attendeesCount: json['attendees_count'] ?? json['attendeesCount'] ?? json['attendee_count'] ?? json['attendeeCount'] as int?,
-      views: json['views'] ?? json['view_count'] ?? json['viewCount'] as int?,
-      clicks: json['clicks'] ?? json['click_count'] ?? json['clickCount'] as int?,
-      saves: json['saves'] ?? json['save_count'] ?? json['saveCount'] as int?,
+      ticketUrl: (json['ticket_url'] ?? json['ticketUrl']) as String?,
+      attendeesCount: (json['attendees_count'] ?? json['attendeesCount'] ?? json['attendee_count'] ?? json['attendeeCount']) as int?,
+      views: (json['views'] ?? json['view_count'] ?? json['viewCount']) as int?,
+      clicks: (json['clicks'] ?? json['click_count'] ?? json['clickCount']) as int?,
+      saves: (json['saves'] ?? json['save_count'] ?? json['saveCount']) as int?,
       userJoined: json['user_joined'] == true || json['userJoined'] == true,
       userSaved: json['user_saved'] == true || json['userSaved'] == true,
     );
@@ -265,8 +265,8 @@ class SubscriptionStatus {
 
   factory SubscriptionStatus.fromJson(Map<String, dynamic> json) {
     return SubscriptionStatus(
-      planId: json['plan_id'] ?? json['planId'] as String?,
-      planName: json['plan_name'] ?? json['planName'] as String?,
+      planId: (json['plan_id'] ?? json['planId']) as String?,
+      planName: (json['plan_name'] ?? json['planName']) as String?,
       status: json['status'] as String?,
       startDate: _parseDateTime(json['start_date'] ?? json['startDate']),
       expiryDate: _parseDateTime(json['expiry_date'] ?? json['expiryDate'] ?? json['end_date'] ?? json['endDate']),
@@ -328,20 +328,20 @@ class BusinessAnalytics {
 
   factory BusinessAnalytics.fromJson(Map<String, dynamic> json) {
     return BusinessAnalytics(
-      totalViews: json['total_views'] ?? json['totalViews'] ?? 0,
-      totalClicks: json['total_clicks'] ?? json['totalClicks'] ?? 0,
-      totalFollowers: json['total_followers'] ?? json['totalFollowers'] ?? 0,
-      totalEvents: json['total_events'] ?? json['totalEvents'] ?? 0,
-      totalAttendees: json['total_attendees'] ?? json['totalAttendees'] ?? 0,
-      viewRate: (json['view_rate'] ?? json['viewRate'] as num?)?.toDouble(),
-      clickRate: (json['click_rate'] ?? json['clickRate'] as num?)?.toDouble(),
-      conversionRate: (json['conversion_rate'] ?? json['conversionRate'] as num?)?.toDouble(),
+      totalViews: (json['total_views'] ?? json['totalViews'] ?? 0) as int,
+      totalClicks: (json['total_clicks'] ?? json['totalClicks'] ?? 0) as int,
+      totalFollowers: (json['total_followers'] ?? json['totalFollowers'] ?? 0) as int,
+      totalEvents: (json['total_events'] ?? json['totalEvents'] ?? 0) as int,
+      totalAttendees: (json['total_attendees'] ?? json['totalAttendees'] ?? 0) as int,
+      viewRate: ((json['view_rate'] ?? json['viewRate']) as num?)?.toDouble(),
+      clickRate: ((json['click_rate'] ?? json['clickRate']) as num?)?.toDouble(),
+      conversionRate: ((json['conversion_rate'] ?? json['conversionRate']) as num?)?.toDouble(),
       followers: json['followers'] as int?,
-      followersGrowth: (json['followers_growth'] ?? json['followersGrowth'] as num?)?.toDouble(),
-      eventsCreatedThisPeriod: json['events_created_this_period'] ?? json['eventsCreatedThisPeriod'] as int?,
-      eventsGrowth: (json['events_growth'] ?? json['eventsGrowth'] as num?)?.toDouble(),
-      totalEngagement: json['total_engagement'] ?? json['totalEngagement'] as int?,
-      engagementGrowth: (json['engagement_growth'] ?? json['engagementGrowth'] as num?)?.toDouble(),
+      followersGrowth: ((json['followers_growth'] ?? json['followersGrowth']) as num?)?.toDouble(),
+      eventsCreatedThisPeriod: (json['events_created_this_period'] ?? json['eventsCreatedThisPeriod']) as int?,
+      eventsGrowth: ((json['events_growth'] ?? json['eventsGrowth']) as num?)?.toDouble(),
+      totalEngagement: (json['total_engagement'] ?? json['totalEngagement']) as int?,
+      engagementGrowth: ((json['engagement_growth'] ?? json['engagementGrowth']) as num?)?.toDouble(),
       topEvents: _parseTopEvents(json['top_events'] ?? json['topEvents']),
       viewsByDay: _parseViewsByDay(json['views_by_day'] ?? json['viewsByDay']),
     );
@@ -387,7 +387,7 @@ class TopEvent {
 
   factory TopEvent.fromJson(Map<String, dynamic> json) {
     return TopEvent(
-      eventId: json['event_id'] ?? json['eventId'] as int?,
+      eventId: (json['event_id'] ?? json['eventId']) as int?,
       name: json['name'] as String?,
       views: json['views'] as int?,
       clicks: json['clicks'] as int?,

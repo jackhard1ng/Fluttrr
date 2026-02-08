@@ -28,17 +28,17 @@ class BadgeModel {
 
   factory BadgeModel.fromJson(Map<String, dynamic> json) {
     return BadgeModel(
-      badgeId: json['badge_id'] ?? json['badgeId'] as int?,
+      badgeId: (json['badge_id'] ?? json['badgeId']) as int?,
       name: json['name'] as String?,
       description: json['description'] as String?,
-      iconUrl: json['icon_url'] ?? json['iconUrl'] ?? json['icon'] as String?,
+      iconUrl: (json['icon_url'] ?? json['iconUrl'] ?? json['icon']) as String?,
       category: _parseBadgeCategory(json['category']),
-      requiredProgress: json['required_progress'] ?? json['requiredProgress'] ?? 1,
-      currentProgress: json['current_progress'] ?? json['currentProgress'] ?? 0,
+      requiredProgress: (json['required_progress'] ?? json['requiredProgress'] ?? 1) as int,
+      currentProgress: (json['current_progress'] ?? json['currentProgress'] ?? 0) as int,
       isUnlocked: json['is_unlocked'] == true || json['isUnlocked'] == true,
       isClaimed: json['is_claimed'] == true || json['isClaimed'] == true,
       unlockedAt: _parseDateTime(json['unlocked_at'] ?? json['unlockedAt']),
-      xpReward: json['xp_reward'] ?? json['xpReward'] as int?,
+      xpReward: (json['xp_reward'] ?? json['xpReward']) as int?,
     );
   }
 
@@ -103,14 +103,14 @@ class LeaderboardEntry {
   factory LeaderboardEntry.fromJson(Map<String, dynamic> json) {
     return LeaderboardEntry(
       rank: json['rank'] as int?,
-      userId: json['user_id'] ?? json['userId'] as int?,
-      userName: json['user_name'] ?? json['userName'] as String?,
+      userId: (json['user_id'] ?? json['userId']) as int?,
+      userName: (json['user_name'] ?? json['userName']) as String?,
       userImages: _parseStringList(json['user_images'] ?? json['images']),
-      totalXp: json['total_xp'] ?? json['totalXp'] ?? 0,
-      activitiesCreated: json['activities_created'] ?? json['activitiesCreated'] ?? 0,
-      activitiesJoined: json['activities_joined'] ?? json['activitiesJoined'] ?? 0,
-      matchCount: json['match_count'] ?? json['matchCount'] ?? 0,
-      badgeCount: json['badge_count'] ?? json['badgeCount'] ?? 0,
+      totalXp: (json['total_xp'] ?? json['totalXp'] ?? 0) as int,
+      activitiesCreated: (json['activities_created'] ?? json['activitiesCreated'] ?? 0) as int,
+      activitiesJoined: (json['activities_joined'] ?? json['activitiesJoined'] ?? 0) as int,
+      matchCount: (json['match_count'] ?? json['matchCount'] ?? 0) as int,
+      badgeCount: (json['badge_count'] ?? json['badgeCount'] ?? 0) as int,
     );
   }
 
