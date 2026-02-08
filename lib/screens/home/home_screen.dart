@@ -12,8 +12,6 @@ import '../../models/event_model.dart';
 import '../../widgets/advanced_ux.dart';
 import '../memories/memories_screen.dart';
 import '../memories/memory_detail_screen.dart';
-import '../../widgets/stories_bar.dart';
-import '../../controllers/story_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -41,9 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     if (!Get.isRegistered<MemoryController>()) {
       Get.put(MemoryController());
-    }
-    if (!Get.isRegistered<StoryController>()) {
-      Get.put(StoryController());
     }
   }
 
@@ -75,32 +70,26 @@ class _HomeScreenState extends State<HomeScreen> {
                         // Greeting & Search
                         const _GreetingSection(),
 
-                        // Stories Bar
-                        const StoriesBar(),
-
-                        // Free Right Now Card
-                        const _FreeNowCard(),
-
                         // Your Upcoming Events
                         const _YourEventsSection(),
 
-                        // What Friends Are Doing
-                        const _FriendsActivitySection(),
-
-                        // Recent Memories
-                        const _RecentMemoriesSection(),
+                        // Happening Today - Primary discovery
+                        const _TodayEventsSection(),
 
                         // Quick Browse Categories
                         const _QuickCategoriesSection(),
-
-                        // Happening Today
-                        const _TodayEventsSection(),
 
                         // Trending Near You
                         const _TrendingSection(),
 
                         // Suggested For You
                         const _SuggestedSection(),
+
+                        // People from Past Events (post-event connections)
+                        const _PeopleYouveMetSection(),
+
+                        // Your Memories from events you attended
+                        const _RecentMemoriesSection(),
 
                         // Create Your Own
                         const _CreateEventPrompt(),
@@ -258,7 +247,7 @@ class _GreetingSection extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           const Text(
-            'Ready to hang out?',
+            'Find something to do',
             style: TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.bold,
@@ -282,7 +271,7 @@ class _GreetingSection extends StatelessWidget {
                   Icon(Icons.search, color: AppColors.mediumGrey),
                   const SizedBox(width: 12),
                   Text(
-                    'Search events, people, places...',
+                    'Search events, activities, places...',
                     style: TextStyle(color: AppColors.mediumGrey),
                   ),
                 ],
@@ -295,72 +284,6 @@ class _GreetingSection extends StatelessWidget {
   }
 }
 
-class _FreeNowCard extends StatelessWidget {
-  const _FreeNowCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        Nav.toChatList();
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColors.friendlyTeal, AppColors.primaryBlue],
-          ),
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withAlpha(51),
-                borderRadius: BorderRadius.circular(AppRadius.md),
-              ),
-              child: const Text('☕', style: TextStyle(fontSize: 28)),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Free right now?',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                  Text(
-                    '3 friends are looking to hang out nearby',
-                    style: TextStyle(
-                      color: Colors.white.withAlpha(204),
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(AppRadius.md),
-              ),
-              child: Icon(Icons.arrow_forward, color: AppColors.primaryBlue),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class _YourEventsSection extends StatelessWidget {
   const _YourEventsSection();
@@ -554,148 +477,6 @@ class _AddEventCard extends StatelessWidget {
   }
 }
 
-class _FriendsActivitySection extends StatelessWidget {
-  const _FriendsActivitySection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 24),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-          child: Text(
-            'Friends Activity',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 70,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-            children: [
-              _FriendActivityItem(
-                name: 'Alex',
-                action: 'joined Board Game Night',
-                timeAgo: '2h ago',
-              ),
-              _FriendActivityItem(
-                name: 'Jordan',
-                action: 'is hosting Coffee Meetup',
-                timeAgo: '4h ago',
-              ),
-              _FriendActivityItem(
-                name: 'Taylor',
-                action: 'is free right now',
-                timeAgo: 'Now',
-                isLive: true,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _FriendActivityItem extends StatelessWidget {
-  final String name;
-  final String action;
-  final String timeAgo;
-  final bool isLive;
-
-  const _FriendActivityItem({
-    required this.name,
-    required this.action,
-    required this.timeAgo,
-    this.isLive = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 220,
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: isLive ? AppColors.success.withAlpha(26) : AppColors.lightGrey.withAlpha(128),
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: isLive ? Border.all(color: AppColors.success.withAlpha(77)) : null,
-      ),
-      child: Row(
-        children: [
-          Stack(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: AppColors.primaryBlue.withAlpha(51),
-                child: Text(
-                  name[0],
-                  style: TextStyle(
-                    color: AppColors.primaryBlue,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              if (isLive)
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: AppColors.success,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: name,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      TextSpan(
-                        text: ' $action',
-                        style: TextStyle(color: AppColors.darkGrey),
-                      ),
-                    ],
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 13),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  timeAgo,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: isLive ? AppColors.success : AppColors.mediumGrey,
-                    fontWeight: isLive ? FontWeight.bold : FontWeight.normal,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _RecentMemoriesSection extends StatelessWidget {
   const _RecentMemoriesSection();
@@ -719,7 +500,7 @@ class _RecentMemoriesSection extends StatelessWidget {
                       Icon(Icons.photo_library, color: AppColors.friendlyPurple, size: 22),
                       const SizedBox(width: 8),
                       const Text(
-                        'Recent Memories',
+                        'Your Memories',
                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -770,7 +551,7 @@ class _RecentMemoriesSection extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              'Share your memories!',
+                              'Capture the moment',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -778,7 +559,7 @@ class _RecentMemoriesSection extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Upload photos from events you\'ve attended',
+                              'Photos from events you attend will appear here',
                               style: TextStyle(
                                 color: AppColors.mediumGrey,
                                 fontSize: 13,
@@ -1653,6 +1434,89 @@ class _SuggestedSectionState extends State<_SuggestedSection> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PeopleYouveMetSection extends StatelessWidget {
+  const _PeopleYouveMetSection();
+
+  @override
+  Widget build(BuildContext context) {
+    // This would be populated from events you've attended
+    // For now, show empty state encouraging event attendance
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 24),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          child: Row(
+            children: [
+              Icon(Icons.people_outline, color: AppColors.friendlyTeal, size: 22),
+              const SizedBox(width: 8),
+              const Text(
+                'People You\'ve Met',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppColors.friendlyTeal.withAlpha(26),
+                AppColors.primaryBlue.withAlpha(26),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            border: Border.all(color: AppColors.friendlyTeal.withAlpha(51)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.friendlyTeal.withAlpha(51),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+                child: Icon(
+                  Icons.event_available,
+                  size: 32,
+                  color: AppColors.friendlyTeal,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Attend events to connect',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'People you meet at events will appear here',
+                      style: TextStyle(
+                        color: AppColors.mediumGrey,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
