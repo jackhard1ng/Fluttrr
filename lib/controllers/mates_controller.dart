@@ -91,15 +91,16 @@ class MatesController extends GetxController {
         limit: pageSize,
       );
 
-      if (response.success && response.data != null) {
+      final data = response.data;
+      if (response.success && data != null) {
         if (refresh || nearbyMates.isEmpty) {
-          nearbyMates.value = response.data!;
+          nearbyMates.value = data;
         } else {
-          nearbyMates.addAll(response.data!);
+          nearbyMates.addAll(data);
         }
 
         // Check if there are more pages
-        hasMorePages.value = response.data!.length >= pageSize;
+        hasMorePages.value = data.length >= pageSize;
         if (hasMorePages.value) {
           currentPage.value++;
         }
@@ -146,9 +147,10 @@ class MatesController extends GetxController {
         maxDistance: maxDistance.value,
       );
 
-      if (response.success && response.data != null) {
-        filteredMates.value = response.data!;
-        nearbyMates.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        filteredMates.value = data;
+        nearbyMates.value = data;
         currentSwipeIndex.value = 0;
       } else {
         errorMessage.value = response.displayMessage;
@@ -169,8 +171,9 @@ class MatesController extends GetxController {
 
     try {
       final response = await _matesRepository.searchUsers(query);
-      if (response.success && response.data != null) {
-        searchResults.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        searchResults.value = data;
       }
     } catch (e) {
       debugPrint('Error searching users: $e');
@@ -247,8 +250,9 @@ class MatesController extends GetxController {
   Future<void> loadLikedMates() async {
     try {
       final response = await _matesRepository.getLikedMates();
-      if (response.success && response.data != null) {
-        likedMates.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        likedMates.value = data;
       }
     } catch (e) {
       debugPrint('Error loading liked mates: $e');
@@ -259,8 +263,9 @@ class MatesController extends GetxController {
   Future<void> loadMatches() async {
     try {
       final response = await _matesRepository.getMatches();
-      if (response.success && response.data != null) {
-        matches.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        matches.value = data;
       }
     } catch (e) {
       debugPrint('Error loading matches: $e');

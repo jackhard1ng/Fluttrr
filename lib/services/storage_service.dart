@@ -61,8 +61,15 @@ class StorageService {
   }
 
   static T? getPreference<T>(String key, {T? defaultValue}) {
-    final box = Hive.box(_prefsBox);
-    return box.get(key, defaultValue: defaultValue) as T?;
+    try {
+      final box = Hive.box(_prefsBox);
+      final value = box.get(key, defaultValue: defaultValue);
+      if (value is T) return value;
+      return defaultValue;
+    } catch (e) {
+      debugPrint('Error getting preference $key: $e');
+      return defaultValue;
+    }
   }
 
   static bool getBool(String key, {bool defaultValue = false}) {
@@ -89,24 +96,31 @@ class StorageService {
   }
 
   static T? getCached<T>(String key) {
-    final box = Hive.box(_cacheBox);
-    final data = box.get(key);
+    try {
+      final box = Hive.box(_cacheBox);
+      final data = box.get(key);
 
-    if (data == null) return null;
+      if (data == null) return null;
 
-    final cached = Map<String, dynamic>.from(data);
-    final timestamp = cached['timestamp'] as int;
-    final expiry = cached['expiry'] as int?;
+      final cached = Map<String, dynamic>.from(data);
+      final timestamp = (cached['timestamp'] as num?)?.toInt();
+      final expiry = (cached['expiry'] as num?)?.toInt();
 
-    if (expiry != null) {
-      final elapsed = DateTime.now().millisecondsSinceEpoch - timestamp;
-      if (elapsed > expiry) {
-        box.delete(key);
-        return null;
+      if (timestamp != null && expiry != null) {
+        final elapsed = DateTime.now().millisecondsSinceEpoch - timestamp;
+        if (elapsed > expiry) {
+          box.delete(key);
+          return null;
+        }
       }
-    }
 
-    return cached['value'] as T?;
+      final value = cached['value'];
+      if (value is T) return value;
+      return null;
+    } catch (e) {
+      debugPrint('Error getting cached value for $key: $e');
+      return null;
+    }
   }
 
   static Future<void> clearCache() async {
@@ -118,7 +132,8 @@ class StorageService {
   static Future<void> addRecentlyViewed(String type, String id) async {
     final key = 'recently_viewed_$type';
     final box = Hive.box(_cacheBox);
-    List<String> items = List<String>.from(box.get(key, defaultValue: []));
+    final stored = box.get(key);
+    List<String> items = stored is List ? stored.whereType<String>().toList() : [];
 
     items.remove(id);
     items.insert(0, id);
@@ -133,15 +148,15 @@ class StorageService {
   static List<String> getRecentlyViewed(String type) {
     final key = 'recently_viewed_$type';
     final box = Hive.box(_cacheBox);
-    return List<String>.from(box.get(key, defaultValue: []));
+    final stored = box.get(key);
+    return stored is List ? stored.whereType<String>().toList() : [];
   }
 
   // Search history
   static Future<void> addSearchHistory(String query) async {
     final box = Hive.box(_cacheBox);
-    List<String> history = List<String>.from(
-      box.get('search_history', defaultValue: []),
-    );
+    final stored = box.get('search_history');
+    List<String> history = stored is List ? stored.whereType<String>().toList() : [];
 
     history.remove(query);
     history.insert(0, query);
@@ -155,7 +170,8 @@ class StorageService {
 
   static List<String> getSearchHistory() {
     final box = Hive.box(_cacheBox);
-    return List<String>.from(box.get('search_history', defaultValue: []));
+    final stored = box.get('search_history');
+    return stored is List ? stored.whereType<String>().toList() : [];
   }
 
   static Future<void> clearSearchHistory() async {

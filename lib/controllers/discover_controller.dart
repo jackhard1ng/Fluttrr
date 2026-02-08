@@ -33,8 +33,9 @@ class DiscoverController extends GetxController {
 
     try {
       final response = await _activityRepository.getActivities();
-      if (response.success && response.data != null) {
-        events.value = response.data!.map((activity) => EventModel(
+      final data = response.data;
+      if (response.success && data != null) {
+        events.value = data.map((activity) => EventModel(
           id: activity.activityId?.toString() ?? '',
           title: activity.name ?? '',
           description: activity.description,
@@ -91,11 +92,12 @@ class DiscoverController extends GetxController {
     }
 
     // Date filter
-    if (dateFilter.value != null) {
+    final filterDate = dateFilter.value;
+    if (filterDate != null) {
       result = result.where((e) =>
-          e.date.year == dateFilter.value!.year &&
-          e.date.month == dateFilter.value!.month &&
-          e.date.day == dateFilter.value!.day
+          e.date.year == filterDate.year &&
+          e.date.month == filterDate.month &&
+          e.date.day == filterDate.day
       ).toList();
     }
 
@@ -214,10 +216,10 @@ class DiscoverController extends GetxController {
         totalSlots: maxAttendees,
       );
 
-      if (response.success && response.data != null) {
-        final activity = response.data!;
+      final activityData = response.data;
+      if (response.success && activityData != null) {
         final event = EventModel(
-          id: activity.activityId?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString(),
+          id: activityData.activityId?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString(),
           title: title,
           description: description,
           hostId: 'current_user',

@@ -194,8 +194,9 @@ class ChatController extends GetxController {
 
     try {
       final response = await _chatRepository.getChatList();
-      if (response.success && response.data != null) {
-        conversations.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        conversations.value = data;
       } else {
         errorMessage.value = response.displayMessage;
       }
@@ -211,8 +212,9 @@ class ChatController extends GetxController {
   Future<void> loadGroupChats() async {
     try {
       final response = await _chatRepository.getGroupChatList();
-      if (response.success && response.data != null) {
-        groupChats.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        groupChats.value = data;
       }
     } catch (e) {
       debugPrint('Error loading group chats: $e');
@@ -223,8 +225,9 @@ class ChatController extends GetxController {
   Future<void> loadBusinessChats() async {
     try {
       final response = await _chatRepository.getBusinessChatList();
-      if (response.success && response.data != null) {
-        businessChats.value = response.data!;
+      final data = response.data;
+      if (response.success && data != null) {
+        businessChats.value = data;
       }
     } catch (e) {
       debugPrint('Error loading business chats: $e');
@@ -286,9 +289,10 @@ class ChatController extends GetxController {
         // Update optimistic message
         final index = currentMessages.indexWhere(
             (m) => m.messageId == tempMessage.messageId);
-        if (index != -1 && response.data != null) {
-          currentMessages[index] = response.data!;
-          _cacheMessage(response.data!);
+        final messageData = response.data;
+        if (index != -1 && messageData != null) {
+          currentMessages[index] = messageData;
+          _cacheMessage(messageData);
         }
         return true;
       } else {
