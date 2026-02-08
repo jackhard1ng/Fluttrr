@@ -126,6 +126,9 @@ class _PublicBusinessProfileScreenState
   }
 
   void _showWriteReviewSheet() {
+    // Check if context is still mounted before showing bottom sheet (#103)
+    if (!context.mounted) return;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -405,6 +408,9 @@ class _BusinessHeader extends StatelessWidget {
   }
 
   void _showBusinessOptionsMenu(BuildContext context) {
+    // Check if context is still mounted before showing bottom sheet (#103)
+    if (!context.mounted) return;
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(

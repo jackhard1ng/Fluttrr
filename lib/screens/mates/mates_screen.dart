@@ -435,6 +435,9 @@ class _PersonCard extends StatelessWidget {
   }
 
   void _showReportDialog(BuildContext context) {
+    // Check if context is still mounted before showing dialog (#100)
+    if (!context.mounted) return;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

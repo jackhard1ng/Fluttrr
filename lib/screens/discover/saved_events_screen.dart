@@ -130,6 +130,9 @@ class _SavedEventsScreenState extends State<SavedEventsScreen> {
   }
 
   void _showEventActions(BuildContext context, _SavedEvent event, int index) {
+    // Check if context is still mounted before showing bottom sheet (#98)
+    if (!context.mounted) return;
+
     HapticFeedback.mediumImpact();
     showModalBottomSheet(
       context: context,

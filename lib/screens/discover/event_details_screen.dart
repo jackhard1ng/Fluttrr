@@ -24,6 +24,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   RsvpStatus? _rsvpStatus;
 
   void showShareOptions(BuildContext context) {
+    // Check if context is still mounted before showing bottom sheet (#99)
+    if (!context.mounted) return;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -32,6 +35,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   }
 
   void _showEventOptionsMenu(BuildContext context) {
+    // Check if context is still mounted before showing bottom sheet (#99)
+    if (!context.mounted) return;
+
     const eventName = 'Friday Night Board Games';
     const hostName = 'Alex';
 

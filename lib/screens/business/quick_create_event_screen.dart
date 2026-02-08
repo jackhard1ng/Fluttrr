@@ -367,6 +367,9 @@ class _QuickCreateEventScreenState extends State<QuickCreateEventScreen> {
   }
 
   void _showHelpDialog() {
+    // Check if context is still mounted before showing dialog (#106)
+    if (!context.mounted) return;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

@@ -677,6 +677,9 @@ class _ReviewCard extends StatelessWidget {
   }
 
   void _showReplyDialog(BuildContext context, {bool editMode = false}) {
+    // Check if context is still mounted before showing bottom sheet (#104)
+    if (!context.mounted) return;
+
     final controller = TextEditingController(
       text: editMode ? review.reply : '',
     );

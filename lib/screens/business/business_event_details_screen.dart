@@ -104,6 +104,9 @@ class _BusinessEventDetailsScreenState
   }
 
   void _showEditComingSoon(BuildContext context) {
+    // Check if context is still mounted before showing bottom sheet (#101)
+    if (!context.mounted) return;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,

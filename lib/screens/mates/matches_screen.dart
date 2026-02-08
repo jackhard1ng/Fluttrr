@@ -78,6 +78,9 @@ class _MatchCard extends StatelessWidget {
   const _MatchCard({required this.match});
 
   void _showMatchOptions(BuildContext context) {
+    // Check if context is still mounted before showing bottom sheet (#97)
+    if (!context.mounted) return;
+
     HapticFeedback.mediumImpact();
     showModalBottomSheet(
       context: context,
@@ -212,6 +215,9 @@ class _MatchCard extends StatelessWidget {
   }
 
   void _confirmUnmatch(BuildContext context) {
+    // Check if context is still mounted before showing dialog (#97)
+    if (!context.mounted) return;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

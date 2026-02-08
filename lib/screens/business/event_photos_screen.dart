@@ -118,6 +118,9 @@ class _EventPhotosScreenState extends State<EventPhotosScreen> {
   }
 
   void _uploadPhotos() {
+    // Check if context is still mounted before showing bottom sheet (#102)
+    if (!context.mounted) return;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -137,6 +140,9 @@ class _EventPhotosScreenState extends State<EventPhotosScreen> {
   }
 
   void _deleteSelectedPhotos() {
+    // Check if context is still mounted before showing dialog (#102)
+    if (!context.mounted) return;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -868,6 +874,9 @@ class _PhotoViewerScreen extends StatelessWidget {
   }
 
   void _showSharePhotoOptions(BuildContext context, String photoId) {
+    // Check if context is still mounted before showing bottom sheet (#102)
+    if (!context.mounted) return;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,

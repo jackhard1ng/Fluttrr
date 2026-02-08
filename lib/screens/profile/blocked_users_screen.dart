@@ -62,6 +62,9 @@ class _BlockedUsersScreenState extends State<BlockedUsersScreen> {
   }
 
   void _showUnblockDialog(_BlockedUser user) {
+    // Check if context is still mounted before showing dialog (#105)
+    if (!context.mounted) return;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
