@@ -12,8 +12,8 @@ import '../services/mock_data_service.dart';
 class ChatController extends GetxController {
   final ChatRepository _chatRepository = ChatRepository();
 
-  /// Flag to use mock data when API fails
-  final RxBool useMockData = true.obs;
+  /// Flag to use mock data when API fails (disabled by default, enabled on API failure)
+  final RxBool useMockData = false.obs;
 
   // Socket connection
   io.Socket? _socket;

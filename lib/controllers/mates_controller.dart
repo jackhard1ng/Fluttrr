@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import '../models/mate_model.dart';
@@ -200,7 +201,7 @@ class MatesController extends GetxController {
         searchResults.value = response.data!;
       }
     } catch (e) {
-      // Ignore errors
+      debugPrint('Error searching users: $e');
     }
   }
 
@@ -278,7 +279,7 @@ class MatesController extends GetxController {
         likedMates.value = response.data!;
       }
     } catch (e) {
-      // Ignore errors
+      debugPrint('Error loading liked mates: $e');
     }
   }
 
@@ -319,7 +320,7 @@ class MatesController extends GetxController {
         viewedProfile.value = response.data;
       }
     } catch (e) {
-      // Ignore errors
+      debugPrint('Error viewing mate profile: $e');
     } finally {
       isLoadingProfile.value = false;
     }

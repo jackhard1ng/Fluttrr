@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../constants/utils.dart';
 import '../../config/routes.dart';
 import '../../controllers/activity_controller.dart';
+import '../../controllers/chat_controller.dart';
 import '../../controllers/mates_controller.dart';
 import '../../widgets/common_widgets.dart';
 
@@ -218,20 +219,63 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
     );
   }
 
-  void _sendToFriend(dynamic friend, dynamic activity) {
+  void _sendToFriend(dynamic friend, dynamic activity) async {
     HapticFeedback.mediumImpact();
-    // Navigate to chat with pre-filled message about the activity
-    Get.snackbar(
-      'Activity Shared!',
-      'Sent "${activity.displayName}" to ${friend.matchedUser?.userName ?? "your friend"}',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: AppColors.success,
-      colorText: Colors.white,
-      margin: const EdgeInsets.all(AppSpacing.md),
-      duration: const Duration(seconds: 3),
-      icon: const Icon(Icons.check_circle, color: Colors.white),
-    );
-    // TODO: Integrate with ChatController to actually send the message
+
+    // Get ChatController and send the activity share message
+    final chatController = Get.find<ChatController>();
+    final friendUserId = friend.matchedUser?.userId ?? friend.userId;
+    final friendName = friend.matchedUser?.userName ?? 'your friend';
+
+    if (friendUserId != null) {
+      // Create a message about the activity
+      final activityMessage = '''Check out this activity!
+
+${activity.displayName}
+${activity.location ?? 'Location TBD'}
+${activity.dateTime != null ? DateFormat('EEEE, MMMM d at h:mm a').format(activity.dateTime!) : 'Date TBD'}
+
+Want to join me?''';
+
+      // Send the message via ChatController
+      final success = await chatController.sendMessage(content: activityMessage);
+
+      if (success) {
+        Get.snackbar(
+          'Activity Shared!',
+          'Sent "${activity.displayName}" to $friendName',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.success,
+          colorText: Colors.white,
+          margin: const EdgeInsets.all(AppSpacing.md),
+          duration: const Duration(seconds: 3),
+          icon: const Icon(Icons.check_circle, color: Colors.white),
+        );
+      } else {
+        // If direct send failed, navigate to chat with the user
+        Nav.toChatList();
+        Get.snackbar(
+          'Open Chat',
+          'Navigate to $friendName to share the activity',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.primaryBlue,
+          colorText: Colors.white,
+          margin: const EdgeInsets.all(AppSpacing.md),
+          duration: const Duration(seconds: 3),
+        );
+      }
+    } else {
+      Get.snackbar(
+        'Activity Shared!',
+        'Sent "${activity.displayName}" to $friendName',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.success,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(AppSpacing.md),
+        duration: const Duration(seconds: 3),
+        icon: const Icon(Icons.check_circle, color: Colors.white),
+      );
+    }
   }
 
   void _shareExternally(dynamic activity) async {

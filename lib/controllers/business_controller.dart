@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -166,7 +167,7 @@ class BusinessController extends GetxController {
         subscriptionStatus.value = response.data;
       }
     } catch (e) {
-      // Ignore errors
+      debugPrint('Error loading subscription status: $e');
     }
   }
 
@@ -320,7 +321,7 @@ class BusinessController extends GetxController {
         businessEvents.value = response.data!;
       }
     } catch (e) {
-      // Ignore errors
+      debugPrint('Error loading business events: $e');
     }
   }
 
@@ -332,7 +333,7 @@ class BusinessController extends GetxController {
         myBusinessEvents.value = response.data!;
       }
     } catch (e) {
-      // Ignore errors
+      debugPrint('Error loading my business events: $e');
     }
   }
 
@@ -344,7 +345,7 @@ class BusinessController extends GetxController {
         savedEvents.value = response.data!;
       }
     } catch (e) {
-      // Ignore errors
+      debugPrint('Error loading saved events: $e');
     }
   }
 
@@ -356,7 +357,7 @@ class BusinessController extends GetxController {
         topEvents.value = response.data!;
       }
     } catch (e) {
-      // Ignore errors
+      debugPrint('Error loading top events: $e');
     }
   }
 
@@ -648,7 +649,7 @@ class BusinessController extends GetxController {
         analytics.value = response.data;
       }
     } catch (e) {
-      // Ignore errors
+      debugPrint('Error loading business analytics: $e');
     }
   }
 

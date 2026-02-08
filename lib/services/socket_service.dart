@@ -21,22 +21,47 @@ class SocketService {
   SocketService._internal();
 
   io.Socket? _socket;
-  final _statusController = StreamController<SocketStatus>.broadcast();
-  final _messageController = StreamController<Map<String, dynamic>>.broadcast();
-  final _typingController = StreamController<Map<String, dynamic>>.broadcast();
-  final _onlineController = StreamController<Map<String, dynamic>>.broadcast();
+  StreamController<SocketStatus>? _statusController;
+  StreamController<Map<String, dynamic>>? _messageController;
+  StreamController<Map<String, dynamic>>? _typingController;
+  StreamController<Map<String, dynamic>>? _onlineController;
+
+  bool _isDisposed = false;
+
+  /// Ensure stream controllers are initialized
+  void _ensureControllersInitialized() {
+    if (_isDisposed) {
+      _isDisposed = false;
+    }
+    _statusController ??= StreamController<SocketStatus>.broadcast();
+    _messageController ??= StreamController<Map<String, dynamic>>.broadcast();
+    _typingController ??= StreamController<Map<String, dynamic>>.broadcast();
+    _onlineController ??= StreamController<Map<String, dynamic>>.broadcast();
+  }
 
   /// Stream of connection status changes
-  Stream<SocketStatus> get statusStream => _statusController.stream;
+  Stream<SocketStatus> get statusStream {
+    _ensureControllersInitialized();
+    return _statusController!.stream;
+  }
 
   /// Stream of incoming messages
-  Stream<Map<String, dynamic>> get messageStream => _messageController.stream;
+  Stream<Map<String, dynamic>> get messageStream {
+    _ensureControllersInitialized();
+    return _messageController!.stream;
+  }
 
   /// Stream of typing indicators
-  Stream<Map<String, dynamic>> get typingStream => _typingController.stream;
+  Stream<Map<String, dynamic>> get typingStream {
+    _ensureControllersInitialized();
+    return _typingController!.stream;
+  }
 
   /// Stream of online status changes
-  Stream<Map<String, dynamic>> get onlineStream => _onlineController.stream;
+  Stream<Map<String, dynamic>> get onlineStream {
+    _ensureControllersInitialized();
+    return _onlineController!.stream;
+  }
 
   /// Current socket status
   SocketStatus _status = SocketStatus.disconnected;
@@ -51,6 +76,9 @@ class SocketService {
       debugPrint('Socket already connected');
       return;
     }
+
+    // Ensure stream controllers are initialized before connecting
+    _ensureControllersInitialized();
 
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -117,48 +145,48 @@ class SocketService {
     // Listen for new messages
     _socket?.on('new_message', (data) {
       debugPrint('New message received: $data');
-      if (data is Map<String, dynamic>) {
-        _messageController.add(data);
+      if (data is Map<String, dynamic> && _messageController != null && !_messageController!.isClosed) {
+        _messageController!.add(data);
       }
     });
 
     // Listen for typing indicators
     _socket?.on('typing', (data) {
-      if (data is Map<String, dynamic>) {
-        _typingController.add(data);
+      if (data is Map<String, dynamic> && _typingController != null && !_typingController!.isClosed) {
+        _typingController!.add(data);
       }
     });
 
     _socket?.on('stop_typing', (data) {
-      if (data is Map<String, dynamic>) {
-        _typingController.add({...data, 'isTyping': false});
+      if (data is Map<String, dynamic> && _typingController != null && !_typingController!.isClosed) {
+        _typingController!.add({...data, 'isTyping': false});
       }
     });
 
     // Listen for online status changes
     _socket?.on('user_online', (data) {
-      if (data is Map<String, dynamic>) {
-        _onlineController.add({...data, 'isOnline': true});
+      if (data is Map<String, dynamic> && _onlineController != null && !_onlineController!.isClosed) {
+        _onlineController!.add({...data, 'isOnline': true});
       }
     });
 
     _socket?.on('user_offline', (data) {
-      if (data is Map<String, dynamic>) {
-        _onlineController.add({...data, 'isOnline': false});
+      if (data is Map<String, dynamic> && _onlineController != null && !_onlineController!.isClosed) {
+        _onlineController!.add({...data, 'isOnline': false});
       }
     });
 
     // Listen for message read receipts
     _socket?.on('message_read', (data) {
-      if (data is Map<String, dynamic>) {
-        _messageController.add({...data, 'type': 'read_receipt'});
+      if (data is Map<String, dynamic> && _messageController != null && !_messageController!.isClosed) {
+        _messageController!.add({...data, 'type': 'read_receipt'});
       }
     });
 
     // Listen for message deleted
     _socket?.on('message_deleted', (data) {
-      if (data is Map<String, dynamic>) {
-        _messageController.add({...data, 'type': 'deleted'});
+      if (data is Map<String, dynamic> && _messageController != null && !_messageController!.isClosed) {
+        _messageController!.add({...data, 'type': 'deleted'});
       }
     });
   }
@@ -166,7 +194,9 @@ class SocketService {
   /// Update status and notify listeners
   void _updateStatus(SocketStatus newStatus) {
     _status = newStatus;
-    _statusController.add(newStatus);
+    if (_statusController != null && !_statusController!.isClosed) {
+      _statusController!.add(newStatus);
+    }
   }
 
   /// Disconnect socket
@@ -254,10 +284,28 @@ class SocketService {
 
   /// Dispose of the service
   void dispose() {
+    _isDisposed = true;
     disconnect();
-    _statusController.close();
-    _messageController.close();
-    _typingController.close();
-    _onlineController.close();
+
+    // Close and nullify stream controllers
+    if (_statusController != null && !_statusController!.isClosed) {
+      _statusController!.close();
+    }
+    _statusController = null;
+
+    if (_messageController != null && !_messageController!.isClosed) {
+      _messageController!.close();
+    }
+    _messageController = null;
+
+    if (_typingController != null && !_typingController!.isClosed) {
+      _typingController!.close();
+    }
+    _typingController = null;
+
+    if (_onlineController != null && !_onlineController!.isClosed) {
+      _onlineController!.close();
+    }
+    _onlineController = null;
   }
 }

@@ -37,12 +37,17 @@ class StripeService {
   factory StripeService() => _instance;
   StripeService._internal();
 
-  static const String _publishableKey = String.fromEnvironment(
+  /// Stripe publishable key from environment variable
+  /// IMPORTANT: This must be set via --dart-define=STRIPE_PUBLISHABLE_KEY=your_key
+  static const String? _publishableKey = String.fromEnvironment(
     'STRIPE_PUBLISHABLE_KEY',
-    defaultValue: 'pk_test_YOUR_TEST_KEY',
-  );
+  ) == '' ? null : String.fromEnvironment('STRIPE_PUBLISHABLE_KEY');
 
   bool _isInitialized = false;
+  bool _initializationFailed = false;
+
+  /// Check if Stripe is properly configured
+  static bool get isConfigured => _publishableKey != null && _publishableKey!.isNotEmpty;
 
   /// Initialize Stripe
   static Future<void> initialize({String? publishableKey}) async {
@@ -51,15 +56,26 @@ class StripeService {
 
   Future<void> _init(String? publishableKey) async {
     if (_isInitialized) return;
+    if (_initializationFailed) return;
+
+    final keyToUse = publishableKey ?? _publishableKey;
+
+    if (keyToUse == null || keyToUse.isEmpty) {
+      debugPrint('Warning: Stripe publishable key not configured. Payment features will be disabled.');
+      debugPrint('Set STRIPE_PUBLISHABLE_KEY via --dart-define or pass it to initialize()');
+      _initializationFailed = true;
+      return;
+    }
 
     try {
-      Stripe.publishableKey = publishableKey ?? _publishableKey;
+      Stripe.publishableKey = keyToUse;
       Stripe.merchantIdentifier = 'merchant.com.fluttrr';
       await Stripe.instance.applySettings();
       _isInitialized = true;
       debugPrint('Stripe initialized successfully');
     } catch (e) {
       debugPrint('Error initializing Stripe: $e');
+      _initializationFailed = true;
     }
   }
 
@@ -175,6 +191,13 @@ class StripeService {
     String merchantDisplayName = 'Fluttrr',
     Map<String, dynamic>? metadata,
   }) async {
+    // Check if Stripe is initialized
+    if (!_isInitialized) {
+      return PaymentResult.failure(
+        'Payment service not available. Please try again later.',
+      );
+    }
+
     // Create payment intent
     final intentResult = await createPaymentIntent(
       amount: amount,

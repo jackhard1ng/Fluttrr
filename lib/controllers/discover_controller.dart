@@ -1,9 +1,16 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
 import '../models/event_model.dart';
+import '../repositories/activity_repository.dart';
 
 class DiscoverController extends GetxController {
+  final ActivityRepository _activityRepository = ActivityRepository();
+
+  /// Flag to indicate if using mock data (for debugging/demo purposes)
+  final RxBool useMockData = false.obs;
+
   // State
   final isLoading = false.obs;
   final events = <EventModel>[].obs;
@@ -25,11 +32,45 @@ class DiscoverController extends GetxController {
   Future<void> loadEvents() async {
     isLoading.value = true;
     try {
-      // In production, replace with actual API call
-      events.value = _mockEvents;
+      // Try to load from API first
+      final response = await _activityRepository.getActivities();
+      if (response.success && response.data != null && response.data!.isNotEmpty) {
+        // Convert activities to events
+        events.value = response.data!.map((activity) => EventModel(
+          id: activity.activityId?.toString() ?? '',
+          title: activity.name ?? '',
+          description: activity.description,
+          hostId: activity.userId?.toString() ?? '',
+          hostName: activity.userName ?? 'Unknown',
+          date: activity.dateTime ?? DateTime.now(),
+          startTime: TimeOfDay.fromDateTime(activity.dateTime ?? DateTime.now()),
+          endTime: null,
+          location: activity.location ?? '',
+          maxAttendees: activity.totalSlots ?? 20,
+          currentAttendees: activity.attendeeCount ?? 0,
+          categories: activity.eventType != null ? [activity.eventType!] : [],
+          tags: [],
+          vibe: null,
+          createdAt: activity.createdAt ?? DateTime.now(),
+        )).toList();
+        useMockData.value = false;
+      } else {
+        // Fall back to mock data if API returns empty
+        _loadMockEvents();
+      }
+    } catch (e) {
+      debugPrint('Error loading events: $e');
+      // Fall back to mock data on error
+      _loadMockEvents();
     } finally {
       isLoading.value = false;
     }
+  }
+
+  /// Load mock events for demo/fallback
+  void _loadMockEvents() {
+    useMockData.value = true;
+    events.value = _mockEvents;
   }
 
   Future<void> refreshEvents() async {
@@ -111,15 +152,38 @@ class DiscoverController extends GetxController {
 
   // RSVP
   Future<void> rsvpToEvent(String eventId, RsvpStatus status) async {
-    // In real app would call API
-    final index = events.indexWhere((e) => e.id == eventId);
-    if (index != -1) {
-      final event = events[index];
-      if (status == RsvpStatus.going) {
-        events[index] = event.copyWith(
-          currentAttendees: event.currentAttendees + 1,
-        );
+    try {
+      final activityId = int.tryParse(eventId);
+      if (activityId == null) {
+        debugPrint('Invalid event ID: $eventId');
+        return;
       }
+
+      if (status == RsvpStatus.going) {
+        final response = await _activityRepository.joinActivity(activityId);
+        if (response.success) {
+          final index = events.indexWhere((e) => e.id == eventId);
+          if (index != -1) {
+            final event = events[index];
+            events[index] = event.copyWith(
+              currentAttendees: event.currentAttendees + 1,
+            );
+          }
+        }
+      } else if (status == RsvpStatus.notGoing) {
+        final response = await _activityRepository.leaveActivity(activityId);
+        if (response.success) {
+          final index = events.indexWhere((e) => e.id == eventId);
+          if (index != -1) {
+            final event = events[index];
+            events[index] = event.copyWith(
+              currentAttendees: (event.currentAttendees - 1).clamp(0, event.maxAttendees),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Error updating RSVP: $e');
     }
   }
 
@@ -136,30 +200,59 @@ class DiscoverController extends GetxController {
     List<String> tags = const [],
     String? vibe,
     bool isPrivate = false,
+    double latitude = 0,
+    double longitude = 0,
   }) async {
     isLoading.value = true;
     try {
-      // In production, replace with actual API call
-      final event = EventModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        title: title,
-        description: description,
-        hostId: 'current_user',
-        hostName: 'You',
-        date: date,
-        startTime: startTime,
-        endTime: endTime,
-        location: location,
-        maxAttendees: maxAttendees,
-        categories: categories,
-        tags: tags,
-        vibe: vibe,
-        isPrivate: isPrivate,
-        createdAt: DateTime.now(),
+      // Combine date and time
+      final dateTime = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        startTime.hour,
+        startTime.minute,
       );
 
-      events.insert(0, event);
-      return event;
+      final response = await _activityRepository.createActivity(
+        name: title,
+        description: description ?? '',
+        location: location,
+        latitude: latitude,
+        longitude: longitude,
+        dateTime: dateTime,
+        eventType: categories.isNotEmpty ? categories.first : 'social',
+        totalSlots: maxAttendees,
+      );
+
+      if (response.success && response.data != null) {
+        final activity = response.data!;
+        final event = EventModel(
+          id: activity.activityId?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString(),
+          title: title,
+          description: description,
+          hostId: 'current_user',
+          hostName: 'You',
+          date: date,
+          startTime: startTime,
+          endTime: endTime,
+          location: location,
+          maxAttendees: maxAttendees,
+          categories: categories,
+          tags: tags,
+          vibe: vibe,
+          isPrivate: isPrivate,
+          createdAt: DateTime.now(),
+        );
+
+        events.insert(0, event);
+        return event;
+      }
+
+      return null;
+    } catch (e) {
+      debugPrint('Error creating event: $e');
+      return null;
     } finally {
       isLoading.value = false;
     }

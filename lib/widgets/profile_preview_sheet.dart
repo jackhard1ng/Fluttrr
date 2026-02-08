@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../constants/utils.dart';
 import '../constants/api_endpoints.dart';
 import '../config/routes.dart';
+import '../controllers/profile_controller.dart';
 import '../models/mate_model.dart';
 import 'animated_widgets.dart';
 import 'common_widgets.dart';
@@ -257,67 +258,84 @@ class _ProfilePreviewContent extends StatelessWidget {
           if (mate.interests != null && mate.interests!.isNotEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+              child: Builder(
+                builder: (context) {
+                  // Calculate actual match percentage based on shared interests
+                  int matchCount = 0;
+                  try {
+                    final profileController = Get.find<ProfileController>();
+                    final currentUserInterests = profileController.currentUser.value?.profile?.interests ?? [];
+                    matchCount = mate.interests!
+                        .where((interest) => currentUserInterests
+                            .any((userInterest) => userInterest.toLowerCase() == interest.toLowerCase()))
+                        .length;
+                  } catch (e) {
+                    // ProfileController not available, use fallback
+                    matchCount = (mate.interests!.length * 0.6).round();
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(
-                        Icons.interests,
-                        size: 16,
-                        color: AppColors.friendlyPurple,
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.interests,
+                            size: 16,
+                            color: AppColors.friendlyPurple,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Interests',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.friendlyPurple,
+                            ),
+                          ),
+                          const Spacer(),
+                          InterestMatchIndicator(
+                            matchCount: matchCount,
+                            totalInterests: mate.interests!.length,
+                            compact: true,
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Interests',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.friendlyPurple,
-                        ),
-                      ),
-                      const Spacer(),
-                      // TODO: Calculate actual match
-                      InterestMatchIndicator(
-                        matchCount: (mate.interests!.length * 0.6).round(),
-                        totalInterests: mate.interests!.length,
-                        compact: true,
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: mate.interests!.take(6).map((interest) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  AppColors.friendlyPurple.withAlpha(26),
+                                  AppColors.primaryBlue.withAlpha(26),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(AppRadius.circular),
+                              border: Border.all(
+                                color: AppColors.friendlyPurple.withAlpha(51),
+                              ),
+                            ),
+                            child: Text(
+                              interest,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          );
+                        }).toList(),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: mate.interests!.take(6).map((interest) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              AppColors.friendlyPurple.withAlpha(26),
-                              AppColors.primaryBlue.withAlpha(26),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(AppRadius.circular),
-                          border: Border.all(
-                            color: AppColors.friendlyPurple.withAlpha(51),
-                          ),
-                        ),
-                        child: Text(
-                          interest,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
+                  );
+                },
               ),
             ),
 
