@@ -155,7 +155,8 @@ class DiscoverController extends GetxController {
         final response = await _activityRepository.joinActivity(activityId);
         if (response.success) {
           final index = events.indexWhere((e) => e.id == eventId);
-          if (index != -1) {
+          // Add bounds check to prevent race condition (#75)
+          if (index != -1 && index < events.length) {
             final event = events[index];
             events[index] = event.copyWith(
               currentAttendees: event.currentAttendees + 1,
@@ -166,7 +167,8 @@ class DiscoverController extends GetxController {
         final response = await _activityRepository.leaveActivity(activityId);
         if (response.success) {
           final index = events.indexWhere((e) => e.id == eventId);
-          if (index != -1) {
+          // Add bounds check to prevent race condition (#75)
+          if (index != -1 && index < events.length) {
             final event = events[index];
             events[index] = event.copyWith(
               currentAttendees: (event.currentAttendees - 1).clamp(0, event.maxAttendees),

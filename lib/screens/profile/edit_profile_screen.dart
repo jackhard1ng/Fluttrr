@@ -10,6 +10,9 @@ class EditProfileScreen extends StatelessWidget {
   const EditProfileScreen({super.key});
 
   void _showPhotoOptions(BuildContext context) {
+    // Check if context is still mounted before showing bottom sheet (#72)
+    if (!context.mounted) return;
+
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.all(AppSpacing.md),

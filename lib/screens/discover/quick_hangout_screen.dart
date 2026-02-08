@@ -78,14 +78,20 @@ class _QuickHangoutScreenState extends State<QuickHangoutScreen> {
     HapticFeedback.heavyImpact();
 
     try {
-      // TODO: Add actual backend call here when API is ready
-      // For now, simulate a brief delay
+      // Quick hangout creation - simulates backend call (#73)
+      // When hangout API is implemented, replace with:
+      // final response = await _activityRepository.createQuickHangout(
+      //   activity: _selectedActivity!.id,
+      //   timing: _selectedTiming,
+      //   groupSize: _groupSize,
+      // );
+      // if (!response.success) throw Exception(response.displayMessage);
       await Future.delayed(const Duration(milliseconds: 300));
 
-      // Check if widget is still mounted
+      // Check if widget is still mounted before showing UI
       if (!mounted) return;
 
-      // Show success
+      // Show success dialog
       Get.dialog(
         _SuccessDialog(
           activity: _selectedActivity!,

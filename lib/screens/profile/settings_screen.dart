@@ -136,6 +136,9 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showLogoutDialog(BuildContext context) {
+    // Check if context is still mounted before showing dialog (#71)
+    if (!context.mounted) return;
+
     HapticFeedback.mediumImpact();
     showDialog(
       context: context,
@@ -169,6 +172,9 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showDeleteAccountDialog(BuildContext context) {
+    // Check if context is still mounted before showing dialog (#71)
+    if (!context.mounted) return;
+
     HapticFeedback.mediumImpact();
     showDialog(
       context: context,
@@ -209,6 +215,9 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showChangePasswordDialog(BuildContext context) {
+    // Check if context is still mounted before showing dialog (#71)
+    if (!context.mounted) return;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -240,6 +249,9 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showComingSoonDialog(BuildContext context, String feature) {
+    // Check if context is still mounted before showing bottom sheet (#71)
+    if (!context.mounted) return;
+
     HapticFeedback.lightImpact();
     showModalBottomSheet(
       context: context,

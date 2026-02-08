@@ -117,13 +117,18 @@ class AuthEventHandler {
       if (Get.context != null) {
         Get.offAllNamed(AppRoutes.login);
 
-        // Show a snackbar message
-        Get.snackbar(
-          'Session Expired',
-          message ?? 'Please log in again to continue.',
-          snackPosition: SnackPosition.BOTTOM,
-          duration: const Duration(seconds: 3),
-        );
+        // Show a snackbar message with try-catch for context safety (#80)
+        try {
+          Get.snackbar(
+            'Session Expired',
+            message ?? 'Please log in again to continue.',
+            snackPosition: SnackPosition.BOTTOM,
+            duration: const Duration(seconds: 3),
+          );
+        } catch (e) {
+          // Context may have become invalid after navigation
+          debugPrint('AuthEventHandler: Could not show snackbar: $e');
+        }
       }
     } catch (e) {
       debugPrint('AuthEventHandler: Error handling unauthorized: $e');

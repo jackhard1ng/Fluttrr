@@ -324,7 +324,7 @@ class ActivityController extends GetxController {
     }
   }
 
-  /// Delete activity
+  /// Delete activity with error message (#78)
   Future<bool> deleteActivity(int activityId) async {
     try {
       final response = await _activityRepository.deleteActivity(activityId);
@@ -334,8 +334,11 @@ class ActivityController extends GetxController {
         allActivities.removeWhere((a) => a.activityId == activityId);
         return true;
       }
+      errorMessage.value = response.displayMessage;
       return false;
     } catch (e) {
+      errorMessage.value = 'Failed to delete activity. Please try again.';
+      debugPrint('Error deleting activity: $e');
       return false;
     }
   }

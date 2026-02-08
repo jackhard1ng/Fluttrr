@@ -190,10 +190,15 @@ class ChatController extends GetxController {
         isOnline: conv.isOnline,
       );
 
-      // Move to top - verify index is still valid before removeAt
-      if (index < conversations.length) {
-        conversations.removeAt(index);
-        conversations.insert(0, updatedConversation);
+      // Move to top - wrap in try-catch to handle race conditions (#79)
+      try {
+        if (index < conversations.length) {
+          conversations.removeAt(index);
+          conversations.insert(0, updatedConversation);
+        }
+      } catch (e) {
+        // List was modified during operation, just log and continue
+        debugPrint('ChatController: Race condition in list update: $e');
       }
     }
   }
