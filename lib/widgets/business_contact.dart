@@ -153,7 +153,15 @@ class SocialLinks extends StatelessWidget {
           child: GestureDetector(
             onTap: () {
               HapticFeedback.lightImpact();
-              // Would open link in real app
+              Clipboard.setData(ClipboardData(text: link.url));
+              Get.snackbar(
+                'Copied!',
+                '${link.name} link copied to clipboard',
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: AppColors.success,
+                colorText: Colors.white,
+                duration: const Duration(seconds: 2),
+              );
             },
             child: Container(
               padding: const EdgeInsets.all(10),

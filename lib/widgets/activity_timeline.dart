@@ -254,6 +254,12 @@ class _ActivityItem extends StatelessWidget {
                   isActive: activity.isLiked,
                   onTap: () {
                     HapticFeedback.lightImpact();
+                    Get.snackbar(
+                      'Liked!',
+                      'You liked ${activity.userName}\'s activity',
+                      snackPosition: SnackPosition.BOTTOM,
+                      duration: const Duration(seconds: 2),
+                    );
                   },
                 ),
                 const SizedBox(width: 8),
@@ -262,6 +268,12 @@ class _ActivityItem extends StatelessWidget {
                   label: 'Comment',
                   onTap: () {
                     HapticFeedback.lightImpact();
+                    Get.snackbar(
+                      'Comments',
+                      'Comment feature coming soon',
+                      snackPosition: SnackPosition.BOTTOM,
+                      duration: const Duration(seconds: 2),
+                    );
                   },
                 ),
                 const Spacer(),
@@ -269,6 +281,16 @@ class _ActivityItem extends StatelessWidget {
                   GestureDetector(
                     onTap: () {
                       HapticFeedback.mediumImpact();
+                      if (activity.eventName != null) {
+                        Get.snackbar(
+                          'Joined!',
+                          'You\'re now attending ${activity.eventName}',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: AppColors.success,
+                          colorText: Colors.white,
+                          duration: const Duration(seconds: 2),
+                        );
+                      }
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(

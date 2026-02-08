@@ -109,7 +109,7 @@ class _SavedEventsScreenState extends State<SavedEventsScreen> {
                       event: event,
                       onTap: () {
                         HapticFeedback.lightImpact();
-                        // Navigate to event details
+                        Nav.toDiscover();
                       },
                     ),
                   ),

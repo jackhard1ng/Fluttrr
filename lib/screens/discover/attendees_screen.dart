@@ -315,6 +315,14 @@ class _AttendeeTile extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 HapticFeedback.lightImpact();
+                Get.snackbar(
+                  'Request Sent!',
+                  'Friend request sent to ${attendee.name}',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: AppColors.success,
+                  colorText: Colors.white,
+                  duration: const Duration(seconds: 2),
+                );
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

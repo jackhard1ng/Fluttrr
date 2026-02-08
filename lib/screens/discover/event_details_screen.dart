@@ -62,7 +62,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               ),
               onTap: () {
                 Navigator.pop(context);
-                // Navigate to host profile
+                Nav.toMateProfile(userId: 'host-alex');
               },
             ),
             const Divider(height: 1),

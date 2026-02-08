@@ -75,7 +75,7 @@ class _FriendsListScreenState extends State<FriendsListScreen>
             icon: const Icon(Icons.person_add, color: Colors.black),
             onPressed: () {
               HapticFeedback.lightImpact();
-              // Navigate to add friends
+              Nav.toMatches();
             },
           ),
         ],
@@ -324,6 +324,14 @@ class _PendingTile extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 HapticFeedback.lightImpact();
+                Get.snackbar(
+                  'Friend Added!',
+                  '${friend.name} is now your friend',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: AppColors.success,
+                  colorText: Colors.white,
+                  duration: const Duration(seconds: 2),
+                );
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -345,6 +353,12 @@ class _PendingTile extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 HapticFeedback.lightImpact();
+                Get.snackbar(
+                  'Request Declined',
+                  'Friend request from ${friend.name} declined',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: const Duration(seconds: 2),
+                );
               },
               child: Container(
                 padding: const EdgeInsets.all(8),

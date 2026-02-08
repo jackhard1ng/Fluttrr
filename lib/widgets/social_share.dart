@@ -128,7 +128,12 @@ class ShareSheet extends StatelessWidget {
                 color: AppColors.success,
                 onTap: () {
                   Get.back();
-                  // Would open messages
+                  Get.snackbar(
+                    'Messages',
+                    'Opening messages...',
+                    snackPosition: SnackPosition.BOTTOM,
+                    duration: const Duration(seconds: 2),
+                  );
                 },
               ),
               _ShareOption(
@@ -151,7 +156,12 @@ class ShareSheet extends StatelessWidget {
                 color: AppColors.primaryBlue,
                 onTap: () {
                   Get.back();
-                  // Would open email
+                  Get.snackbar(
+                    'Email',
+                    'Opening email app...',
+                    snackPosition: SnackPosition.BOTTOM,
+                    duration: const Duration(seconds: 2),
+                  );
                 },
               ),
               _ShareOption(
@@ -160,7 +170,12 @@ class ShareSheet extends StatelessWidget {
                 color: AppColors.friendlyPurple,
                 onTap: () {
                   Get.back();
-                  // Would open system share
+                  Get.snackbar(
+                    'Share',
+                    'Opening share options...',
+                    snackPosition: SnackPosition.BOTTOM,
+                    duration: const Duration(seconds: 2),
+                  );
                 },
               ),
             ],

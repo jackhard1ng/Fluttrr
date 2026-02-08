@@ -193,7 +193,7 @@ class _HomeAppBar extends StatelessWidget {
         GestureDetector(
           onTap: () {
             HapticFeedback.lightImpact();
-            // Navigate to profile
+            Nav.toProfile();
           },
           child: Container(
             margin: const EdgeInsets.only(right: 16),
@@ -277,57 +277,63 @@ class _FreeNowCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.friendlyTeal, AppColors.primaryBlue],
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Nav.toMatches();
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppColors.friendlyTeal, AppColors.primaryBlue],
+          ),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
         ),
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white.withAlpha(51),
-              borderRadius: BorderRadius.circular(AppRadius.md),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withAlpha(51),
+                borderRadius: BorderRadius.circular(AppRadius.md),
+              ),
+              child: const Text('☕', style: TextStyle(fontSize: 28)),
             ),
-            child: const Text('☕', style: TextStyle(fontSize: 28)),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Free right now?',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Free right now?',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
                   ),
-                ),
-                Text(
-                  '3 friends are looking to hang out nearby',
-                  style: TextStyle(
-                    color: Colors.white.withAlpha(204),
-                    fontSize: 13,
+                  Text(
+                    '3 friends are looking to hang out nearby',
+                    style: TextStyle(
+                      color: Colors.white.withAlpha(204),
+                      fontSize: 13,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(AppRadius.md),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(AppRadius.md),
+              ),
+              child: Icon(Icons.arrow_forward, color: AppColors.primaryBlue),
             ),
-            child: Icon(Icons.arrow_forward, color: AppColors.primaryBlue),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -411,64 +417,70 @@ class _YourEventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 180,
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withAlpha(26),
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: color.withAlpha(77)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(emoji, style: const TextStyle(fontSize: 28)),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(AppRadius.circular),
-                ),
-                child: Text(
-                  '$attendees going',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Nav.toActivities();
+      },
+      child: Container(
+        width: 180,
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.withAlpha(26),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          border: Border.all(color: color.withAlpha(77)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(emoji, style: const TextStyle(fontSize: 28)),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(AppRadius.circular),
+                  ),
+                  child: Text(
+                    '$attendees going',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const Spacer(),
-          Text(
-            title,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 15,
+              ],
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Icon(Icons.schedule, size: 14, color: AppColors.mediumGrey),
-              const SizedBox(width: 4),
-              Text(
-                date,
-                style: TextStyle(
-                  color: AppColors.mediumGrey,
-                  fontSize: 12,
-                ),
+            const Spacer(),
+            Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
               ),
-            ],
-          ),
-        ],
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(Icons.schedule, size: 14, color: AppColors.mediumGrey),
+                const SizedBox(width: 4),
+                Text(
+                  date,
+                  style: TextStyle(
+                    color: AppColors.mediumGrey,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -712,7 +724,10 @@ class _CategoryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => HapticFeedback.lightImpact(),
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Nav.toSearch();
+      },
       child: Container(
         margin: const EdgeInsets.only(right: 10),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -821,7 +836,7 @@ class _TodayEventsSection extends StatelessWidget {
                     },
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      // Navigate to event details when available
+                      Nav.toEventDetails(eventId: event.id);
                     },
                   );
                 },
@@ -1122,85 +1137,91 @@ class _TrendingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 170,
-      margin: const EdgeInsets.only(right: 12),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.friendlyOrange.withAlpha(26),
-            AppColors.warmYellow.withAlpha(26),
-          ],
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Nav.toDiscover();
+      },
+      child: Container(
+        width: 170,
+        margin: const EdgeInsets.only(right: 12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.friendlyOrange.withAlpha(26),
+              AppColors.warmYellow.withAlpha(26),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          border: Border.all(color: AppColors.friendlyOrange.withAlpha(51)),
         ),
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.friendlyOrange.withAlpha(51)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(emoji, style: const TextStyle(fontSize: 32)),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.friendlyOrange,
-                    borderRadius: BorderRadius.circular(AppRadius.circular),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.trending_up, size: 12, color: Colors.white),
-                      const SizedBox(width: 4),
-                      Text(
-                        trending,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(emoji, style: const TextStyle(fontSize: 32)),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.friendlyOrange,
+                      borderRadius: BorderRadius.circular(AppRadius.circular),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.trending_up, size: 12, color: Colors.white),
+                        const SizedBox(width: 4),
+                        Text(
+                          trending,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
+                ],
+              ),
+              const Spacer(),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
                 ),
-              ],
-            ),
-            const Spacer(),
-            Text(
-              title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              location,
-              style: TextStyle(
-                color: AppColors.mediumGrey,
-                fontSize: 12,
+              const SizedBox(height: 4),
+              Text(
+                location,
+                style: TextStyle(
+                  color: AppColors.mediumGrey,
+                  fontSize: 12,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.people, size: 14, color: AppColors.darkGrey),
-                const SizedBox(width: 4),
-                Text(
-                  '$attendees interested',
-                  style: TextStyle(
-                    color: AppColors.darkGrey,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.people, size: 14, color: AppColors.darkGrey),
+                  const SizedBox(width: 4),
+                  Text(
+                    '$attendees interested',
+                    style: TextStyle(
+                      color: AppColors.darkGrey,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
