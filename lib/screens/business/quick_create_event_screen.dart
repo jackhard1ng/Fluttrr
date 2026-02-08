@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../constants/utils.dart';
-import '../../controllers/activity_controller.dart';
+import '../../controllers/business_controller.dart';
 import '../../widgets/common_widgets.dart';
 
 /// Quick event creation screen for businesses
@@ -95,22 +95,72 @@ class _QuickCreateEventScreenState extends State<QuickCreateEventScreen> {
 
     setState(() => _isCreating = true);
 
-    // TODO: Replace with actual API call to create event
-    // final success = await activityController.createEvent(...);
+    try {
+      // Combine date and time
+      final startDateTime = DateTime(
+        _selectedDate!.year,
+        _selectedDate!.month,
+        _selectedDate!.day,
+        _selectedTime!.hour,
+        _selectedTime!.minute,
+      );
 
-    setState(() => _isCreating = false);
+      // End time defaults to 2 hours after start
+      final endDateTime = startDateTime.add(const Duration(hours: 2));
 
-    // Success!
-    Get.back();
-    Get.snackbar(
-      'Event Created!',
-      'Your event "${_nameController.text}" is now live',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: AppColors.success,
-      colorText: Colors.white,
-      icon: const Icon(Icons.check_circle, color: Colors.white),
-      duration: const Duration(seconds: 3),
-    );
+      // Parse slots - 0 or null means unlimited
+      final maxAttendees = _hasLimit && _slotsController.text.isNotEmpty
+          ? int.tryParse(_slotsController.text)
+          : null;
+
+      // Get business controller and create event
+      final businessController = Get.find<BusinessController>();
+      final success = await businessController.createEvent(
+        name: _nameController.text.trim(),
+        description: _descriptionController.text.trim().isNotEmpty
+            ? _descriptionController.text.trim()
+            : 'Join us for ${_nameController.text.trim()}!',
+        location: _locationController.text.trim(),
+        startDate: startDateTime,
+        endDate: endDateTime,
+        eventType: _selectedType!,
+        maxAttendees: maxAttendees,
+      );
+
+      setState(() => _isCreating = false);
+
+      if (success) {
+        Get.back();
+        Get.snackbar(
+          'Event Created!',
+          'Your event "${_nameController.text}" is now live',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.success,
+          colorText: Colors.white,
+          icon: const Icon(Icons.check_circle, color: Colors.white),
+          duration: const Duration(seconds: 3),
+        );
+      } else {
+        Get.snackbar(
+          'Error',
+          businessController.errorMessage.value.isNotEmpty
+              ? businessController.errorMessage.value
+              : 'Failed to create event. Please try again.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.error,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      setState(() => _isCreating = false);
+      Get.snackbar(
+        'Error',
+        'Something went wrong. Please try again.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.error,
+        colorText: Colors.white,
+      );
+    }
   }
 
   @override

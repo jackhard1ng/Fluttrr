@@ -9,8 +9,8 @@ import '../services/mock_data_service.dart';
 class MatesController extends GetxController {
   final MatesRepository _matesRepository = MatesRepository();
 
-  /// Flag to use mock data when API fails
-  final RxBool useMockData = true.obs;
+  /// Flag to use mock data when API fails (disabled by default, enabled on API failure)
+  final RxBool useMockData = false.obs;
 
   // State
   final RxList<MateModel> nearbyMates = <MateModel>[].obs;
@@ -24,6 +24,7 @@ class MatesController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxBool isLoadingProfile = false.obs;
   final RxBool isLiking = false.obs;
+  final RxBool isSwiping = false.obs;
   final RxString errorMessage = ''.obs;
 
   // Filter state
@@ -39,6 +40,12 @@ class MatesController extends GetxController {
 
   // Current swipe index
   final RxInt currentSwipeIndex = 0.obs;
+
+  // Pagination state
+  final RxInt currentPage = 1.obs;
+  final RxBool hasMorePages = true.obs;
+  final RxBool isLoadingMore = false.obs;
+  static const int pageSize = 20;
 
   @override
   void onInit() {
@@ -62,9 +69,20 @@ class MatesController extends GetxController {
     loadNearbyMates();
   }
 
-  /// Load nearby mates (with mock data fallback)
-  Future<void> loadNearbyMates() async {
-    isLoading.value = true;
+  /// Load nearby mates (with pagination and mock data fallback)
+  Future<void> loadNearbyMates({bool refresh = false}) async {
+    // Reset pagination on refresh
+    if (refresh) {
+      currentPage.value = 1;
+      hasMorePages.value = true;
+      nearbyMates.clear();
+    }
+
+    // Don't load if already loading or no more pages
+    if (!hasMorePages.value) return;
+
+    isLoading.value = nearbyMates.isEmpty;
+    isLoadingMore.value = nearbyMates.isNotEmpty;
     errorMessage.value = '';
 
     try {
@@ -72,22 +90,51 @@ class MatesController extends GetxController {
         latitude: currentLatitude.value != 0 ? currentLatitude.value : null,
         longitude: currentLongitude.value != 0 ? currentLongitude.value : null,
         radius: maxDistance.value,
+        page: currentPage.value,
+        limit: pageSize,
       );
 
       if (response.success && response.data != null && response.data!.isNotEmpty) {
-        nearbyMates.value = response.data!;
+        if (refresh || nearbyMates.isEmpty) {
+          nearbyMates.value = response.data!;
+        } else {
+          nearbyMates.addAll(response.data!);
+        }
         useMockData.value = false;
-      } else {
-        // Use mock data as fallback
+
+        // Check if there are more pages
+        hasMorePages.value = response.data!.length >= pageSize;
+        if (hasMorePages.value) {
+          currentPage.value++;
+        }
+      } else if (nearbyMates.isEmpty) {
+        // Use mock data as fallback only if list is empty
         _loadMockNearbyMates();
+      } else {
+        // No more data - end of list
+        hasMorePages.value = false;
       }
-      currentSwipeIndex.value = 0;
+
+      if (refresh) {
+        currentSwipeIndex.value = 0;
+      }
     } catch (e) {
-      // Use mock data on error
-      _loadMockNearbyMates();
+      // Use mock data on error only if list is empty
+      if (nearbyMates.isEmpty) {
+        _loadMockNearbyMates();
+      } else {
+        errorMessage.value = 'Failed to load more people';
+      }
     } finally {
       isLoading.value = false;
+      isLoadingMore.value = false;
     }
+  }
+
+  /// Load more mates (for infinite scroll)
+  Future<void> loadMoreMates() async {
+    if (isLoadingMore.value || !hasMorePages.value) return;
+    await loadNearbyMates();
   }
 
   /// Load mock nearby mates for demo
@@ -187,6 +234,7 @@ class MatesController extends GetxController {
 
   /// Swipe left (skip)
   void swipeLeft() {
+    if (isSwiping.value) return;
     if (currentSwipeIndex.value < nearbyMates.length - 1) {
       currentSwipeIndex.value++;
     }
@@ -194,14 +242,31 @@ class MatesController extends GetxController {
 
   /// Swipe right (like)
   Future<void> swipeRight() async {
-    if (currentSwipeIndex.value < nearbyMates.length) {
-      final mate = nearbyMates[currentSwipeIndex.value];
-      if (mate.userId != null) {
-        await likeMate(mate.userId!);
-      }
-      if (currentSwipeIndex.value < nearbyMates.length - 1) {
+    // Prevent concurrent swipes
+    if (isSwiping.value) return;
+
+    // Validate bounds before accessing the list
+    final currentIndex = currentSwipeIndex.value;
+    if (currentIndex >= nearbyMates.length) return;
+
+    isSwiping.value = true;
+
+    try {
+      // Capture the mate data before any async operations
+      final mate = nearbyMates[currentIndex];
+      final mateUserId = mate.userId;
+
+      // Increment index immediately to prevent double-swiping on the same user
+      if (currentIndex < nearbyMates.length - 1) {
         currentSwipeIndex.value++;
       }
+
+      // Like the user in the background
+      if (mateUserId != null) {
+        await likeMate(mateUserId);
+      }
+    } finally {
+      isSwiping.value = false;
     }
   }
 

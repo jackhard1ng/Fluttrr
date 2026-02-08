@@ -11,8 +11,8 @@ import '../services/mock_data_service.dart';
 class ActivityController extends GetxController {
   final ActivityRepository _activityRepository = ActivityRepository();
 
-  /// Flag to use mock data when API fails
-  final RxBool useMockData = true.obs;
+  /// Flag to use mock data when API fails (disabled by default, enabled on API failure)
+  final RxBool useMockData = false.obs;
 
   // State
   final RxList<ActivityModel> dailyActivities = <ActivityModel>[].obs;

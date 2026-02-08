@@ -31,21 +31,70 @@ class BusinessRepository extends BaseRepository {
     File? profileImage,
     File? coverImage,
   }) async {
-    return post<BusinessModel>(
+    // If no images, use regular POST
+    if (profileImage == null && coverImage == null) {
+      return post<BusinessModel>(
+        ApiEndpoints.createBusinessProfile,
+        body: {
+          'businessName': businessName,
+          'email': email,
+          'phone': phone,
+          'description': description,
+          'category': category,
+          'address': address,
+          if (latitude != null) 'latitude': latitude,
+          if (longitude != null) 'longitude': longitude,
+          if (website != null) 'website': website,
+          if (facebook != null) 'facebook': facebook,
+          if (instagram != null) 'instagram': instagram,
+        },
+        fromJson: BusinessModel.fromJson,
+      );
+    }
+
+    // Use multipart upload when images are provided
+    final files = <String, File>{};
+    if (profileImage != null) files['profileImage'] = profileImage;
+    if (coverImage != null) files['coverImage'] = coverImage;
+
+    final fields = <String, String>{
+      'businessName': businessName,
+      'email': email,
+      'phone': phone,
+      'description': description,
+      'category': category,
+      'address': address,
+      if (latitude != null) 'latitude': latitude.toString(),
+      if (longitude != null) 'longitude': longitude.toString(),
+      if (website != null) 'website': website,
+      if (facebook != null) 'facebook': facebook,
+      if (instagram != null) 'instagram': instagram,
+    };
+
+    return uploadMultipleFiles<BusinessModel>(
       ApiEndpoints.createBusinessProfile,
-      body: {
-        'businessName': businessName,
-        'email': email,
-        'phone': phone,
-        'description': description,
-        'category': category,
-        'address': address,
-        if (latitude != null) 'latitude': latitude,
-        if (longitude != null) 'longitude': longitude,
-        if (website != null) 'website': website,
-        if (facebook != null) 'facebook': facebook,
-        if (instagram != null) 'instagram': instagram,
-      },
+      files: files,
+      fields: fields,
+      fromJson: BusinessModel.fromJson,
+    );
+  }
+
+  /// Upload or update business profile image
+  Future<ApiResponse<BusinessModel>> uploadBusinessProfileImage(File image) async {
+    return uploadFile<BusinessModel>(
+      ApiEndpoints.businessProfileImage,
+      file: image,
+      fieldName: 'profileImage',
+      fromJson: BusinessModel.fromJson,
+    );
+  }
+
+  /// Upload or update business cover image
+  Future<ApiResponse<BusinessModel>> uploadBusinessCoverImage(File image) async {
+    return uploadFile<BusinessModel>(
+      ApiEndpoints.businessCoverImage,
+      file: image,
+      fieldName: 'coverImage',
       fromJson: BusinessModel.fromJson,
     );
   }

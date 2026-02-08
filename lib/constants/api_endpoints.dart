@@ -105,6 +105,8 @@ class ApiEndpoints {
   static const String createBusinessProfile = '$apiBase/business/create-profile';
   static const String updateBusinessProfile = '$apiBase/business/update/';
   static const String businessStatus = '$apiBase/business/status';
+  static const String businessProfileImage = '$apiBase/business/upload-profile-image';
+  static const String businessCoverImage = '$apiBase/business/upload-cover-image';
 
   // Business events endpoints
   static const String businessEventList = '$apiBase/business/list';

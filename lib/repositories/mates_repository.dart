@@ -6,16 +6,20 @@ import 'base_repository.dart';
 
 /// Mates/matching repository
 class MatesRepository extends BaseRepository {
-  /// Get nearby mates
+  /// Get nearby mates with pagination support
   Future<ApiResponse<List<MateModel>>> getNearbyMates({
     double? latitude,
     double? longitude,
     double? radius,
+    int? page,
+    int? limit,
   }) async {
     final body = <String, dynamic>{};
     if (latitude != null) body['latitude'] = latitude;
     if (longitude != null) body['longitude'] = longitude;
     if (radius != null) body['radius'] = radius;
+    if (page != null) body['page'] = page;
+    if (limit != null) body['limit'] = limit;
 
     final response = await post<dynamic>(
       ApiEndpoints.nearbyMates,

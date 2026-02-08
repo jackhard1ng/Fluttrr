@@ -12,8 +12,8 @@ import '../services/mock_data_service.dart';
 class ProfileController extends GetxController {
   final ProfileRepository _profileRepository = ProfileRepository();
 
-  /// Flag to use mock data when API fails
-  final RxBool useMockData = true.obs;
+  /// Flag to use mock data when API fails (disabled by default, enabled on API failure)
+  final RxBool useMockData = false.obs;
 
   // State
   final Rx<UserModel?> currentUser = Rx<UserModel?>(null);

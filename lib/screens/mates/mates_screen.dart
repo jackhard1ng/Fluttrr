@@ -153,6 +153,15 @@ class MatesScreen extends StatelessWidget {
                   return const LoadingIndicator();
                 }
 
+                // Show error state with retry option
+                if (matesController.errorMessage.value.isNotEmpty &&
+                    matesController.nearbyMates.isEmpty) {
+                  return _ErrorState(
+                    message: matesController.errorMessage.value,
+                    onRetry: matesController.loadNearbyMates,
+                  );
+                }
+
                 if (matesController.nearbyMates.isEmpty) {
                   return _EmptyState(
                     onRefresh: matesController.loadNearbyMates,
@@ -160,27 +169,70 @@ class MatesScreen extends StatelessWidget {
                 }
 
                 return RefreshIndicator(
-                  onRefresh: matesController.loadNearbyMates,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                    itemCount: matesController.nearbyMates.length,
-                    itemBuilder: (context, index) {
-                      final mate = matesController.nearbyMates[index];
-                      return _PersonCard(
-                        mate: mate,
-                        onConnect: () {
-                          HapticFeedback.mediumImpact();
-                          if (mate.userId != null) {
-                            matesController.likeMate(mate.userId!);
-                          }
-                        },
-                        onViewProfile: () {
-                          if (mate.userId != null) {
-                            Nav.toMateProfile(mate.userId!);
-                          }
-                        },
-                      );
+                  onRefresh: () => matesController.loadNearbyMates(refresh: true),
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: (ScrollNotification scrollInfo) {
+                      // Load more when reaching 200px from the bottom
+                      if (scrollInfo.metrics.pixels >=
+                          scrollInfo.metrics.maxScrollExtent - 200) {
+                        matesController.loadMoreMates();
+                      }
+                      return false;
                     },
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                      // Add 1 for loading indicator at the bottom
+                      itemCount: matesController.nearbyMates.length +
+                          (matesController.hasMorePages.value ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        // Show loading indicator at the end
+                        if (index >= matesController.nearbyMates.length) {
+                          return Obx(() => matesController.isLoadingMore.value
+                              ? const Padding(
+                                  padding: EdgeInsets.all(AppSpacing.lg),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                              : const SizedBox.shrink());
+                        }
+
+                        final mate = matesController.nearbyMates[index];
+                        return _PersonCard(
+                          mate: mate,
+                          isLiked: mate.isLiked,
+                          onConnect: () async {
+                            HapticFeedback.mediumImpact();
+                            if (mate.userId != null) {
+                              final success = await matesController.likeMate(mate.userId!);
+                              if (success) {
+                                Get.snackbar(
+                                  'Connection Sent!',
+                                  'We\'ll let you know if ${mate.displayName} connects back',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: AppColors.success,
+                                  colorText: Colors.white,
+                                  duration: const Duration(seconds: 2),
+                                );
+                              } else {
+                                Get.snackbar(
+                                  'Oops!',
+                                  'Could not send connection. Please try again.',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: AppColors.error,
+                                  colorText: Colors.white,
+                                );
+                              }
+                            }
+                          },
+                          onViewProfile: () {
+                            if (mate.userId != null) {
+                              Nav.toMateProfile(mate.userId!);
+                            }
+                          },
+                        );
+                      },
+                    ),
                   ),
                 );
               }),
@@ -208,13 +260,15 @@ class MatesScreen extends StatelessWidget {
 /// Person card for list view - HelloTalk style
 class _PersonCard extends StatelessWidget {
   final MateModel mate;
-  final VoidCallback onConnect;
+  final bool isLiked;
+  final Future<void> Function() onConnect;
   final VoidCallback onViewProfile;
 
   const _PersonCard({
     required this.mate,
     required this.onConnect,
     required this.onViewProfile,
+    this.isLiked = false,
   });
 
   @override
@@ -400,31 +454,37 @@ class _PersonCard extends StatelessWidget {
             Column(
               children: [
                 GestureDetector(
-                  onTap: onConnect,
+                  onTap: isLiked ? null : onConnect,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.md,
                       vertical: AppSpacing.sm,
                     ),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF0D1B4D), Color(0xFF38B6FF)],
-                      ),
+                      gradient: isLiked
+                          ? null
+                          : const LinearGradient(
+                              colors: [Color(0xFF0D1B4D), Color(0xFF38B6FF)],
+                            ),
+                      color: isLiked ? AppColors.success.withAlpha(26) : null,
                       borderRadius: BorderRadius.circular(AppRadius.md),
+                      border: isLiked
+                          ? Border.all(color: AppColors.success)
+                          : null,
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          Icons.person_add,
+                          isLiked ? Icons.check : Icons.person_add,
                           size: 16,
-                          color: Colors.white,
+                          color: isLiked ? AppColors.success : Colors.white,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Text(
-                          'Connect',
+                          isLiked ? 'Sent' : 'Connect',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: isLiked ? AppColors.success : Colors.white,
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
@@ -495,6 +555,66 @@ class _QuickFilterChip extends StatelessWidget {
                 color: isSelected ? Colors.white : AppColors.darkGrey,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Error state with retry option
+class _ErrorState extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _ErrorState({
+    required this.message,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: AppColors.error.withAlpha(26),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.cloud_off,
+                size: 50,
+                color: AppColors.error,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              'Something Went Wrong',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              message.isNotEmpty ? message : 'Please check your connection and try again',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.mediumGrey,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            GradientButton(
+              text: 'Try Again',
+              width: 140,
+              onPressed: onRetry,
             ),
           ],
         ),

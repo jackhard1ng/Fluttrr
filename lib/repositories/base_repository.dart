@@ -189,6 +189,100 @@ abstract class BaseRepository {
     }
   }
 
+  /// Upload multiple files with multipart request
+  Future<ApiResponse<T>> uploadMultipleFiles<T>(
+    String url, {
+    Map<String, File>? files,
+    List<File>? fileList,
+    String fileListFieldName = 'images',
+    Map<String, String>? fields,
+    T Function(Map<String, dynamic>)? fromJson,
+    bool requiresAuth = true,
+  }) async {
+    try {
+      final request = http.MultipartRequest('POST', Uri.parse(url));
+
+      // Add headers
+      final token = await getToken();
+      if (requiresAuth && token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+
+      // Add named files (e.g., profileImage, coverImage)
+      if (files != null) {
+        for (final entry in files.entries) {
+          request.files.add(
+            await http.MultipartFile.fromPath(entry.key, entry.value.path),
+          );
+        }
+      }
+
+      // Add file list (e.g., gallery images)
+      if (fileList != null) {
+        for (int i = 0; i < fileList.length; i++) {
+          request.files.add(
+            await http.MultipartFile.fromPath(
+              '$fileListFieldName[$i]',
+              fileList[i].path,
+            ),
+          );
+        }
+      }
+
+      // Add additional fields
+      if (fields != null) {
+        request.fields.addAll(fields);
+      }
+
+      final streamedResponse = await request.send().timeout(_timeout);
+      final response = await http.Response.fromStream(streamedResponse);
+
+      return _handleResponse(response, fromJson);
+    } catch (e) {
+      return _handleError(e);
+    }
+  }
+
+  /// Perform a PUT with multipart request (for updates with images)
+  Future<ApiResponse<T>> putWithFiles<T>(
+    String url, {
+    Map<String, File>? files,
+    Map<String, String>? fields,
+    T Function(Map<String, dynamic>)? fromJson,
+    bool requiresAuth = true,
+  }) async {
+    try {
+      final request = http.MultipartRequest('PUT', Uri.parse(url));
+
+      // Add headers
+      final token = await getToken();
+      if (requiresAuth && token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+
+      // Add files
+      if (files != null) {
+        for (final entry in files.entries) {
+          request.files.add(
+            await http.MultipartFile.fromPath(entry.key, entry.value.path),
+          );
+        }
+      }
+
+      // Add fields
+      if (fields != null) {
+        request.fields.addAll(fields);
+      }
+
+      final streamedResponse = await request.send().timeout(_timeout);
+      final response = await http.Response.fromStream(streamedResponse);
+
+      return _handleResponse(response, fromJson);
+    } catch (e) {
+      return _handleError(e);
+    }
+  }
+
   /// Handle HTTP response
   ApiResponse<T> _handleResponse<T>(
     http.Response response,
