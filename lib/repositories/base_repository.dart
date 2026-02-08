@@ -5,13 +5,22 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
+import '../config/environment.dart';
 import '../models/api_response.dart';
 import '../services/token_manager.dart';
 import '../services/auth_event_handler.dart';
+import '../services/http_utils.dart';
 
 /// Base repository with common HTTP operations
+///
+/// Features:
+/// - Automatic retry with exponential backoff
+/// - Configurable timeouts per request
+/// - Response caching for GET requests
+/// - Rate limiting handling
 abstract class BaseRepository {
-  static const Duration _timeout = Duration(seconds: 30);
+  /// Default timeout from environment config
+  Duration get _defaultTimeout => Duration(seconds: AppConfig.requestTimeout);
 
   /// Get the auth token from TokenManager (single source of truth)
   Future<String?> getToken() async {
@@ -45,12 +54,13 @@ abstract class BaseRepository {
     return headers;
   }
 
-  /// Perform a GET request
+  /// Perform a GET request with optional retry and caching
   Future<ApiResponse<T>> get<T>(
     String url, {
     T Function(Map<String, dynamic>)? fromJson,
     bool requiresAuth = true,
     Map<String, String>? queryParams,
+    RequestConfig? config,
   }) async {
     try {
       var uri = Uri.parse(url);
@@ -59,7 +69,31 @@ abstract class BaseRepository {
       }
 
       final headers = await getHeaders(requiresAuth: requiresAuth);
-      final response = await http.get(uri, headers: headers).timeout(_timeout);
+      final requestConfig = config ?? RequestConfig.fromEnvironment();
+
+      // Check cache first for GET requests
+      if (requestConfig.enableCache) {
+        final cacheKey = HttpUtils.generateCacheKey(uri.toString(), headers);
+        final cached = HttpUtils.getCachedResponse(cacheKey);
+        if (cached != null) {
+          return _handleResponse(cached, fromJson);
+        }
+      }
+
+      // Check rate limit
+      await HttpUtils.checkRateLimit(uri.host);
+
+      // Execute with retry
+      final response = await HttpUtils.executeWithRetry(
+        () => http.get(uri, headers: headers),
+        config: requestConfig,
+      );
+
+      // Cache successful GET responses
+      if (requestConfig.enableCache && response.statusCode >= 200 && response.statusCode < 300) {
+        final cacheKey = HttpUtils.generateCacheKey(uri.toString(), headers);
+        HttpUtils.cacheResponse(cacheKey, response, duration: requestConfig.cacheDuration);
+      }
 
       return _handleResponse(response, fromJson);
     } catch (e) {
@@ -67,22 +101,29 @@ abstract class BaseRepository {
     }
   }
 
-  /// Perform a POST request
+  /// Perform a POST request with optional retry
   Future<ApiResponse<T>> post<T>(
     String url, {
     Map<String, dynamic>? body,
     T Function(Map<String, dynamic>)? fromJson,
     bool requiresAuth = true,
+    RequestConfig? config,
   }) async {
     try {
+      final uri = Uri.parse(url);
       final headers = await getHeaders(requiresAuth: requiresAuth);
-      final response = await http
-          .post(
-            Uri.parse(url),
-            headers: headers,
-            body: body != null ? jsonEncode(body) : null,
-          )
-          .timeout(_timeout);
+      final requestConfig = config ?? RequestConfig.fromEnvironment();
+
+      await HttpUtils.checkRateLimit(uri.host);
+
+      final response = await HttpUtils.executeWithRetry(
+        () => http.post(
+          uri,
+          headers: headers,
+          body: body != null ? jsonEncode(body) : null,
+        ),
+        config: requestConfig,
+      );
 
       return _handleResponse(response, fromJson);
     } catch (e) {
@@ -90,22 +131,29 @@ abstract class BaseRepository {
     }
   }
 
-  /// Perform a PUT request
+  /// Perform a PUT request with optional retry
   Future<ApiResponse<T>> put<T>(
     String url, {
     Map<String, dynamic>? body,
     T Function(Map<String, dynamic>)? fromJson,
     bool requiresAuth = true,
+    RequestConfig? config,
   }) async {
     try {
+      final uri = Uri.parse(url);
       final headers = await getHeaders(requiresAuth: requiresAuth);
-      final response = await http
-          .put(
-            Uri.parse(url),
-            headers: headers,
-            body: body != null ? jsonEncode(body) : null,
-          )
-          .timeout(_timeout);
+      final requestConfig = config ?? RequestConfig.fromEnvironment();
+
+      await HttpUtils.checkRateLimit(uri.host);
+
+      final response = await HttpUtils.executeWithRetry(
+        () => http.put(
+          uri,
+          headers: headers,
+          body: body != null ? jsonEncode(body) : null,
+        ),
+        config: requestConfig,
+      );
 
       return _handleResponse(response, fromJson);
     } catch (e) {
@@ -113,22 +161,29 @@ abstract class BaseRepository {
     }
   }
 
-  /// Perform a PATCH request
+  /// Perform a PATCH request with optional retry
   Future<ApiResponse<T>> patch<T>(
     String url, {
     Map<String, dynamic>? body,
     T Function(Map<String, dynamic>)? fromJson,
     bool requiresAuth = true,
+    RequestConfig? config,
   }) async {
     try {
+      final uri = Uri.parse(url);
       final headers = await getHeaders(requiresAuth: requiresAuth);
-      final response = await http
-          .patch(
-            Uri.parse(url),
-            headers: headers,
-            body: body != null ? jsonEncode(body) : null,
-          )
-          .timeout(_timeout);
+      final requestConfig = config ?? RequestConfig.fromEnvironment();
+
+      await HttpUtils.checkRateLimit(uri.host);
+
+      final response = await HttpUtils.executeWithRetry(
+        () => http.patch(
+          uri,
+          headers: headers,
+          body: body != null ? jsonEncode(body) : null,
+        ),
+        config: requestConfig,
+      );
 
       return _handleResponse(response, fromJson);
     } catch (e) {
@@ -136,17 +191,24 @@ abstract class BaseRepository {
     }
   }
 
-  /// Perform a DELETE request
+  /// Perform a DELETE request with optional retry
   Future<ApiResponse<T>> delete<T>(
     String url, {
     T Function(Map<String, dynamic>)? fromJson,
     bool requiresAuth = true,
+    RequestConfig? config,
   }) async {
     try {
+      final uri = Uri.parse(url);
       final headers = await getHeaders(requiresAuth: requiresAuth);
-      final response = await http
-          .delete(Uri.parse(url), headers: headers)
-          .timeout(_timeout);
+      final requestConfig = config ?? RequestConfig.fromEnvironment();
+
+      await HttpUtils.checkRateLimit(uri.host);
+
+      final response = await HttpUtils.executeWithRetry(
+        () => http.delete(uri, headers: headers),
+        config: requestConfig,
+      );
 
       return _handleResponse(response, fromJson);
     } catch (e) {
