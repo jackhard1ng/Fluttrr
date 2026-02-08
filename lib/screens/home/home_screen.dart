@@ -7,8 +7,13 @@ import '../../config/routes.dart';
 import '../../controllers/profile_controller.dart';
 import '../../controllers/discover_controller.dart';
 import '../../controllers/notifications_controller.dart';
+import '../../controllers/memory_controller.dart';
 import '../../models/event_model.dart';
 import '../../widgets/advanced_ux.dart';
+import '../memories/memories_screen.dart';
+import '../memories/memory_detail_screen.dart';
+import '../../widgets/stories_bar.dart';
+import '../../controllers/story_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -33,6 +38,12 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     if (!Get.isRegistered<NotificationsController>()) {
       Get.put(NotificationsController());
+    }
+    if (!Get.isRegistered<MemoryController>()) {
+      Get.put(MemoryController());
+    }
+    if (!Get.isRegistered<StoryController>()) {
+      Get.put(StoryController());
     }
   }
 
@@ -64,6 +75,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         // Greeting & Search
                         const _GreetingSection(),
 
+                        // Stories Bar
+                        const StoriesBar(),
+
                         // Free Right Now Card
                         const _FreeNowCard(),
 
@@ -72,6 +86,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
                         // What Friends Are Doing
                         const _FriendsActivitySection(),
+
+                        // Recent Memories
+                        const _RecentMemoriesSection(),
 
                         // Quick Browse Categories
                         const _QuickCategoriesSection(),
@@ -676,6 +693,212 @@ class _FriendActivityItem extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _RecentMemoriesSection extends StatelessWidget {
+  const _RecentMemoriesSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return GetBuilder<MemoryController>(
+      init: MemoryController(),
+      builder: (controller) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.photo_library, color: AppColors.friendlyPurple, size: 22),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Recent Memories',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      Nav.toMemories();
+                    },
+                    child: Text(
+                      'See all',
+                      style: TextStyle(
+                        color: AppColors.primaryBlue,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Obx(() {
+              final memories = controller.featuredMemories.take(5).toList();
+              if (memories.isEmpty) {
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.friendlyPurple.withAlpha(26),
+                        AppColors.primaryBlue.withAlpha(26),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                    border: Border.all(color: AppColors.friendlyPurple.withAlpha(51)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.photo_camera,
+                        size: 40,
+                        color: AppColors.friendlyPurple,
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Share your memories!',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Upload photos from events you\'ve attended',
+                              style: TextStyle(
+                                color: AppColors.mediumGrey,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              return SizedBox(
+                height: 140,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                  itemCount: memories.length,
+                  itemBuilder: (context, index) {
+                    final memory = memories[index];
+                    return GestureDetector(
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        Get.to(() => MemoryDetailScreen(memory: memory));
+                      },
+                      child: Container(
+                        width: 120,
+                        margin: const EdgeInsets.only(right: 12),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(26),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              memory.primaryPhoto != null
+                                  ? Image.network(
+                                      memory.primaryPhoto!.displayUrl,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => Container(
+                                        color: AppColors.lightGrey,
+                                        child: const Icon(Icons.photo),
+                                      ),
+                                    )
+                                  : Container(
+                                      color: AppColors.lightGrey,
+                                      child: const Icon(Icons.photo),
+                                    ),
+                              Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.transparent,
+                                      Colors.black.withAlpha(179),
+                                    ],
+                                    stops: const [0.5, 1.0],
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                left: 8,
+                                right: 8,
+                                bottom: 8,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      memory.eventName,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.photo_library,
+                                          size: 10,
+                                          color: Colors.white70,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '${memory.photos.length}',
+                                          style: const TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            }),
+          ],
+        );
+      },
     );
   }
 }

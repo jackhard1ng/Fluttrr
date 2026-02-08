@@ -326,4 +326,20 @@ class MemoryRepository extends BaseRepository {
           .toList(),
     );
   }
+
+  /// Get memories where user is tagged
+  Future<ApiResponse<List<EventMemoryModel>>> getTaggedMemories({
+    int page = 1,
+    int limit = 20,
+  }) async {
+    return makeRequest(
+      () => api.get('/memories/tagged-in', queryParameters: {
+        'page': page,
+        'limit': limit,
+      }),
+      (data) => (data as List)
+          .map((e) => EventMemoryModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
 }

@@ -238,6 +238,26 @@ class ApiEndpoints {
   static String get icebreakerResponses => '$apiBase/icebreaker/responses';
   static String get nextIcebreaker => '$apiBase/icebreaker/session/next';
 
+  // Memories endpoints
+  static String get memories => '$apiBase/memory';
+  static String get memoryFeed => '$apiBase/memory/feed';
+  static String get featuredMemories => '$apiBase/memory/featured';
+  static String get eventMemories => '$apiBase/memory/event';
+  static String get myMemories => '$apiBase/memory/my';
+  static String get uploadMemory => '$apiBase/memory/upload';
+  static String get memoryComments => '$apiBase/memory/comments';
+  static String get memoryLike => '$apiBase/memory/like';
+  static String get memoryTag => '$apiBase/memory/tag';
+  static String get memoryReport => '$apiBase/memory/report';
+
+  // Stories endpoints
+  static String get stories => '$apiBase/story';
+  static String get myStories => '$apiBase/story/me';
+  static String get eventStories => '$apiBase/story/event';
+  static String get userStories => '$apiBase/story/user';
+  static String get storyView => '$apiBase/story/view';
+  static String get storyReact => '$apiBase/story/react';
+
   // Socket URL
   static String get socketUrl => AppConfig.socketUrl;
 }

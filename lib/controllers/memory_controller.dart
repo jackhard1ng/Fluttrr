@@ -33,11 +33,19 @@ class MemoryController extends GetxController {
   // Photos user is tagged in
   final RxList<MemoryPhotoModel> taggedPhotos = <MemoryPhotoModel>[].obs;
 
+  // Tagged memories (full memory objects)
+  final RxList<EventMemoryModel> taggedMemories = <EventMemoryModel>[].obs;
+
+  // Saved memories
+  final RxList<EventMemoryModel> savedMemories = <EventMemoryModel>[].obs;
+
   // Loading states
   final RxBool isLoading = false.obs;
   final RxBool isLoadingFeed = false.obs;
   final RxBool isLoadingEvent = false.obs;
   final RxBool isLoadingComments = false.obs;
+  final RxBool isLoadingMy = false.obs;
+  final RxBool isLoadingTagged = false.obs;
   final RxBool isUploading = false.obs;
   final RxDouble uploadProgress = 0.0.obs;
 
@@ -543,7 +551,7 @@ class MemoryController extends GetxController {
 
   /// Load my uploaded memories
   Future<void> loadMyMemories({bool refresh = false}) async {
-    isLoading.value = true;
+    isLoadingMy.value = true;
     try {
       final response = await _repository.getMyMemories();
       if (response.success && response.data != null) {
@@ -552,7 +560,22 @@ class MemoryController extends GetxController {
     } catch (e) {
       debugPrint('Error loading my memories: $e');
     } finally {
-      isLoading.value = false;
+      isLoadingMy.value = false;
+    }
+  }
+
+  /// Load memories user is tagged in
+  Future<void> loadTaggedMemories({bool refresh = false}) async {
+    isLoadingTagged.value = true;
+    try {
+      final response = await _repository.getTaggedMemories();
+      if (response.success && response.data != null) {
+        taggedMemories.value = response.data!;
+      }
+    } catch (e) {
+      debugPrint('Error loading tagged memories: $e');
+    } finally {
+      isLoadingTagged.value = false;
     }
   }
 

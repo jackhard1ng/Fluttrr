@@ -46,6 +46,15 @@ import '../screens/chat/chat_screen.dart';
 import '../screens/chat/group_chat_screen.dart';
 import '../screens/activities/activity_details_screen.dart';
 import '../screens/activities/create_activity_screen.dart';
+import '../screens/memories/memories_screen.dart';
+import '../screens/memories/event_memories_screen.dart';
+import '../screens/memories/memory_detail_screen.dart';
+import '../screens/memories/upload_memory_screen.dart';
+import '../screens/memories/my_memories_screen.dart';
+import '../screens/stories/story_viewer_screen.dart';
+import '../screens/stories/create_story_screen.dart';
+import '../models/memory_model.dart';
+import '../models/story_model.dart';
 
 /// App route names
 class AppRoutes {
@@ -96,6 +105,17 @@ class AppRoutes {
   // Support
   static const help = '/help';
   static const report = '/report';
+
+  // Memories
+  static const memories = '/memories';
+  static const eventMemories = '/memories/event';
+  static const memoryDetail = '/memories/detail';
+  static const uploadMemory = '/memories/upload';
+  static const myMemories = '/memories/my';
+
+  // Stories
+  static const stories = '/stories';
+  static const createStory = '/stories/create';
 
   // Business
   static const businessWelcome = '/business/welcome';
@@ -306,6 +326,78 @@ class AppPages {
       fullscreenDialog: true,
     ),
 
+    // Memories
+    GetPage(
+      name: AppRoutes.memories,
+      page: () => const MemoriesScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.eventMemories,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return EventMemoriesScreen(
+          eventId: args['eventId'] as String,
+          eventName: args['eventName'] as String,
+          eventImage: args['eventImage'] as String?,
+        );
+      },
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.memoryDetail,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return MemoryDetailScreen(
+          memory: args['memory'] as EventMemoryModel,
+          focusComments: args['focusComments'] as bool? ?? false,
+        );
+      },
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.uploadMemory,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return UploadMemoryScreen(
+          eventId: args['eventId'] as String,
+          eventName: args['eventName'] as String,
+        );
+      },
+      transition: Transition.downToUp,
+      fullscreenDialog: true,
+    ),
+    GetPage(
+      name: AppRoutes.myMemories,
+      page: () => const MyMemoriesScreen(),
+      transition: Transition.rightToLeft,
+    ),
+
+    // Stories
+    GetPage(
+      name: AppRoutes.stories,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>;
+        return StoryViewerScreen(
+          stories: args['stories'] as List<StoryModel>,
+          initialIndex: args['initialIndex'] as int? ?? 0,
+        );
+      },
+      transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: AppRoutes.createStory,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>?;
+        return CreateStoryScreen(
+          eventId: args?['eventId'] as String?,
+          eventName: args?['eventName'] as String?,
+        );
+      },
+      transition: Transition.downToUp,
+      fullscreenDialog: true,
+    ),
+
     // Support
     GetPage(
       name: AppRoutes.help,
@@ -490,6 +582,62 @@ class Nav {
   static void toBusinessNewEvent() => Get.toNamed(AppRoutes.businessNewEvent);
   static void toBusinessPhotos() => Get.toNamed(AppRoutes.businessPhotos);
   static void toSubscription() => Get.toNamed(AppRoutes.subscription);
+
+  // Memories
+  static void toMemories() => Get.toNamed(AppRoutes.memories);
+  static void toEventMemories({
+    required String eventId,
+    required String eventName,
+    String? eventImage,
+  }) =>
+      Get.toNamed(
+        AppRoutes.eventMemories,
+        arguments: {
+          'eventId': eventId,
+          'eventName': eventName,
+          'eventImage': eventImage,
+        },
+      );
+  static void toMemoryDetail(EventMemoryModel memory, {bool focusComments = false}) =>
+      Get.toNamed(
+        AppRoutes.memoryDetail,
+        arguments: {
+          'memory': memory,
+          'focusComments': focusComments,
+        },
+      );
+  static void toUploadMemory({
+    required String eventId,
+    required String eventName,
+  }) =>
+      Get.toNamed(
+        AppRoutes.uploadMemory,
+        arguments: {
+          'eventId': eventId,
+          'eventName': eventName,
+        },
+      );
+  static void toMyMemories() => Get.toNamed(AppRoutes.myMemories);
+
+  // Stories
+  static void toStories(List<StoryModel> stories, {int initialIndex = 0}) =>
+      Get.toNamed(
+        AppRoutes.stories,
+        arguments: {
+          'stories': stories,
+          'initialIndex': initialIndex,
+        },
+      );
+  static void toCreateStory({String? eventId, String? eventName}) =>
+      Get.toNamed(
+        AppRoutes.createStory,
+        arguments: eventId != null
+            ? {
+                'eventId': eventId,
+                'eventName': eventName,
+              }
+            : null,
+      );
 
   // Common
   static void back() => Get.back();
