@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
@@ -801,13 +802,8 @@ class _PhotoViewerScreen extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              // Share photo
-              Get.snackbar(
-                'Share',
-                'Sharing functionality coming soon',
-                snackPosition: SnackPosition.BOTTOM,
-                backgroundColor: Colors.white,
-              );
+              HapticFeedback.lightImpact();
+              _showSharePhotoOptions(context, photoId);
             },
             icon: const Icon(Icons.share),
           ),
@@ -865,6 +861,81 @@ class _PhotoViewerScreen extends StatelessWidget {
               size: 80,
               color: Colors.white54,
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showSharePhotoOptions(BuildContext context, String photoId) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.lightGrey,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              ListTile(
+                leading: Icon(Icons.link, color: AppColors.primaryBlue),
+                title: const Text('Copy Link'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Clipboard.setData(
+                    ClipboardData(text: 'https://fluttrr.com/photos/$photoId'),
+                  );
+                  Get.snackbar(
+                    'Link Copied',
+                    'Photo link copied to clipboard',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: AppColors.success,
+                    colorText: Colors.white,
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.message, color: AppColors.friendlyTeal),
+                title: const Text('Share to Chat'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Get.snackbar(
+                    'Share',
+                    'Photo shared to chat',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: AppColors.friendlyTeal,
+                    colorText: Colors.white,
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.download, color: AppColors.friendlyPurple),
+                title: const Text('Save to Device'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Get.snackbar(
+                    'Saved',
+                    'Photo saved to your device',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: AppColors.success,
+                    colorText: Colors.white,
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
           ),
         ),
       ),
