@@ -10,7 +10,7 @@ const { v4: uuidv4 } = require('uuid');
 const reactionSchema = new mongoose.Schema(
   {
     reactionId: { type: String, default: uuidv4 },
-    userId: { type: String, required: true },
+    userId: { type: Number, required: true },
     userName: { type: String, default: 'Unknown' },
     userAvatar: { type: String, default: null },
     emoji: { type: String, required: true },

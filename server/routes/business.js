@@ -72,7 +72,7 @@ router.post('/register', async (req, res) => {
     });
 
     const business = await Business.create({
-      userId: user._id,
+      userId: user.userId,
       businessName,
       businessType: businessType || 'general',
       email: email.toLowerCase(),
@@ -86,7 +86,7 @@ router.post('/register', async (req, res) => {
       success: true,
       token,
       refreshToken,
-      userId: user._id,
+      userId: user.userId,
       message: 'Business registered successfully',
     });
   } catch (error) {
@@ -102,7 +102,7 @@ router.post('/register', async (req, res) => {
 // GET /api/business/profile - Get business profile
 router.get('/profile', auth, async (req, res) => {
   try {
-    const business = await Business.findOne({ userId: req.userId });
+    const business = await Business.findOne({ userId: req.user.userId });
     if (!business) {
       return res.status(404).json({ message: 'Business profile not found' });
     }
@@ -124,12 +124,12 @@ router.post(
   ]),
   async (req, res) => {
     try {
-      const existing = await Business.findOne({ userId: req.userId });
+      const existing = await Business.findOne({ userId: req.user.userId });
       if (existing) {
         return res.status(409).json({ message: 'Business profile already exists' });
       }
 
-      const profileData = { ...req.body, userId: req.userId };
+      const profileData = { ...req.body, userId: req.user.userId };
 
       if (req.files) {
         if (req.files.profileImage && req.files.profileImage[0]) {
@@ -153,7 +153,7 @@ router.post(
 router.put('/update/:businessId', auth, async (req, res) => {
   try {
     const business = await Business.findOneAndUpdate(
-      { _id: req.params.businessId, userId: req.userId },
+      { _id: req.params.businessId, userId: req.user.userId },
       { $set: req.body },
       { new: true }
     );
@@ -178,7 +178,7 @@ router.post('/upload-profile-image', auth, upload.single('profileImage'), async 
 
     const imageUrl = `/uploads/${req.file.filename}`;
     const business = await Business.findOneAndUpdate(
-      { userId: req.userId },
+      { userId: req.user.userId },
       { $set: { profileImage: imageUrl } },
       { new: true }
     );
@@ -203,7 +203,7 @@ router.post('/upload-cover-image', auth, upload.single('coverImage'), async (req
 
     const imageUrl = `/uploads/${req.file.filename}`;
     const business = await Business.findOneAndUpdate(
-      { userId: req.userId },
+      { userId: req.user.userId },
       { $set: { coverImage: imageUrl } },
       { new: true }
     );
@@ -234,7 +234,7 @@ router.post('/request-otp', auth, async (req, res) => {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     const business = await Business.findOneAndUpdate(
-      { userId: req.userId },
+      { userId: req.user.userId },
       { $set: { verificationOtp: otp, otpExpiresAt: new Date(Date.now() + 10 * 60 * 1000) } }
     );
 
@@ -260,7 +260,7 @@ router.post('/verify', auth, async (req, res) => {
       return res.status(400).json({ message: 'Email and OTP are required' });
     }
 
-    const business = await Business.findOne({ userId: req.userId });
+    const business = await Business.findOne({ userId: req.user.userId });
     if (!business) {
       return res.status(404).json({ message: 'Business not found' });
     }
@@ -288,7 +288,7 @@ router.post('/verify', auth, async (req, res) => {
 // GET /api/business/status - Get business status
 router.get('/status', auth, async (req, res) => {
   try {
-    const business = await Business.findOne({ userId: req.userId });
+    const business = await Business.findOne({ userId: req.user.userId });
     if (!business) {
       return res.status(404).json({ message: 'Business not found' });
     }
@@ -330,7 +330,7 @@ router.get('/list', auth, async (req, res) => {
 // GET /api/business/event-list - Get MY business events
 router.get('/event-list', auth, async (req, res) => {
   try {
-    const business = await Business.findOne({ userId: req.userId });
+    const business = await Business.findOne({ userId: req.user.userId });
     if (!business) {
       return res.status(404).json({ message: 'Business not found' });
     }
@@ -351,7 +351,7 @@ router.get('/event-list', auth, async (req, res) => {
 // POST /api/business/create-event - Create business event
 router.post('/create-event', auth, async (req, res) => {
   try {
-    const business = await Business.findOne({ userId: req.userId });
+    const business = await Business.findOne({ userId: req.user.userId });
     if (!business) {
       return res.status(404).json({ message: 'Business profile not found' });
     }
@@ -405,7 +405,7 @@ router.post('/create-event', auth, async (req, res) => {
 // PUT /api/business/update-event/:eventId - Update business event
 router.put('/update-event/:eventId', auth, async (req, res) => {
   try {
-    const business = await Business.findOne({ userId: req.userId });
+    const business = await Business.findOne({ userId: req.user.userId });
     if (!business) {
       return res.status(404).json({ message: 'Business not found' });
     }
@@ -455,7 +455,7 @@ router.get('/event/:eventId', auth, async (req, res) => {
 // DELETE /api/business/delete-event/:eventId - Delete business event
 router.delete('/delete-event/:eventId', auth, async (req, res) => {
   try {
-    const business = await Business.findOne({ userId: req.userId });
+    const business = await Business.findOne({ userId: req.user.userId });
     if (!business) {
       return res.status(404).json({ message: 'Business not found' });
     }
@@ -702,7 +702,7 @@ router.post('/create', auth, async (req, res) => {
     }
 
     const business = await Business.findOneAndUpdate(
-      { userId: req.userId },
+      { userId: req.user.userId },
       {
         $set: {
           subscriptionStatus: {
@@ -733,7 +733,7 @@ router.post('/create', auth, async (req, res) => {
 router.post('/cancel', auth, async (req, res) => {
   try {
     const business = await Business.findOneAndUpdate(
-      { userId: req.userId },
+      { userId: req.user.userId },
       {
         $set: {
           'subscriptionStatus.status': 'cancelled',
@@ -757,7 +757,7 @@ router.post('/cancel', auth, async (req, res) => {
 // GET /api/business/subscription-status - Get subscription status
 router.get('/subscription-status', auth, async (req, res) => {
   try {
-    const business = await Business.findOne({ userId: req.userId });
+    const business = await Business.findOne({ userId: req.user.userId });
     if (!business) {
       return res.status(404).json({ message: 'Business not found' });
     }
@@ -786,7 +786,7 @@ router.get('/subscription-status', auth, async (req, res) => {
 // GET /api/business/analytics - Business analytics with period filtering
 router.get('/analytics', auth, async (req, res) => {
   try {
-    const business = await Business.findOne({ userId: req.userId });
+    const business = await Business.findOne({ userId: req.user.userId });
     if (!business) {
       return res.status(404).json({ message: 'Business not found' });
     }
