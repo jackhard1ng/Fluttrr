@@ -157,6 +157,12 @@ class ChatConversation {
   String? get profileImage => otherUserImages.isNotEmpty ? otherUserImages.first : null;
 
   bool get hasUnread => unreadCount > 0;
+
+  /// Convenience getter for id (alias for conversationId)
+  String get id => conversationId ?? '';
+
+  /// Convenience getter for other user's image
+  String? get otherUserImage => profileImage;
 }
 
 /// Chat list response
@@ -235,6 +241,9 @@ class GroupChat {
   String get displayName => groupName ?? activityName ?? 'Group';
 
   int get memberCount => members.length;
+
+  /// Convenience getter for id (alias for groupId)
+  String get id => groupId ?? '';
 }
 
 /// Group member model

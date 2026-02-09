@@ -516,4 +516,10 @@ class AnalyticsService {
       debugPrint('Analytics setAnalyticsCollectionEnabled error: $e');
     }
   }
+
+  // ============ ALIASES FOR COMPATIBILITY ============
+
+  /// Track event (alias for logEvent)
+  Future<void> trackEvent(String name, {Map<String, Object>? parameters}) =>
+      logEvent(name: name, parameters: parameters);
 }

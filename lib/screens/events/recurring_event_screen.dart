@@ -541,6 +541,8 @@ class RecurringEventScreen extends StatelessWidget {
         return 'Monthly';
       case RecurrenceFrequency.yearly:
         return 'Yearly';
+      case RecurrenceFrequency.custom:
+        return 'Custom';
     }
   }
 
@@ -557,6 +559,8 @@ class RecurringEventScreen extends StatelessWidget {
         return 'month(s)';
       case RecurrenceFrequency.yearly:
         return 'year(s)';
+      case RecurrenceFrequency.custom:
+        return 'interval(s)';
     }
   }
 

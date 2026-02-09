@@ -26,6 +26,13 @@ class GuestController extends GetxController {
   // Invite options
   final RxBool sendSms = false.obs;
   final RxBool sendEmail = true.obs;
+  final RxString contactMethod = 'email'.obs;
+
+  // Convenience aliases for UI compatibility
+  RxList<GuestModel> get guests => myGuests;
+  TextEditingController get nameController => guestNameController;
+  TextEditingController get phoneController => guestPhoneController;
+  TextEditingController get emailController => guestEmailController;
 
   @override
   void onClose() {
@@ -246,4 +253,9 @@ class GuestController extends GetxController {
   List<GuestModel> getGuestsByStatus(GuestStatus status) {
     return myGuests.where((g) => g.status == status).toList();
   }
+
+  // Method aliases for UI compatibility
+  Future<void> loadGuests(int eventId) => loadEventGuests(eventId);
+  Future<bool> resendInvite(String guestId) => resendInvitation(guestId: guestId);
+  Future<bool> removeGuest(String guestId) => cancelInvitation(guestId);
 }

@@ -349,6 +349,10 @@ class WaitlistScreen extends StatelessWidget {
         statusColor = Colors.grey;
         statusText = 'Cancelled';
         break;
+      case WaitlistStatus.removed:
+        statusColor = Colors.grey;
+        statusText = 'Removed';
+        break;
     }
 
     return Card(

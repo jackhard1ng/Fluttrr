@@ -574,6 +574,16 @@ class Nav {
       );
   static void toCreateActivity() => Get.toNamed(AppRoutes.createActivity);
 
+  // Aliases for common navigation
+  static void toActivities() => Get.toNamed(AppRoutes.home);
+  static void toDiscover() => Get.toNamed(AppRoutes.swipeDiscover);
+  static void toEventDetails({required String eventId}) => Get.toNamed(
+        AppRoutes.activityDetails,
+        arguments: int.tryParse(eventId) ?? 0,
+      );
+  static void toMessages() => Get.toNamed(AppRoutes.chatList);
+  static void toSavedData() => Get.toNamed(AppRoutes.savedEvents);
+
   // Support
   static void toHelp() => Get.toNamed(AppRoutes.help);
   static void toReport({String? userName, String? eventName, String? businessName}) =>

@@ -1,9 +1,11 @@
 /// Guest status for bring-a-friend feature
 enum GuestStatus {
   invited,
+  pending,  // Alias for invited - for UI compatibility
   confirmed,
   declined,
   attended,
+  checkedIn,  // Alias for attended - for UI compatibility
   noShow,
 }
 
@@ -113,9 +115,14 @@ class GuestModel {
     );
   }
 
-  bool get isPending => status == GuestStatus.invited;
+  bool get isPending => status == GuestStatus.invited || status == GuestStatus.pending;
   bool get isConfirmed => status == GuestStatus.confirmed;
-  bool get hasResponded => status != GuestStatus.invited;
+  bool get hasResponded => status != GuestStatus.invited && status != GuestStatus.pending;
+
+  /// Convenience getters for UI compatibility
+  String? get name => guestName;
+  String? get phone => guestPhone;
+  String? get email => guestEmail;
 }
 
 /// Guest invite request

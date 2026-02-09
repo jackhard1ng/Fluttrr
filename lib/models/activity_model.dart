@@ -149,6 +149,11 @@ class ActivityModel {
   bool get isUpcoming => dateTime?.isAfter(DateTime.now()) ?? false;
 
   bool get isPast => dateTime?.isBefore(DateTime.now()) ?? false;
+
+  // Convenience aliases for compatibility
+  int? get userId => creatorId;
+  String? get userName => creatorName;
+  DateTime? get createdAt => dateTime;
 }
 
 /// Activity attendee model

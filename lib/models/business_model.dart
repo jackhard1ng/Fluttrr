@@ -22,6 +22,8 @@ class BusinessModel {
   final int eventCount;
   final bool isFollowing;
   final SubscriptionStatus? subscriptionStatus;
+  final double? averageRating;
+  final int reviewCount;
 
   const BusinessModel({
     this.businessId,
@@ -46,6 +48,8 @@ class BusinessModel {
     this.eventCount = 0,
     this.isFollowing = false,
     this.subscriptionStatus,
+    this.averageRating,
+    this.reviewCount = 0,
   });
 
   factory BusinessModel.fromJson(Map<String, dynamic> json) {
@@ -74,6 +78,8 @@ class BusinessModel {
       subscriptionStatus: json['subscription_status'] != null
           ? SubscriptionStatus.fromJson(json['subscription_status'])
           : null,
+      averageRating: ((json['average_rating'] ?? json['averageRating'] ?? json['rating']) as num?)?.toDouble(),
+      reviewCount: (json['review_count'] ?? json['reviewCount'] ?? 0) as int,
     );
   }
 
@@ -101,10 +107,15 @@ class BusinessModel {
       'event_count': eventCount,
       'is_following': isFollowing,
       'subscription_status': subscriptionStatus?.toJson(),
+      'average_rating': averageRating,
+      'review_count': reviewCount,
     };
   }
 
   String get displayName => name ?? businessName ?? 'Business';
+
+  /// Convenience getter for rating (alias for averageRating)
+  double? get rating => averageRating;
 }
 
 /// Business event model

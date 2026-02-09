@@ -279,6 +279,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         return 'Message';
       case NotificationType.reminder:
         return 'Reminder';
+      case NotificationType.update:
+        return 'Update';
     }
   }
 
@@ -294,6 +296,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         Nav.toMessages();
         break;
       case NotificationType.reminder:
+        Nav.toDiscover();
+        break;
+      case NotificationType.update:
         Nav.toDiscover();
         break;
     }

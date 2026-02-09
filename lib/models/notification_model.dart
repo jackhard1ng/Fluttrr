@@ -104,6 +104,7 @@ enum NotificationType {
   newMessage,
   eventUpdate,
   newAttendee,
+  update, // Generic update notification
 }
 
 /// Notification list response

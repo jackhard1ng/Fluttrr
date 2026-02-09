@@ -370,6 +370,9 @@ class RecurringEventInstance {
       'user_joined': userJoined,
     };
   }
+
+  /// Convenience getter for instance date (alias for date)
+  DateTime? get instanceDate => date;
 }
 
 RecurrenceFrequency _parseFrequency(dynamic value) {
