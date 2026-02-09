@@ -1,76 +1,150 @@
 const mongoose = require('mongoose');
 const Counter = require('./Counter');
 
+// ---------------------------------------------------------------------------
+// BusinessEvent schema
+// ---------------------------------------------------------------------------
+// Flutter BusinessEvent.fromJson reads (snake_case with camelCase fallback):
+//   id, event_id, business_id, name, description, location, location_name,
+//   latitude, longitude, start_date, end_date, event_type, privacy,
+//   image, images, total_slots, max_attendees, remaining_slots,
+//   price, currency, ticket_url, attendees_count, views, clicks, saves,
+//   user_joined, user_saved
+
 const businessEventSchema = new mongoose.Schema(
   {
     eventId: { type: Number, unique: true, index: true },
     businessId: { type: Number, required: true, index: true },
-    name: { type: String, required: true, trim: true },
-    description: String,
-    location: String,
-    locationName: String,
-    latitude: Number,
-    longitude: Number,
-    startDate: { type: Date, required: true },
-    endDate: Date,
-    eventType: String,
-    privacy: { type: String, default: 'public' },
-    image: String,
-    images: [String],
-    totalSlots: { type: Number, default: 50 },
-    maxAttendees: { type: Number, default: 50 },
-    remainingSlots: { type: Number, default: 50 },
-    price: { type: Number, default: 0 },
+    name: {
+      type: String,
+      required: [true, 'Event name is required'],
+      trim: true,
+      maxlength: 200,
+    },
+    description: { type: String, default: null, maxlength: 5000 },
+    location: { type: String, default: null },
+    locationName: { type: String, default: null },
+    latitude: { type: Number, default: null },
+    longitude: { type: Number, default: null },
+    startDate: { type: Date, required: [true, 'Start date is required'] },
+    endDate: { type: Date, default: null },
+    eventType: { type: String, default: 'general' },
+    privacy: { type: String, default: 'public', enum: ['public', 'private', 'invite_only'] },
+    image: { type: String, default: null },
+    images: { type: [String], default: [] },
+    totalSlots: { type: Number, default: 50, min: 1 },
+    maxAttendees: { type: Number, default: 50, min: 1 },
+    remainingSlots: { type: Number, default: 50, min: 0 },
+    price: { type: Number, default: 0, min: 0 },
     currency: { type: String, default: 'USD' },
-    ticketUrl: String,
-    joinedBy: [Number],
-    savedBy: [Number],
-    attendeesCount: { type: Number, default: 0 },
-    views: { type: Number, default: 0 },
-    clicks: { type: Number, default: 0 },
-    saves: { type: Number, default: 0 },
-    status: { type: String, enum: ['active', 'cancelled', 'completed'], default: 'active' },
+    ticketUrl: { type: String, default: null },
+    attendees: { type: [Number], default: [] },
+    joinedBy: { type: [Number], default: [] },
+    savedBy: { type: [Number], default: [] },
+    attendeesCount: { type: Number, default: 0, min: 0 },
+    views: { type: Number, default: 0, min: 0 },
+    clicks: { type: Number, default: 0, min: 0 },
+    saves: { type: Number, default: 0, min: 0 },
+    status: {
+      type: String,
+      enum: ['active', 'cancelled', 'completed', 'draft'],
+      default: 'active',
+    },
   },
   { timestamps: true }
 );
 
+// ---------------------------------------------------------------------------
+// Indexes
+// ---------------------------------------------------------------------------
+businessEventSchema.index({ startDate: 1 });
+businessEventSchema.index({ latitude: 1, longitude: 1 });
+businessEventSchema.index({ status: 1 });
+businessEventSchema.index({ eventType: 1 });
+
+// ---------------------------------------------------------------------------
+// Pre-save: auto-increment eventId
+// ---------------------------------------------------------------------------
 businessEventSchema.pre('save', async function (next) {
-  if (this.isNew) {
-    this.eventId = await Counter.getNextSequence('businessEventId');
+  try {
+    if (this.isNew && !this.eventId) {
+      this.eventId = await Counter.getNextSequence('businessEventId');
+    }
+    next();
+  } catch (error) {
+    next(error);
   }
-  next();
 });
 
-businessEventSchema.methods.toApiResponse = function (userId) {
-  return {
-    id: this.eventId,
-    eventId: this.eventId,
-    businessId: this.businessId,
-    name: this.name,
-    description: this.description,
-    location: this.location,
-    locationName: this.locationName,
-    latitude: this.latitude,
-    longitude: this.longitude,
-    startDate: this.startDate?.toISOString(),
-    endDate: this.endDate?.toISOString(),
-    eventType: this.eventType,
-    privacy: this.privacy,
-    image: this.image || (this.images?.[0] || ''),
-    images: this.images,
-    totalSlots: this.totalSlots,
-    maxAttendees: this.maxAttendees,
-    remainingSlots: this.remainingSlots,
-    price: this.price,
-    currency: this.currency,
-    ticketUrl: this.ticketUrl,
-    attendeesCount: this.attendeesCount,
-    views: this.views,
-    clicks: this.clicks,
-    saves: this.saves,
-    user_joined: userId ? this.joinedBy.includes(userId) : false,
-    user_saved: userId ? this.savedBy.includes(userId) : false,
-  };
+// ---------------------------------------------------------------------------
+// toJSON – convert to snake_case matching Flutter BusinessEvent.fromJson
+// ---------------------------------------------------------------------------
+businessEventSchema.set('toJSON', {
+  transform: function (doc, ret) {
+    return {
+      id: ret.eventId,
+      event_id: ret.eventId,
+      eventId: ret.eventId,
+      business_id: ret.businessId,
+      businessId: ret.businessId,
+      name: ret.name,
+      description: ret.description,
+      location: ret.location,
+      location_name: ret.locationName,
+      locationName: ret.locationName,
+      latitude: ret.latitude,
+      longitude: ret.longitude,
+      start_date: ret.startDate,
+      startDate: ret.startDate,
+      end_date: ret.endDate,
+      endDate: ret.endDate,
+      event_type: ret.eventType,
+      eventType: ret.eventType,
+      privacy: ret.privacy,
+      image: ret.image || (ret.images && ret.images[0]) || null,
+      images: ret.images,
+      total_slots: ret.totalSlots,
+      totalSlots: ret.totalSlots,
+      max_attendees: ret.maxAttendees,
+      maxAttendees: ret.maxAttendees,
+      remaining_slots: ret.remainingSlots,
+      remainingSlots: ret.remainingSlots,
+      price: ret.price,
+      currency: ret.currency,
+      ticket_url: ret.ticketUrl,
+      ticketUrl: ret.ticketUrl,
+      attendees: ret.attendees,
+      joined_by: ret.joinedBy,
+      saved_by: ret.savedBy,
+      attendees_count: ret.attendeesCount,
+      attendeesCount: ret.attendeesCount,
+      views: ret.views,
+      view_count: ret.views,
+      clicks: ret.clicks,
+      click_count: ret.clicks,
+      saves: ret.saves,
+      save_count: ret.saves,
+      status: ret.status,
+      created_at: ret.createdAt,
+      updated_at: ret.updatedAt,
+    };
+  },
+});
+
+// ---------------------------------------------------------------------------
+// Convenience: API response with user-specific flags
+// ---------------------------------------------------------------------------
+businessEventSchema.methods.toApiResponse = function (requestingUserId) {
+  var json = this.toJSON();
+  json.user_joined = requestingUserId
+    ? this.joinedBy.includes(requestingUserId)
+    : false;
+  json.userJoined = json.user_joined;
+  json.user_saved = requestingUserId
+    ? this.savedBy.includes(requestingUserId)
+    : false;
+  json.userSaved = json.user_saved;
+  return json;
 };
 
 module.exports = mongoose.model('BusinessEvent', businessEventSchema);

@@ -17,7 +17,7 @@ router.post('/complain', auth, async (req, res) => {
     const Complaint = require('../models/Complaint');
 
     const complaint = await Complaint.create({
-      userId: req.user.numericId,
+      userId: req.user.userId,
       subject,
       description,
       category,

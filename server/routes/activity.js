@@ -49,7 +49,7 @@ router.get('/daily-activities', auth, async (req, res) => {
       date_time: { $gte: startOfDay, $lte: endOfDay },
     }).sort({ date_time: 1 });
 
-    const data = activities.map((a) => formatActivity(a, req.user.numericId));
+    const data = activities.map((a) => formatActivity(a, req.user.userId));
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get daily activities error:', error);
@@ -91,7 +91,7 @@ router.get('/list', auth, async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    const data = activities.map((a) => formatActivity(a, req.user.numericId));
+    const data = activities.map((a) => formatActivity(a, req.user.userId));
     res.json({ success: true, data });
   } catch (error) {
     console.error('List activities error:', error);
@@ -108,7 +108,7 @@ router.get('/activity-details/:activityId', auth, async (req, res) => {
     if (!activity) {
       return res.status(404).json({ message: 'Activity not found' });
     }
-    const data = formatActivity(activity, req.user.numericId);
+    const data = formatActivity(activity, req.user.userId);
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get activity details error:', error);
@@ -121,9 +121,9 @@ router.get('/activity-details/:activityId', auth, async (req, res) => {
 // ============================================================
 router.get('/my-activity', auth, async (req, res) => {
   try {
-    const activities = await Activity.find({ creatorId: req.user.numericId })
+    const activities = await Activity.find({ creatorId: req.user.userId })
       .sort({ createdAt: -1 });
-    const data = activities.map((a) => formatActivity(a, req.user.numericId));
+    const data = activities.map((a) => formatActivity(a, req.user.userId));
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get my activities error:', error);
@@ -137,9 +137,9 @@ router.get('/my-activity', auth, async (req, res) => {
 router.get('/user-activities', auth, async (req, res) => {
   try {
     const activities = await Activity.find({
-      'attendees.userId': req.user.numericId,
+      'attendees.userId': req.user.userId,
     }).sort({ date_time: -1 });
-    const data = activities.map((a) => formatActivity(a, req.user.numericId));
+    const data = activities.map((a) => formatActivity(a, req.user.userId));
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get user activities error:', error);
@@ -156,7 +156,7 @@ router.get('/upcoming', auth, async (req, res) => {
     const activities = await Activity.find({
       date_time: { $gte: now },
     }).sort({ date_time: 1 });
-    const data = activities.map((a) => formatActivity(a, req.user.numericId));
+    const data = activities.map((a) => formatActivity(a, req.user.userId));
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get upcoming activities error:', error);
@@ -201,7 +201,7 @@ router.post('/search', auth, async (req, res) => {
     }
 
     const activities = await Activity.find(filter).sort({ date_time: -1 });
-    const data = activities.map((a) => formatActivity(a, req.user.numericId));
+    const data = activities.map((a) => formatActivity(a, req.user.userId));
     res.json({ success: true, data });
   } catch (error) {
     console.error('Search activities error:', error);
@@ -234,13 +234,13 @@ router.post('/create-activity', auth, async (req, res) => {
       remaining_slots: parseInt(total_slots) || 0,
       attendees: [],
       savedBy: [],
-      creatorId: req.user.numericId,
+      creatorId: req.user.userId,
       creatorName: req.user.name || req.user.username || 'Unknown',
       creatorImages: req.user.images || [],
     });
 
     await activity.save();
-    const data = formatActivity(activity, req.user.numericId);
+    const data = formatActivity(activity, req.user.userId);
     res.status(201).json({ success: true, data });
   } catch (error) {
     console.error('Create activity error:', error);
@@ -279,7 +279,7 @@ router.put('/update/:activityId', auth, async (req, res) => {
       return res.status(404).json({ message: 'Activity not found' });
     }
 
-    if (String(activity.creatorId) !== String(req.user.numericId)) {
+    if (String(activity.creatorId) !== String(req.user.userId)) {
       return res.status(403).json({ message: 'Only the creator can update this activity' });
     }
 
@@ -300,7 +300,7 @@ router.put('/update/:activityId', auth, async (req, res) => {
     }
 
     await activity.save();
-    const data = formatActivity(activity, req.user.numericId);
+    const data = formatActivity(activity, req.user.userId);
     res.json({ success: true, data });
   } catch (error) {
     console.error('Update activity error:', error);
@@ -318,7 +318,7 @@ router.delete('/delete/:activityId', auth, async (req, res) => {
       return res.status(404).json({ message: 'Activity not found' });
     }
 
-    if (String(activity.creatorId) !== String(req.user.numericId)) {
+    if (String(activity.creatorId) !== String(req.user.userId)) {
       return res.status(403).json({ message: 'Only the creator can delete this activity' });
     }
 
@@ -342,7 +342,7 @@ router.post('/join', auth, async (req, res) => {
     }
 
     const alreadyJoined = activity.attendees.some(
-      (a) => String(a.userId) === String(req.user.numericId)
+      (a) => String(a.userId) === String(req.user.userId)
     );
     if (alreadyJoined) {
       return res.status(400).json({ message: 'Already joined this activity' });
@@ -353,7 +353,7 @@ router.post('/join', auth, async (req, res) => {
     }
 
     activity.attendees.push({
-      userId: req.user.numericId,
+      userId: req.user.userId,
       name: req.user.name || req.user.username || 'Unknown',
       images: req.user.images || [],
     });
@@ -379,7 +379,7 @@ router.post('/leave', auth, async (req, res) => {
     }
 
     const attendeeIndex = activity.attendees.findIndex(
-      (a) => String(a.userId) === String(req.user.numericId)
+      (a) => String(a.userId) === String(req.user.userId)
     );
     if (attendeeIndex === -1) {
       return res.status(400).json({ message: 'You have not joined this activity' });
@@ -408,11 +408,11 @@ router.post('/save', auth, async (req, res) => {
     }
 
     const savedIndex = activity.savedBy.findIndex(
-      (id) => String(id) === String(req.user.numericId)
+      (id) => String(id) === String(req.user.userId)
     );
 
     if (savedIndex === -1) {
-      activity.savedBy.push(req.user.numericId);
+      activity.savedBy.push(req.user.userId);
     } else {
       activity.savedBy.splice(savedIndex, 1);
     }
@@ -441,10 +441,10 @@ router.post('/feedback', auth, async (req, res) => {
 
     // Check if user already submitted feedback
     const existingIndex = activity.feedback.findIndex(
-      (f) => String(f.userId) === String(req.user.numericId)
+      (f) => String(f.userId) === String(req.user.userId)
     );
     const feedbackEntry = {
-      userId: req.user.numericId,
+      userId: req.user.userId,
       userName: req.user.name || req.user.username || 'Unknown',
       rating: parseInt(rating),
       comment: comment || '',
@@ -507,12 +507,12 @@ router.post('/rate-attendee', auth, async (req, res) => {
     // Check for existing rating by this user for this attendee on this event
     const existingIndex = activity.attendeeRatings.findIndex(
       (r) =>
-        String(r.raterId) === String(req.user.numericId) &&
+        String(r.raterId) === String(req.user.userId) &&
         String(r.ratedUserId) === String(rated_user_id)
     );
 
     const ratingEntry = {
-      raterId: req.user.numericId,
+      raterId: req.user.userId,
       raterName: req.user.name || req.user.username || 'Unknown',
       ratedUserId: rated_user_id,
       rating: parseInt(rating),
@@ -563,15 +563,15 @@ router.get('/post-event-summary/pending', auth, async (req, res) => {
     // Find past events the user attended where they haven't left feedback
     const activities = await Activity.find({
       date_time: { $lt: now },
-      'attendees.userId': req.user.numericId,
+      'attendees.userId': req.user.userId,
     }).sort({ date_time: -1 });
 
     const pending = activities.filter((a) => {
       const feedback = a.feedback || [];
-      return !feedback.some((f) => String(f.userId) === String(req.user.numericId));
+      return !feedback.some((f) => String(f.userId) === String(req.user.userId));
     });
 
-    const data = pending.map((a) => formatActivity(a, req.user.numericId));
+    const data = pending.map((a) => formatActivity(a, req.user.userId));
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get pending feedback error:', error);
@@ -597,7 +597,7 @@ router.get('/post-event-summary/:eventId', auth, async (req, res) => {
         : 0;
 
     const data = {
-      activity: formatActivity(activity, req.user.numericId),
+      activity: formatActivity(activity, req.user.userId),
       totalAttendees: activity.attendees.length,
       totalFeedback: feedback.length,
       averageRating: Math.round(avgRating * 10) / 10,
@@ -627,7 +627,7 @@ router.post('/send-thank-you', auth, async (req, res) => {
     // Store the thank you record on the activity
     if (!activity.thankYouMessages) activity.thankYouMessages = [];
     activity.thankYouMessages.push({
-      senderId: req.user.numericId,
+      senderId: req.user.userId,
       customMessage: custom_message || '',
       includeRatingRequest: include_rating_request || false,
       sentAt: new Date(),
@@ -676,7 +676,7 @@ router.post('/invite-guest', auth, async (req, res) => {
       guestEmail: guest_email || '',
       inviteCode,
       status: 'pending',
-      invitedBy: req.user.numericId,
+      invitedBy: req.user.userId,
       personalMessage: personal_message || '',
       sendSms: send_sms || false,
       sendEmail: send_email || false,
@@ -852,7 +852,7 @@ router.post('/reminder', auth, async (req, res) => {
 
     const reminder = {
       reminderId: Date.now(),
-      userId: req.user.numericId,
+      userId: req.user.userId,
       eventId: parseInt(event_id),
       type: type || 'before_event',
       deliveryMethods: delivery_methods || ['push'],
@@ -883,7 +883,7 @@ router.get('/reminders/:eventId', auth, async (req, res) => {
     }
 
     const reminders = (activity.reminders || []).filter(
-      (r) => String(r.userId) === String(req.user.numericId)
+      (r) => String(r.userId) === String(req.user.userId)
     );
 
     res.json({ success: true, data: reminders });
@@ -899,13 +899,13 @@ router.get('/reminders/:eventId', auth, async (req, res) => {
 router.get('/reminders', auth, async (req, res) => {
   try {
     const activities = await Activity.find({
-      'reminders.userId': req.user.numericId,
+      'reminders.userId': req.user.userId,
     });
 
     const data = [];
     activities.forEach((activity) => {
       const userReminders = (activity.reminders || []).filter(
-        (r) => String(r.userId) === String(req.user.numericId)
+        (r) => String(r.userId) === String(req.user.userId)
       );
       userReminders.forEach((r) => {
         data.push({
@@ -940,7 +940,7 @@ router.put('/reminder', auth, async (req, res) => {
       return res.status(404).json({ message: 'Reminder not found' });
     }
 
-    if (String(reminder.userId) !== String(req.user.numericId)) {
+    if (String(reminder.userId) !== String(req.user.userId)) {
       return res.status(403).json({ message: 'Not authorized to update this reminder' });
     }
 
@@ -974,7 +974,7 @@ router.delete('/reminder/:reminderId', auth, async (req, res) => {
       return res.status(404).json({ message: 'Reminder not found' });
     }
 
-    if (String(activity.reminders[reminderIndex].userId) !== String(req.user.numericId)) {
+    if (String(activity.reminders[reminderIndex].userId) !== String(req.user.userId)) {
       return res.status(403).json({ message: 'Not authorized to delete this reminder' });
     }
 
@@ -996,13 +996,13 @@ router.get('/upcoming-reminders', auth, async (req, res) => {
     const now = new Date();
     const activities = await Activity.find({
       date_time: { $gte: now },
-      'reminders.userId': req.user.numericId,
+      'reminders.userId': req.user.userId,
     }).sort({ date_time: 1 });
 
     const data = [];
     activities.forEach((activity) => {
       const userReminders = (activity.reminders || []).filter(
-        (r) => String(r.userId) === String(req.user.numericId) && r.isEnabled
+        (r) => String(r.userId) === String(req.user.userId) && r.isEnabled
       );
       userReminders.forEach((r) => {
         data.push({
@@ -1036,7 +1036,7 @@ router.post('/waitlist/join', auth, async (req, res) => {
 
     // Check if already on waitlist
     const existing = activity.waitlist.find(
-      (w) => String(w.userId) === String(req.user.numericId) && w.status !== 'cancelled'
+      (w) => String(w.userId) === String(req.user.userId) && w.status !== 'cancelled'
     );
     if (existing) {
       return res.status(400).json({ message: 'Already on waitlist' });
@@ -1044,7 +1044,7 @@ router.post('/waitlist/join', auth, async (req, res) => {
 
     const entry = {
       waitlistId: Date.now(),
-      userId: req.user.numericId,
+      userId: req.user.userId,
       userName: req.user.name || req.user.username || 'Unknown',
       note: note || '',
       guestsCount: parseInt(guests_count) || 0,
@@ -1076,7 +1076,7 @@ router.delete('/waitlist/leave/:eventId', auth, async (req, res) => {
 
     const waitlist = activity.waitlist || [];
     const entryIndex = waitlist.findIndex(
-      (w) => String(w.userId) === String(req.user.numericId) && w.status === 'waiting'
+      (w) => String(w.userId) === String(req.user.userId) && w.status === 'waiting'
     );
     if (entryIndex === -1) {
       return res.status(404).json({ message: 'Not on waitlist' });
@@ -1137,7 +1137,7 @@ router.post('/waitlist/respond', auth, async (req, res) => {
       return res.status(404).json({ message: 'Waitlist entry not found' });
     }
 
-    if (String(entry.userId) !== String(req.user.numericId)) {
+    if (String(entry.userId) !== String(req.user.userId)) {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
@@ -1147,11 +1147,11 @@ router.post('/waitlist/respond', auth, async (req, res) => {
     // If accepted, add to attendees and decrement remaining slots
     if (accept) {
       const alreadyJoined = activity.attendees.some(
-        (a) => String(a.userId) === String(req.user.numericId)
+        (a) => String(a.userId) === String(req.user.userId)
       );
       if (!alreadyJoined && activity.remaining_slots > 0) {
         activity.attendees.push({
-          userId: req.user.numericId,
+          userId: req.user.userId,
           name: req.user.name || req.user.username || 'Unknown',
           images: req.user.images || [],
         });
@@ -1179,7 +1179,7 @@ router.get('/waitlist/position/:eventId', auth, async (req, res) => {
 
     const waitlist = activity.waitlist || [];
     const entry = waitlist.find(
-      (w) => String(w.userId) === String(req.user.numericId) && w.status === 'waiting'
+      (w) => String(w.userId) === String(req.user.userId) && w.status === 'waiting'
     );
 
     if (!entry) {
@@ -1191,7 +1191,7 @@ router.get('/waitlist/position/:eventId', auth, async (req, res) => {
       .filter((w) => w.status === 'waiting')
       .sort((a, b) => new Date(a.joinedAt) - new Date(b.joinedAt));
     const position = waitingEntries.findIndex(
-      (w) => String(w.userId) === String(req.user.numericId)
+      (w) => String(w.userId) === String(req.user.userId)
     ) + 1;
 
     res.json({ success: true, data: { ...entry, position } });
@@ -1207,13 +1207,13 @@ router.get('/waitlist/position/:eventId', auth, async (req, res) => {
 router.get('/waitlist', auth, async (req, res) => {
   try {
     const activities = await Activity.find({
-      'waitlist.userId': req.user.numericId,
+      'waitlist.userId': req.user.userId,
     });
 
     const data = [];
     activities.forEach((activity) => {
       const userEntries = (activity.waitlist || []).filter(
-        (w) => String(w.userId) === String(req.user.numericId)
+        (w) => String(w.userId) === String(req.user.userId)
       );
       userEntries.forEach((entry) => {
         data.push({
@@ -1277,7 +1277,7 @@ router.post('/recurring/create', auth, async (req, res) => {
       remaining_slots: parseInt(total_slots) || 0,
       attendees: [],
       savedBy: [],
-      creatorId: req.user.numericId,
+      creatorId: req.user.userId,
       creatorName: req.user.name || req.user.username || 'Unknown',
       creatorImages: req.user.images || [],
       isRecurringSeries: true,
@@ -1302,7 +1302,7 @@ router.post('/recurring/create', auth, async (req, res) => {
       activityId: baseActivityId,
       name,
       recurrenceRule: series.recurrenceRule,
-      creatorId: req.user.numericId,
+      creatorId: req.user.userId,
       createdAt: series.createdAt,
     };
 
@@ -1328,7 +1328,7 @@ router.get('/recurring/series/:seriesId', auth, async (req, res) => {
 
     const data = {
       seriesId: series.seriesId,
-      activity: formatActivity(series, req.user.numericId),
+      activity: formatActivity(series, req.user.userId),
       recurrenceRule: series.recurrenceRule,
       instances: series.recurringInstances || [],
     };
@@ -1346,13 +1346,13 @@ router.get('/recurring/series/:seriesId', auth, async (req, res) => {
 router.get('/recurring/series', auth, async (req, res) => {
   try {
     const seriesList = await Activity.find({
-      creatorId: req.user.numericId,
+      creatorId: req.user.userId,
       isRecurringSeries: true,
     }).sort({ createdAt: -1 });
 
     const data = seriesList.map((series) => ({
       seriesId: series.seriesId,
-      activity: formatActivity(series, req.user.numericId),
+      activity: formatActivity(series, req.user.userId),
       recurrenceRule: series.recurrenceRule,
       instanceCount: (series.recurringInstances || []).length,
     }));
@@ -1395,7 +1395,7 @@ router.put('/recurring/update', auth, async (req, res) => {
       return res.status(404).json({ message: 'Series not found' });
     }
 
-    if (String(series.creatorId) !== String(req.user.numericId)) {
+    if (String(series.creatorId) !== String(req.user.userId)) {
       return res.status(403).json({ message: 'Only the creator can update this series' });
     }
 
@@ -1425,7 +1425,7 @@ router.put('/recurring/update', auth, async (req, res) => {
 
     const data = {
       seriesId: series.seriesId,
-      activity: formatActivity(series, req.user.numericId),
+      activity: formatActivity(series, req.user.userId),
       recurrenceRule: series.recurrenceRule,
     };
 
@@ -1451,7 +1451,7 @@ router.post('/recurring/cancel-instance', auth, async (req, res) => {
       return res.status(404).json({ message: 'Series not found' });
     }
 
-    if (String(series.creatorId) !== String(req.user.numericId)) {
+    if (String(series.creatorId) !== String(req.user.userId)) {
       return res.status(403).json({ message: 'Only the creator can cancel instances' });
     }
 
@@ -1464,7 +1464,7 @@ router.post('/recurring/cancel-instance', auth, async (req, res) => {
       cancellationReason: cancellation_reason || '',
       notifyAttendees: notify_attendees || false,
       cancelledAt: new Date(),
-      cancelledBy: req.user.numericId,
+      cancelledBy: req.user.userId,
     };
 
     // Check if instance already exists and update, or add new
@@ -1498,7 +1498,7 @@ router.delete('/recurring/delete/:seriesId', auth, async (req, res) => {
       return res.status(404).json({ message: 'Series not found' });
     }
 
-    if (String(series.creatorId) !== String(req.user.numericId)) {
+    if (String(series.creatorId) !== String(req.user.userId)) {
       return res.status(403).json({ message: 'Only the creator can delete this series' });
     }
 

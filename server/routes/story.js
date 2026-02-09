@@ -42,7 +42,7 @@ router.post('/', auth, upload.single('media'), async (req, res) => {
 
     const story = {
       storyId: uuidv4(),
-      userId: req.user.numericId.toString(),
+      userId: req.user.userId.toString(),
       userName: req.user.userName,
       userAvatar: req.user.profile?.images?.[0] || '',
       eventId: event_id || null,

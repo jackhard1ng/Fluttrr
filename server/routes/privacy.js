@@ -6,10 +6,10 @@ const { auth } = require('../middleware/auth');
 router.get('/getPrivacySettings', auth, async (req, res) => {
   try {
     const Privacy = require('../models/Privacy');
-    let settings = await Privacy.findOne({ userId: req.user.numericId });
+    let settings = await Privacy.findOne({ userId: req.user.userId });
 
     if (!settings) {
-      settings = await Privacy.create({ userId: req.user.numericId });
+      settings = await Privacy.create({ userId: req.user.userId });
     }
 
     res.json({
@@ -47,7 +47,7 @@ router.post('/updatePrivacy', auth, async (req, res) => {
   try {
     const Privacy = require('../models/Privacy');
     const settings = await Privacy.findOneAndUpdate(
-      { userId: req.user.numericId },
+      { userId: req.user.userId },
       { $set: req.body },
       { new: true, upsert: true }
     );
@@ -63,9 +63,9 @@ router.post('/updatePrivacy', auth, async (req, res) => {
 router.get('/profile', auth, async (req, res) => {
   try {
     const Privacy = require('../models/Privacy');
-    let settings = await Privacy.findOne({ userId: req.user.numericId });
+    let settings = await Privacy.findOne({ userId: req.user.userId });
     if (!settings) {
-      settings = await Privacy.create({ userId: req.user.numericId });
+      settings = await Privacy.create({ userId: req.user.userId });
     }
     res.json({ success: true, data: settings });
   } catch (error) {

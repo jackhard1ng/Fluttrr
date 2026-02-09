@@ -1,77 +1,132 @@
 const mongoose = require('mongoose');
 const Counter = require('./Counter');
 
+// ---------------------------------------------------------------------------
+// Sub-schemas
+// ---------------------------------------------------------------------------
+
+// Flutter Attendee.fromJson reads: user_id, name, images
 const attendeeSchema = new mongoose.Schema(
   {
     userId: { type: Number, required: true },
-    name: String,
-    images: [String],
+    name: { type: String, default: null },
+    images: { type: [String], default: [] },
     joinedAt: { type: Date, default: Date.now },
   },
   { _id: false }
 );
 
+// ---------------------------------------------------------------------------
+// Activity schema
+// ---------------------------------------------------------------------------
+// Flutter ActivityModel.fromJson reads (snake_case):
+//   activity_id, event_id, name, description, location, latitude, longitude,
+//   date_time, event_type, image (array!), total_slots, remaining_slots,
+//   attendees [{user_id, name, images}], user_joined, user_saved,
+//   creator_id, creator_name, creator_image (array!)
+
 const activitySchema = new mongoose.Schema(
   {
     activityId: { type: Number, unique: true, index: true },
-    name: { type: String, required: true, trim: true },
-    description: { type: String, trim: true },
+    name: {
+      type: String,
+      required: [true, 'Activity name is required'],
+      trim: true,
+      maxlength: 100,
+    },
+    description: { type: String, trim: true, maxlength: 2000 },
     location: { type: String, trim: true },
-    latitude: Number,
-    longitude: Number,
-    dateTime: { type: Date, required: true },
+    latitude: { type: Number, default: null },
+    longitude: { type: Number, default: null },
+    dateTime: { type: Date, required: [true, 'Date/time is required'] },
     eventType: { type: String, default: 'general' },
-    images: [String],
-    totalSlots: { type: Number, default: 20 },
-    remainingSlots: { type: Number, default: 20 },
-    attendees: [attendeeSchema],
-    savedBy: [Number],
-    creatorId: { type: Number, required: true },
-    creatorName: String,
-    creatorImages: [String],
-    status: { type: String, enum: ['active', 'cancelled', 'completed'], default: 'active' },
+    images: { type: [String], default: [] },
+    totalSlots: { type: Number, default: 20, min: 1 },
+    remainingSlots: { type: Number, default: 20, min: 0 },
+    attendees: { type: [attendeeSchema], default: [] },
+    savedBy: { type: [Number], default: [] },
+    creatorId: { type: Number, required: true, index: true },
+    creatorName: { type: String, default: null },
+    creatorImages: { type: [String], default: [] },
+    status: {
+      type: String,
+      enum: ['active', 'cancelled', 'completed'],
+      default: 'active',
+    },
   },
   { timestamps: true }
 );
 
-activitySchema.pre('save', async function (next) {
-  if (this.isNew) {
-    this.activityId = await Counter.getNextSequence('activityId');
-  }
-  next();
-});
-
-// Format for API response
-activitySchema.methods.toApiResponse = function (userId) {
-  return {
-    activityId: this.activityId,
-    eventId: this.activityId,
-    name: this.name,
-    description: this.description,
-    location: this.location,
-    latitude: this.latitude,
-    longitude: this.longitude,
-    date_time: this.dateTime?.toISOString(),
-    event_type: this.eventType,
-    images: this.images,
-    total_slots: this.totalSlots,
-    remaining_slots: this.remainingSlots,
-    attendees: this.attendees.map((a) => ({
-      userId: a.userId,
-      name: a.name,
-      images: a.images,
-    })),
-    user_joined: userId ? this.attendees.some((a) => a.userId === userId) : false,
-    user_saved: userId ? this.savedBy.includes(userId) : false,
-    creator_id: this.creatorId,
-    creator_name: this.creatorName,
-    creator_images: this.creatorImages,
-  };
-};
-
-// Geo index for location-based queries
+// ---------------------------------------------------------------------------
+// Indexes
+// ---------------------------------------------------------------------------
 activitySchema.index({ latitude: 1, longitude: 1 });
 activitySchema.index({ dateTime: 1 });
-activitySchema.index({ creatorId: 1 });
+activitySchema.index({ status: 1, dateTime: 1 });
+
+// ---------------------------------------------------------------------------
+// Pre-save: auto-increment activityId
+// ---------------------------------------------------------------------------
+activitySchema.pre('save', async function (next) {
+  try {
+    if (this.isNew && !this.activityId) {
+      this.activityId = await Counter.getNextSequence('activityId');
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// toJSON – convert to snake_case matching Flutter ActivityModel.fromJson
+// ---------------------------------------------------------------------------
+activitySchema.set('toJSON', {
+  transform: function (doc, ret) {
+    return {
+      activity_id: ret.activityId,
+      event_id: ret.activityId, // Flutter uses both interchangeably
+      name: ret.name,
+      description: ret.description,
+      location: ret.location,
+      latitude: ret.latitude,
+      longitude: ret.longitude,
+      date_time: ret.dateTime,
+      event_type: ret.eventType,
+      image: ret.images, // Flutter reads json['image'] as array
+      total_slots: ret.totalSlots,
+      remaining_slots: ret.remainingSlots,
+      attendees: (ret.attendees || []).map(function (a) {
+        return {
+          user_id: a.userId,
+          name: a.name,
+          images: a.images,
+          joined_at: a.joinedAt,
+        };
+      }),
+      saved_by: ret.savedBy,
+      creator_id: ret.creatorId,
+      creator_name: ret.creatorName,
+      creator_image: ret.creatorImages, // Flutter reads json['creator_image'] as array
+      status: ret.status,
+      created_at: ret.createdAt,
+      updated_at: ret.updatedAt,
+    };
+  },
+});
+
+// ---------------------------------------------------------------------------
+// Convenience: full API response with user-specific computed fields
+// ---------------------------------------------------------------------------
+activitySchema.methods.toApiResponse = function (requestingUserId) {
+  const json = this.toJSON();
+  json.user_joined = requestingUserId
+    ? this.attendees.some(function (a) { return a.userId === requestingUserId; })
+    : false;
+  json.user_saved = requestingUserId
+    ? this.savedBy.includes(requestingUserId)
+    : false;
+  return json;
+};
 
 module.exports = mongoose.model('Activity', activitySchema);

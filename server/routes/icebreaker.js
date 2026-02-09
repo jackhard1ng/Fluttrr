@@ -82,7 +82,7 @@ router.post('/create', auth, async (req, res) => {
       options: options || [],
       timeLimit: time_limit || 60,
       isCustom: true,
-      creatorId: req.user.numericId,
+      creatorId: req.user.userId,
       usageCount: 0,
       rating: 0,
     };
@@ -112,7 +112,7 @@ router.post('/session/start', auth, async (req, res) => {
 
 router.post('/respond', auth, async (req, res) => {
   const { icebreaker_id, event_id, answer, selected_option_index } = req.body;
-  res.json({ success: true, data: { responseId: uuidv4(), icebreakerId: icebreaker_id, eventId: event_id, userId: req.user.numericId, userName: req.user.userName, answer, selectedOptionIndex: selected_option_index, votes: [], respondedAt: new Date(), reactions: [] } });
+  res.json({ success: true, data: { responseId: uuidv4(), icebreakerId: icebreaker_id, eventId: event_id, userId: req.user.userId, userName: req.user.userName, answer, selectedOptionIndex: selected_option_index, votes: [], respondedAt: new Date(), reactions: [] } });
 });
 
 router.get('/responses', auth, async (req, res) => {

@@ -317,7 +317,7 @@ router.get('/list', auth, async (req, res) => {
       .sort({ startDate: -1 })
       .limit(50);
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     const data = events.map((event) => formatBusinessEvent(event, userId));
 
     res.json({ success: true, data });
@@ -338,7 +338,7 @@ router.get('/event-list', auth, async (req, res) => {
     const events = await BusinessEvent.find({ businessId: business._id })
       .sort({ startDate: -1 });
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     const data = events.map((event) => formatBusinessEvent(event, userId));
 
     res.json({ success: true, data });
@@ -395,7 +395,7 @@ router.post('/create-event', auth, async (req, res) => {
       clicks: 0,
     });
 
-    res.status(201).json({ success: true, data: formatBusinessEvent(event, req.user.numericId) });
+    res.status(201).json({ success: true, data: formatBusinessEvent(event, req.user.userId) });
   } catch (error) {
     console.error('Create business event error:', error);
     res.status(500).json({ message: 'Failed to create business event' });
@@ -430,7 +430,7 @@ router.put('/update-event/:eventId', auth, async (req, res) => {
       return res.status(404).json({ message: 'Event not found or not authorized' });
     }
 
-    res.json({ success: true, data: formatBusinessEvent(event, req.user.numericId) });
+    res.json({ success: true, data: formatBusinessEvent(event, req.user.userId) });
   } catch (error) {
     console.error('Update business event error:', error);
     res.status(500).json({ message: 'Failed to update business event' });
@@ -445,7 +445,7 @@ router.get('/event/:eventId', auth, async (req, res) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    res.json({ success: true, data: formatBusinessEvent(event, req.user.numericId) });
+    res.json({ success: true, data: formatBusinessEvent(event, req.user.userId) });
   } catch (error) {
     console.error('Get business event details error:', error);
     res.status(500).json({ message: 'Failed to get event details' });
@@ -493,7 +493,7 @@ router.post('/join-event', auth, async (req, res) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     if (event.attendees && event.attendees.includes(userId)) {
       return res.status(400).json({ message: 'Already joined this event' });
     }
@@ -527,7 +527,7 @@ router.post('/leave-event', auth, async (req, res) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     await BusinessEvent.findByIdAndUpdate(eventId, {
       $pull: { attendees: userId },
       $inc: { attendeesCount: -1, remainingSlots: event.remainingSlots != null ? 1 : 0 },
@@ -553,7 +553,7 @@ router.post('/save-event', auth, async (req, res) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     const isSaved = event.savedBy && event.savedBy.includes(userId);
 
     if (isSaved) {
@@ -578,7 +578,7 @@ router.post('/save-event', auth, async (req, res) => {
 // GET /api/business/saved-list - Get saved events
 router.get('/saved-list', auth, async (req, res) => {
   try {
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     const events = await BusinessEvent.find({ savedBy: userId }).sort({ createdAt: -1 });
 
     const data = events.map((event) => formatBusinessEvent(event, userId));
@@ -596,7 +596,7 @@ router.get('/top-events', auth, async (req, res) => {
       .sort({ views: -1, clicks: -1 })
       .limit(20);
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     const data = events.map((event) => formatBusinessEvent(event, userId));
 
     res.json({ success: true, data });
@@ -651,7 +651,7 @@ router.post('/follow', auth, async (req, res) => {
       return res.status(404).json({ message: 'Business not found' });
     }
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     if (business.followers && business.followers.includes(userId)) {
       return res.status(400).json({ message: 'Already following this business' });
     }
@@ -676,7 +676,7 @@ router.post('/unfollow', auth, async (req, res) => {
       return res.status(400).json({ message: 'Business ID is required' });
     }
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     await Business.findByIdAndUpdate(businessId, {
       $pull: { followers: userId },
       $inc: { followerCount: -1 },
@@ -856,7 +856,7 @@ router.get('/rewards/summary', auth, async (req, res) => {
     res.json({
       success: true,
       data: {
-        business_id: req.user.numericId,
+        business_id: req.user.userId,
         total_points: 0,
         total_cash_earned: 0,
         pending_rewards: 0,

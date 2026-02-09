@@ -29,7 +29,7 @@ router.post('/create', auth, async (req, res) => {
       return res.status(400).json({ message: 'Group name is required' });
     }
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     const userName = req.user.userName || req.user.name || 'Unknown';
 
     const group = await Group.create({
@@ -136,7 +136,7 @@ router.get('/list', auth, async (req, res) => {
       .skip(skip)
       .limit(limitNum);
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     const data = groups.map((group) => formatGroup(group, userId));
 
     res.json({ success: true, data });
@@ -154,7 +154,7 @@ router.get('/details/:groupId', auth, async (req, res) => {
       return res.status(404).json({ message: 'Group not found' });
     }
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     res.json({ success: true, data: formatGroup(group, userId) });
   } catch (error) {
     console.error('Get group details error:', error);
@@ -176,7 +176,7 @@ router.put('/update', auth, async (req, res) => {
       return res.status(404).json({ message: 'Group not found' });
     }
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     const member = (group.members || []).find((m) => m.userId === userId);
     if (!member || (member.role !== 'owner' && member.role !== 'admin')) {
       return res.status(403).json({ message: 'Only owners and admins can update the group' });
@@ -213,7 +213,7 @@ router.delete('/delete/:groupId', auth, async (req, res) => {
       return res.status(404).json({ message: 'Group not found' });
     }
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     const member = (group.members || []).find((m) => m.userId === userId);
     if (!member || member.role !== 'owner') {
       return res.status(403).json({ message: 'Only the group owner can delete the group' });
@@ -245,7 +245,7 @@ router.post('/join', auth, async (req, res) => {
       return res.status(404).json({ message: 'Group not found' });
     }
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     const existingMember = (group.members || []).find((m) => m.userId === userId);
     if (existingMember) {
       return res.status(400).json({ message: 'Already a member of this group' });
@@ -335,7 +335,7 @@ router.post('/leave', auth, async (req, res) => {
       return res.status(404).json({ message: 'Group not found' });
     }
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     const member = (group.members || []).find((m) => m.userId === userId);
     if (!member) {
       return res.status(400).json({ message: 'Not a member of this group' });
@@ -441,7 +441,7 @@ router.get('/requests/:groupId', auth, async (req, res) => {
       return res.status(404).json({ message: 'Group not found' });
     }
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     const member = (group.members || []).find((m) => m.userId === userId);
     if (!member || (member.role !== 'owner' && member.role !== 'admin')) {
       return res.status(403).json({ message: 'Only admins can view join requests' });
@@ -481,7 +481,7 @@ router.post('/respond-request', auth, async (req, res) => {
       return res.status(404).json({ message: 'Join request not found' });
     }
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     const adminMember = (group.members || []).find((m) => m.userId === userId);
     if (!adminMember || (adminMember.role !== 'owner' && adminMember.role !== 'admin')) {
       return res.status(403).json({ message: 'Only admins can respond to join requests' });
@@ -580,7 +580,7 @@ router.get('/search', auth, async (req, res) => {
       .skip((pageNum - 1) * limitNum)
       .limit(limitNum);
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     const data = groups.map((group) => formatGroup(group, userId));
 
     res.json({ success: true, data });
@@ -595,7 +595,7 @@ router.get('/suggested', auth, async (req, res) => {
   try {
     const { limit = 10 } = req.query;
     const limitNum = parseInt(limit);
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
 
     // Get user interests from profile
     const userInterests = req.user.profile?.interests || req.user.interests || [];
@@ -635,7 +635,7 @@ router.get('/my-groups', auth, async (req, res) => {
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
 
     const groups = await Group.find({
       isActive: true,
@@ -673,7 +673,7 @@ router.get('/by-interest', auth, async (req, res) => {
       .skip((pageNum - 1) * limitNum)
       .limit(limitNum);
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     const data = groups.map((group) => formatGroup(group, userId));
 
     res.json({ success: true, data });
@@ -705,7 +705,7 @@ router.put('/members/:groupId/role', auth, async (req, res) => {
       return res.status(404).json({ message: 'Group not found' });
     }
 
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
     const adminMember = (group.members || []).find((m) => m.userId === userId);
     if (!adminMember || (adminMember.role !== 'owner' && adminMember.role !== 'admin')) {
       return res.status(403).json({ message: 'Only owners and admins can update member roles' });
@@ -752,7 +752,7 @@ router.delete('/members/:groupId/:userId', auth, async (req, res) => {
       return res.status(404).json({ message: 'Group not found' });
     }
 
-    const requesterId = req.user.numericId;
+    const requesterId = req.user.userId;
     const adminMember = (group.members || []).find((m) => m.userId === requesterId);
     if (!adminMember || (adminMember.role !== 'owner' && adminMember.role !== 'admin')) {
       return res.status(403).json({ message: 'Only owners and admins can remove members' });

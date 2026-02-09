@@ -20,7 +20,7 @@ router.post('/send', auth, async (req, res) => {
     }
 
     const message = new Message({
-      senderId: req.user.numericId,
+      senderId: req.user.userId,
       receiverId: parseInt(receiverId),
       senderName: req.user.name || req.user.username || 'Unknown',
       content: content || '',
@@ -64,7 +64,7 @@ router.post('/send', auth, async (req, res) => {
 // ============================================================
 router.get('/chatlist', auth, async (req, res) => {
   try {
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
 
     // Aggregate messages to get last message per conversation partner
     const conversations = await Message.aggregate([
@@ -149,7 +149,7 @@ router.get('/chatlist', auth, async (req, res) => {
     try {
       const User = require('../models/User');
       for (const conv of data) {
-        const otherUser = await User.findOne({ numericId: conv.otherUserId }).select(
+        const otherUser = await User.findOne({ userId: conv.otherUserId }).select(
           'name username images'
         );
         if (otherUser) {
@@ -173,7 +173,7 @@ router.get('/chatlist', auth, async (req, res) => {
 // ============================================================
 router.get('/grouplist', auth, async (req, res) => {
   try {
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
 
     const groupConversations = await Message.aggregate([
       {
@@ -256,7 +256,7 @@ router.post('/markAsRead', auth, async (req, res) => {
     await Message.updateMany(
       {
         senderId: parseInt(senderId),
-        receiverId: req.user.numericId,
+        receiverId: req.user.userId,
         isRead: false,
       },
       { $set: { isRead: true } }
@@ -266,7 +266,7 @@ router.post('/markAsRead', auth, async (req, res) => {
     const io = req.app.get('io');
     if (io) {
       io.to(`user_${senderId}`).emit('messages_read', {
-        readBy: req.user.numericId,
+        readBy: req.user.userId,
         senderId: parseInt(senderId),
       });
     }
@@ -283,7 +283,7 @@ router.post('/markAsRead', auth, async (req, res) => {
 // ============================================================
 router.get('/getChatList', auth, async (req, res) => {
   try {
-    const userId = req.user.numericId;
+    const userId = req.user.userId;
 
     const conversations = await Message.aggregate([
       {
@@ -381,7 +381,7 @@ router.post('/sendB', auth, async (req, res) => {
     }
 
     const message = new Message({
-      senderId: req.user.numericId,
+      senderId: req.user.userId,
       receiverId: parseInt(businessId),
       senderName: req.user.name || req.user.username || 'Unknown',
       content: content || '',

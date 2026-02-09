@@ -6,12 +6,12 @@ const { auth } = require('../middleware/auth');
 router.get('/list_notifications', auth, async (req, res) => {
   try {
     const Notification = require('../models/Notification');
-    const notifications = await Notification.find({ userId: req.user.numericId })
+    const notifications = await Notification.find({ userId: req.user.userId })
       .sort({ createdAt: -1 })
       .limit(50);
 
     const unreadCount = await Notification.countDocuments({
-      userId: req.user.numericId,
+      userId: req.user.userId,
       isRead: false,
     });
 
