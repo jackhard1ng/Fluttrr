@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../controllers/admin_controller.dart';
-import '../../models/admin_model.dart';
 
 /// Model for moderated chat conversations
 class ModeratedChatModel {

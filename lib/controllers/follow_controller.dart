@@ -19,6 +19,12 @@ class FollowController extends GetxController {
   final RxBool isFollowing = false.obs;
   final RxString errorMessage = ''.obs;
   final RxString successMessage = ''.obs;
+  final Rx<int?> _loggingBusinessId = Rx<int?>(null);
+
+  // Convenience getters for UI compatibility
+  bool get isLogging => isFollowing.value;
+  int? get loggingBusinessId => _loggingBusinessId.value;
+  set loggingBusinessId(int? value) => _loggingBusinessId.value = value;
 
   // Pagination for events
   final RxInt currentPage = 1.obs;

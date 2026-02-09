@@ -1,9 +1,12 @@
 /// Reminder type
 enum ReminderType {
   oneHour,
+  oneHourBefore, // Alias for oneHour
   oneDay,
+  oneDayBefore, // Alias for oneDay
   threeDays,
   oneWeek,
+  oneWeekBefore, // Alias for oneWeek
   custom,
 }
 
@@ -100,12 +103,15 @@ class EventReminderModel {
   String get typeDisplayName {
     switch (type) {
       case ReminderType.oneHour:
+      case ReminderType.oneHourBefore:
         return '1 hour before';
       case ReminderType.oneDay:
+      case ReminderType.oneDayBefore:
         return '1 day before';
       case ReminderType.threeDays:
         return '3 days before';
       case ReminderType.oneWeek:
+      case ReminderType.oneWeekBefore:
         return '1 week before';
       case ReminderType.custom:
         return 'Custom';
@@ -115,17 +121,29 @@ class EventReminderModel {
   Duration get reminderOffset {
     switch (type) {
       case ReminderType.oneHour:
+      case ReminderType.oneHourBefore:
         return const Duration(hours: 1);
       case ReminderType.oneDay:
+      case ReminderType.oneDayBefore:
         return const Duration(days: 1);
       case ReminderType.threeDays:
         return const Duration(days: 3);
       case ReminderType.oneWeek:
+      case ReminderType.oneWeekBefore:
         return const Duration(days: 7);
       case ReminderType.custom:
         return Duration.zero;
     }
   }
+
+  // Convenience getters for UI compatibility
+  bool get isActive => isEnabled;
+  bool get remindAt1Hour => type == ReminderType.oneHour || type == ReminderType.oneHourBefore;
+  bool get remindAt1Day => type == ReminderType.oneDay || type == ReminderType.oneDayBefore;
+  bool get remindAt1Week => type == ReminderType.oneWeek || type == ReminderType.oneWeekBefore;
+  bool get remindAtAll1Hour => isEnabled && remindAt1Hour;
+  bool get remindAtAll1Day => isEnabled && remindAt1Day;
+  bool get remindAtAll1Week => isEnabled && remindAt1Week;
 }
 
 /// User reminder preferences
@@ -268,6 +286,9 @@ class UpcomingEventNotification {
     }
     return 'Starting now';
   }
+
+  /// Convenience getter for next reminder time (alias for eventDateTime)
+  DateTime? get nextReminderAt => eventDateTime;
 }
 
 ReminderType _parseReminderType(dynamic value) {
