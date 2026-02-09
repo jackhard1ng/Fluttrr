@@ -542,11 +542,23 @@ abstract class BaseRepository {
 
   /// Handle errors
   ApiResponse<T> _handleError<T>(dynamic error) {
-    debugPrint('API Error: ${error.runtimeType}');
+    debugPrint('API Error: ${error.runtimeType} - $error');
 
     String message;
     if (error is SocketException) {
-      message = 'No internet connection';
+      final errorMsg = error.message.toLowerCase();
+      final osErrorMsg = error.osError?.message?.toLowerCase() ?? '';
+      if (errorMsg.contains('failed host lookup') ||
+          osErrorMsg.contains('no address associated') ||
+          osErrorMsg.contains('name or service not known') ||
+          osErrorMsg.contains('nodename nor servname')) {
+        message = 'Unable to reach server. Please check your internet connection or try again later.';
+      } else if (errorMsg.contains('connection refused') ||
+          osErrorMsg.contains('connection refused')) {
+        message = 'Server is not responding. Please try again later.';
+      } else {
+        message = 'Connection error. Please check your internet and try again.';
+      }
     } else if (error is TimeoutException) {
       message = 'Request timed out. Please try again.';
     } else if (error is FormatException) {

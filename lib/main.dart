@@ -11,6 +11,7 @@ import 'constants/theme_data.dart';
 import 'config/routes.dart';
 import 'config/bindings.dart';
 import 'firebase_options.dart';
+import 'services/connectivity_service.dart';
 import 'services/push_notification_service.dart';
 import 'services/token_manager.dart';
 
@@ -85,6 +86,9 @@ void main() async {
       DeviceOrientation.portraitDown,
     ]);
   }
+
+  // Initialize connectivity monitoring
+  Get.put(ConnectivityService(), permanent: true);
 
   runApp(const FluttrrApp());
 }
