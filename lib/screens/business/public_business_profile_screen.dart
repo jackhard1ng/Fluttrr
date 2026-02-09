@@ -346,7 +346,7 @@ class _BusinessHeader extends StatelessWidget {
                           child: IconButton(
                             onPressed: () {
                               // Share business - copy link to clipboard
-                              const shareUrl = 'https://fluttrr.app/business/the-social-hub';
+                              const shareUrl = 'https://fluttrr.com/business/the-social-hub';
                               Clipboard.setData(const ClipboardData(text: shareUrl));
                               HapticFeedback.lightImpact();
                               Get.snackbar(

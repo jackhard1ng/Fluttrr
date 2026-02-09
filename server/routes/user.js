@@ -895,7 +895,7 @@ router.get('/created-activities-count', auth, async (req, res) => {
   try {
     let count = 0;
     try {
-      count = await Activity.countDocuments({ createdBy: req.userId });
+      count = await Activity.countDocuments({ creatorId: req.user.userId });
     } catch (_) {
       // Activity model may not exist yet – fall back to user.activities.created
       const user = await User.findById(req.userId).select('activities');
@@ -917,7 +917,7 @@ router.get('/joined-activities-count', auth, async (req, res) => {
   try {
     let count = 0;
     try {
-      count = await Activity.countDocuments({ participants: req.userId });
+      count = await Activity.countDocuments({ 'attendees.userId': req.user.userId });
     } catch (_) {
       // Activity model may not exist yet – fall back to user.activities.joined
       const user = await User.findById(req.userId).select('activities');
@@ -945,12 +945,11 @@ router.get('/user-activities', auth, async (req, res) => {
     let total = 0;
 
     try {
-      const filter = { participants: req.userId };
+      const filter = { 'attendees.userId': req.user.userId };
       activities = await Activity.find(filter)
-        .populate('createdBy', 'userId userName profile.images')
         .skip(skip)
         .limit(limit)
-        .sort({ startDate: -1 });
+        .sort({ dateTime: -1 });
       total = await Activity.countDocuments(filter);
     } catch (_) {
       // Activity model not yet available – return empty list

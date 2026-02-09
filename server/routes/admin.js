@@ -385,7 +385,7 @@ router.get('/events', auth, adminAuth, async (req, res) => {
     if (is_past === 'false') filter.dateTime = { $gte: new Date() };
     if (search) {
       const regex = new RegExp(search.trim(), 'i');
-      filter.$or = [{ title: regex }, { description: regex }, { location: regex }];
+      filter.$or = [{ name: regex }, { description: regex }, { location: regex }];
     }
 
     const sortDir = descending === 'true' ? -1 : 1;
@@ -399,7 +399,7 @@ router.get('/events', auth, adminAuth, async (req, res) => {
     const data = events.map((e) => ({
       _id: e._id,
       activity_id: e.activityId,
-      title: e.title,
+      name: e.name,
       description: e.description,
       location: e.location,
       date_time: e.dateTime,

@@ -475,7 +475,7 @@ class InviteGuestsScreen extends StatelessWidget {
   void _copyInviteLink(GuestModel guest) {
     if (guest.inviteCode != null) {
       Clipboard.setData(ClipboardData(
-        text: 'https://fluttrr.app/invite/${guest.inviteCode}',
+        text: 'https://fluttrr.com/invite/${guest.inviteCode}',
       ));
       Get.snackbar(
         'Copied!',

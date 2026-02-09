@@ -150,11 +150,11 @@ router.get('/chatlist', auth, async (req, res) => {
       const User = require('../models/User');
       for (const conv of data) {
         const otherUser = await User.findOne({ userId: conv.otherUserId }).select(
-          'name username images'
+          'userName profile.images'
         );
         if (otherUser) {
-          conv.otherUserName = otherUser.name || otherUser.username || conv.otherUserName;
-          conv.otherUserImages = otherUser.images || [];
+          conv.otherUserName = otherUser.userName || conv.otherUserName;
+          conv.otherUserImages = otherUser.profile?.images || [];
         }
       }
     } catch (_) {

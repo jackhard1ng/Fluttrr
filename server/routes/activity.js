@@ -8,22 +8,28 @@ const Activity = require('../models/Activity');
 // Helper: Format activity data to match Flutter's ActivityModel
 // ============================================================
 const formatActivity = (activity, userId) => {
+  // Use toApiResponse if available (returns snake_case for Flutter)
+  if (activity.toApiResponse) {
+    return activity.toApiResponse(userId);
+  }
+  // Fallback: manual formatting (model uses camelCase internally)
   const attendees = activity.attendees || [];
   const savedBy = activity.savedBy || [];
   return {
-    activityId: activity.activityId,
+    activity_id: activity.activityId,
+    event_id: activity.activityId,
     name: activity.name,
     description: activity.description,
     location: activity.location,
     latitude: activity.latitude,
     longitude: activity.longitude,
-    date_time: activity.date_time ? new Date(activity.date_time).toISOString() : null,
-    event_type: activity.event_type,
-    images: activity.images || [],
-    total_slots: activity.total_slots,
-    remaining_slots: activity.remaining_slots,
+    date_time: activity.dateTime ? new Date(activity.dateTime).toISOString() : null,
+    event_type: activity.eventType,
+    image: activity.images || [],
+    total_slots: activity.totalSlots,
+    remaining_slots: activity.remainingSlots,
     attendees: attendees.map((a) => ({
-      userId: a.userId,
+      user_id: a.userId,
       name: a.name,
       images: a.images || [],
     })),
@@ -31,7 +37,10 @@ const formatActivity = (activity, userId) => {
     user_saved: userId ? savedBy.some((id) => String(id) === String(userId)) : false,
     creator_id: activity.creatorId,
     creator_name: activity.creatorName,
-    creator_images: activity.creatorImages || [],
+    creator_image: activity.creatorImages || [],
+    status: activity.status,
+    created_at: activity.createdAt,
+    updated_at: activity.updatedAt,
   };
 };
 
@@ -46,8 +55,8 @@ router.get('/daily-activities', auth, async (req, res) => {
     endOfDay.setHours(23, 59, 59, 999);
 
     const activities = await Activity.find({
-      date_time: { $gte: startOfDay, $lte: endOfDay },
-    }).sort({ date_time: 1 });
+      dateTime: { $gte: startOfDay, $lte: endOfDay },
+    }).sort({ dateTime: 1 });
 
     const data = activities.map((a) => formatActivity(a, req.user.userId));
     res.json({ success: true, data });
@@ -69,7 +78,7 @@ router.get('/list', auth, async (req, res) => {
 
     const filter = {};
     if (eventType) {
-      filter.event_type = eventType;
+      filter.eventType = eventType;
     }
 
     // Geo-based filtering if lat/lng provided
@@ -87,7 +96,7 @@ router.get('/list', auth, async (req, res) => {
     }
 
     const activities = await Activity.find(filter)
-      .sort({ date_time: -1 })
+      .sort({ dateTime: -1 })
       .skip(skip)
       .limit(limit);
 
@@ -138,7 +147,7 @@ router.get('/user-activities', auth, async (req, res) => {
   try {
     const activities = await Activity.find({
       'attendees.userId': req.user.userId,
-    }).sort({ date_time: -1 });
+    }).sort({ dateTime: -1 });
     const data = activities.map((a) => formatActivity(a, req.user.userId));
     res.json({ success: true, data });
   } catch (error) {
@@ -154,8 +163,8 @@ router.get('/upcoming', auth, async (req, res) => {
   try {
     const now = new Date();
     const activities = await Activity.find({
-      date_time: { $gte: now },
-    }).sort({ date_time: 1 });
+      dateTime: { $gte: now },
+    }).sort({ dateTime: 1 });
     const data = activities.map((a) => formatActivity(a, req.user.userId));
     res.json({ success: true, data });
   } catch (error) {
@@ -181,13 +190,13 @@ router.post('/search', auth, async (req, res) => {
     }
 
     if (eventType) {
-      filter.event_type = eventType;
+      filter.eventType = eventType;
     }
 
     if (startDate || endDate) {
-      filter.date_time = {};
-      if (startDate) filter.date_time.$gte = new Date(startDate);
-      if (endDate) filter.date_time.$lte = new Date(endDate);
+      filter.dateTime = {};
+      if (startDate) filter.dateTime.$gte = new Date(startDate);
+      if (endDate) filter.dateTime.$lte = new Date(endDate);
     }
 
     if (latitude && longitude) {
@@ -200,7 +209,7 @@ router.post('/search', auth, async (req, res) => {
       filter.longitude = { $gte: lng - lngDelta, $lte: lng + lngDelta };
     }
 
-    const activities = await Activity.find(filter).sort({ date_time: -1 });
+    const activities = await Activity.find(filter).sort({ dateTime: -1 });
     const data = activities.map((a) => formatActivity(a, req.user.userId));
     res.json({ success: true, data });
   } catch (error) {
@@ -216,27 +225,22 @@ router.post('/create-activity', auth, async (req, res) => {
   try {
     const { name, description, location, latitude, longitude, date_time, event_type, total_slots } = req.body;
 
-    // Generate a numeric activityId
-    const lastActivity = await Activity.findOne().sort({ activityId: -1 });
-    const activityId = lastActivity ? lastActivity.activityId + 1 : 1;
-
     const activity = new Activity({
-      activityId,
       name,
       description,
       location,
       latitude: parseFloat(latitude) || 0,
       longitude: parseFloat(longitude) || 0,
-      date_time: new Date(date_time),
-      event_type,
+      dateTime: new Date(date_time),
+      eventType: event_type,
       images: [],
-      total_slots: parseInt(total_slots) || 0,
-      remaining_slots: parseInt(total_slots) || 0,
+      totalSlots: parseInt(total_slots) || 0,
+      remainingSlots: parseInt(total_slots) || 0,
       attendees: [],
       savedBy: [],
       creatorId: req.user.userId,
       creatorName: req.user.userName || 'Unknown',
-      creatorImages: req.user.images || [],
+      creatorImages: req.user.profile?.images || [],
     });
 
     await activity.save();
@@ -290,13 +294,13 @@ router.put('/update/:activityId', auth, async (req, res) => {
     if (location !== undefined) activity.location = location;
     if (latitude !== undefined) activity.latitude = parseFloat(latitude);
     if (longitude !== undefined) activity.longitude = parseFloat(longitude);
-    if (date_time !== undefined) activity.date_time = new Date(date_time);
-    if (event_type !== undefined) activity.event_type = event_type;
+    if (date_time !== undefined) activity.dateTime = new Date(date_time);
+    if (event_type !== undefined) activity.eventType = event_type;
     if (total_slots !== undefined) {
-      const oldTotal = activity.total_slots;
+      const oldTotal = activity.totalSlots;
       const newTotal = parseInt(total_slots);
-      activity.total_slots = newTotal;
-      activity.remaining_slots = activity.remaining_slots + (newTotal - oldTotal);
+      activity.totalSlots = newTotal;
+      activity.remainingSlots = activity.remainingSlots + (newTotal - oldTotal);
     }
 
     await activity.save();
@@ -348,16 +352,16 @@ router.post('/join', auth, async (req, res) => {
       return res.status(400).json({ message: 'Already joined this activity' });
     }
 
-    if (activity.remaining_slots <= 0) {
+    if (activity.remainingSlots <= 0) {
       return res.status(400).json({ message: 'No remaining slots' });
     }
 
     activity.attendees.push({
       userId: req.user.userId,
       name: req.user.userName || 'Unknown',
-      images: req.user.images || [],
+      images: req.user.profile?.images || [],
     });
-    activity.remaining_slots -= 1;
+    activity.remainingSlots -= 1;
     await activity.save();
 
     res.json({ success: true });
@@ -386,7 +390,7 @@ router.post('/leave', auth, async (req, res) => {
     }
 
     activity.attendees.splice(attendeeIndex, 1);
-    activity.remaining_slots += 1;
+    activity.remainingSlots += 1;
     await activity.save();
 
     res.json({ success: true });
@@ -562,9 +566,9 @@ router.get('/post-event-summary/pending', auth, async (req, res) => {
     const now = new Date();
     // Find past events the user attended where they haven't left feedback
     const activities = await Activity.find({
-      date_time: { $lt: now },
+      dateTime: { $lt: now },
       'attendees.userId': req.user.userId,
-    }).sort({ date_time: -1 });
+    }).sort({ dateTime: -1 });
 
     const pending = activities.filter((a) => {
       const feedback = a.feedback || [];
@@ -911,7 +915,7 @@ router.get('/reminders', auth, async (req, res) => {
         data.push({
           ...r.toObject ? r.toObject() : r,
           activityName: activity.name,
-          activityDate: activity.date_time,
+          activityDate: activity.dateTime,
         });
       });
     });
@@ -995,9 +999,9 @@ router.get('/upcoming-reminders', auth, async (req, res) => {
   try {
     const now = new Date();
     const activities = await Activity.find({
-      date_time: { $gte: now },
+      dateTime: { $gte: now },
       'reminders.userId': req.user.userId,
-    }).sort({ date_time: 1 });
+    }).sort({ dateTime: 1 });
 
     const data = [];
     activities.forEach((activity) => {
@@ -1008,7 +1012,7 @@ router.get('/upcoming-reminders', auth, async (req, res) => {
         data.push({
           ...r.toObject ? r.toObject() : r,
           activityName: activity.name,
-          activityDate: activity.date_time,
+          activityDate: activity.dateTime,
         });
       });
     });
@@ -1149,13 +1153,13 @@ router.post('/waitlist/respond', auth, async (req, res) => {
       const alreadyJoined = activity.attendees.some(
         (a) => String(a.userId) === String(req.user.userId)
       );
-      if (!alreadyJoined && activity.remaining_slots > 0) {
+      if (!alreadyJoined && activity.remainingSlots > 0) {
         activity.attendees.push({
           userId: req.user.userId,
           name: req.user.userName || 'Unknown',
-          images: req.user.images || [],
+          images: req.user.profile?.images || [],
         });
-        activity.remaining_slots -= 1;
+        activity.remainingSlots -= 1;
       }
     }
 
@@ -1220,7 +1224,7 @@ router.get('/waitlist', auth, async (req, res) => {
           ...entry.toObject ? entry.toObject() : entry,
           activityId: activity.activityId,
           activityName: activity.name,
-          activityDate: activity.date_time,
+          activityDate: activity.dateTime,
         });
       });
     });
@@ -1264,22 +1268,21 @@ router.post('/recurring/create', auth, async (req, res) => {
     const baseActivityId = lastActivity ? lastActivity.activityId + 1 : 1;
 
     const series = new Activity({
-      activityId: baseActivityId,
       name,
       description,
       location,
       latitude: parseFloat(latitude) || 0,
       longitude: parseFloat(longitude) || 0,
-      date_time: start_date ? new Date(start_date) : new Date(),
-      event_type,
+      dateTime: start_date ? new Date(start_date) : new Date(),
+      eventType: event_type,
       images: [],
-      total_slots: parseInt(total_slots) || 0,
-      remaining_slots: parseInt(total_slots) || 0,
+      totalSlots: parseInt(total_slots) || 0,
+      remainingSlots: parseInt(total_slots) || 0,
       attendees: [],
       savedBy: [],
       creatorId: req.user.userId,
       creatorName: req.user.userName || 'Unknown',
-      creatorImages: req.user.images || [],
+      creatorImages: req.user.profile?.images || [],
       isRecurringSeries: true,
       seriesId,
       recurrenceRule: {
@@ -1404,10 +1407,10 @@ router.put('/recurring/update', auth, async (req, res) => {
     if (location !== undefined) series.location = location;
     if (latitude !== undefined) series.latitude = parseFloat(latitude);
     if (longitude !== undefined) series.longitude = parseFloat(longitude);
-    if (event_type !== undefined) series.event_type = event_type;
+    if (event_type !== undefined) series.eventType = event_type;
     if (total_slots !== undefined) {
-      series.total_slots = parseInt(total_slots);
-      series.remaining_slots = parseInt(total_slots);
+      series.totalSlots = parseInt(total_slots);
+      series.remainingSlots = parseInt(total_slots);
     }
 
     // Update recurrence rule fields

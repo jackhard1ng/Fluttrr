@@ -142,7 +142,7 @@ class ShareSheet extends StatelessWidget {
                 color: AppColors.mediumGrey,
                 onTap: () {
                   Get.back();
-                  Clipboard.setData(ClipboardData(text: url ?? 'fluttrr.app/share'));
+                  Clipboard.setData(ClipboardData(text: url ?? 'https://fluttrr.com/share'));
                   Get.snackbar(
                     'Copied',
                     'Link copied to clipboard',
