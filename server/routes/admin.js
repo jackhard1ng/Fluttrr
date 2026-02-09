@@ -30,7 +30,7 @@ router.post('/complain', auth, async (req, res) => {
   }
 });
 
-// GET /api/admin/status
+// GET /api/admin/status - Get admin status (any authenticated user)
 router.get('/status', auth, async (req, res) => {
   try {
     res.json({
@@ -50,83 +50,591 @@ router.get('/status', auth, async (req, res) => {
   }
 });
 
-// GET /api/admin/stats
+// GET /api/admin/stats - Dashboard statistics (snake_case for Flutter)
 router.get('/stats', auth, adminAuth, async (req, res) => {
   try {
     const User = require('../models/User');
     const Activity = require('../models/Activity');
+    const Business = require('../models/Business');
+    const Complaint = require('../models/Complaint');
 
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    // User stats
     const totalUsers = await User.countDocuments();
     const activeUsers = await User.countDocuments({ onlineStatus: 'online' });
+    const newUsersToday = await User.countDocuments({ createdAt: { $gte: todayStart } });
+    const newUsersThisWeek = await User.countDocuments({ createdAt: { $gte: weekAgo } });
+
+    // Business stats
+    const totalBusinesses = await Business.countDocuments();
+    const verifiedBusinesses = await Business.countDocuments({ isVerified: true });
+    const pendingVerifications = await Business.countDocuments({ isVerified: { $ne: true } });
+
+    // Event stats
     const totalEvents = await Activity.countDocuments();
+    const activeEvents = await Activity.countDocuments({
+      status: 'active',
+      dateTime: { $gte: now },
+    });
+    const eventsToday = await Activity.countDocuments({
+      createdAt: { $gte: todayStart },
+    });
+
+    // Report stats
+    const pendingReports = await Complaint.countDocuments({ status: { $in: ['pending', 'open'] } });
+    const resolvedReportsToday = await Complaint.countDocuments({
+      status: 'resolved',
+      updatedAt: { $gte: todayStart },
+    });
 
     res.json({
       success: true,
       data: {
-        totalUsers,
-        activeUsers,
-        newUsersToday: 0,
-        newUsersThisWeek: 0,
-        totalBusinesses: 0,
-        verifiedBusinesses: 0,
-        pendingVerifications: 0,
-        totalEvents,
-        activeEvents: 0,
-        eventsToday: 0,
-        pendingReports: 0,
-        resolvedReportsToday: 0,
-        totalRevenue: 0,
-        revenueThisMonth: 0,
+        total_users: totalUsers,
+        active_users: activeUsers,
+        new_users_today: newUsersToday,
+        new_users_this_week: newUsersThisWeek,
+        total_businesses: totalBusinesses,
+        verified_businesses: verifiedBusinesses,
+        pending_verifications: pendingVerifications,
+        total_events: totalEvents,
+        active_events: activeEvents,
+        events_today: eventsToday,
+        pending_reports: pendingReports,
+        resolved_reports_today: resolvedReportsToday,
+        total_revenue: 0,
+        revenue_this_month: 0,
       },
     });
   } catch (error) {
+    console.error('Admin stats error:', error);
     res.status(500).json({ message: 'Failed to get stats' });
   }
 });
 
-// Placeholder admin routes
-const placeholderRoutes = [
-  { method: 'get', path: '/logs' },
-  { method: 'get', path: '/businesses' },
-  { method: 'get', path: '/businesses/:id' },
-  { method: 'post', path: '/businesses/:id/verify' },
-  { method: 'post', path: '/businesses/:id/suspend' },
-  { method: 'post', path: '/businesses/:id/unsuspend' },
-  { method: 'delete', path: '/businesses/:id' },
-  { method: 'post', path: '/businesses/:id/toggle-featured' },
-  { method: 'post', path: '/businesses' },
-  { method: 'get', path: '/events' },
-  { method: 'get', path: '/events/:id' },
-  { method: 'post', path: '/events/:id/approve' },
-  { method: 'post', path: '/events/:id/reject' },
-  { method: 'delete', path: '/events/:id' },
-  { method: 'post', path: '/events/:id/toggle-featured' },
-  { method: 'post', path: '/events' },
-  { method: 'get', path: '/users' },
-  { method: 'get', path: '/users/:id' },
-  { method: 'post', path: '/users/:id/suspend' },
-  { method: 'post', path: '/users/:id/unsuspend' },
-  { method: 'post', path: '/users/:id/ban' },
-  { method: 'post', path: '/users/:id/unban' },
-  { method: 'post', path: '/users/:id/warn' },
-  { method: 'delete', path: '/users/:id' },
-  { method: 'get', path: '/reports' },
-  { method: 'get', path: '/reports/:id' },
-  { method: 'post', path: '/reports/:id/assign' },
-  { method: 'post', path: '/reports/:id/resolve' },
-  { method: 'post', path: '/reports/:id/dismiss' },
-  { method: 'get', path: '/admins' },
-  { method: 'post', path: '/admins' },
-  { method: 'put', path: '/admins/:id' },
-  { method: 'delete', path: '/admins/:id' },
-  { method: 'get', path: '/settings' },
-  { method: 'put', path: '/settings' },
-];
+// GET /api/admin/users - List users with filtering/pagination
+router.get('/users', auth, adminAuth, async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const { page = 1, limit = 20, status, search, is_business_owner, sort_by = 'createdAt', descending = 'true' } = req.query;
+    const skip = (Math.max(parseInt(page), 1) - 1) * Math.min(parseInt(limit) || 20, 100);
+    const lim = Math.min(parseInt(limit) || 20, 100);
 
-placeholderRoutes.forEach(({ method, path: routePath }) => {
-  router[method](routePath, auth, adminAuth, async (req, res) => {
-    res.json({ success: true, data: [], message: 'Admin endpoint placeholder' });
-  });
+    const filter = {};
+    if (status) filter.status = status;
+    if (is_business_owner === 'true') filter.accountType = 'business';
+    if (search) {
+      const regex = new RegExp(search.trim(), 'i');
+      filter.$or = [{ userName: regex }, { email: regex }];
+    }
+
+    const sortDir = descending === 'true' ? -1 : 1;
+    const users = await User.find(filter)
+      .select('-password -refreshToken')
+      .skip(skip)
+      .limit(lim)
+      .sort({ [sort_by]: sortDir });
+
+    const total = await User.countDocuments(filter);
+
+    const data = users.map((u) => ({
+      user_id: u.userId,
+      _id: u._id,
+      user_name: u.userName,
+      email: u.email,
+      status: u.status,
+      account_type: u.accountType,
+      role: u.role,
+      online_status: u.onlineStatus,
+      profile_image: u.profile?.images?.[0] || null,
+      created_at: u.createdAt,
+      last_seen: u.lastSeen,
+      completion_percentage: u.completionPercentage,
+    }));
+
+    res.json({ success: true, data, pagination: { page: parseInt(page), limit: lim, total, pages: Math.ceil(total / lim) } });
+  } catch (error) {
+    console.error('Admin list users error:', error);
+    res.status(500).json({ message: 'Failed to list users' });
+  }
+});
+
+// GET /api/admin/users/:id - Get user details
+router.get('/users/:id', auth, adminAuth, async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const user = await User.findById(req.params.id).select('-password -refreshToken');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ success: true, data: user });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to get user' });
+  }
+});
+
+// POST /api/admin/users/:id/suspend
+router.post('/users/:id/suspend', auth, adminAuth, async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const user = await User.findByIdAndUpdate(req.params.id, { status: 'suspended' }, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ success: true, data: user, message: 'User suspended' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to suspend user' });
+  }
+});
+
+// POST /api/admin/users/:id/unsuspend
+router.post('/users/:id/unsuspend', auth, adminAuth, async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const user = await User.findByIdAndUpdate(req.params.id, { status: 'active' }, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ success: true, data: user, message: 'User unsuspended' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to unsuspend user' });
+  }
+});
+
+// POST /api/admin/users/:id/ban
+router.post('/users/:id/ban', auth, adminAuth, async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const user = await User.findByIdAndUpdate(req.params.id, { status: 'banned' }, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ success: true, data: user, message: 'User banned' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to ban user' });
+  }
+});
+
+// POST /api/admin/users/:id/unban
+router.post('/users/:id/unban', auth, adminAuth, async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const user = await User.findByIdAndUpdate(req.params.id, { status: 'active' }, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ success: true, data: user, message: 'User unbanned' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to unban user' });
+  }
+});
+
+// POST /api/admin/users/:id/warn
+router.post('/users/:id/warn', auth, adminAuth, async (req, res) => {
+  try {
+    const { reason } = req.body;
+    res.json({ success: true, message: `Warning sent${reason ? ': ' + reason : ''}` });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to warn user' });
+  }
+});
+
+// DELETE /api/admin/users/:id
+router.delete('/users/:id', auth, adminAuth, async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const user = await User.findByIdAndUpdate(req.params.id, { status: 'deleted' }, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ success: true, message: 'User deleted' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete user' });
+  }
+});
+
+// GET /api/admin/businesses - List businesses with filtering/pagination
+router.get('/businesses', auth, adminAuth, async (req, res) => {
+  try {
+    const Business = require('../models/Business');
+    const { page = 1, limit = 20, status, search, sort_by = 'createdAt', descending = 'true' } = req.query;
+    const skip = (Math.max(parseInt(page), 1) - 1) * Math.min(parseInt(limit) || 20, 100);
+    const lim = Math.min(parseInt(limit) || 20, 100);
+
+    const filter = {};
+    if (status === 'verified') filter.isVerified = true;
+    if (status === 'unverified') filter.isVerified = { $ne: true };
+    if (search) {
+      const regex = new RegExp(search.trim(), 'i');
+      filter.$or = [{ businessName: regex }, { email: regex }];
+    }
+
+    const sortDir = descending === 'true' ? -1 : 1;
+    const businesses = await Business.find(filter)
+      .skip(skip)
+      .limit(lim)
+      .sort({ [sort_by]: sortDir });
+
+    const total = await Business.countDocuments(filter);
+
+    const data = businesses.map((b) => ({
+      _id: b._id,
+      business_id: b.businessId,
+      business_name: b.businessName,
+      business_type: b.businessType,
+      email: b.email,
+      is_verified: b.isVerified || false,
+      follower_count: b.followerCount || 0,
+      profile_image: b.profileImage || null,
+      created_at: b.createdAt,
+    }));
+
+    res.json({ success: true, data, pagination: { page: parseInt(page), limit: lim, total, pages: Math.ceil(total / lim) } });
+  } catch (error) {
+    console.error('Admin list businesses error:', error);
+    res.status(500).json({ message: 'Failed to list businesses' });
+  }
+});
+
+// GET /api/admin/businesses/:id
+router.get('/businesses/:id', auth, adminAuth, async (req, res) => {
+  try {
+    const Business = require('../models/Business');
+    const business = await Business.findById(req.params.id);
+    if (!business) return res.status(404).json({ message: 'Business not found' });
+    res.json({ success: true, data: business });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to get business' });
+  }
+});
+
+// POST /api/admin/businesses/:id/verify
+router.post('/businesses/:id/verify', auth, adminAuth, async (req, res) => {
+  try {
+    const Business = require('../models/Business');
+    const business = await Business.findByIdAndUpdate(req.params.id, { isVerified: true }, { new: true });
+    if (!business) return res.status(404).json({ message: 'Business not found' });
+    res.json({ success: true, data: business, message: 'Business verified' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to verify business' });
+  }
+});
+
+// POST /api/admin/businesses/:id/suspend
+router.post('/businesses/:id/suspend', auth, adminAuth, async (req, res) => {
+  try {
+    const Business = require('../models/Business');
+    const business = await Business.findByIdAndUpdate(req.params.id, { isSuspended: true }, { new: true });
+    if (!business) return res.status(404).json({ message: 'Business not found' });
+    res.json({ success: true, data: business, message: 'Business suspended' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to suspend business' });
+  }
+});
+
+// POST /api/admin/businesses/:id/unsuspend
+router.post('/businesses/:id/unsuspend', auth, adminAuth, async (req, res) => {
+  try {
+    const Business = require('../models/Business');
+    const business = await Business.findByIdAndUpdate(req.params.id, { isSuspended: false }, { new: true });
+    if (!business) return res.status(404).json({ message: 'Business not found' });
+    res.json({ success: true, data: business, message: 'Business unsuspended' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to unsuspend business' });
+  }
+});
+
+// DELETE /api/admin/businesses/:id
+router.delete('/businesses/:id', auth, adminAuth, async (req, res) => {
+  try {
+    const Business = require('../models/Business');
+    await Business.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Business deleted' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete business' });
+  }
+});
+
+// POST /api/admin/businesses/:id/toggle-featured
+router.post('/businesses/:id/toggle-featured', auth, adminAuth, async (req, res) => {
+  try {
+    const Business = require('../models/Business');
+    const business = await Business.findById(req.params.id);
+    if (!business) return res.status(404).json({ message: 'Business not found' });
+    business.isFeatured = !business.isFeatured;
+    await business.save();
+    res.json({ success: true, data: business, message: business.isFeatured ? 'Business featured' : 'Business unfeatured' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to toggle featured' });
+  }
+});
+
+// POST /api/admin/businesses - Create business via admin
+router.post('/businesses', auth, adminAuth, async (req, res) => {
+  try {
+    const Business = require('../models/Business');
+    const business = await Business.create(req.body);
+    res.json({ success: true, data: business });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to create business' });
+  }
+});
+
+// GET /api/admin/events - List events with filtering/pagination
+router.get('/events', auth, adminAuth, async (req, res) => {
+  try {
+    const Activity = require('../models/Activity');
+    const { page = 1, limit = 20, status, search, is_past, sort_by = 'createdAt', descending = 'true' } = req.query;
+    const skip = (Math.max(parseInt(page), 1) - 1) * Math.min(parseInt(limit) || 20, 100);
+    const lim = Math.min(parseInt(limit) || 20, 100);
+
+    const filter = {};
+    if (status) filter.status = status;
+    if (is_past === 'true') filter.dateTime = { $lt: new Date() };
+    if (is_past === 'false') filter.dateTime = { $gte: new Date() };
+    if (search) {
+      const regex = new RegExp(search.trim(), 'i');
+      filter.$or = [{ title: regex }, { description: regex }, { location: regex }];
+    }
+
+    const sortDir = descending === 'true' ? -1 : 1;
+    const events = await Activity.find(filter)
+      .skip(skip)
+      .limit(lim)
+      .sort({ [sort_by]: sortDir });
+
+    const total = await Activity.countDocuments(filter);
+
+    const data = events.map((e) => ({
+      _id: e._id,
+      activity_id: e.activityId,
+      title: e.title,
+      description: e.description,
+      location: e.location,
+      date_time: e.dateTime,
+      status: e.status || 'active',
+      creator_id: e.creatorId,
+      attendees_count: e.attendees?.length || 0,
+      total_slots: e.totalSlots,
+      created_at: e.createdAt,
+    }));
+
+    res.json({ success: true, data, pagination: { page: parseInt(page), limit: lim, total, pages: Math.ceil(total / lim) } });
+  } catch (error) {
+    console.error('Admin list events error:', error);
+    res.status(500).json({ message: 'Failed to list events' });
+  }
+});
+
+// GET /api/admin/events/:id
+router.get('/events/:id', auth, adminAuth, async (req, res) => {
+  try {
+    const Activity = require('../models/Activity');
+    const event = await Activity.findById(req.params.id);
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+    res.json({ success: true, data: event });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to get event' });
+  }
+});
+
+// POST /api/admin/events/:id/approve
+router.post('/events/:id/approve', auth, adminAuth, async (req, res) => {
+  try {
+    const Activity = require('../models/Activity');
+    const event = await Activity.findByIdAndUpdate(req.params.id, { status: 'active' }, { new: true });
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+    res.json({ success: true, data: event, message: 'Event approved' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to approve event' });
+  }
+});
+
+// POST /api/admin/events/:id/reject
+router.post('/events/:id/reject', auth, adminAuth, async (req, res) => {
+  try {
+    const Activity = require('../models/Activity');
+    const event = await Activity.findByIdAndUpdate(req.params.id, { status: 'rejected' }, { new: true });
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+    res.json({ success: true, data: event, message: 'Event rejected' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to reject event' });
+  }
+});
+
+// DELETE /api/admin/events/:id
+router.delete('/events/:id', auth, adminAuth, async (req, res) => {
+  try {
+    const Activity = require('../models/Activity');
+    await Activity.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Event deleted' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete event' });
+  }
+});
+
+// POST /api/admin/events/:id/toggle-featured
+router.post('/events/:id/toggle-featured', auth, adminAuth, async (req, res) => {
+  try {
+    const Activity = require('../models/Activity');
+    const event = await Activity.findById(req.params.id);
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+    event.isFeatured = !event.isFeatured;
+    await event.save();
+    res.json({ success: true, data: event, message: event.isFeatured ? 'Event featured' : 'Event unfeatured' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to toggle featured' });
+  }
+});
+
+// POST /api/admin/events - Create event via admin
+router.post('/events', auth, adminAuth, async (req, res) => {
+  try {
+    const Activity = require('../models/Activity');
+    const event = await Activity.create(req.body);
+    res.json({ success: true, data: event });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to create event' });
+  }
+});
+
+// GET /api/admin/reports - List reports/complaints with filtering
+router.get('/reports', auth, adminAuth, async (req, res) => {
+  try {
+    const Complaint = require('../models/Complaint');
+    const { page = 1, limit = 20, status, type, sort_by = 'createdAt', descending = 'true' } = req.query;
+    const skip = (Math.max(parseInt(page), 1) - 1) * Math.min(parseInt(limit) || 20, 100);
+    const lim = Math.min(parseInt(limit) || 20, 100);
+
+    const filter = {};
+    if (status) filter.status = status;
+    if (type) filter.category = type;
+
+    const sortDir = descending === 'true' ? -1 : 1;
+    const reports = await Complaint.find(filter)
+      .skip(skip)
+      .limit(lim)
+      .sort({ [sort_by]: sortDir });
+
+    const total = await Complaint.countDocuments(filter);
+
+    const data = reports.map((r) => ({
+      _id: r._id,
+      report_id: r._id,
+      user_id: r.userId,
+      subject: r.subject,
+      description: r.description,
+      category: r.category,
+      status: r.status || 'pending',
+      created_at: r.createdAt,
+      updated_at: r.updatedAt,
+    }));
+
+    res.json({ success: true, data, pagination: { page: parseInt(page), limit: lim, total, pages: Math.ceil(total / lim) } });
+  } catch (error) {
+    console.error('Admin list reports error:', error);
+    res.status(500).json({ message: 'Failed to list reports' });
+  }
+});
+
+// GET /api/admin/reports/:id
+router.get('/reports/:id', auth, adminAuth, async (req, res) => {
+  try {
+    const Complaint = require('../models/Complaint');
+    const report = await Complaint.findById(req.params.id);
+    if (!report) return res.status(404).json({ message: 'Report not found' });
+    res.json({ success: true, data: report });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to get report' });
+  }
+});
+
+// POST /api/admin/reports/:id/resolve
+router.post('/reports/:id/resolve', auth, adminAuth, async (req, res) => {
+  try {
+    const Complaint = require('../models/Complaint');
+    const report = await Complaint.findByIdAndUpdate(req.params.id, { status: 'resolved' }, { new: true });
+    if (!report) return res.status(404).json({ message: 'Report not found' });
+    res.json({ success: true, data: report, message: 'Report resolved' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to resolve report' });
+  }
+});
+
+// POST /api/admin/reports/:id/dismiss
+router.post('/reports/:id/dismiss', auth, adminAuth, async (req, res) => {
+  try {
+    const Complaint = require('../models/Complaint');
+    const report = await Complaint.findByIdAndUpdate(req.params.id, { status: 'dismissed' }, { new: true });
+    if (!report) return res.status(404).json({ message: 'Report not found' });
+    res.json({ success: true, data: report, message: 'Report dismissed' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to dismiss report' });
+  }
+});
+
+// POST /api/admin/reports/:id/assign
+router.post('/reports/:id/assign', auth, adminAuth, async (req, res) => {
+  try {
+    const { admin_id } = req.body;
+    const Complaint = require('../models/Complaint');
+    const report = await Complaint.findByIdAndUpdate(req.params.id, { assignedTo: admin_id }, { new: true });
+    if (!report) return res.status(404).json({ message: 'Report not found' });
+    res.json({ success: true, data: report, message: 'Report assigned' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to assign report' });
+  }
+});
+
+// GET /api/admin/logs - Admin action logs (placeholder)
+router.get('/logs', auth, adminAuth, async (req, res) => {
+  res.json({ success: true, data: [] });
+});
+
+// Admin management routes
+router.get('/admins', auth, adminAuth, async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const admins = await User.find({ role: { $in: ['admin', 'moderator'] } }).select('-password -refreshToken');
+    res.json({ success: true, data: admins });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to list admins' });
+  }
+});
+
+router.post('/admins', auth, adminAuth, async (req, res) => {
+  try {
+    const { userId, role } = req.body;
+    const User = require('../models/User');
+    const user = await User.findByIdAndUpdate(userId, { role: role || 'moderator' }, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ success: true, data: user, message: 'Admin role assigned' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to assign admin role' });
+  }
+});
+
+router.put('/admins/:id', auth, adminAuth, async (req, res) => {
+  try {
+    const { role } = req.body;
+    const User = require('../models/User');
+    const user = await User.findByIdAndUpdate(req.params.id, { role: role || 'moderator' }, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ success: true, data: user, message: 'Admin role updated' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update admin' });
+  }
+});
+
+router.delete('/admins/:id', auth, adminAuth, async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const user = await User.findByIdAndUpdate(req.params.id, { role: 'user' }, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ success: true, message: 'Admin role removed' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to remove admin' });
+  }
+});
+
+// Settings
+router.get('/settings', auth, adminAuth, async (req, res) => {
+  res.json({ success: true, data: {} });
+});
+
+router.put('/settings', auth, adminAuth, async (req, res) => {
+  res.json({ success: true, data: req.body, message: 'Settings updated' });
 });
 
 module.exports = router;

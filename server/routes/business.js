@@ -783,7 +783,7 @@ router.get('/subscription-status', auth, async (req, res) => {
 // Analytics
 // ============================================================
 
-// GET /api/business/analytics - Business analytics
+// GET /api/business/analytics - Business analytics with period filtering
 router.get('/analytics', auth, async (req, res) => {
   try {
     const business = await Business.findOne({ userId: req.userId });
@@ -791,7 +791,31 @@ router.get('/analytics', auth, async (req, res) => {
       return res.status(404).json({ message: 'Business not found' });
     }
 
-    const events = await BusinessEvent.find({ businessId: business._id });
+    // Support period filtering: 7d, 30d, 90d, all (default: all)
+    const period = req.query.period || 'all';
+    const now = new Date();
+    let periodStart = null;
+    let daysInPeriod = 7;
+
+    if (period === '7d') {
+      periodStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      daysInPeriod = 7;
+    } else if (period === '30d') {
+      periodStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      daysInPeriod = 30;
+    } else if (period === '90d') {
+      periodStart = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+      daysInPeriod = 90;
+    }
+
+    // Build event query with optional date filter
+    const eventQuery = { businessId: business._id };
+    if (periodStart) {
+      eventQuery.createdAt = { $gte: periodStart };
+    }
+
+    const events = await BusinessEvent.find(eventQuery);
+    const allEvents = await BusinessEvent.find({ businessId: business._id });
 
     const totalViews = events.reduce((sum, e) => sum + (e.views || 0), 0);
     const totalClicks = events.reduce((sum, e) => sum + (e.clicks || 0), 0);
@@ -799,7 +823,7 @@ router.get('/analytics', auth, async (req, res) => {
     const totalFollowers = business.followerCount || 0;
     const totalEvents = events.length;
 
-    const topEvents = events
+    const topEvents = [...events]
       .sort((a, b) => (b.views || 0) - (a.views || 0))
       .slice(0, 5)
       .map((e) => ({
@@ -810,14 +834,25 @@ router.get('/analytics', auth, async (req, res) => {
         attendees: e.attendeesCount || 0,
       }));
 
+    // Build views_by_day for the period
     const viewsByDay = {};
-    const now = new Date();
-    for (let i = 6; i >= 0; i--) {
+    const viewDays = Math.min(daysInPeriod, 30); // Cap chart at 30 days
+    for (let i = viewDays - 1; i >= 0; i--) {
       const date = new Date(now);
       date.setDate(date.getDate() - i);
       const key = date.toISOString().split('T')[0];
       viewsByDay[key] = 0;
     }
+
+    // Populate views_by_day from events (based on event creation date)
+    events.forEach((e) => {
+      if (e.createdAt) {
+        const key = new Date(e.createdAt).toISOString().split('T')[0];
+        if (viewsByDay[key] !== undefined) {
+          viewsByDay[key] += e.views || 0;
+        }
+      }
+    });
 
     res.json({
       success: true,
@@ -825,7 +860,7 @@ router.get('/analytics', auth, async (req, res) => {
         total_views: totalViews,
         total_clicks: totalClicks,
         total_followers: totalFollowers,
-        total_events: totalEvents,
+        total_events: allEvents.length,
         total_attendees: totalAttendees,
         view_rate: totalViews > 0 ? parseFloat(((totalClicks / totalViews) * 100).toFixed(2)) : 0,
         click_rate: totalViews > 0 ? parseFloat(((totalClicks / totalViews) * 100).toFixed(2)) : 0,

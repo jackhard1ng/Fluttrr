@@ -84,9 +84,9 @@ router.post('/send-otp', async (req, res) => {
       return res.status(409).json({ success: false, message: 'Email is already registered' });
     }
 
-    // Hash the password before storing it temporarily
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // Pre-hash the password before storing it in the temporary OTP record.
+    // The pre-save hook on User model detects bcrypt hashes and skips re-hashing.
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     const otp = generateOtp();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
@@ -398,13 +398,13 @@ router.post('/reset-password', async (req, res) => {
       return res.status(400).json({ success: false, message: 'resetToken or email is required' });
     }
 
-    const user = await User.findOne({ email: targetEmail });
+    const user = await User.findOne({ email: targetEmail }).select('+password');
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(newPassword, salt);
+    // Set plain password - the pre-save hook will hash it
+    user.password = newPassword;
     await user.save();
 
     return res.json({ success: true, message: 'Password reset successfully' });
@@ -441,8 +441,8 @@ router.post('/change-password', auth, async (req, res) => {
       return res.status(401).json({ success: false, message: 'Current password is incorrect' });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(newPassword, salt);
+    // Set plain password - the pre-save hook will hash it
+    user.password = newPassword;
     await user.save();
 
     return res.json({ success: true, message: 'Password changed successfully' });
