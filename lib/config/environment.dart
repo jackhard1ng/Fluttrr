@@ -15,9 +15,9 @@ class AppConfig {
       case Environment.development:
         return 'http://localhost:3000';
       case Environment.staging:
-        return 'https://staging-api.fluttrr.app';
+        return 'https://staging-api.fluttrr.com';
       case Environment.production:
-        return 'https://api.fluttrr.app';
+        return 'https://api.fluttrr.com';
     }
   }
 
@@ -27,9 +27,9 @@ class AppConfig {
       case Environment.development:
         return 'http://localhost:3000';
       case Environment.staging:
-        return 'https://staging-api.fluttrr.app';
+        return 'https://staging-api.fluttrr.com';
       case Environment.production:
-        return 'https://api.fluttrr.app';
+        return 'https://api.fluttrr.com';
     }
   }
 
