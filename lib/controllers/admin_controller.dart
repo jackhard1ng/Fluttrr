@@ -108,7 +108,7 @@ class AdminController extends GetxController {
         // Create an owner admin model for this user
         currentAdmin.value = AdminUserModel(
           adminId: 'local_owner',
-          userId: profileController.currentUser.value?.id?.toString() ?? 'owner',
+          userId: profileController.currentUser.value?.userId?.toString() ?? 'owner',
           name: profileController.currentUser.value?.userName ?? 'Owner',
           email: userEmail,
           role: AdminRole.owner,

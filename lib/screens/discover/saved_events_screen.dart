@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../constants/routes.dart';
 import '../../constants/utils.dart';
 import '../../widgets/event_bookmark.dart';
 import '../../widgets/advanced_ux.dart';

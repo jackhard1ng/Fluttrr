@@ -317,6 +317,11 @@ class InviteGuestsScreen extends StatelessWidget {
     String statusText;
 
     switch (guest.status) {
+      case GuestStatus.invited:
+        statusColor = Colors.orange;
+        statusIcon = Icons.mail_outline;
+        statusText = 'Invited';
+        break;
       case GuestStatus.pending:
         statusColor = Colors.orange;
         statusIcon = Icons.hourglass_empty;
@@ -331,6 +336,11 @@ class InviteGuestsScreen extends StatelessWidget {
         statusColor = Colors.red;
         statusIcon = Icons.cancel;
         statusText = 'Declined';
+        break;
+      case GuestStatus.attended:
+        statusColor = Colors.blue;
+        statusIcon = Icons.verified;
+        statusText = 'Attended';
         break;
       case GuestStatus.checkedIn:
         statusColor = Colors.blue;

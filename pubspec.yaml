@@ -51,6 +51,7 @@ dependencies:
   geocoding: ^3.0.0                      # For geocoding (address to coordinates)
   sensors_plus: ^6.0.1                   # For shake detection (feedback)
   connectivity_plus: ^6.0.5              # For network connectivity status
+  share_plus: ^10.1.4                    # For sharing content to other apps
 
 dev_dependencies:
   flutter_test:

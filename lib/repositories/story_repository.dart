@@ -8,7 +8,7 @@ import '../constants/api_endpoints.dart';
 
 /// Repository for story-related API calls
 class StoryRepository {
-  final SecureHttpClient _client = SecureHttpClient();
+  final SecureHttpClient _client = SecureHttpClient.instance;
 
   /// Get all active stories (friends + events)
   Future<Map<String, dynamic>> getStories() async {

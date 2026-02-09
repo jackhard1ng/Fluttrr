@@ -26,8 +26,8 @@ class FollowBusinessButton extends StatelessWidget {
 
     return Obx(() {
       final following = controller.isFollowingBusiness(businessId);
-      final isLoading = controller.isToggling.value &&
-          controller.togglingBusinessId.value == businessId;
+      final isLoading = controller.isFollowing.value &&
+          controller.loggingBusinessId == businessId;
 
       if (compact) {
         return _buildCompactButton(following, isLoading, controller);

@@ -106,7 +106,7 @@ class StoryController extends GetxController {
 
       if (story != null) {
         myStories.insert(0, story);
-        _analytics.trackEvent('story_created', {
+        _analytics.trackEvent('story_created', parameters: {
           'type': type.name,
           'has_event': eventId != null,
           'has_caption': caption != null && caption.isNotEmpty,
@@ -209,7 +209,7 @@ class StoryController extends GetxController {
       );
     }
 
-    _analytics.trackEvent('story_viewed', {'story_id': story.storyId});
+    _analytics.trackEvent('story_viewed', parameters: {'story_id': story.storyId});
   }
 
   /// Add reaction to current story
@@ -230,7 +230,7 @@ class StoryController extends GetxController {
         duration: const Duration(seconds: 1),
       );
 
-      _analytics.trackEvent('story_reaction', {
+      _analytics.trackEvent('story_reaction', parameters: {
         'story_id': story.storyId,
         'emoji': emoji,
       });

@@ -1209,7 +1209,7 @@ class _TrendingCardState extends State<_TrendingCard> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(emoji, style: const TextStyle(fontSize: 32)),
+                  Text(widget.emoji, style: const TextStyle(fontSize: 32)),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
@@ -1221,7 +1221,7 @@ class _TrendingCardState extends State<_TrendingCard> {
                         const Icon(Icons.trending_up, size: 12, color: Colors.white),
                         const SizedBox(width: 4),
                         Text(
-                          trending,
+                          widget.trending,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 10,
@@ -1235,7 +1235,7 @@ class _TrendingCardState extends State<_TrendingCard> {
               ),
               const Spacer(),
               Text(
-                title,
+                widget.title,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
@@ -1243,7 +1243,7 @@ class _TrendingCardState extends State<_TrendingCard> {
               ),
               const SizedBox(height: 4),
               Text(
-                location,
+                widget.location,
                 style: TextStyle(
                   color: AppColors.mediumGrey,
                   fontSize: 12,
@@ -1255,7 +1255,7 @@ class _TrendingCardState extends State<_TrendingCard> {
                   Icon(Icons.people, size: 14, color: AppColors.darkGrey),
                   const SizedBox(width: 4),
                   Text(
-                    '$attendees interested',
+                    '${widget.attendees} interested',
                     style: TextStyle(
                       color: AppColors.darkGrey,
                       fontSize: 12,

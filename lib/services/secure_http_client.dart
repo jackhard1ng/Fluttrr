@@ -192,7 +192,7 @@ class SecureHttpClient {
   Future<HttpResponse> get(String endpoint) async {
     try {
       final client = await getClient();
-      final uri = Uri.parse('${AppConfig.apiBaseUrl}$endpoint');
+      final uri = Uri.parse('${AppConfig.baseUrl}$endpoint');
       final response = await client.get(
         uri,
         headers: await _getHeaders(),
@@ -208,7 +208,7 @@ class SecureHttpClient {
   Future<HttpResponse> post(String endpoint, Map<String, dynamic> body) async {
     try {
       final client = await getClient();
-      final uri = Uri.parse('${AppConfig.apiBaseUrl}$endpoint');
+      final uri = Uri.parse('${AppConfig.baseUrl}$endpoint');
       final response = await client.post(
         uri,
         headers: await _getHeaders(),
@@ -225,7 +225,7 @@ class SecureHttpClient {
   Future<HttpResponse> put(String endpoint, Map<String, dynamic> body) async {
     try {
       final client = await getClient();
-      final uri = Uri.parse('${AppConfig.apiBaseUrl}$endpoint');
+      final uri = Uri.parse('${AppConfig.baseUrl}$endpoint');
       final response = await client.put(
         uri,
         headers: await _getHeaders(),
@@ -242,7 +242,7 @@ class SecureHttpClient {
   Future<HttpResponse> delete(String endpoint) async {
     try {
       final client = await getClient();
-      final uri = Uri.parse('${AppConfig.apiBaseUrl}$endpoint');
+      final uri = Uri.parse('${AppConfig.baseUrl}$endpoint');
       final response = await client.delete(
         uri,
         headers: await _getHeaders(),
@@ -262,7 +262,7 @@ class SecureHttpClient {
     Map<String, String>? additionalFields,
   }) async {
     try {
-      final uri = Uri.parse('${AppConfig.apiBaseUrl}$endpoint');
+      final uri = Uri.parse('${AppConfig.baseUrl}$endpoint');
       final request = http.MultipartRequest('POST', uri);
 
       request.headers.addAll(await _getHeaders(isMultipart: true));
