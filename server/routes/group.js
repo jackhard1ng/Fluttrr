@@ -30,7 +30,7 @@ router.post('/create', auth, async (req, res) => {
     }
 
     const userId = req.user.userId;
-    const userName = req.user.userName || req.user.name || 'Unknown';
+    const userName = req.user.userName || 'Unknown';
 
     const group = await Group.create({
       name,
@@ -62,7 +62,7 @@ router.post('/create', auth, async (req, res) => {
         {
           userId,
           userName,
-          userImage: req.user.profileImage || null,
+          userImage: req.user.profile?.images?.[0] || null,
           role: 'owner',
           joinedAt: new Date(),
           isActive: true,
@@ -264,8 +264,8 @@ router.post('/join', auth, async (req, res) => {
         $push: {
           joinRequests: {
             userId,
-            userName: req.user.userName || req.user.name || 'Unknown',
-            userImage: req.user.profileImage || null,
+            userName: req.user.userName || 'Unknown',
+            userImage: req.user.profile?.images?.[0] || null,
             message: message || null,
             requestedAt: new Date(),
             isPending: true,
@@ -279,8 +279,8 @@ router.post('/join', auth, async (req, res) => {
           member_id: null,
           group_id,
           user_id: userId,
-          user_name: req.user.userName || req.user.name || 'Unknown',
-          user_image: req.user.profileImage || null,
+          user_name: req.user.userName || 'Unknown',
+          user_image: req.user.profile?.images?.[0] || null,
           role: 'pending',
           joined_at: new Date().toISOString(),
           is_active: false,
@@ -290,8 +290,8 @@ router.post('/join', auth, async (req, res) => {
     } else {
       const newMember = {
         userId,
-        userName: req.user.userName || req.user.name || 'Unknown',
-        userImage: req.user.profileImage || null,
+        userName: req.user.userName || 'Unknown',
+        userImage: req.user.profile?.images?.[0] || null,
         role: 'member',
         joinedAt: new Date(),
         isActive: true,

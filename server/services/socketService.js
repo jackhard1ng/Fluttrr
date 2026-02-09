@@ -1,5 +1,6 @@
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
+const { v4: uuidv4 } = require('uuid');
 const config = require('../config/config');
 
 let io;
@@ -39,9 +40,9 @@ const initSocket = (server) => {
     // Handle sending messages
     socket.on('send_message', (data) => {
       const { receiverId, content, imageUrl, type } = data;
-      const receiverSocketId = onlineUsers.get(receiverId?.toString());
 
       const message = {
+        messageId: uuidv4(),
         senderId: userId,
         receiverId,
         content,
@@ -50,11 +51,7 @@ const initSocket = (server) => {
         timestamp: new Date().toISOString(),
       };
 
-      // Send to receiver if online
-      if (receiverSocketId) {
-        io.to(receiverSocketId).emit('new_message', message);
-      }
-      // Also send to receiver's room (handles multiple connections)
+      // Send to receiver's room (handles single and multiple connections)
       io.to(`user_${receiverId}`).emit('new_message', message);
     });
 
@@ -84,6 +81,7 @@ const initSocket = (server) => {
     socket.on('group_message', (data) => {
       const { roomId, content, imageUrl, type } = data;
       const message = {
+        messageId: uuidv4(),
         senderId: userId,
         roomId,
         content,

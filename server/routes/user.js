@@ -21,8 +21,8 @@ const formatUserForClient = (user) => {
       interests: user.profile?.interests || [],
       images: user.profile?.images || [],
       location: user.profile?.location || null,
-      coverImage: user.profile?.coverImages || [],
-      Language: user.profile?.languages || [],
+      coverImage: user.profile?.coverImage || [],
+      Language: user.profile?.Language || [],
       latitude: user.profile?.latitude || null,
       longitude: user.profile?.longitude || null,
     },
@@ -36,12 +36,12 @@ const formatUserForClient = (user) => {
     isLowProfile: user.isLowProfile || false,
     phoneVerification: user.phoneVerification
       ? {
-          phone_number: user.phoneVerification.phoneNumber || null,
-          country_code: user.phoneVerification.countryCode || null,
+          phone_number: user.phoneVerification.phone_number || null,
+          country_code: user.phoneVerification.country_code || null,
           status: user.phoneVerification.status || 'unverified',
-          verified_at: user.phoneVerification.verifiedAt || null,
-          otp_sent_at: user.phoneVerification.otpSentAt || null,
-          otp_attempts: user.phoneVerification.otpAttempts || 0,
+          verified_at: user.phoneVerification.verified_at || null,
+          otp_sent_at: user.phoneVerification.otp_sent_at || null,
+          otp_attempts: user.phoneVerification.otp_attempts || 0,
         }
       : null,
     averageRating: user.averageRating || 0,
@@ -63,7 +63,7 @@ const calculateCompletionPercentage = (user) => {
     !!(user.profile?.interests && user.profile.interests.length > 0),
     !!(user.profile?.images && user.profile.images.length > 0),
     !!user.profile?.location,
-    !!(user.profile?.languages && user.profile.languages.length > 0),
+    !!(user.profile?.Language && user.profile.Language.length > 0),
     !!(user.phoneVerification && user.phoneVerification.status === 'verified'),
   ];
 
@@ -154,7 +154,7 @@ router.put('/update', auth, async (req, res) => {
     if (bio !== undefined) user.profile.bio = bio;
     if (interests !== undefined) user.profile.interests = interests;
     if (location !== undefined) user.profile.location = location;
-    if (Language !== undefined) user.profile.languages = Language;
+    if (Language !== undefined) user.profile.Language = Language;
 
     user.completionPercentage = calculateCompletionPercentage(user);
 
@@ -225,7 +225,7 @@ router.post('/online', auth, async (req, res) => {
   try {
     await User.findByIdAndUpdate(req.userId, {
       onlineStatus: 'online',
-      lastActive: new Date(),
+      lastSeen: new Date(),
     });
 
     return res.json({ success: true });
@@ -243,7 +243,7 @@ router.post('/offline', auth, async (req, res) => {
   try {
     await User.findByIdAndUpdate(req.userId, {
       onlineStatus: 'offline',
-      lastActive: new Date(),
+      lastSeen: new Date(),
     });
 
     return res.json({ success: true });
@@ -327,7 +327,7 @@ router.get('/match', auth, async (req, res) => {
       .select('-password')
       .skip(skip)
       .limit(limit)
-      .sort({ lastActive: -1 });
+      .sort({ lastSeen: -1 });
 
     const total = await User.countDocuments(filter);
 
@@ -688,15 +688,15 @@ router.post('/send-phone-otp', auth, async (req, res) => {
     // Generate a 4-digit OTP
     const otp = String(Math.floor(1000 + Math.random() * 9000));
 
-    // Store phone verification data on the user
+    // Store phone verification data on the user (schema uses snake_case)
     user.phoneVerification = {
-      phoneNumber: phone_number,
-      countryCode: country_code,
+      phone_number: phone_number,
+      country_code: country_code,
       status: 'pending',
       otp,
-      otpSentAt: new Date(),
-      otpExpiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
-      otpAttempts: 0,
+      otp_sent_at: new Date(),
+      otp_expires_at: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+      otp_attempts: 0,
     };
     await user.save();
 
@@ -733,17 +733,17 @@ router.post('/verify-phone-otp', auth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'No pending phone verification' });
     }
 
-    if (pv.phoneNumber !== phone_number || pv.countryCode !== country_code) {
+    if (pv.phone_number !== phone_number || pv.country_code !== country_code) {
       return res.status(400).json({ success: false, message: 'Phone number does not match' });
     }
 
-    if (pv.otpExpiresAt && pv.otpExpiresAt < new Date()) {
+    if (pv.otp_expires_at && pv.otp_expires_at < new Date()) {
       return res.status(400).json({ success: false, message: 'OTP has expired. Please request a new one' });
     }
 
     // Track attempts
-    pv.otpAttempts = (pv.otpAttempts || 0) + 1;
-    if (pv.otpAttempts > 5) {
+    pv.otp_attempts = (pv.otp_attempts || 0) + 1;
+    if (pv.otp_attempts > 5) {
       return res.status(429).json({ success: false, message: 'Too many attempts. Please request a new OTP' });
     }
 
@@ -754,12 +754,12 @@ router.post('/verify-phone-otp', auth, async (req, res) => {
 
     // OTP is valid – mark as verified
     user.phoneVerification = {
-      phoneNumber: phone_number,
-      countryCode: country_code,
+      phone_number: phone_number,
+      country_code: country_code,
       status: 'verified',
-      verifiedAt: new Date(),
-      otpSentAt: pv.otpSentAt,
-      otpAttempts: pv.otpAttempts,
+      verified_at: new Date(),
+      otp_sent_at: pv.otp_sent_at,
+      otp_attempts: pv.otp_attempts,
     };
 
     // Recalculate completion since phone verification affects it
@@ -769,12 +769,12 @@ router.post('/verify-phone-otp', auth, async (req, res) => {
     return res.json({
       success: true,
       data: {
-        phone_number: user.phoneVerification.phoneNumber,
-        country_code: user.phoneVerification.countryCode,
+        phone_number: user.phoneVerification.phone_number,
+        country_code: user.phoneVerification.country_code,
         status: user.phoneVerification.status,
-        verified_at: user.phoneVerification.verifiedAt,
-        otp_sent_at: user.phoneVerification.otpSentAt,
-        otp_attempts: user.phoneVerification.otpAttempts,
+        verified_at: user.phoneVerification.verified_at,
+        otp_sent_at: user.phoneVerification.otp_sent_at,
+        otp_attempts: user.phoneVerification.otp_attempts,
       },
     });
   } catch (error) {
@@ -800,12 +800,12 @@ router.get('/phone-status', auth, async (req, res) => {
       success: true,
       data: pv
         ? {
-            phone_number: pv.phoneNumber || null,
-            country_code: pv.countryCode || null,
+            phone_number: pv.phone_number || null,
+            country_code: pv.country_code || null,
             status: pv.status || 'unverified',
-            verified_at: pv.verifiedAt || null,
-            otp_sent_at: pv.otpSentAt || null,
-            otp_attempts: pv.otpAttempts || 0,
+            verified_at: pv.verified_at || null,
+            otp_sent_at: pv.otp_sent_at || null,
+            otp_attempts: pv.otp_attempts || 0,
           }
         : {
             phone_number: null,

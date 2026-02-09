@@ -20,6 +20,8 @@ const phoneVerificationSchema = new mongoose.Schema(
     verified_at: { type: Date, default: null },
     otp_sent_at: { type: Date, default: null },
     otp_attempts: { type: Number, default: 0 },
+    otp: { type: String, default: null },
+    otp_expires_at: { type: Date, default: null },
   },
   { _id: false }
 );
@@ -91,12 +93,17 @@ const userSchema = new mongoose.Schema(
       enum: ['regular', 'business'],
       default: 'regular',
     },
+    googleId: { type: String, default: null },
     businessName: { type: String, default: null },
     isLowProfile: { type: Boolean, default: false },
     fcmToken: { type: String, default: null },
     phoneVerification: { type: phoneVerificationSchema, default: () => ({}) },
     averageRating: { type: Number, default: 0, min: 0, max: 5 },
     totalRatings: { type: Number, default: 0, min: 0 },
+    activities: {
+      created: { type: Number, default: 0 },
+      joined: { type: Number, default: 0 },
+    },
     followedBusinessIds: { type: [Number], default: [] },
     status: {
       type: String,

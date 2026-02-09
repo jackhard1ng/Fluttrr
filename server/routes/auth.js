@@ -157,24 +157,13 @@ router.post('/verify-otp', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Registration data missing. Please restart registration' });
     }
 
-    // Generate a numeric userId (auto-increment style)
-    const lastUser = await User.findOne().sort({ userId: -1 }).select('userId');
-    const nextUserId = lastUser && lastUser.userId ? lastUser.userId + 1 : 1;
-
+    // userId is auto-assigned by the pre-save hook via Counter model
     const user = await User.create({
-      userId: nextUserId,
       userName,
       email: normalizedEmail,
       password,
       onlineStatus: 'online',
       accountType: 'regular',
-      isLowProfile: false,
-      completionPercentage: 0,
-      profile: {},
-      activities: { created: 0, joined: 0 },
-      averageRating: 0,
-      totalRatings: 0,
-      followedBusinessIds: [],
     });
 
     // Clean up the OTP record
@@ -239,24 +228,15 @@ router.post('/google-login', async (req, res) => {
 
     if (!user) {
       // Create a new account for this Google user
-      const lastUser = await User.findOne().sort({ userId: -1 }).select('userId');
-      const nextUserId = lastUser && lastUser.userId ? lastUser.userId + 1 : 1;
-
+      // userId is auto-assigned by the pre-save hook via Counter model
+      const crypto = require('crypto');
       user = await User.create({
-        userId: nextUserId,
         userName: googleName,
         email: normalizedEmail,
-        password: await bcrypt.hash(require('crypto').randomBytes(32).toString('hex'), 10),
+        password: crypto.randomBytes(32).toString('hex'),
         googleId: googlePayload?.sub || null,
         onlineStatus: 'online',
         accountType: 'regular',
-        isLowProfile: false,
-        completionPercentage: 0,
-        profile: {},
-        activities: { created: 0, joined: 0 },
-        averageRating: 0,
-        totalRatings: 0,
-        followedBusinessIds: [],
       });
       isNewUser = true;
     } else {

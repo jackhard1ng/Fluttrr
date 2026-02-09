@@ -235,7 +235,7 @@ router.post('/create-activity', auth, async (req, res) => {
       attendees: [],
       savedBy: [],
       creatorId: req.user.userId,
-      creatorName: req.user.name || req.user.username || 'Unknown',
+      creatorName: req.user.userName || 'Unknown',
       creatorImages: req.user.images || [],
     });
 
@@ -354,7 +354,7 @@ router.post('/join', auth, async (req, res) => {
 
     activity.attendees.push({
       userId: req.user.userId,
-      name: req.user.name || req.user.username || 'Unknown',
+      name: req.user.userName || 'Unknown',
       images: req.user.images || [],
     });
     activity.remaining_slots -= 1;
@@ -445,7 +445,7 @@ router.post('/feedback', auth, async (req, res) => {
     );
     const feedbackEntry = {
       userId: req.user.userId,
-      userName: req.user.name || req.user.username || 'Unknown',
+      userName: req.user.userName || 'Unknown',
       rating: parseInt(rating),
       comment: comment || '',
       createdAt: new Date(),
@@ -513,7 +513,7 @@ router.post('/rate-attendee', auth, async (req, res) => {
 
     const ratingEntry = {
       raterId: req.user.userId,
-      raterName: req.user.name || req.user.username || 'Unknown',
+      raterName: req.user.userName || 'Unknown',
       ratedUserId: rated_user_id,
       rating: parseInt(rating),
       tags: tags || [],
@@ -1045,7 +1045,7 @@ router.post('/waitlist/join', auth, async (req, res) => {
     const entry = {
       waitlistId: Date.now(),
       userId: req.user.userId,
-      userName: req.user.name || req.user.username || 'Unknown',
+      userName: req.user.userName || 'Unknown',
       note: note || '',
       guestsCount: parseInt(guests_count) || 0,
       status: 'waiting',
@@ -1152,7 +1152,7 @@ router.post('/waitlist/respond', auth, async (req, res) => {
       if (!alreadyJoined && activity.remaining_slots > 0) {
         activity.attendees.push({
           userId: req.user.userId,
-          name: req.user.name || req.user.username || 'Unknown',
+          name: req.user.userName || 'Unknown',
           images: req.user.images || [],
         });
         activity.remaining_slots -= 1;
@@ -1278,7 +1278,7 @@ router.post('/recurring/create', auth, async (req, res) => {
       attendees: [],
       savedBy: [],
       creatorId: req.user.userId,
-      creatorName: req.user.name || req.user.username || 'Unknown',
+      creatorName: req.user.userName || 'Unknown',
       creatorImages: req.user.images || [],
       isRecurringSeries: true,
       seriesId,

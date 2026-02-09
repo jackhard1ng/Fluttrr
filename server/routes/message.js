@@ -22,7 +22,7 @@ router.post('/send', auth, async (req, res) => {
     const message = new Message({
       senderId: req.user.userId,
       receiverId: parseInt(receiverId),
-      senderName: req.user.name || req.user.username || 'Unknown',
+      senderName: req.user.userName || 'Unknown',
       content: content || '',
       imageUrl: imageUrl || '',
       type: imageUrl ? 'image' : 'text',
@@ -383,7 +383,7 @@ router.post('/sendB', auth, async (req, res) => {
     const message = new Message({
       senderId: req.user.userId,
       receiverId: parseInt(businessId),
-      senderName: req.user.name || req.user.username || 'Unknown',
+      senderName: req.user.userName || 'Unknown',
       content: content || '',
       imageUrl: imageUrl || '',
       type: imageUrl ? 'image' : 'text',
