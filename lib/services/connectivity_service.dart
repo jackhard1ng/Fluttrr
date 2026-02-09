@@ -39,8 +39,17 @@ class ConnectivityService extends GetxService {
   }
 
   /// Check if device has internet connectivity
-  /// Tries multiple domains for reliability in different regions
+  /// Tries multiple domains for reliability in different regions.
+  /// On failure, defaults to assuming connected so the actual HTTP
+  /// request can determine real connectivity (avoids false negatives
+  /// from DNS issues, firewalls, or platform limitations).
   Future<bool> checkConnectivity() async {
+    // On web, dart:io DNS lookups aren't available - assume connected
+    if (kIsWeb) {
+      isConnected.value = true;
+      return true;
+    }
+
     if (isChecking.value) return isConnected.value;
 
     isChecking.value = true;
@@ -63,15 +72,19 @@ class ConnectivityService extends GetxService {
         }
       }
 
-      // All domains failed
-      isConnected.value = false;
+      // All DNS lookups failed - but this doesn't necessarily mean
+      // no internet (DNS could be blocked/slow). Default to connected
+      // and let the actual HTTP request determine real connectivity.
+      debugPrint('ConnectivityService: All DNS lookups failed, assuming connected');
+      isConnected.value = true;
       isChecking.value = false;
-      return false;
+      return true;
     } catch (e) {
       debugPrint('Connectivity check error: $e');
-      isConnected.value = false;
+      // Default to connected - let the actual request fail naturally
+      isConnected.value = true;
       isChecking.value = false;
-      return false;
+      return true;
     }
   }
 

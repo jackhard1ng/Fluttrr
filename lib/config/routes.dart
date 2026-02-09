@@ -670,6 +670,16 @@ class Nav {
             : null,
       );
 
+  // User
+  static void toUserProfile({required String userId, String? userName}) =>
+      Get.toNamed(
+        AppRoutes.profile,
+        arguments: {
+          'userId': userId,
+          'userName': userName,
+        },
+      );
+
   // Common
   static void back() => Get.back();
   static void backUntilHome() => Get.offAllNamed(AppRoutes.home);

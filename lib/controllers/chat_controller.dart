@@ -296,7 +296,7 @@ class ChatController extends GetxController {
 
     try {
       final response = await _chatRepository.sendMessage(
-        receiverId: conv.otherUserId,
+        receiverId: conv.otherUserId!,
         content: text,
         imageUrl: imageUrl,
       );

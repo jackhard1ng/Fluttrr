@@ -298,7 +298,7 @@ class InviteGuestsScreen extends StatelessWidget {
             Obx(() => ElevatedButton.icon(
               onPressed: controller.isInviting.value
                   ? null
-                  : () => controller.inviteGuest(eventId),
+                  : () => controller.inviteGuest(eventId: eventId),
               icon: const Icon(Icons.send),
               label: const Text('Send Invite'),
               style: ElevatedButton.styleFrom(

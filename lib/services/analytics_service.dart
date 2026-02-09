@@ -376,7 +376,9 @@ class AnalyticsService {
     try {
       await _analytics.logSearch(
         searchTerm: searchTerm,
-        numberOfResults: resultsCount,
+        parameters: resultsCount != null
+            ? {'number_of_results': resultsCount}
+            : null,
       );
     } catch (e) {
       debugPrint('Analytics logSearch error: $e');

@@ -303,10 +303,14 @@ class SecureHttpClient {
   HttpResponse _parseResponse(http.Response response) {
     try {
       final data = response.body.isNotEmpty ? jsonDecode(response.body) : null;
+      String? errorMessage;
+      if (response.statusCode >= 400 && data is Map<String, dynamic>) {
+        errorMessage = data['message']?.toString();
+      }
       return HttpResponse(
         statusCode: response.statusCode,
         data: data,
-        error: response.statusCode >= 400 ? data?['message']?.toString() : null,
+        error: errorMessage,
       );
     } catch (e) {
       return HttpResponse(
