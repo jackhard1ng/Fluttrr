@@ -100,7 +100,7 @@ router.post('/send-otp', async (req, res) => {
         type: 'registration',
         expiresAt,
         // Store temporary registration data alongside the OTP
-        registrationData: {
+        userData: {
           userName,
           password: hashedPassword,
         },
@@ -151,7 +151,7 @@ router.post('/verify-otp', async (req, res) => {
     }
 
     // OTP is valid – create the user from stored registration data
-    const { userName, password } = otpRecord.registrationData || {};
+    const { userName, password } = otpRecord.userData || {};
 
     if (!userName || !password) {
       return res.status(400).json({ success: false, message: 'Registration data missing. Please restart registration' });
