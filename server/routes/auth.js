@@ -9,9 +9,9 @@ const { auth, generateTokens } = require('../middleware/auth');
 const { sendOtpEmail } = require('../services/emailService');
 
 // ============================================================
-// Helper: generate a 4-digit OTP
+// Helper: generate a 6-digit OTP
 // ============================================================
-const generateOtp = () => String(Math.floor(1000 + Math.random() * 9000));
+const generateOtp = () => String(Math.floor(100000 + Math.random() * 900000));
 
 // ============================================================
 // POST /login
