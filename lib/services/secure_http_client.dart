@@ -46,7 +46,7 @@ class SecureHttpClient {
   ];
 
   // Known certificate fingerprints (SHA-256)
-  // These can be obtained using: openssl s_client -connect api.fluttrr.app:443 | openssl x509 -fingerprint -sha256
+  // These can be obtained using: openssl s_client -connect api.fluttrr.com:443 | openssl x509 -fingerprint -sha256
   static const List<String> _pinnedFingerprints = [
     // 'XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX',
     // Add your server's certificate fingerprints here
