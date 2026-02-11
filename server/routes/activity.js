@@ -396,21 +396,27 @@ router.post('/join', auth, async (req, res) => {
 router.post('/leave', auth, async (req, res) => {
   try {
     const { activityId } = req.body;
-    const activity = await Activity.findOne({ activityId: parseInt(activityId) });
-    if (!activity) {
-      return res.status(404).json({ success: false, message: 'Activity not found' });
-    }
 
-    const attendeeIndex = activity.attendees.findIndex(
-      (a) => String(a.userId) === String(req.user.userId)
+    // Atomic update: only leaves if user is actually attending
+    const result = await Activity.findOneAndUpdate(
+      {
+        activityId: parseInt(activityId),
+        'attendees.userId': req.user.userId,
+      },
+      {
+        $pull: { attendees: { userId: req.user.userId } },
+        $inc: { remainingSlots: 1 },
+      },
+      { new: true }
     );
-    if (attendeeIndex === -1) {
+
+    if (!result) {
+      const activity = await Activity.findOne({ activityId: parseInt(activityId) });
+      if (!activity) {
+        return res.status(404).json({ success: false, message: 'Activity not found' });
+      }
       return res.status(400).json({ success: false, message: 'You have not joined this activity' });
     }
-
-    activity.attendees.splice(attendeeIndex, 1);
-    activity.remainingSlots += 1;
-    await activity.save();
 
     res.json({ success: true });
   } catch (error) {
@@ -430,17 +436,24 @@ router.post('/save', auth, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
-    const savedIndex = activity.savedBy.findIndex(
+    const isSaved = activity.savedBy.some(
       (id) => String(id) === String(req.user.userId)
     );
 
-    if (savedIndex === -1) {
-      activity.savedBy.push(req.user.userId);
+    if (isSaved) {
+      // Atomic remove
+      await Activity.updateOne(
+        { activityId: parseInt(activityId) },
+        { $pull: { savedBy: req.user.userId } }
+      );
     } else {
-      activity.savedBy.splice(savedIndex, 1);
+      // Atomic add (no duplicates)
+      await Activity.updateOne(
+        { activityId: parseInt(activityId) },
+        { $addToSet: { savedBy: req.user.userId } }
+      );
     }
 
-    await activity.save();
     res.json({ success: true });
   } catch (error) {
     console.error('Save activity error:', error);

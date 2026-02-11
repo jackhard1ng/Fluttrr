@@ -361,7 +361,7 @@ class ChatController extends GetxController {
     final socket = _socket;
     final conv = currentConversation.value;
     final otherUserId = conv?.otherUserId;
-    if (socket != null && otherUserId != null) {
+    if (socket != null && otherUserId != null && _currentUserId != null) {
       socket.emit('typing', {
         'senderId': _currentUserId,
         'receiverId': otherUserId,

@@ -11,15 +11,28 @@ import 'event_memories_screen.dart';
 import 'memory_detail_screen.dart';
 
 /// Main memories screen - shows feed of memories from events
-class MemoriesScreen extends StatelessWidget {
+class MemoriesScreen extends StatefulWidget {
   const MemoriesScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final controller = Get.put(MemoryController());
+  State<MemoriesScreen> createState() => _MemoriesScreenState();
+}
+
+class _MemoriesScreenState extends State<MemoriesScreen> {
+  late final MemoryController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.isRegistered<MemoryController>()
+        ? Get.find<MemoryController>()
+        : Get.put(MemoryController());
     controller.loadFeed(refresh: true);
     controller.loadEventsWithMemories(refresh: true);
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -340,7 +353,9 @@ class _MemoryCard extends StatelessWidget {
                   ? NetworkImage(memory.uploaderAvatar!)
                   : null,
               child: memory.uploaderAvatar == null
-                  ? Text(memory.uploaderName[0].toUpperCase())
+                  ? Text(memory.uploaderName.isNotEmpty
+                      ? memory.uploaderName[0].toUpperCase()
+                      : '?')
                   : null,
             ),
             title: Text(

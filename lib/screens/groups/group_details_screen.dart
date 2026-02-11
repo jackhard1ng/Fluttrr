@@ -5,7 +5,7 @@ import '../../controllers/group_controller.dart';
 import '../../models/group_model.dart';
 
 /// Screen for viewing group details
-class GroupDetailsScreen extends StatelessWidget {
+class GroupDetailsScreen extends StatefulWidget {
   final String groupId;
 
   const GroupDetailsScreen({
@@ -14,14 +14,25 @@ class GroupDetailsScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final controller = Get.isRegistered<GroupController>()
+  State<GroupDetailsScreen> createState() => _GroupDetailsScreenState();
+}
+
+class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
+  late final GroupController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.isRegistered<GroupController>()
         ? Get.find<GroupController>()
         : Get.put(GroupController());
-    controller.loadGroupDetails(groupId);
-    controller.loadGroupMembers(groupId);
-    controller.loadGroupEvents(groupId);
+    controller.loadGroupDetails(widget.groupId);
+    controller.loadGroupMembers(widget.groupId);
+    controller.loadGroupEvents(widget.groupId);
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Obx(() {
         if (controller.isLoading.value && controller.currentGroup.value == null) {
@@ -132,7 +143,7 @@ class GroupDetailsScreen extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: controller.isJoining.value
                               ? null
-                              : () => controller.joinGroup(groupId),
+                              : () => controller.joinGroup(widget.groupId),
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
@@ -416,7 +427,7 @@ class GroupDetailsScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () async {
               Get.back();
-              await controller.leaveGroup(groupId);
+              await controller.leaveGroup(widget.groupId);
               Get.back();
             },
             style: ElevatedButton.styleFrom(

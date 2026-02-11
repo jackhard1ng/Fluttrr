@@ -17,6 +17,7 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final authController = Get.find<AuthController>();
   final formKey = GlobalKey<FormState>();
+  bool _agreedToTerms = false;
 
   @override
   void initState() {
@@ -151,8 +152,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Row(
                   children: [
                     Checkbox(
-                      value: true,
-                      onChanged: (value) {},
+                      value: _agreedToTerms,
+                      onChanged: (value) {
+                        setState(() {
+                          _agreedToTerms = value ?? false;
+                        });
+                      },
                       activeColor: AppColors.primaryBlue,
                     ),
                     Expanded(
@@ -190,6 +195,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       text: 'Create Account',
                       isLoading: authController.isLoading.value,
                       onPressed: () async {
+                        if (!_agreedToTerms) {
+                          Get.snackbar(
+                            'Terms Required',
+                            'Please agree to the Terms of Service and Privacy Policy',
+                            snackPosition: SnackPosition.BOTTOM,
+                          );
+                          return;
+                        }
                         if (formKey.currentState?.validate() ?? false) {
                           final success = await authController.sendOtp();
                           if (success) {

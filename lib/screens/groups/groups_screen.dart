@@ -12,7 +12,9 @@ class GroupsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(GroupController());
+    final controller = Get.isRegistered<GroupController>()
+        ? Get.find<GroupController>()
+        : Get.put(GroupController());
 
     return DefaultTabController(
       length: 3,
