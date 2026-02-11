@@ -41,7 +41,7 @@ router.get('/list', auth, async (req, res) => {
 
     res.json({ success: true, data });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get icebreakers' });
+    res.status(500).json({ success: false, message: 'Failed to get icebreakers' });
   }
 });
 
@@ -65,7 +65,7 @@ router.get('/random', auth, async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get random icebreaker' });
+    res.status(500).json({ success: false, message: 'Failed to get random icebreaker' });
   }
 });
 
@@ -88,7 +88,7 @@ router.post('/create', auth, async (req, res) => {
     };
     res.json({ success: true, data: icebreaker });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to create icebreaker' });
+    res.status(500).json({ success: false, message: 'Failed to create icebreaker' });
   }
 });
 

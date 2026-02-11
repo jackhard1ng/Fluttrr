@@ -20,7 +20,7 @@ router.post('/stripe/create-payment-intent', auth, async (req, res) => {
     });
   } catch (error) {
     console.error('Create payment intent error:', error);
-    res.status(500).json({ message: 'Failed to create payment intent' });
+    res.status(500).json({ success: false, message: 'Failed to create payment intent' });
   }
 });
 
@@ -29,7 +29,7 @@ router.post('/verify', auth, async (req, res) => {
   try {
     res.json({ success: true, message: 'Payment verified' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to verify payment' });
+    res.status(500).json({ success: false, message: 'Failed to verify payment' });
   }
 });
 
@@ -38,7 +38,7 @@ router.post('/upgrade-to-premium', auth, async (req, res) => {
   try {
     res.json({ success: true, message: 'Upgraded to premium' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to upgrade' });
+    res.status(500).json({ success: false, message: 'Failed to upgrade' });
   }
 });
 

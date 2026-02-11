@@ -20,7 +20,7 @@ router.get('/', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('List memories error:', error);
-    res.status(500).json({ message: 'Failed to get memories' });
+    res.status(500).json({ success: false, message: 'Failed to get memories' });
   }
 });
 
@@ -39,7 +39,7 @@ router.get('/feed', auth, async (req, res) => {
     const data = memories.map((m) => m.toApiResponse(req.user.userId));
     res.json({ success: true, data });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get memory feed' });
+    res.status(500).json({ success: false, message: 'Failed to get memory feed' });
   }
 });
 
@@ -53,7 +53,7 @@ router.get('/featured', auth, async (req, res) => {
     const data = memories.map((m) => m.toApiResponse(req.user.userId));
     res.json({ success: true, data });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get featured memories' });
+    res.status(500).json({ success: false, message: 'Failed to get featured memories' });
   }
 });
 
@@ -68,7 +68,7 @@ router.get('/event', auth, async (req, res) => {
     const data = memories.map((m) => m.toApiResponse(req.user.userId));
     res.json({ success: true, data });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get event memories' });
+    res.status(500).json({ success: false, message: 'Failed to get event memories' });
   }
 });
 
@@ -80,7 +80,7 @@ router.get('/my', auth, async (req, res) => {
     const data = memories.map((m) => m.toApiResponse(req.user.userId));
     res.json({ success: true, data });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get my memories' });
+    res.status(500).json({ success: false, message: 'Failed to get my memories' });
   }
 });
 
@@ -92,7 +92,7 @@ router.get('/mine', auth, async (req, res) => {
     const data = memories.map((m) => m.toApiResponse(req.user.userId));
     res.json({ success: true, data });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get my memories' });
+    res.status(500).json({ success: false, message: 'Failed to get my memories' });
   }
 });
 
@@ -105,7 +105,7 @@ router.get('/events', auth, async (req, res) => {
     const data = memories.map((m) => m.toApiResponse(req.user.userId));
     res.json({ success: true, data });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get event memories' });
+    res.status(500).json({ success: false, message: 'Failed to get event memories' });
   }
 });
 
@@ -118,7 +118,7 @@ router.get('/tagged', auth, async (req, res) => {
     const data = memories.map((m) => m.toApiResponse(req.user.userId));
     res.json({ success: true, data });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get tagged memories' });
+    res.status(500).json({ success: false, message: 'Failed to get tagged memories' });
   }
 });
 
@@ -131,7 +131,7 @@ router.get('/tagged-in', auth, async (req, res) => {
     const data = memories.map((m) => m.toApiResponse(req.user.userId));
     res.json({ success: true, data });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get tagged memories' });
+    res.status(500).json({ success: false, message: 'Failed to get tagged memories' });
   }
 });
 
@@ -158,7 +158,7 @@ router.post('/upload', auth, upload.array('photos', 10), async (req, res) => {
     res.json({ success: true, data: memory.toApiResponse(req.user.userId) });
   } catch (error) {
     console.error('Upload memory error:', error);
-    res.status(500).json({ message: 'Failed to upload memory' });
+    res.status(500).json({ success: false, message: 'Failed to upload memory' });
   }
 });
 
@@ -184,7 +184,7 @@ router.post('/', auth, upload.array('photos', 10), async (req, res) => {
 
     res.json({ success: true, data: memory.toApiResponse(req.user.userId) });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to create memory' });
+    res.status(500).json({ success: false, message: 'Failed to create memory' });
   }
 });
 
@@ -192,10 +192,10 @@ router.post('/', auth, upload.array('photos', 10), async (req, res) => {
 router.get('/:memoryId', auth, async (req, res) => {
   try {
     const memory = await Memory.findOne({ memoryId: req.params.memoryId });
-    if (!memory) return res.status(404).json({ message: 'Memory not found' });
+    if (!memory) return res.status(404).json({ success: false, message: 'Memory not found' });
     res.json({ success: true, data: memory.toApiResponse(req.user.userId) });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get memory' });
+    res.status(500).json({ success: false, message: 'Failed to get memory' });
   }
 });
 
@@ -208,10 +208,10 @@ router.put('/:memoryId', auth, async (req, res) => {
       { $set: { caption } },
       { new: true }
     );
-    if (!memory) return res.status(404).json({ message: 'Memory not found or not yours' });
+    if (!memory) return res.status(404).json({ success: false, message: 'Memory not found or not yours' });
     res.json({ success: true, data: memory.toApiResponse(req.user.userId) });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to update memory' });
+    res.status(500).json({ success: false, message: 'Failed to update memory' });
   }
 });
 
@@ -222,10 +222,10 @@ router.delete('/:memoryId', auth, async (req, res) => {
       memoryId: req.params.memoryId,
       uploaderId: req.user.userId,
     });
-    if (!memory) return res.status(404).json({ message: 'Memory not found or not yours' });
+    if (!memory) return res.status(404).json({ success: false, message: 'Memory not found or not yours' });
     res.json({ success: true });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to delete memory' });
+    res.status(500).json({ success: false, message: 'Failed to delete memory' });
   }
 });
 
@@ -233,7 +233,7 @@ router.delete('/:memoryId', auth, async (req, res) => {
 router.post('/:memoryId/like', auth, async (req, res) => {
   try {
     const memory = await Memory.findOne({ memoryId: req.params.memoryId });
-    if (!memory) return res.status(404).json({ message: 'Memory not found' });
+    if (!memory) return res.status(404).json({ success: false, message: 'Memory not found' });
 
     const userIdStr = String(req.user.userId);
     if (!memory.likedBy.includes(userIdStr)) {
@@ -244,7 +244,7 @@ router.post('/:memoryId/like', auth, async (req, res) => {
 
     res.json({ success: true, data: memory.toApiResponse(req.user.userId) });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to like memory' });
+    res.status(500).json({ success: false, message: 'Failed to like memory' });
   }
 });
 
@@ -252,7 +252,7 @@ router.post('/:memoryId/like', auth, async (req, res) => {
 router.delete('/:memoryId/like', auth, async (req, res) => {
   try {
     const memory = await Memory.findOne({ memoryId: req.params.memoryId });
-    if (!memory) return res.status(404).json({ message: 'Memory not found' });
+    if (!memory) return res.status(404).json({ success: false, message: 'Memory not found' });
 
     const userIdStr = String(req.user.userId);
     memory.likedBy = memory.likedBy.filter((id) => id !== userIdStr);
@@ -261,7 +261,7 @@ router.delete('/:memoryId/like', auth, async (req, res) => {
 
     res.json({ success: true, data: memory.toApiResponse(req.user.userId) });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to unlike memory' });
+    res.status(500).json({ success: false, message: 'Failed to unlike memory' });
   }
 });
 
@@ -269,10 +269,10 @@ router.delete('/:memoryId/like', auth, async (req, res) => {
 router.get('/:memoryId/comments', auth, async (req, res) => {
   try {
     const memory = await Memory.findOne({ memoryId: req.params.memoryId });
-    if (!memory) return res.status(404).json({ message: 'Memory not found' });
+    if (!memory) return res.status(404).json({ success: false, message: 'Memory not found' });
     res.json({ success: true, data: memory.comments || [] });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get comments' });
+    res.status(500).json({ success: false, message: 'Failed to get comments' });
   }
 });
 
@@ -280,10 +280,10 @@ router.get('/:memoryId/comments', auth, async (req, res) => {
 router.post('/:memoryId/comments', auth, async (req, res) => {
   try {
     const { content } = req.body;
-    if (!content) return res.status(400).json({ message: 'content is required' });
+    if (!content) return res.status(400).json({ success: false, message: 'content is required' });
 
     const memory = await Memory.findOne({ memoryId: req.params.memoryId });
-    if (!memory) return res.status(404).json({ message: 'Memory not found' });
+    if (!memory) return res.status(404).json({ success: false, message: 'Memory not found' });
 
     const comment = {
       userId: String(req.user.userId),
@@ -299,7 +299,7 @@ router.post('/:memoryId/comments', auth, async (req, res) => {
     const saved = memory.comments[memory.comments.length - 1];
     res.json({ success: true, data: saved });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to add comment' });
+    res.status(500).json({ success: false, message: 'Failed to add comment' });
   }
 });
 
@@ -316,7 +316,7 @@ router.post('/:memoryId/report', auth, async (req, res) => {
     });
     res.json({ success: true });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to report memory' });
+    res.status(500).json({ success: false, message: 'Failed to report memory' });
   }
 });
 

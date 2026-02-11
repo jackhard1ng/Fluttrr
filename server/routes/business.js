@@ -23,7 +23,7 @@ router.post('/login', async (req, res) => {
     }
 
     const User = require('../models/User');
-    const user = await User.findOne({ _id: business.userId });
+    const user = await User.findOne({ userId: business.userId }).select('+password');
     if (!user) {
       return res.status(404).json({ success: false, message: 'User account not found' });
     }
@@ -729,7 +729,7 @@ router.post('/create', auth, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Business not found' });
     }
 
-    res.json({ success: true, message: 'Subscription created successfully' });
+    res.json({ success: true, data: business, message: 'Subscription created successfully' });
   } catch (error) {
     console.error('Create subscription error:', error);
     res.status(500).json({ success: false, message: 'Failed to create subscription' });

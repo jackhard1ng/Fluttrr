@@ -38,7 +38,7 @@ router.get('/getPrivacySettings', auth, async (req, res) => {
     });
   } catch (error) {
     console.error('Get privacy settings error:', error);
-    res.status(500).json({ message: 'Failed to get privacy settings' });
+    res.status(500).json({ success: false, message: 'Failed to get privacy settings' });
   }
 });
 
@@ -55,7 +55,7 @@ router.post('/updatePrivacy', auth, async (req, res) => {
     res.json({ success: true, data: settings });
   } catch (error) {
     console.error('Update privacy settings error:', error);
-    res.status(500).json({ message: 'Failed to update privacy settings' });
+    res.status(500).json({ success: false, message: 'Failed to update privacy settings' });
   }
 });
 
@@ -70,7 +70,7 @@ router.get('/profile', auth, async (req, res) => {
     res.json({ success: true, data: settings });
   } catch (error) {
     console.error('Get privacy profile error:', error);
-    res.status(500).json({ message: 'Failed to get privacy profile' });
+    res.status(500).json({ success: false, message: 'Failed to get privacy profile' });
   }
 });
 

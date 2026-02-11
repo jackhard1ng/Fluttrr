@@ -32,7 +32,7 @@ router.get('/list_notifications', auth, async (req, res) => {
     res.json({ success: true, message: 'Notifications retrieved', data, unreadCount });
   } catch (error) {
     console.error('Get notifications error:', error);
-    res.status(500).json({ message: 'Failed to get notifications' });
+    res.status(500).json({ success: false, message: 'Failed to get notifications' });
   }
 });
 

@@ -279,13 +279,18 @@ class ChatController extends GetxController {
     final conv = currentConversation.value;
     if (conv == null || conv.otherUserId == null) return false;
 
+    if (_currentUserId == null) {
+      isSending.value = false;
+      return false;
+    }
+
     isSending.value = true;
     messageController.clear();
 
     // Add optimistic message
     final tempMessage = ChatMessage(
       messageId: DateTime.now().millisecondsSinceEpoch.toString(),
-      senderId: _currentUserId ?? 1,
+      senderId: _currentUserId!,
       receiverId: conv.otherUserId,
       content: text.isNotEmpty ? text : null,
       imageUrl: imageUrl,

@@ -13,10 +13,10 @@ router.post('/send', auth, async (req, res) => {
     const { receiverId, content, imageUrl } = req.body;
 
     if (!receiverId) {
-      return res.status(400).json({ message: 'receiverId is required' });
+      return res.status(400).json({ success: false, message: 'receiverId is required' });
     }
     if (!content && !imageUrl) {
-      return res.status(400).json({ message: 'content or imageUrl is required' });
+      return res.status(400).json({ success: false, message: 'content or imageUrl is required' });
     }
 
     const message = new Message({
@@ -55,7 +55,7 @@ router.post('/send', auth, async (req, res) => {
     res.json({ success: true, data: messageData });
   } catch (error) {
     console.error('Send message error:', error);
-    res.status(500).json({ message: 'Failed to send message' });
+    res.status(500).json({ success: false, message: 'Failed to send message' });
   }
 });
 
@@ -164,7 +164,7 @@ router.get('/chatlist', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get chatlist error:', error);
-    res.status(500).json({ message: 'Failed to get chat list' });
+    res.status(500).json({ success: false, message: 'Failed to get chat list' });
   }
 });
 
@@ -238,7 +238,7 @@ router.get('/grouplist', auth, async (req, res) => {
     res.json({ success: true, data: groupConversations });
   } catch (error) {
     console.error('Get group list error:', error);
-    res.status(500).json({ message: 'Failed to get group list' });
+    res.status(500).json({ success: false, message: 'Failed to get group list' });
   }
 });
 
@@ -250,7 +250,7 @@ router.post('/markAsRead', auth, async (req, res) => {
     const { senderId } = req.body;
 
     if (!senderId) {
-      return res.status(400).json({ message: 'senderId is required' });
+      return res.status(400).json({ success: false, message: 'senderId is required' });
     }
 
     await Message.updateMany(
@@ -274,7 +274,7 @@ router.post('/markAsRead', auth, async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error('Mark as read error:', error);
-    res.status(500).json({ message: 'Failed to mark messages as read' });
+    res.status(500).json({ success: false, message: 'Failed to mark messages as read' });
   }
 });
 
@@ -362,7 +362,7 @@ router.get('/getChatList', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get business chat list error:', error);
-    res.status(500).json({ message: 'Failed to get business chat list' });
+    res.status(500).json({ success: false, message: 'Failed to get business chat list' });
   }
 });
 
@@ -374,10 +374,10 @@ router.post('/sendB', auth, async (req, res) => {
     const { businessId, content, imageUrl } = req.body;
 
     if (!businessId) {
-      return res.status(400).json({ message: 'businessId is required' });
+      return res.status(400).json({ success: false, message: 'businessId is required' });
     }
     if (!content && !imageUrl) {
-      return res.status(400).json({ message: 'content or imageUrl is required' });
+      return res.status(400).json({ success: false, message: 'content or imageUrl is required' });
     }
 
     const message = new Message({
@@ -417,7 +417,7 @@ router.post('/sendB', auth, async (req, res) => {
     res.json({ success: true, data: messageData });
   } catch (error) {
     console.error('Send business message error:', error);
-    res.status(500).json({ message: 'Failed to send business message' });
+    res.status(500).json({ success: false, message: 'Failed to send business message' });
   }
 });
 

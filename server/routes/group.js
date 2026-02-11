@@ -26,7 +26,7 @@ router.post('/create', auth, async (req, res) => {
     } = req.body;
 
     if (!name) {
-      return res.status(400).json({ message: 'Group name is required' });
+      return res.status(400).json({ success: false, message: 'Group name is required' });
     }
 
     const userId = req.user.userId;
@@ -80,7 +80,7 @@ router.post('/create', auth, async (req, res) => {
     });
   } catch (error) {
     console.error('Create group error:', error);
-    res.status(500).json({ message: 'Failed to create group' });
+    res.status(500).json({ success: false, message: 'Failed to create group' });
   }
 });
 
@@ -142,7 +142,7 @@ router.get('/list', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('List groups error:', error);
-    res.status(500).json({ message: 'Failed to list groups' });
+    res.status(500).json({ success: false, message: 'Failed to list groups' });
   }
 });
 
@@ -151,14 +151,14 @@ router.get('/details/:groupId', auth, async (req, res) => {
   try {
     const group = await Group.findById(req.params.groupId);
     if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
+      return res.status(404).json({ success: false, message: 'Group not found' });
     }
 
     const userId = req.user.userId;
     res.json({ success: true, data: formatGroup(group, userId) });
   } catch (error) {
     console.error('Get group details error:', error);
-    res.status(500).json({ message: 'Failed to get group details' });
+    res.status(500).json({ success: false, message: 'Failed to get group details' });
   }
 });
 
@@ -168,18 +168,18 @@ router.put('/update', auth, async (req, res) => {
     const { group_id, name, description, privacy, image, cover_image, interests, tags, settings } = req.body;
 
     if (!group_id) {
-      return res.status(400).json({ message: 'Group ID is required' });
+      return res.status(400).json({ success: false, message: 'Group ID is required' });
     }
 
     const group = await Group.findById(group_id);
     if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
+      return res.status(404).json({ success: false, message: 'Group not found' });
     }
 
     const userId = req.user.userId;
     const member = (group.members || []).find((m) => m.userId === userId);
     if (!member || (member.role !== 'owner' && member.role !== 'admin')) {
-      return res.status(403).json({ message: 'Only owners and admins can update the group' });
+      return res.status(403).json({ success: false, message: 'Only owners and admins can update the group' });
     }
 
     const updateFields = {};
@@ -201,7 +201,7 @@ router.put('/update', auth, async (req, res) => {
     res.json({ success: true, data: formatGroup(updatedGroup, userId) });
   } catch (error) {
     console.error('Update group error:', error);
-    res.status(500).json({ message: 'Failed to update group' });
+    res.status(500).json({ success: false, message: 'Failed to update group' });
   }
 });
 
@@ -210,13 +210,13 @@ router.delete('/delete/:groupId', auth, async (req, res) => {
   try {
     const group = await Group.findById(req.params.groupId);
     if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
+      return res.status(404).json({ success: false, message: 'Group not found' });
     }
 
     const userId = req.user.userId;
     const member = (group.members || []).find((m) => m.userId === userId);
     if (!member || member.role !== 'owner') {
-      return res.status(403).json({ message: 'Only the group owner can delete the group' });
+      return res.status(403).json({ success: false, message: 'Only the group owner can delete the group' });
     }
 
     await Group.findByIdAndDelete(req.params.groupId);
@@ -224,7 +224,7 @@ router.delete('/delete/:groupId', auth, async (req, res) => {
     res.json({ success: true, message: 'Group deleted successfully' });
   } catch (error) {
     console.error('Delete group error:', error);
-    res.status(500).json({ message: 'Failed to delete group' });
+    res.status(500).json({ success: false, message: 'Failed to delete group' });
   }
 });
 
@@ -237,18 +237,18 @@ router.post('/join', auth, async (req, res) => {
   try {
     const { group_id, message } = req.body;
     if (!group_id) {
-      return res.status(400).json({ message: 'Group ID is required' });
+      return res.status(400).json({ success: false, message: 'Group ID is required' });
     }
 
     const group = await Group.findById(group_id);
     if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
+      return res.status(404).json({ success: false, message: 'Group not found' });
     }
 
     const userId = req.user.userId;
     const existingMember = (group.members || []).find((m) => m.userId === userId);
     if (existingMember) {
-      return res.status(400).json({ message: 'Already a member of this group' });
+      return res.status(400).json({ success: false, message: 'Already a member of this group' });
     }
 
     const settings = group.settings || {};
@@ -257,7 +257,7 @@ router.post('/join', auth, async (req, res) => {
     if (requireApproval) {
       const existingRequest = (group.joinRequests || []).find((r) => r.userId === userId);
       if (existingRequest) {
-        return res.status(400).json({ message: 'Join request already pending' });
+        return res.status(400).json({ success: false, message: 'Join request already pending' });
       }
 
       await Group.findByIdAndUpdate(group_id, {
@@ -318,7 +318,7 @@ router.post('/join', auth, async (req, res) => {
     }
   } catch (error) {
     console.error('Join group error:', error);
-    res.status(500).json({ message: 'Failed to join group' });
+    res.status(500).json({ success: false, message: 'Failed to join group' });
   }
 });
 
@@ -327,22 +327,22 @@ router.post('/leave', auth, async (req, res) => {
   try {
     const { group_id } = req.body;
     if (!group_id) {
-      return res.status(400).json({ message: 'Group ID is required' });
+      return res.status(400).json({ success: false, message: 'Group ID is required' });
     }
 
     const group = await Group.findById(group_id);
     if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
+      return res.status(404).json({ success: false, message: 'Group not found' });
     }
 
     const userId = req.user.userId;
     const member = (group.members || []).find((m) => m.userId === userId);
     if (!member) {
-      return res.status(400).json({ message: 'Not a member of this group' });
+      return res.status(400).json({ success: false, message: 'Not a member of this group' });
     }
 
     if (member.role === 'owner') {
-      return res.status(400).json({ message: 'Owner cannot leave the group. Transfer ownership or delete the group.' });
+      return res.status(400).json({ success: false, message: 'Owner cannot leave the group. Transfer ownership or delete the group.' });
     }
 
     await Group.findByIdAndUpdate(group_id, {
@@ -353,7 +353,7 @@ router.post('/leave', auth, async (req, res) => {
     res.json({ success: true, message: 'Left group successfully' });
   } catch (error) {
     console.error('Leave group error:', error);
-    res.status(500).json({ message: 'Failed to leave group' });
+    res.status(500).json({ success: false, message: 'Failed to leave group' });
   }
 });
 
@@ -366,7 +366,7 @@ router.get('/members/:groupId', auth, async (req, res) => {
 
     const group = await Group.findById(req.params.groupId);
     if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
+      return res.status(404).json({ success: false, message: 'Group not found' });
     }
 
     const members = (group.members || [])
@@ -387,7 +387,7 @@ router.get('/members/:groupId', auth, async (req, res) => {
     res.json({ success: true, data: members });
   } catch (error) {
     console.error('Get group members error:', error);
-    res.status(500).json({ message: 'Failed to get group members' });
+    res.status(500).json({ success: false, message: 'Failed to get group members' });
   }
 });
 
@@ -400,7 +400,7 @@ router.get('/events/:groupId', auth, async (req, res) => {
 
     const group = await Group.findById(req.params.groupId);
     if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
+      return res.status(404).json({ success: false, message: 'Group not found' });
     }
 
     const filter = { groupId: req.params.groupId };
@@ -425,7 +425,7 @@ router.get('/events/:groupId', auth, async (req, res) => {
     }
   } catch (error) {
     console.error('Get group events error:', error);
-    res.status(500).json({ message: 'Failed to get group events' });
+    res.status(500).json({ success: false, message: 'Failed to get group events' });
   }
 });
 
@@ -438,13 +438,13 @@ router.get('/requests/:groupId', auth, async (req, res) => {
   try {
     const group = await Group.findById(req.params.groupId);
     if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
+      return res.status(404).json({ success: false, message: 'Group not found' });
     }
 
     const userId = req.user.userId;
     const member = (group.members || []).find((m) => m.userId === userId);
     if (!member || (member.role !== 'owner' && member.role !== 'admin')) {
-      return res.status(403).json({ message: 'Only admins can view join requests' });
+      return res.status(403).json({ success: false, message: 'Only admins can view join requests' });
     }
 
     const requests = (group.joinRequests || [])
@@ -463,7 +463,7 @@ router.get('/requests/:groupId', auth, async (req, res) => {
     res.json({ success: true, data: requests });
   } catch (error) {
     console.error('Get join requests error:', error);
-    res.status(500).json({ message: 'Failed to get join requests' });
+    res.status(500).json({ success: false, message: 'Failed to get join requests' });
   }
 });
 
@@ -472,26 +472,26 @@ router.post('/respond-request', auth, async (req, res) => {
   try {
     const { request_id, approve } = req.body;
     if (request_id === undefined || approve === undefined) {
-      return res.status(400).json({ message: 'Request ID and approve flag are required' });
+      return res.status(400).json({ success: false, message: 'Request ID and approve flag are required' });
     }
 
     // Find the group containing this join request
     const group = await Group.findOne({ 'joinRequests._id': request_id });
     if (!group) {
-      return res.status(404).json({ message: 'Join request not found' });
+      return res.status(404).json({ success: false, message: 'Join request not found' });
     }
 
     const userId = req.user.userId;
     const adminMember = (group.members || []).find((m) => m.userId === userId);
     if (!adminMember || (adminMember.role !== 'owner' && adminMember.role !== 'admin')) {
-      return res.status(403).json({ message: 'Only admins can respond to join requests' });
+      return res.status(403).json({ success: false, message: 'Only admins can respond to join requests' });
     }
 
     const request = (group.joinRequests || []).find(
       (r) => r._id && r._id.toString() === request_id.toString()
     );
     if (!request) {
-      return res.status(404).json({ message: 'Join request not found' });
+      return res.status(404).json({ success: false, message: 'Join request not found' });
     }
 
     if (approve) {
@@ -546,7 +546,7 @@ router.post('/respond-request', auth, async (req, res) => {
     }
   } catch (error) {
     console.error('Respond to join request error:', error);
-    res.status(500).json({ message: 'Failed to respond to join request' });
+    res.status(500).json({ success: false, message: 'Failed to respond to join request' });
   }
 });
 
@@ -562,7 +562,7 @@ router.get('/search', auth, async (req, res) => {
     const limitNum = parseInt(limit);
 
     if (!query) {
-      return res.status(400).json({ message: 'Search query is required' });
+      return res.status(400).json({ success: false, message: 'Search query is required' });
     }
 
     const filter = {
@@ -586,7 +586,7 @@ router.get('/search', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Search groups error:', error);
-    res.status(500).json({ message: 'Failed to search groups' });
+    res.status(500).json({ success: false, message: 'Failed to search groups' });
   }
 });
 
@@ -624,7 +624,7 @@ router.get('/suggested', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get suggested groups error:', error);
-    res.status(500).json({ message: 'Failed to get suggested groups' });
+    res.status(500).json({ success: false, message: 'Failed to get suggested groups' });
   }
 });
 
@@ -650,7 +650,7 @@ router.get('/my-groups', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get my groups error:', error);
-    res.status(500).json({ message: 'Failed to get your groups' });
+    res.status(500).json({ success: false, message: 'Failed to get your groups' });
   }
 });
 
@@ -662,7 +662,7 @@ router.get('/by-interest', auth, async (req, res) => {
     const limitNum = parseInt(limit);
 
     if (!interest) {
-      return res.status(400).json({ message: 'Interest parameter is required' });
+      return res.status(400).json({ success: false, message: 'Interest parameter is required' });
     }
 
     const groups = await Group.find({
@@ -679,7 +679,7 @@ router.get('/by-interest', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get groups by interest error:', error);
-    res.status(500).json({ message: 'Failed to get groups by interest' });
+    res.status(500).json({ success: false, message: 'Failed to get groups by interest' });
   }
 });
 
@@ -692,32 +692,32 @@ router.put('/members/:groupId/role', auth, async (req, res) => {
   try {
     const { user_id, role } = req.body;
     if (!user_id || !role) {
-      return res.status(400).json({ message: 'User ID and role are required' });
+      return res.status(400).json({ success: false, message: 'User ID and role are required' });
     }
 
     const validRoles = ['admin', 'moderator', 'member'];
     if (!validRoles.includes(role)) {
-      return res.status(400).json({ message: 'Invalid role. Must be admin, moderator, or member' });
+      return res.status(400).json({ success: false, message: 'Invalid role. Must be admin, moderator, or member' });
     }
 
     const group = await Group.findById(req.params.groupId);
     if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
+      return res.status(404).json({ success: false, message: 'Group not found' });
     }
 
     const userId = req.user.userId;
     const adminMember = (group.members || []).find((m) => m.userId === userId);
     if (!adminMember || (adminMember.role !== 'owner' && adminMember.role !== 'admin')) {
-      return res.status(403).json({ message: 'Only owners and admins can update member roles' });
+      return res.status(403).json({ success: false, message: 'Only owners and admins can update member roles' });
     }
 
     const targetMember = (group.members || []).find((m) => m.userId === parseInt(user_id));
     if (!targetMember) {
-      return res.status(404).json({ message: 'Member not found in group' });
+      return res.status(404).json({ success: false, message: 'Member not found in group' });
     }
 
     if (targetMember.role === 'owner') {
-      return res.status(403).json({ message: 'Cannot change the owner role' });
+      return res.status(403).json({ success: false, message: 'Cannot change the owner role' });
     }
 
     await Group.updateOne(
@@ -740,7 +740,7 @@ router.put('/members/:groupId/role', auth, async (req, res) => {
     });
   } catch (error) {
     console.error('Update member role error:', error);
-    res.status(500).json({ message: 'Failed to update member role' });
+    res.status(500).json({ success: false, message: 'Failed to update member role' });
   }
 });
 
@@ -749,23 +749,23 @@ router.delete('/members/:groupId/:userId', auth, async (req, res) => {
   try {
     const group = await Group.findById(req.params.groupId);
     if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
+      return res.status(404).json({ success: false, message: 'Group not found' });
     }
 
     const requesterId = req.user.userId;
     const adminMember = (group.members || []).find((m) => m.userId === requesterId);
     if (!adminMember || (adminMember.role !== 'owner' && adminMember.role !== 'admin')) {
-      return res.status(403).json({ message: 'Only owners and admins can remove members' });
+      return res.status(403).json({ success: false, message: 'Only owners and admins can remove members' });
     }
 
     const targetUserId = parseInt(req.params.userId);
     const targetMember = (group.members || []).find((m) => m.userId === targetUserId);
     if (!targetMember) {
-      return res.status(404).json({ message: 'Member not found in group' });
+      return res.status(404).json({ success: false, message: 'Member not found in group' });
     }
 
     if (targetMember.role === 'owner') {
-      return res.status(403).json({ message: 'Cannot remove the group owner' });
+      return res.status(403).json({ success: false, message: 'Cannot remove the group owner' });
     }
 
     await Group.findByIdAndUpdate(req.params.groupId, {
@@ -776,7 +776,7 @@ router.delete('/members/:groupId/:userId', auth, async (req, res) => {
     res.json({ success: true, message: 'Member removed from group' });
   } catch (error) {
     console.error('Remove member error:', error);
-    res.status(500).json({ message: 'Failed to remove member' });
+    res.status(500).json({ success: false, message: 'Failed to remove member' });
   }
 });
 

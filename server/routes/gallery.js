@@ -10,7 +10,7 @@ router.get('/list', auth, async (req, res) => {
     res.json({ success: true, data: images });
   } catch (error) {
     console.error('Get gallery error:', error);
-    res.status(500).json({ message: 'Failed to get gallery' });
+    res.status(500).json({ success: false, message: 'Failed to get gallery' });
   }
 });
 
@@ -18,7 +18,7 @@ router.get('/list', auth, async (req, res) => {
 router.post('/upload', auth, upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ message: 'No image provided' });
+      return res.status(400).json({ success: false, message: 'No image provided' });
     }
 
     const imageUrl = `/uploads/${req.file.filename}`;
@@ -31,7 +31,7 @@ router.post('/upload', auth, upload.single('image'), async (req, res) => {
     res.json({ success: true, data: imageUrl, message: 'Image uploaded' });
   } catch (error) {
     console.error('Upload gallery error:', error);
-    res.status(500).json({ message: 'Failed to upload image' });
+    res.status(500).json({ success: false, message: 'Failed to upload image' });
   }
 });
 

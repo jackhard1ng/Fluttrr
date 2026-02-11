@@ -34,7 +34,7 @@ router.get('/', auth, async (req, res) => {
     res.json({ success: true, data: { userStories, eventStories } });
   } catch (error) {
     console.error('Get stories error:', error);
-    res.status(500).json({ message: 'Failed to get stories' });
+    res.status(500).json({ success: false, message: 'Failed to get stories' });
   }
 });
 
@@ -46,7 +46,7 @@ router.get('/me', auth, async (req, res) => {
       .limit(50);
     res.json({ success: true, data: stories });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get my stories' });
+    res.status(500).json({ success: false, message: 'Failed to get my stories' });
   }
 });
 
@@ -59,7 +59,7 @@ router.get('/event/:eventId', auth, async (req, res) => {
     }).sort({ createdAt: -1 });
     res.json({ success: true, data: stories });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get event stories' });
+    res.status(500).json({ success: false, message: 'Failed to get event stories' });
   }
 });
 
@@ -72,7 +72,7 @@ router.get('/user/:userId', auth, async (req, res) => {
     }).sort({ createdAt: -1 });
     res.json({ success: true, data: stories });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get user stories' });
+    res.status(500).json({ success: false, message: 'Failed to get user stories' });
   }
 });
 
@@ -83,7 +83,7 @@ router.post('/', auth, upload.single('media'), async (req, res) => {
     const mediaUrl = req.file ? `/uploads/${req.file.filename}` : '';
 
     if (!mediaUrl && type !== 'text') {
-      return res.status(400).json({ message: 'Media file is required' });
+      return res.status(400).json({ success: false, message: 'Media file is required' });
     }
 
     const story = await Story.create({
@@ -100,7 +100,7 @@ router.post('/', auth, upload.single('media'), async (req, res) => {
     res.json({ success: true, data: story });
   } catch (error) {
     console.error('Create story error:', error);
-    res.status(500).json({ message: 'Failed to create story' });
+    res.status(500).json({ success: false, message: 'Failed to create story' });
   }
 });
 
@@ -108,7 +108,7 @@ router.post('/', auth, upload.single('media'), async (req, res) => {
 router.post('/:storyId/view', auth, async (req, res) => {
   try {
     const story = await Story.findOne({ storyId: req.params.storyId });
-    if (!story) return res.status(404).json({ message: 'Story not found' });
+    if (!story) return res.status(404).json({ success: false, message: 'Story not found' });
 
     const viewerId = String(req.user.userId);
     if (!story.viewerIds.includes(viewerId)) {
@@ -119,7 +119,7 @@ router.post('/:storyId/view', auth, async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to record view' });
+    res.status(500).json({ success: false, message: 'Failed to record view' });
   }
 });
 
@@ -127,10 +127,10 @@ router.post('/:storyId/view', auth, async (req, res) => {
 router.post('/:storyId/react', auth, async (req, res) => {
   try {
     const { emoji } = req.body;
-    if (!emoji) return res.status(400).json({ message: 'emoji is required' });
+    if (!emoji) return res.status(400).json({ success: false, message: 'emoji is required' });
 
     const story = await Story.findOne({ storyId: req.params.storyId });
-    if (!story) return res.status(404).json({ message: 'Story not found' });
+    if (!story) return res.status(404).json({ success: false, message: 'Story not found' });
 
     story.reactions.push({
       userId: req.user.userId,
@@ -142,7 +142,7 @@ router.post('/:storyId/react', auth, async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to add reaction' });
+    res.status(500).json({ success: false, message: 'Failed to add reaction' });
   }
 });
 
@@ -153,10 +153,10 @@ router.delete('/:storyId', auth, async (req, res) => {
       storyId: req.params.storyId,
       userId: req.user.userId,
     });
-    if (!story) return res.status(404).json({ message: 'Story not found or not yours' });
+    if (!story) return res.status(404).json({ success: false, message: 'Story not found or not yours' });
     res.json({ success: true });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to delete story' });
+    res.status(500).json({ success: false, message: 'Failed to delete story' });
   }
 });
 
@@ -164,10 +164,10 @@ router.delete('/:storyId', auth, async (req, res) => {
 router.get('/:storyId/viewers', auth, async (req, res) => {
   try {
     const story = await Story.findOne({ storyId: req.params.storyId });
-    if (!story) return res.status(404).json({ message: 'Story not found' });
+    if (!story) return res.status(404).json({ success: false, message: 'Story not found' });
     res.json({ success: true, data: story.viewerIds || [] });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get viewers' });
+    res.status(500).json({ success: false, message: 'Failed to get viewers' });
   }
 });
 

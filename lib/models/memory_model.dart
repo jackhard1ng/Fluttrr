@@ -38,10 +38,10 @@ class EventMemoryModel {
 
   factory EventMemoryModel.fromJson(Map<String, dynamic> json) {
     return EventMemoryModel(
-      memoryId: json['memory_id'] as String? ?? json['id'] as String? ?? '',
-      eventId: json['event_id'] as String? ?? '',
+      memoryId: (json['memory_id'] ?? json['id'])?.toString() ?? '',
+      eventId: json['event_id']?.toString() ?? '',
       eventName: json['event_name'] as String? ?? '',
-      uploaderId: json['uploader_id'] as String? ?? '',
+      uploaderId: json['uploader_id']?.toString() ?? '',
       uploaderName: json['uploader_name'] as String? ?? 'Unknown',
       uploaderAvatar: json['uploader_avatar'] as String?,
       photos: (json['photos'] as List<dynamic>?)

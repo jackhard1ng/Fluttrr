@@ -63,7 +63,7 @@ router.get('/daily-activities', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get daily activities error:', error);
-    res.status(500).json({ message: 'Failed to get daily activities' });
+    res.status(500).json({ success: false, message: 'Failed to get daily activities' });
   }
 });
 
@@ -105,7 +105,7 @@ router.get('/list', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('List activities error:', error);
-    res.status(500).json({ message: 'Failed to list activities' });
+    res.status(500).json({ success: false, message: 'Failed to list activities' });
   }
 });
 
@@ -116,13 +116,13 @@ router.get('/activity-details/:activityId', auth, async (req, res) => {
   try {
     const activity = await Activity.findOne({ activityId: parseInt(req.params.activityId) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
     const data = formatActivity(activity, req.user.userId);
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get activity details error:', error);
-    res.status(500).json({ message: 'Failed to get activity details' });
+    res.status(500).json({ success: false, message: 'Failed to get activity details' });
   }
 });
 
@@ -137,7 +137,7 @@ router.get('/my-activity', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get my activities error:', error);
-    res.status(500).json({ message: 'Failed to get your activities' });
+    res.status(500).json({ success: false, message: 'Failed to get your activities' });
   }
 });
 
@@ -153,7 +153,7 @@ router.get('/user-activities', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get user activities error:', error);
-    res.status(500).json({ message: 'Failed to get joined activities' });
+    res.status(500).json({ success: false, message: 'Failed to get joined activities' });
   }
 });
 
@@ -170,7 +170,7 @@ router.get('/upcoming', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get upcoming activities error:', error);
-    res.status(500).json({ message: 'Failed to get upcoming activities' });
+    res.status(500).json({ success: false, message: 'Failed to get upcoming activities' });
   }
 });
 
@@ -215,7 +215,7 @@ router.post('/search', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Search activities error:', error);
-    res.status(500).json({ message: 'Failed to search activities' });
+    res.status(500).json({ success: false, message: 'Failed to search activities' });
   }
 });
 
@@ -249,7 +249,7 @@ router.post('/create-activity', auth, async (req, res) => {
     res.status(201).json({ success: true, data });
   } catch (error) {
     console.error('Create activity error:', error);
-    res.status(500).json({ message: 'Failed to create activity' });
+    res.status(500).json({ success: false, message: 'Failed to create activity' });
   }
 });
 
@@ -260,7 +260,7 @@ router.post('/images/:activityId', auth, upload.array('images', 10), async (req,
   try {
     const activity = await Activity.findOne({ activityId: parseInt(req.params.activityId) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     const imageUrls = req.files.map((file) => `/uploads/${file.filename}`);
@@ -270,7 +270,7 @@ router.post('/images/:activityId', auth, upload.array('images', 10), async (req,
     res.json({ success: true });
   } catch (error) {
     console.error('Upload activity images error:', error);
-    res.status(500).json({ message: 'Failed to upload images' });
+    res.status(500).json({ success: false, message: 'Failed to upload images' });
   }
 });
 
@@ -281,11 +281,11 @@ router.put('/update/:activityId', auth, async (req, res) => {
   try {
     const activity = await Activity.findOne({ activityId: parseInt(req.params.activityId) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     if (String(activity.creatorId) !== String(req.user.userId)) {
-      return res.status(403).json({ message: 'Only the creator can update this activity' });
+      return res.status(403).json({ success: false, message: 'Only the creator can update this activity' });
     }
 
     const { name, description, location, latitude, longitude, date_time, event_type, total_slots } = req.body;
@@ -309,7 +309,7 @@ router.put('/update/:activityId', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Update activity error:', error);
-    res.status(500).json({ message: 'Failed to update activity' });
+    res.status(500).json({ success: false, message: 'Failed to update activity' });
   }
 });
 
@@ -320,18 +320,18 @@ router.delete('/delete/:activityId', auth, async (req, res) => {
   try {
     const activity = await Activity.findOne({ activityId: parseInt(req.params.activityId) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     if (String(activity.creatorId) !== String(req.user.userId)) {
-      return res.status(403).json({ message: 'Only the creator can delete this activity' });
+      return res.status(403).json({ success: false, message: 'Only the creator can delete this activity' });
     }
 
     await Activity.deleteOne({ _id: activity._id });
     res.json({ success: true });
   } catch (error) {
     console.error('Delete activity error:', error);
-    res.status(500).json({ message: 'Failed to delete activity' });
+    res.status(500).json({ success: false, message: 'Failed to delete activity' });
   }
 });
 
@@ -343,18 +343,18 @@ router.post('/join', auth, async (req, res) => {
     const { activityId } = req.body;
     const activity = await Activity.findOne({ activityId: parseInt(activityId) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     const alreadyJoined = activity.attendees.some(
       (a) => String(a.userId) === String(req.user.userId)
     );
     if (alreadyJoined) {
-      return res.status(400).json({ message: 'Already joined this activity' });
+      return res.status(400).json({ success: false, message: 'Already joined this activity' });
     }
 
     if (activity.remainingSlots <= 0) {
-      return res.status(400).json({ message: 'No remaining slots' });
+      return res.status(400).json({ success: false, message: 'No remaining slots' });
     }
 
     activity.attendees.push({
@@ -368,7 +368,7 @@ router.post('/join', auth, async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error('Join activity error:', error);
-    res.status(500).json({ message: 'Failed to join activity' });
+    res.status(500).json({ success: false, message: 'Failed to join activity' });
   }
 });
 
@@ -380,14 +380,14 @@ router.post('/leave', auth, async (req, res) => {
     const { activityId } = req.body;
     const activity = await Activity.findOne({ activityId: parseInt(activityId) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     const attendeeIndex = activity.attendees.findIndex(
       (a) => String(a.userId) === String(req.user.userId)
     );
     if (attendeeIndex === -1) {
-      return res.status(400).json({ message: 'You have not joined this activity' });
+      return res.status(400).json({ success: false, message: 'You have not joined this activity' });
     }
 
     activity.attendees.splice(attendeeIndex, 1);
@@ -397,7 +397,7 @@ router.post('/leave', auth, async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error('Leave activity error:', error);
-    res.status(500).json({ message: 'Failed to leave activity' });
+    res.status(500).json({ success: false, message: 'Failed to leave activity' });
   }
 });
 
@@ -409,7 +409,7 @@ router.post('/save', auth, async (req, res) => {
     const { activityId } = req.body;
     const activity = await Activity.findOne({ activityId: parseInt(activityId) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     const savedIndex = activity.savedBy.findIndex(
@@ -426,7 +426,7 @@ router.post('/save', auth, async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error('Save activity error:', error);
-    res.status(500).json({ message: 'Failed to toggle save activity' });
+    res.status(500).json({ success: false, message: 'Failed to toggle save activity' });
   }
 });
 
@@ -439,7 +439,7 @@ router.post('/feedback', auth, async (req, res) => {
 
     const activity = await Activity.findOne({ activityId: parseInt(event_id) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     if (!activity.feedback) activity.feedback = [];
@@ -466,7 +466,7 @@ router.post('/feedback', auth, async (req, res) => {
     res.json({ success: true, data: feedbackEntry });
   } catch (error) {
     console.error('Submit feedback error:', error);
-    res.status(500).json({ message: 'Failed to submit feedback' });
+    res.status(500).json({ success: false, message: 'Failed to submit feedback' });
   }
 });
 
@@ -481,7 +481,7 @@ router.get('/feedback/:eventId', auth, async (req, res) => {
 
     const activity = await Activity.findOne({ activityId: parseInt(req.params.eventId) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     const feedback = (activity.feedback || [])
@@ -491,7 +491,7 @@ router.get('/feedback/:eventId', auth, async (req, res) => {
     res.json({ success: true, data: feedback });
   } catch (error) {
     console.error('Get feedback error:', error);
-    res.status(500).json({ message: 'Failed to get feedback' });
+    res.status(500).json({ success: false, message: 'Failed to get feedback' });
   }
 });
 
@@ -504,7 +504,7 @@ router.post('/rate-attendee', auth, async (req, res) => {
 
     const activity = await Activity.findOne({ activityId: parseInt(event_id) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     if (!activity.attendeeRatings) activity.attendeeRatings = [];
@@ -536,7 +536,7 @@ router.post('/rate-attendee', auth, async (req, res) => {
     res.json({ success: true, data: ratingEntry });
   } catch (error) {
     console.error('Rate attendee error:', error);
-    res.status(500).json({ message: 'Failed to rate attendee' });
+    res.status(500).json({ success: false, message: 'Failed to rate attendee' });
   }
 });
 
@@ -547,14 +547,14 @@ router.get('/attendee-ratings/:eventId', auth, async (req, res) => {
   try {
     const activity = await Activity.findOne({ activityId: parseInt(req.params.eventId) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     const data = activity.attendeeRatings || [];
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get attendee ratings error:', error);
-    res.status(500).json({ message: 'Failed to get attendee ratings' });
+    res.status(500).json({ success: false, message: 'Failed to get attendee ratings' });
   }
 });
 
@@ -580,7 +580,7 @@ router.get('/post-event-summary/pending', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get pending feedback error:', error);
-    res.status(500).json({ message: 'Failed to get pending feedback events' });
+    res.status(500).json({ success: false, message: 'Failed to get pending feedback events' });
   }
 });
 
@@ -591,7 +591,7 @@ router.get('/post-event-summary/:eventId', auth, async (req, res) => {
   try {
     const activity = await Activity.findOne({ activityId: parseInt(req.params.eventId) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     const feedback = activity.feedback || [];
@@ -613,7 +613,7 @@ router.get('/post-event-summary/:eventId', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get post-event summary error:', error);
-    res.status(500).json({ message: 'Failed to get post-event summary' });
+    res.status(500).json({ success: false, message: 'Failed to get post-event summary' });
   }
 });
 
@@ -626,7 +626,7 @@ router.post('/send-thank-you', auth, async (req, res) => {
 
     const activity = await Activity.findOne({ activityId: parseInt(event_id) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     // Store the thank you record on the activity
@@ -643,7 +643,7 @@ router.post('/send-thank-you', auth, async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error('Send thank you error:', error);
-    res.status(500).json({ message: 'Failed to send thank you' });
+    res.status(500).json({ success: false, message: 'Failed to send thank you' });
   }
 });
 
@@ -664,7 +664,7 @@ router.post('/invite-guest', auth, async (req, res) => {
 
     const activity = await Activity.findOne({ activityId: parseInt(event_id) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     if (!activity.guests) activity.guests = [];
@@ -696,7 +696,7 @@ router.post('/invite-guest', auth, async (req, res) => {
     res.json({ success: true, data: guest });
   } catch (error) {
     console.error('Invite guest error:', error);
-    res.status(500).json({ message: 'Failed to invite guest' });
+    res.status(500).json({ success: false, message: 'Failed to invite guest' });
   }
 });
 
@@ -707,7 +707,7 @@ router.get('/guests/:eventId', auth, async (req, res) => {
   try {
     const activity = await Activity.findOne({ activityId: parseInt(req.params.eventId) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     const guests = activity.guests || [];
@@ -723,7 +723,7 @@ router.get('/guests/:eventId', auth, async (req, res) => {
     res.json({ success: true, data: guestSummary });
   } catch (error) {
     console.error('Get guests error:', error);
-    res.status(500).json({ message: 'Failed to get guests' });
+    res.status(500).json({ success: false, message: 'Failed to get guests' });
   }
 });
 
@@ -736,12 +736,12 @@ router.put('/guest-status', auth, async (req, res) => {
 
     const activity = await Activity.findOne({ 'guests.guestId': guest_id });
     if (!activity) {
-      return res.status(404).json({ message: 'Guest not found' });
+      return res.status(404).json({ success: false, message: 'Guest not found' });
     }
 
     const guest = activity.guests.find((g) => g.guestId === guest_id);
     if (!guest) {
-      return res.status(404).json({ message: 'Guest not found' });
+      return res.status(404).json({ success: false, message: 'Guest not found' });
     }
 
     guest.status = status;
@@ -751,7 +751,7 @@ router.put('/guest-status', auth, async (req, res) => {
     res.json({ success: true, data: guest });
   } catch (error) {
     console.error('Update guest status error:', error);
-    res.status(500).json({ message: 'Failed to update guest status' });
+    res.status(500).json({ success: false, message: 'Failed to update guest status' });
   }
 });
 
@@ -763,12 +763,12 @@ router.delete('/cancel-guest/:guestId', auth, async (req, res) => {
     const guestId = parseInt(req.params.guestId);
     const activity = await Activity.findOne({ 'guests.guestId': guestId });
     if (!activity) {
-      return res.status(404).json({ message: 'Guest not found' });
+      return res.status(404).json({ success: false, message: 'Guest not found' });
     }
 
     const guestIndex = activity.guests.findIndex((g) => g.guestId === guestId);
     if (guestIndex === -1) {
-      return res.status(404).json({ message: 'Guest not found' });
+      return res.status(404).json({ success: false, message: 'Guest not found' });
     }
 
     activity.guests[guestIndex].status = 'cancelled';
@@ -777,7 +777,7 @@ router.delete('/cancel-guest/:guestId', auth, async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error('Cancel guest error:', error);
-    res.status(500).json({ message: 'Failed to cancel guest invite' });
+    res.status(500).json({ success: false, message: 'Failed to cancel guest invite' });
   }
 });
 
@@ -790,12 +790,12 @@ router.post('/guest-rsvp', async (req, res) => {
 
     const activity = await Activity.findOne({ 'guests.inviteCode': invite_code });
     if (!activity) {
-      return res.status(404).json({ message: 'Invalid invite code' });
+      return res.status(404).json({ success: false, message: 'Invalid invite code' });
     }
 
     const guest = activity.guests.find((g) => g.inviteCode === invite_code);
     if (!guest) {
-      return res.status(404).json({ message: 'Invalid invite code' });
+      return res.status(404).json({ success: false, message: 'Invalid invite code' });
     }
 
     guest.status = accept ? 'accepted' : 'declined';
@@ -807,7 +807,7 @@ router.post('/guest-rsvp', async (req, res) => {
     res.json({ success: true, data: guest });
   } catch (error) {
     console.error('Guest RSVP error:', error);
-    res.status(500).json({ message: 'Failed to process RSVP' });
+    res.status(500).json({ success: false, message: 'Failed to process RSVP' });
   }
 });
 
@@ -820,12 +820,12 @@ router.post('/invite-guest/resend', auth, async (req, res) => {
 
     const activity = await Activity.findOne({ 'guests.guestId': guest_id });
     if (!activity) {
-      return res.status(404).json({ message: 'Guest not found' });
+      return res.status(404).json({ success: false, message: 'Guest not found' });
     }
 
     const guest = activity.guests.find((g) => g.guestId === guest_id);
     if (!guest) {
-      return res.status(404).json({ message: 'Guest not found' });
+      return res.status(404).json({ success: false, message: 'Guest not found' });
     }
 
     // Update delivery preferences
@@ -837,7 +837,7 @@ router.post('/invite-guest/resend', auth, async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error('Resend invite error:', error);
-    res.status(500).json({ message: 'Failed to resend invite' });
+    res.status(500).json({ success: false, message: 'Failed to resend invite' });
   }
 });
 
@@ -850,7 +850,7 @@ router.post('/reminder', auth, async (req, res) => {
 
     const activity = await Activity.findOne({ activityId: parseInt(event_id) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     if (!activity.reminders) activity.reminders = [];
@@ -873,7 +873,7 @@ router.post('/reminder', auth, async (req, res) => {
     res.json({ success: true, data: reminder });
   } catch (error) {
     console.error('Create reminder error:', error);
-    res.status(500).json({ message: 'Failed to create reminder' });
+    res.status(500).json({ success: false, message: 'Failed to create reminder' });
   }
 });
 
@@ -884,7 +884,7 @@ router.get('/reminders/:eventId', auth, async (req, res) => {
   try {
     const activity = await Activity.findOne({ activityId: parseInt(req.params.eventId) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     const reminders = (activity.reminders || []).filter(
@@ -894,7 +894,7 @@ router.get('/reminders/:eventId', auth, async (req, res) => {
     res.json({ success: true, data: reminders });
   } catch (error) {
     console.error('Get event reminders error:', error);
-    res.status(500).json({ message: 'Failed to get reminders' });
+    res.status(500).json({ success: false, message: 'Failed to get reminders' });
   }
 });
 
@@ -924,7 +924,7 @@ router.get('/reminders', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get all reminders error:', error);
-    res.status(500).json({ message: 'Failed to get reminders' });
+    res.status(500).json({ success: false, message: 'Failed to get reminders' });
   }
 });
 
@@ -937,16 +937,16 @@ router.put('/reminder', auth, async (req, res) => {
 
     const activity = await Activity.findOne({ 'reminders.reminderId': reminder_id });
     if (!activity) {
-      return res.status(404).json({ message: 'Reminder not found' });
+      return res.status(404).json({ success: false, message: 'Reminder not found' });
     }
 
     const reminder = activity.reminders.find((r) => r.reminderId === reminder_id);
     if (!reminder) {
-      return res.status(404).json({ message: 'Reminder not found' });
+      return res.status(404).json({ success: false, message: 'Reminder not found' });
     }
 
     if (String(reminder.userId) !== String(req.user.userId)) {
-      return res.status(403).json({ message: 'Not authorized to update this reminder' });
+      return res.status(403).json({ success: false, message: 'Not authorized to update this reminder' });
     }
 
     if (type !== undefined) reminder.type = type;
@@ -958,7 +958,7 @@ router.put('/reminder', auth, async (req, res) => {
     res.json({ success: true, data: reminder });
   } catch (error) {
     console.error('Update reminder error:', error);
-    res.status(500).json({ message: 'Failed to update reminder' });
+    res.status(500).json({ success: false, message: 'Failed to update reminder' });
   }
 });
 
@@ -971,16 +971,16 @@ router.delete('/reminder/:reminderId', auth, async (req, res) => {
 
     const activity = await Activity.findOne({ 'reminders.reminderId': reminderId });
     if (!activity) {
-      return res.status(404).json({ message: 'Reminder not found' });
+      return res.status(404).json({ success: false, message: 'Reminder not found' });
     }
 
     const reminderIndex = activity.reminders.findIndex((r) => r.reminderId === reminderId);
     if (reminderIndex === -1) {
-      return res.status(404).json({ message: 'Reminder not found' });
+      return res.status(404).json({ success: false, message: 'Reminder not found' });
     }
 
     if (String(activity.reminders[reminderIndex].userId) !== String(req.user.userId)) {
-      return res.status(403).json({ message: 'Not authorized to delete this reminder' });
+      return res.status(403).json({ success: false, message: 'Not authorized to delete this reminder' });
     }
 
     activity.reminders.splice(reminderIndex, 1);
@@ -989,7 +989,7 @@ router.delete('/reminder/:reminderId', auth, async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error('Delete reminder error:', error);
-    res.status(500).json({ message: 'Failed to delete reminder' });
+    res.status(500).json({ success: false, message: 'Failed to delete reminder' });
   }
 });
 
@@ -1021,7 +1021,7 @@ router.get('/upcoming-reminders', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get upcoming reminders error:', error);
-    res.status(500).json({ message: 'Failed to get upcoming reminders' });
+    res.status(500).json({ success: false, message: 'Failed to get upcoming reminders' });
   }
 });
 
@@ -1034,7 +1034,7 @@ router.post('/waitlist/join', auth, async (req, res) => {
 
     const activity = await Activity.findOne({ activityId: parseInt(event_id) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     if (!activity.waitlist) activity.waitlist = [];
@@ -1044,7 +1044,7 @@ router.post('/waitlist/join', auth, async (req, res) => {
       (w) => String(w.userId) === String(req.user.userId) && w.status !== 'cancelled'
     );
     if (existing) {
-      return res.status(400).json({ message: 'Already on waitlist' });
+      return res.status(400).json({ success: false, message: 'Already on waitlist' });
     }
 
     const entry = {
@@ -1065,7 +1065,7 @@ router.post('/waitlist/join', auth, async (req, res) => {
     res.json({ success: true, data: entry });
   } catch (error) {
     console.error('Join waitlist error:', error);
-    res.status(500).json({ message: 'Failed to join waitlist' });
+    res.status(500).json({ success: false, message: 'Failed to join waitlist' });
   }
 });
 
@@ -1076,7 +1076,7 @@ router.delete('/waitlist/leave/:eventId', auth, async (req, res) => {
   try {
     const activity = await Activity.findOne({ activityId: parseInt(req.params.eventId) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     const waitlist = activity.waitlist || [];
@@ -1084,7 +1084,7 @@ router.delete('/waitlist/leave/:eventId', auth, async (req, res) => {
       (w) => String(w.userId) === String(req.user.userId) && w.status === 'waiting'
     );
     if (entryIndex === -1) {
-      return res.status(404).json({ message: 'Not on waitlist' });
+      return res.status(404).json({ success: false, message: 'Not on waitlist' });
     }
 
     waitlist[entryIndex].status = 'cancelled';
@@ -1093,7 +1093,7 @@ router.delete('/waitlist/leave/:eventId', auth, async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error('Leave waitlist error:', error);
-    res.status(500).json({ message: 'Failed to leave waitlist' });
+    res.status(500).json({ success: false, message: 'Failed to leave waitlist' });
   }
 });
 
@@ -1104,7 +1104,7 @@ router.get('/waitlist/:eventId', auth, async (req, res) => {
   try {
     const activity = await Activity.findOne({ activityId: parseInt(req.params.eventId) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     const waitlist = activity.waitlist || [];
@@ -1121,7 +1121,7 @@ router.get('/waitlist/:eventId', auth, async (req, res) => {
     res.json({ success: true, data: summary });
   } catch (error) {
     console.error('Get waitlist error:', error);
-    res.status(500).json({ message: 'Failed to get waitlist' });
+    res.status(500).json({ success: false, message: 'Failed to get waitlist' });
   }
 });
 
@@ -1134,16 +1134,16 @@ router.post('/waitlist/respond', auth, async (req, res) => {
 
     const activity = await Activity.findOne({ 'waitlist.waitlistId': waitlist_id });
     if (!activity) {
-      return res.status(404).json({ message: 'Waitlist entry not found' });
+      return res.status(404).json({ success: false, message: 'Waitlist entry not found' });
     }
 
     const entry = activity.waitlist.find((w) => w.waitlistId === waitlist_id);
     if (!entry) {
-      return res.status(404).json({ message: 'Waitlist entry not found' });
+      return res.status(404).json({ success: false, message: 'Waitlist entry not found' });
     }
 
     if (String(entry.userId) !== String(req.user.userId)) {
-      return res.status(403).json({ message: 'Not authorized' });
+      return res.status(403).json({ success: false, message: 'Not authorized' });
     }
 
     entry.status = accept ? 'accepted' : 'declined';
@@ -1168,7 +1168,7 @@ router.post('/waitlist/respond', auth, async (req, res) => {
     res.json({ success: true, data: entry });
   } catch (error) {
     console.error('Respond to waitlist error:', error);
-    res.status(500).json({ message: 'Failed to respond to waitlist' });
+    res.status(500).json({ success: false, message: 'Failed to respond to waitlist' });
   }
 });
 
@@ -1179,7 +1179,7 @@ router.get('/waitlist/position/:eventId', auth, async (req, res) => {
   try {
     const activity = await Activity.findOne({ activityId: parseInt(req.params.eventId) });
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     const waitlist = activity.waitlist || [];
@@ -1188,7 +1188,7 @@ router.get('/waitlist/position/:eventId', auth, async (req, res) => {
     );
 
     if (!entry) {
-      return res.status(404).json({ message: 'Not on waitlist' });
+      return res.status(404).json({ success: false, message: 'Not on waitlist' });
     }
 
     // Recalculate position based on waiting entries sorted by joinedAt
@@ -1202,7 +1202,7 @@ router.get('/waitlist/position/:eventId', auth, async (req, res) => {
     res.json({ success: true, data: { ...entry, position } });
   } catch (error) {
     console.error('Get waitlist position error:', error);
-    res.status(500).json({ message: 'Failed to get waitlist position' });
+    res.status(500).json({ success: false, message: 'Failed to get waitlist position' });
   }
 });
 
@@ -1233,7 +1233,7 @@ router.get('/waitlist', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get user waitlists error:', error);
-    res.status(500).json({ message: 'Failed to get waitlists' });
+    res.status(500).json({ success: false, message: 'Failed to get waitlists' });
   }
 });
 
@@ -1313,7 +1313,7 @@ router.post('/recurring/create', auth, async (req, res) => {
     res.status(201).json({ success: true, data });
   } catch (error) {
     console.error('Create recurring series error:', error);
-    res.status(500).json({ message: 'Failed to create recurring series' });
+    res.status(500).json({ success: false, message: 'Failed to create recurring series' });
   }
 });
 
@@ -1327,7 +1327,7 @@ router.get('/recurring/series/:seriesId', auth, async (req, res) => {
       isRecurringSeries: true,
     });
     if (!series) {
-      return res.status(404).json({ message: 'Series not found' });
+      return res.status(404).json({ success: false, message: 'Series not found' });
     }
 
     const data = {
@@ -1340,7 +1340,7 @@ router.get('/recurring/series/:seriesId', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get recurring series error:', error);
-    res.status(500).json({ message: 'Failed to get recurring series' });
+    res.status(500).json({ success: false, message: 'Failed to get recurring series' });
   }
 });
 
@@ -1364,7 +1364,7 @@ router.get('/recurring/series', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get my recurring series error:', error);
-    res.status(500).json({ message: 'Failed to get recurring series' });
+    res.status(500).json({ success: false, message: 'Failed to get recurring series' });
   }
 });
 
@@ -1396,11 +1396,11 @@ router.put('/recurring/update', auth, async (req, res) => {
       isRecurringSeries: true,
     });
     if (!series) {
-      return res.status(404).json({ message: 'Series not found' });
+      return res.status(404).json({ success: false, message: 'Series not found' });
     }
 
     if (String(series.creatorId) !== String(req.user.userId)) {
-      return res.status(403).json({ message: 'Only the creator can update this series' });
+      return res.status(403).json({ success: false, message: 'Only the creator can update this series' });
     }
 
     if (name !== undefined) series.name = name;
@@ -1436,7 +1436,7 @@ router.put('/recurring/update', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Update recurring series error:', error);
-    res.status(500).json({ message: 'Failed to update recurring series' });
+    res.status(500).json({ success: false, message: 'Failed to update recurring series' });
   }
 });
 
@@ -1452,11 +1452,11 @@ router.post('/recurring/cancel-instance', auth, async (req, res) => {
       isRecurringSeries: true,
     });
     if (!series) {
-      return res.status(404).json({ message: 'Series not found' });
+      return res.status(404).json({ success: false, message: 'Series not found' });
     }
 
     if (String(series.creatorId) !== String(req.user.userId)) {
-      return res.status(403).json({ message: 'Only the creator can cancel instances' });
+      return res.status(403).json({ success: false, message: 'Only the creator can cancel instances' });
     }
 
     if (!series.recurringInstances) series.recurringInstances = [];
@@ -1485,7 +1485,7 @@ router.post('/recurring/cancel-instance', auth, async (req, res) => {
     res.json({ success: true, data: instance });
   } catch (error) {
     console.error('Cancel instance error:', error);
-    res.status(500).json({ message: 'Failed to cancel instance' });
+    res.status(500).json({ success: false, message: 'Failed to cancel instance' });
   }
 });
 
@@ -1499,18 +1499,18 @@ router.delete('/recurring/delete/:seriesId', auth, async (req, res) => {
       isRecurringSeries: true,
     });
     if (!series) {
-      return res.status(404).json({ message: 'Series not found' });
+      return res.status(404).json({ success: false, message: 'Series not found' });
     }
 
     if (String(series.creatorId) !== String(req.user.userId)) {
-      return res.status(403).json({ message: 'Only the creator can delete this series' });
+      return res.status(403).json({ success: false, message: 'Only the creator can delete this series' });
     }
 
     await Activity.deleteOne({ _id: series._id });
     res.json({ success: true });
   } catch (error) {
     console.error('Delete recurring series error:', error);
-    res.status(500).json({ message: 'Failed to delete recurring series' });
+    res.status(500).json({ success: false, message: 'Failed to delete recurring series' });
   }
 });
 
@@ -1526,7 +1526,7 @@ router.get('/recurring/instances/:seriesId', auth, async (req, res) => {
       isRecurringSeries: true,
     });
     if (!series) {
-      return res.status(404).json({ message: 'Series not found' });
+      return res.status(404).json({ success: false, message: 'Series not found' });
     }
 
     let instances = series.recurringInstances || [];
@@ -1549,7 +1549,7 @@ router.get('/recurring/instances/:seriesId', auth, async (req, res) => {
     res.json({ success: true, data: instances });
   } catch (error) {
     console.error('Get recurring instances error:', error);
-    res.status(500).json({ message: 'Failed to get recurring instances' });
+    res.status(500).json({ success: false, message: 'Failed to get recurring instances' });
   }
 });
 
