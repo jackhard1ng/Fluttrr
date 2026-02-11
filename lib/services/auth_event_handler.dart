@@ -87,7 +87,7 @@ class AuthEventHandler {
       debugPrint('AuthEventHandler: Handling 401 Unauthorized');
 
       // First, attempt to refresh the token
-      final refreshed = await _attemptTokenRefresh();
+      final refreshed = await attemptTokenRefresh();
 
       if (refreshed) {
         debugPrint('AuthEventHandler: Token refresh successful, resuming session');
@@ -139,10 +139,12 @@ class AuthEventHandler {
     }
   }
 
-  /// Attempt to refresh the access token
+  /// Attempt to refresh the access token.
   ///
   /// Returns true if refresh was successful, false otherwise.
-  Future<bool> _attemptTokenRefresh() async {
+  /// Public so it can be called from BaseRepository and AuthRepository
+  /// as the single source of truth for token refresh logic.
+  Future<bool> attemptTokenRefresh() async {
     try {
       final refreshToken = await TokenManager.getRefreshToken();
 

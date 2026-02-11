@@ -8,13 +8,14 @@ import '../../controllers/profile_controller.dart';
 
 /// Modern login screen with brand identity
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+  LoginScreen({super.key});
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     // Use find since AuthController is already registered in InitialBindings
     final authController = Get.find<AuthController>();
-    final formKey = GlobalKey<FormState>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
@@ -28,7 +29,7 @@ class LoginScreen extends StatelessWidget {
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             child: Form(
-              key: formKey,
+              key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -204,7 +205,7 @@ class LoginScreen extends StatelessWidget {
                     text: 'Sign In',
                     isLoading: authController.isLoading.value,
                     onPressed: () async {
-                      if (formKey.currentState?.validate() ?? false) {
+                      if (_formKey.currentState?.validate() ?? false) {
                         final success = await authController.login();
                         if (success) {
                           if (!Get.isRegistered<ProfileController>()) {

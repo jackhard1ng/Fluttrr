@@ -8,12 +8,13 @@ import '../../widgets/common_widgets.dart';
 
 /// Reset password screen
 class ResetPasswordScreen extends StatelessWidget {
-  const ResetPasswordScreen({super.key});
+  ResetPasswordScreen({super.key});
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     final authController = Get.find<AuthController>();
-    final formKey = GlobalKey<FormState>();
 
     // Clear password fields
     authController.passwordController.clear();
@@ -31,7 +32,7 @@ class ResetPasswordScreen extends StatelessWidget {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Form(
-            key: formKey,
+            key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -146,7 +147,7 @@ class ResetPasswordScreen extends StatelessWidget {
                       text: 'Reset Password',
                       isLoading: authController.isLoading.value,
                       onPressed: () async {
-                        if (formKey.currentState?.validate() ?? false) {
+                        if (_formKey.currentState?.validate() ?? false) {
                           final success = await authController.resetPassword();
                           if (success) {
                             Get.snackbar(

@@ -52,6 +52,7 @@ class AuthResponse {
   final bool success;
   final String? message;
   final String? token;
+  final String? refreshToken;
   final int? userId;
   final bool isNewUser;
   final bool requiresProfileSetup;
@@ -60,6 +61,7 @@ class AuthResponse {
     required this.success,
     this.message,
     this.token,
+    this.refreshToken,
     this.userId,
     this.isNewUser = false,
     this.requiresProfileSetup = false,
@@ -70,6 +72,7 @@ class AuthResponse {
       success: json['success'] == true || json['token'] != null,
       message: json['message'] as String?,
       token: json['token'] as String?,
+      refreshToken: (json['refreshToken'] ?? json['refresh_token']) as String?,
       userId: (json['userId'] ?? json['user_id']) as int?,
       isNewUser: json['is_new_user'] == true || json['isNewUser'] == true,
       requiresProfileSetup: json['requires_profile_setup'] == true ||
@@ -82,6 +85,7 @@ class AuthResponse {
       'success': success,
       'message': message,
       'token': token,
+      'refreshToken': refreshToken,
       'userId': userId,
       'is_new_user': isNewUser,
       'requires_profile_setup': requiresProfileSetup,

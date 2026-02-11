@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
-import '../config/environment.dart';
 import '../models/api_response.dart';
 import '../services/token_manager.dart';
 import '../services/auth_event_handler.dart';
@@ -17,11 +16,55 @@ import '../services/http_utils.dart';
 ///
 /// Features:
 /// - Automatic retry with exponential backoff
+/// - Automatic token refresh and request retry on 401
+/// - Proactive token expiry check before requests
 /// - Configurable timeouts per request
 /// - Response caching for GET requests
 /// - Rate limiting handling
 /// - Network connectivity checks
 abstract class BaseRepository {
+  // ==================== Token Refresh Lock ====================
+
+  /// Prevents multiple simultaneous token refresh attempts.
+  /// All concurrent 401s wait on the same Completer.
+  static bool _isRefreshing = false;
+  static Completer<bool>? _refreshCompleter;
+
+  /// Attempt to refresh the token, with a lock so concurrent 401s
+  /// all wait on a single refresh attempt.
+  Future<bool> _handleTokenRefresh() async {
+    // If already refreshing, wait for the result
+    if (_isRefreshing && _refreshCompleter != null) {
+      return _refreshCompleter!.future;
+    }
+
+    _isRefreshing = true;
+    _refreshCompleter = Completer<bool>();
+
+    try {
+      final success = await AuthEventHandler().attemptTokenRefresh();
+      _refreshCompleter!.complete(success);
+
+      if (!success) {
+        // Refresh failed — force logout
+        AuthEventHandler().handleUnauthorized(
+          message: 'Your session has expired. Please log in again.',
+        );
+      }
+
+      return success;
+    } catch (e) {
+      debugPrint('BaseRepository: Token refresh error: $e');
+      _refreshCompleter!.complete(false);
+      return false;
+    } finally {
+      _isRefreshing = false;
+      _refreshCompleter = null;
+    }
+  }
+
+  // ==================== Connectivity ====================
+
   /// Check network connectivity before making requests
   Future<bool> _checkConnectivity() async {
     try {
@@ -36,8 +79,8 @@ abstract class BaseRepository {
       return true;
     }
   }
-  /// Default timeout from environment config
-  Duration get _defaultTimeout => Duration(seconds: AppConfig.requestTimeout);
+
+  // ==================== Token Management ====================
 
   /// Get the auth token from TokenManager (single source of truth)
   Future<String?> getToken() async {
@@ -54,7 +97,8 @@ abstract class BaseRepository {
     await TokenManager.clearToken();
   }
 
-  /// Get headers with optional auth token
+  /// Get headers with optional auth token.
+  /// Proactively refreshes the token if it's known to be expired.
   Future<Map<String, String>> getHeaders({bool requiresAuth = true}) async {
     final headers = <String, String>{
       'Content-Type': 'application/json',
@@ -62,6 +106,12 @@ abstract class BaseRepository {
     };
 
     if (requiresAuth) {
+      // Proactively refresh if token is known to be expired
+      if (await TokenManager.isTokenExpired()) {
+        debugPrint('BaseRepository: Token expired, proactively refreshing');
+        await _handleTokenRefresh();
+      }
+
       final token = await getToken();
       if (token != null && token.isNotEmpty) {
         headers['Authorization'] = 'Bearer $token';
@@ -70,6 +120,8 @@ abstract class BaseRepository {
 
     return headers;
   }
+
+  // ==================== HTTP Methods ====================
 
   /// Perform a GET request with optional retry and caching
   Future<ApiResponse<T>> get<T>(
@@ -111,6 +163,17 @@ abstract class BaseRepository {
         config: requestConfig,
       );
 
+      // Handle 401 with token refresh and retry
+      if (response.statusCode == 401 && requiresAuth) {
+        final refreshed = await _handleTokenRefresh();
+        if (refreshed) {
+          final newHeaders = await getHeaders(requiresAuth: true);
+          final retryResponse = await http.get(uri, headers: newHeaders)
+              .timeout(requestConfig.timeout);
+          return _handleResponse(retryResponse, fromJson);
+        }
+      }
+
       // Cache successful GET responses
       if (requestConfig.enableCache && response.statusCode >= 200 && response.statusCode < 300) {
         final cacheKey = HttpUtils.generateCacheKey(uri.toString(), headers);
@@ -143,14 +206,23 @@ abstract class BaseRepository {
 
       await HttpUtils.checkRateLimit(uri.host);
 
+      final encodedBody = body != null ? jsonEncode(body) : null;
+
       final response = await HttpUtils.executeWithRetry(
-        () => http.post(
-          uri,
-          headers: headers,
-          body: body != null ? jsonEncode(body) : null,
-        ),
+        () => http.post(uri, headers: headers, body: encodedBody),
         config: requestConfig,
       );
+
+      // Handle 401 with token refresh and retry
+      if (response.statusCode == 401 && requiresAuth) {
+        final refreshed = await _handleTokenRefresh();
+        if (refreshed) {
+          final newHeaders = await getHeaders(requiresAuth: true);
+          final retryResponse = await http.post(uri, headers: newHeaders, body: encodedBody)
+              .timeout(requestConfig.timeout);
+          return _handleResponse(retryResponse, fromJson);
+        }
+      }
 
       return _handleResponse(response, fromJson);
     } catch (e) {
@@ -178,14 +250,23 @@ abstract class BaseRepository {
 
       await HttpUtils.checkRateLimit(uri.host);
 
+      final encodedBody = body != null ? jsonEncode(body) : null;
+
       final response = await HttpUtils.executeWithRetry(
-        () => http.put(
-          uri,
-          headers: headers,
-          body: body != null ? jsonEncode(body) : null,
-        ),
+        () => http.put(uri, headers: headers, body: encodedBody),
         config: requestConfig,
       );
+
+      // Handle 401 with token refresh and retry
+      if (response.statusCode == 401 && requiresAuth) {
+        final refreshed = await _handleTokenRefresh();
+        if (refreshed) {
+          final newHeaders = await getHeaders(requiresAuth: true);
+          final retryResponse = await http.put(uri, headers: newHeaders, body: encodedBody)
+              .timeout(requestConfig.timeout);
+          return _handleResponse(retryResponse, fromJson);
+        }
+      }
 
       return _handleResponse(response, fromJson);
     } catch (e) {
@@ -213,14 +294,23 @@ abstract class BaseRepository {
 
       await HttpUtils.checkRateLimit(uri.host);
 
+      final encodedBody = body != null ? jsonEncode(body) : null;
+
       final response = await HttpUtils.executeWithRetry(
-        () => http.patch(
-          uri,
-          headers: headers,
-          body: body != null ? jsonEncode(body) : null,
-        ),
+        () => http.patch(uri, headers: headers, body: encodedBody),
         config: requestConfig,
       );
+
+      // Handle 401 with token refresh and retry
+      if (response.statusCode == 401 && requiresAuth) {
+        final refreshed = await _handleTokenRefresh();
+        if (refreshed) {
+          final newHeaders = await getHeaders(requiresAuth: true);
+          final retryResponse = await http.patch(uri, headers: newHeaders, body: encodedBody)
+              .timeout(requestConfig.timeout);
+          return _handleResponse(retryResponse, fromJson);
+        }
+      }
 
       return _handleResponse(response, fromJson);
     } catch (e) {
@@ -251,6 +341,17 @@ abstract class BaseRepository {
         () => http.delete(uri, headers: headers),
         config: requestConfig,
       );
+
+      // Handle 401 with token refresh and retry
+      if (response.statusCode == 401 && requiresAuth) {
+        final refreshed = await _handleTokenRefresh();
+        if (refreshed) {
+          final newHeaders = await getHeaders(requiresAuth: true);
+          final retryResponse = await http.delete(uri, headers: newHeaders)
+              .timeout(requestConfig.timeout);
+          return _handleResponse(retryResponse, fromJson);
+        }
+      }
 
       return _handleResponse(response, fromJson);
     } catch (e) {
@@ -297,6 +398,24 @@ abstract class BaseRepository {
 
         final streamedResponse = await request.send().timeout(uploadConfig.timeout);
         final response = await http.Response.fromStream(streamedResponse);
+
+        // Handle 401 with token refresh and retry
+        if (response.statusCode == 401 && requiresAuth) {
+          final refreshed = await _handleTokenRefresh();
+          if (refreshed) {
+            // Retry with new token
+            final retryRequest = http.MultipartRequest('POST', Uri.parse(url));
+            final newToken = await getToken();
+            if (newToken != null) {
+              retryRequest.headers['Authorization'] = 'Bearer $newToken';
+            }
+            retryRequest.files.add(await http.MultipartFile.fromPath(fieldName, file.path));
+            if (fields != null) retryRequest.fields.addAll(fields);
+            final retryStreamedResponse = await retryRequest.send().timeout(uploadConfig.timeout);
+            final retryResponse = await http.Response.fromStream(retryStreamedResponse);
+            return _handleResponse(retryResponse, fromJson);
+          }
+        }
 
         // Check if we should retry based on status code
         if (response.statusCode >= 500 || response.statusCode == 429) {
@@ -446,38 +565,89 @@ abstract class BaseRepository {
     Map<String, String>? fields,
     T Function(Map<String, dynamic>)? fromJson,
     bool requiresAuth = true,
+    RequestConfig? config,
   }) async {
-    try {
-      final request = http.MultipartRequest('PUT', Uri.parse(url));
+    // Check connectivity first
+    if (!await _checkConnectivity()) {
+      return ApiResponse.failure(error: 'No internet connection');
+    }
 
-      // Add headers
-      final token = await getToken();
-      if (requiresAuth && token != null) {
-        request.headers['Authorization'] = 'Bearer $token';
-      }
+    final uploadConfig = config ?? RequestConfig.fileUpload;
+    int attempt = 0;
+    Exception? lastException;
 
-      // Add files
-      if (files != null) {
-        for (final entry in files.entries) {
-          request.files.add(
-            await http.MultipartFile.fromPath(entry.key, entry.value.path),
-          );
+    while (attempt < uploadConfig.maxRetries) {
+      try {
+        final request = http.MultipartRequest('PUT', Uri.parse(url));
+
+        // Add headers
+        final token = await getToken();
+        if (requiresAuth && token != null) {
+          request.headers['Authorization'] = 'Bearer $token';
+        }
+
+        // Add files
+        if (files != null) {
+          for (final entry in files.entries) {
+            request.files.add(
+              await http.MultipartFile.fromPath(entry.key, entry.value.path),
+            );
+          }
+        }
+
+        // Add fields
+        if (fields != null) {
+          request.fields.addAll(fields);
+        }
+
+        final streamedResponse = await request.send().timeout(uploadConfig.timeout);
+        final response = await http.Response.fromStream(streamedResponse);
+
+        // Handle 401 with token refresh and retry
+        if (response.statusCode == 401 && requiresAuth) {
+          final refreshed = await _handleTokenRefresh();
+          if (refreshed) {
+            continue; // Retry the loop with new token
+          }
+        }
+
+        // Check if we should retry based on status code
+        if (response.statusCode >= 500 || response.statusCode == 429) {
+          attempt++;
+          if (attempt < uploadConfig.maxRetries) {
+            final delay = Duration(milliseconds: uploadConfig.baseDelayMs * (1 << (attempt - 1)));
+            debugPrint('putWithFiles retry $attempt/${uploadConfig.maxRetries} after ${delay.inMilliseconds}ms');
+            await Future.delayed(delay);
+            continue;
+          }
+        }
+
+        return _handleResponse(response, fromJson);
+      } on TimeoutException catch (e) {
+        lastException = e;
+        attempt++;
+        debugPrint('putWithFiles timeout, attempt $attempt/${uploadConfig.maxRetries}');
+        if (attempt < uploadConfig.maxRetries) {
+          final delay = Duration(milliseconds: uploadConfig.baseDelayMs * (1 << (attempt - 1)));
+          await Future.delayed(delay);
+        }
+      } catch (e) {
+        if (_isRetryableError(e) && attempt < uploadConfig.maxRetries - 1) {
+          lastException = e is Exception ? e : Exception(e.toString());
+          attempt++;
+          debugPrint('putWithFiles network error, attempt $attempt/${uploadConfig.maxRetries}');
+          final delay = Duration(milliseconds: uploadConfig.baseDelayMs * (1 << (attempt - 1)));
+          await Future.delayed(delay);
+        } else {
+          return _handleError(e);
         }
       }
-
-      // Add fields
-      if (fields != null) {
-        request.fields.addAll(fields);
-      }
-
-      final streamedResponse = await request.send().timeout(_defaultTimeout);
-      final response = await http.Response.fromStream(streamedResponse);
-
-      return _handleResponse(response, fromJson);
-    } catch (e) {
-      return _handleError(e);
     }
+
+    return _handleError(lastException ?? TimeoutException('putWithFiles failed after ${uploadConfig.maxRetries} attempts'));
   }
+
+  // ==================== Response Handling ====================
 
   /// Handle HTTP response
   ApiResponse<T> _handleResponse<T>(
@@ -508,8 +678,6 @@ abstract class BaseRepository {
         if (fromJson != null) {
           parsedData = fromJson(data);
         }
-        // Only cast if no fromJson provided and T is dynamic or Map
-        // This avoids unsafe casts
 
         return ApiResponse.success(
           data: parsedData,
@@ -518,13 +686,6 @@ abstract class BaseRepository {
         );
       } else {
         final errorMessage = (data['message'] ?? data['error'] ?? 'Request failed') as String;
-
-        // Handle 401 Unauthorized - trigger global auth handler
-        if (response.statusCode == 401) {
-          debugPrint('BaseRepository: 401 Unauthorized - triggering auth handler');
-          // Fire and forget - don't await to avoid blocking the response
-          AuthEventHandler().handleUnauthorized(message: errorMessage);
-        }
 
         return ApiResponse.failure(
           error: errorMessage,
@@ -547,7 +708,7 @@ abstract class BaseRepository {
     String message;
     if (error is SocketException) {
       final errorMsg = error.message.toLowerCase();
-      final osErrorMsg = error.osError?.message?.toLowerCase() ?? '';
+      final osErrorMsg = error.osError?.message.toLowerCase() ?? '';
       if (errorMsg.contains('failed host lookup') ||
           osErrorMsg.contains('no address associated') ||
           osErrorMsg.contains('name or service not known') ||
@@ -581,12 +742,6 @@ abstract class BaseRepository {
   /// - Data wrapped in 'data' key or as direct list
   /// - Invalid items that can't be cast to Map<String, dynamic>
   /// - Parsing errors for individual items (logs and skips)
-  ///
-  /// Example usage:
-  /// ```dart
-  /// final response = await get<dynamic>(ApiEndpoints.activities);
-  /// return parseListResponse(response, ActivityModel.fromJson);
-  /// ```
   ApiResponse<List<T>> parseListResponse<T>(
     ApiResponse<dynamic> response,
     T Function(Map<String, dynamic>) fromJson, {

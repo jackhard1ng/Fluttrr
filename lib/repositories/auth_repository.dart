@@ -1,11 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:http/http.dart' as http;
 
 import '../constants/api_endpoints.dart';
 import '../models/api_response.dart';
+import '../services/auth_event_handler.dart';
 import '../services/token_manager.dart';
 import 'base_repository.dart';
 
@@ -14,6 +12,17 @@ class AuthRepository extends BaseRepository {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
   );
+
+  /// Save both access and refresh tokens from an auth response
+  Future<void> _saveAuthTokens(AuthResponse authResponse) async {
+    final token = authResponse.token;
+    if (token != null) {
+      await TokenManager.saveTokens(
+        accessToken: token,
+        refreshToken: authResponse.refreshToken,
+      );
+    }
+  }
 
   /// Login with email and password
   Future<ApiResponse<AuthResponse>> login({
@@ -27,10 +36,9 @@ class AuthRepository extends BaseRepository {
       requiresAuth: false,
     );
 
-    // Save token if login successful
-    final token = response.data?.token;
-    if (response.success && token != null) {
-      await saveToken(token);
+    // Save tokens if login successful
+    if (response.success && response.data != null) {
+      await _saveAuthTokens(response.data!);
     }
 
     return response;
@@ -65,10 +73,9 @@ class AuthRepository extends BaseRepository {
       requiresAuth: false,
     );
 
-    // Save token if verification successful
-    final token = response.data?.token;
-    if (response.success && token != null) {
-      await saveToken(token);
+    // Save tokens if verification successful
+    if (response.success && response.data != null) {
+      await _saveAuthTokens(response.data!);
     }
 
     return response;
@@ -99,12 +106,14 @@ class AuthRepository extends BaseRepository {
 
   /// Reset password
   Future<ApiResponse<dynamic>> resetPassword({
+    required String email,
     required String newPassword,
     required String confirmPassword,
   }) async {
     return post(
       ApiEndpoints.resetPassword,
       body: {
+        'email': email,
         'newPassword': newPassword,
         'confirmPassword': confirmPassword,
       },
@@ -149,10 +158,9 @@ class AuthRepository extends BaseRepository {
         requiresAuth: false,
       );
 
-      // Save token if successful
-      final token = response.data?.token;
-      if (response.success && token != null) {
-        await saveToken(token);
+      // Save tokens if successful
+      if (response.success && response.data != null) {
+        await _saveAuthTokens(response.data!);
       }
 
       return response;
@@ -184,58 +192,15 @@ class AuthRepository extends BaseRepository {
 
   // ==================== Token Refresh ====================
 
-  /// Attempt to refresh the access token using the refresh token
-  ///
-  /// Returns true if refresh was successful, false otherwise.
-  /// This method makes a direct HTTP call to avoid recursion through BaseRepository.
+  /// Attempt to refresh the access token using the refresh token.
+  /// Delegates to AuthEventHandler which is the single source of truth.
   Future<bool> refreshAccessToken() async {
-    try {
-      final refreshToken = await TokenManager.getRefreshToken();
-
-      if (refreshToken == null || refreshToken.isEmpty) {
-        debugPrint('AuthRepository: No refresh token available');
-        return false;
-      }
-
-      debugPrint('AuthRepository: Attempting token refresh');
-
-      final response = await http.post(
-        Uri.parse(ApiEndpoints.refreshToken),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: jsonEncode({'refreshToken': refreshToken}),
-      );
-
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
-        final newToken = data['token'] as String?;
-        final newRefreshToken = data['refreshToken'] as String?;
-
-        if (newToken != null) {
-          await TokenManager.saveToken(newToken);
-
-          if (newRefreshToken != null) {
-            await TokenManager.saveRefreshToken(newRefreshToken);
-          }
-
-          debugPrint('AuthRepository: Token refresh successful');
-          return true;
-        }
-      }
-
-      debugPrint('AuthRepository: Token refresh failed with status ${response.statusCode}');
-      return false;
-    } catch (e) {
-      debugPrint('AuthRepository: Token refresh error: $e');
-      return false;
-    }
+    return AuthEventHandler().attemptTokenRefresh();
   }
 
   /// Static method for use in BaseRepository without creating circular dependency
   static Future<bool> tryRefreshToken() async {
-    return AuthRepository().refreshAccessToken();
+    return AuthEventHandler().attemptTokenRefresh();
   }
 
   // ==================== Business Authentication ====================
@@ -252,10 +217,9 @@ class AuthRepository extends BaseRepository {
       requiresAuth: false,
     );
 
-    // Save token if login successful
-    final token = response.data?.token;
-    if (response.success && token != null) {
-      await saveToken(token);
+    // Save tokens if login successful
+    if (response.success && response.data != null) {
+      await _saveAuthTokens(response.data!);
     }
 
     return response;
@@ -282,10 +246,9 @@ class AuthRepository extends BaseRepository {
       requiresAuth: false,
     );
 
-    // Save token if registration successful
-    final token = response.data?.token;
-    if (response.success && token != null) {
-      await saveToken(token);
+    // Save tokens if registration successful
+    if (response.success && response.data != null) {
+      await _saveAuthTokens(response.data!);
     }
 
     return response;

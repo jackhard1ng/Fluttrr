@@ -136,7 +136,7 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.login,
-      page: () => const LoginScreen(),
+      page: () => LoginScreen(),
       transition: Transition.fadeIn,
     ),
     GetPage(
@@ -164,7 +164,7 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.resetPassword,
-      page: () => const ResetPasswordScreen(),
+      page: () => ResetPasswordScreen(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

@@ -315,8 +315,11 @@ class AuthController extends GetxController {
 
     isLoading.value = true;
 
+    final email = _tempEmail; // Capture before clearing
+
     try {
       final response = await _authRepository.resetPassword(
+        email: email,
         newPassword: passwordController.text,
         confirmPassword: confirmPasswordController.text,
       );

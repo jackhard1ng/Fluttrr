@@ -31,8 +31,8 @@ void main() async {
   // Initialize Firebase (skip on desktop platforms for development)
   final isDesktop = !kIsWeb &&
       (defaultTargetPlatform == TargetPlatform.windows ||
-       defaultTargetPlatform == TargetPlatform.linux ||
-       defaultTargetPlatform == TargetPlatform.macOS);
+          defaultTargetPlatform == TargetPlatform.linux ||
+          defaultTargetPlatform == TargetPlatform.macOS);
 
   if (!isDesktop) {
     try {
@@ -48,10 +48,12 @@ void main() async {
   }
 
   // Set up Firebase Messaging (only on mobile platforms)
-  if (!kIsWeb && (defaultTargetPlatform == TargetPlatform.android ||
-      defaultTargetPlatform == TargetPlatform.iOS)) {
+  if (!kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS)) {
     try {
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+      FirebaseMessaging.onBackgroundMessage(
+          _firebaseMessagingBackgroundHandler);
       await FirebaseMessaging.instance.requestPermission(
         alert: true,
         badge: true,
