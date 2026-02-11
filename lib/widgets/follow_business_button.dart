@@ -22,7 +22,9 @@ class FollowBusinessButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<FollowController>();
+    final controller = Get.isRegistered<FollowController>()
+        ? Get.find<FollowController>()
+        : Get.put(FollowController());
 
     return Obx(() {
       final following = controller.isFollowingBusiness(businessId);
@@ -202,7 +204,9 @@ class FollowedBusinessesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<FollowController>();
+    final controller = Get.isRegistered<FollowController>()
+        ? Get.find<FollowController>()
+        : Get.put(FollowController());
 
     return Obx(() {
       if (controller.followedBusinesses.isEmpty) {

@@ -19,7 +19,9 @@ class EventReminderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<EventReminderController>();
+    final controller = Get.isRegistered<EventReminderController>()
+        ? Get.find<EventReminderController>()
+        : Get.put(EventReminderController());
 
     return Obx(() {
       final reminder = controller.getReminder(eventId);
@@ -268,7 +270,9 @@ class ReminderButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<EventReminderController>();
+    final controller = Get.isRegistered<EventReminderController>()
+        ? Get.find<EventReminderController>()
+        : Get.put(EventReminderController());
 
     return Obx(() {
       final hasReminder = controller.hasActiveReminder(eventId);
@@ -311,7 +315,9 @@ class UpcomingRemindersWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<EventReminderController>();
+    final controller = Get.isRegistered<EventReminderController>()
+        ? Get.find<EventReminderController>()
+        : Get.put(EventReminderController());
 
     return Obx(() {
       final upcomingReminders = controller.upcomingReminders;

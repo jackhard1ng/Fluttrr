@@ -114,7 +114,9 @@ class _QuickCreateEventScreenState extends State<QuickCreateEventScreen> {
           : null;
 
       // Get business controller and create event
-      final businessController = Get.find<BusinessController>();
+      final businessController = Get.isRegistered<BusinessController>()
+          ? Get.find<BusinessController>()
+          : Get.put(BusinessController());
       final success = await businessController.createEvent(
         name: _nameController.text.trim(),
         description: _descriptionController.text.trim().isNotEmpty

@@ -831,18 +831,33 @@ class _TodayEventsSection extends StatelessWidget {
                 itemCount: events.length,
                 itemBuilder: (context, index) {
                   final event = events[index];
+                  // Format time correctly with AM/PM
+                  final hour = event.startTime.hour;
+                  final minute = event.startTime.minute.toString().padLeft(2, '0');
+                  final period = hour >= 12 ? 'PM' : 'AM';
+                  final displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
+                  final timeStr = '$displayHour:$minute $period';
+
                   return _EventListItem(
                     eventId: event.id,
                     emoji: event.emoji ?? '📅',
                     title: event.title,
                     location: event.location,
-                    time: '${event.startTime.hour}:${event.startTime.minute.toString().padLeft(2, '0')} PM',
+                    time: timeStr,
                     attendees: event.currentAttendees,
                     maxAttendees: event.maxAttendees,
                     hostName: event.hostName,
-                    onJoin: () {
+                    onJoin: () async {
                       HapticFeedback.mediumImpact();
-                      controller.rsvpToEvent(event.id, RsvpStatus.going);
+                      await controller.rsvpToEvent(event.id, RsvpStatus.going);
+                      Get.snackbar(
+                        'Joined!',
+                        'You\'re going to ${event.title}',
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: AppColors.success,
+                        colorText: Colors.white,
+                        duration: const Duration(seconds: 2),
+                      );
                     },
                     onTap: () {
                       HapticFeedback.lightImpact();
