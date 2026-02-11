@@ -50,7 +50,7 @@ class AppBindings {
   static void initHome() {
     // Initialize home-related controllers
     if (!Get.isRegistered<ProfileController>()) {
-      Get.put(ProfileController());
+      Get.put(ProfileController(), permanent: true);
     }
     if (!Get.isRegistered<DiscoverController>()) {
       Get.put(DiscoverController());
@@ -62,7 +62,7 @@ class AppBindings {
 
   static void disposeHome() {
     // Clean up when leaving home
-    Get.delete<ProfileController>();
+    // ProfileController is permanent - don't delete it
     Get.delete<DiscoverController>();
     Get.delete<NotificationsController>();
   }

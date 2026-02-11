@@ -212,23 +212,22 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
   }
 
   Widget _buildLoadMore(ActivityController controller) {
+    // Already inside parent Obx - no nested Obx needed
     if (!controller.hasMorePages.value) {
       return const SizedBox.shrink();
     }
 
-    return Obx(() {
-      if (controller.isLoadingMore.value) {
-        return const Padding(
-          padding: EdgeInsets.all(AppSpacing.md),
-          child: LoadingIndicator(size: 30),
-        );
-      }
-
-      return TextButton(
-        onPressed: controller.loadMoreActivities,
-        child: const Text('Load More'),
+    if (controller.isLoadingMore.value) {
+      return const Padding(
+        padding: EdgeInsets.all(AppSpacing.md),
+        child: LoadingIndicator(size: 30),
       );
-    });
+    }
+
+    return TextButton(
+      onPressed: controller.loadMoreActivities,
+      child: const Text('Load More'),
+    );
   }
 
   void _showFilterBottomSheet(BuildContext context) {

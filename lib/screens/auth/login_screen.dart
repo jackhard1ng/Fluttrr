@@ -209,7 +209,7 @@ class LoginScreen extends StatelessWidget {
                         final success = await authController.login();
                         if (success) {
                           if (!Get.isRegistered<ProfileController>()) {
-                            Get.put(ProfileController());
+                            Get.put(ProfileController(), permanent: true);
                           }
                           Nav.toHome();
                         }
@@ -255,7 +255,7 @@ class LoginScreen extends StatelessWidget {
                       final success = await authController.signInWithGoogle();
                       if (success) {
                         if (!Get.isRegistered<ProfileController>()) {
-                          Get.put(ProfileController());
+                          Get.put(ProfileController(), permanent: true);
                         }
                         Nav.toHome();
                       }

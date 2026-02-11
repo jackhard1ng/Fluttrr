@@ -98,7 +98,7 @@ class _SplashScreenState extends State<SplashScreen>
     if (isLoggedIn) {
       // Initialize profile controller for logged-in users if not registered
       if (!Get.isRegistered<ProfileController>()) {
-        Get.put(ProfileController());
+        Get.put(ProfileController(), permanent: true);
       }
       Nav.toHome();
     } else {

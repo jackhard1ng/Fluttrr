@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _initControllers() {
     if (!Get.isRegistered<ProfileController>()) {
-      Get.put(ProfileController());
+      Get.put(ProfileController(), permanent: true);
     }
     if (!Get.isRegistered<DiscoverController>()) {
       Get.put(DiscoverController());

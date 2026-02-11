@@ -330,7 +330,7 @@ class BusinessRegisterScreen extends StatelessWidget {
                               await authController.registerBusiness();
                           if (success) {
                             if (!Get.isRegistered<ProfileController>()) {
-                              Get.put(ProfileController());
+                              Get.put(ProfileController(), permanent: true);
                             }
                             Get.snackbar(
                               'Account Created',

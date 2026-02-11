@@ -168,7 +168,7 @@ class _OtpScreenState extends State<OtpScreen> {
                         final success = await authController.verifyOtp();
                         if (success) {
                           if (!Get.isRegistered<ProfileController>()) {
-                            Get.put(ProfileController());
+                            Get.put(ProfileController(), permanent: true);
                           }
                           // Navigate to profile setup for new users (clear stack)
                           Get.offAllNamed(AppRoutes.profileSetup);

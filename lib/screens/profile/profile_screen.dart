@@ -60,8 +60,11 @@ class ProfileScreen extends StatelessWidget {
 
                   const SizedBox(height: AppSpacing.lg),
 
-                  // Profile header
-                  _ProfileHeader(controller: profileController),
+                  // Profile header - tap to edit
+                  GestureDetector(
+                    onTap: Nav.toEditProfile,
+                    child: _ProfileHeader(controller: profileController),
+                  ),
 
                   const SizedBox(height: AppSpacing.lg),
 
@@ -336,19 +339,13 @@ class _StatsSection extends StatelessWidget {
     return Row(
       children: [
         _StatCard(
-          label: 'Activities',
+          label: 'Created',
           value: controller.totalActivities.value.toString(),
           icon: Icons.event,
         ),
         const SizedBox(width: AppSpacing.md),
         _StatCard(
-          label: 'Connections',
-          value: controller.totalMatches.value.toString(),
-          icon: Icons.people,
-        ),
-        const SizedBox(width: AppSpacing.md),
-        _StatCard(
-          label: 'Joined',
+          label: 'Attended',
           value: controller.joinedActivities.value.toString(),
           icon: Icons.check_circle,
         ),
@@ -372,19 +369,10 @@ class _StatCard extends StatelessWidget {
   void _navigateToDetail(String label) {
     HapticFeedback.lightImpact();
     switch (label.toLowerCase()) {
-      case 'events':
+      case 'created':
         Nav.toDiscover();
         break;
-      case 'friends':
-        Nav.toChatList();
-        break;
       case 'attended':
-        Get.snackbar(
-          'Event History',
-          'View your attended events',
-          snackPosition: SnackPosition.BOTTOM,
-          duration: const Duration(seconds: 2),
-        );
         Nav.toSavedEvents();
         break;
       default:
