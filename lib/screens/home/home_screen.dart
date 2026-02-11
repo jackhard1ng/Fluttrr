@@ -509,7 +509,11 @@ class _YourEventCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
-        Nav.toActivities();
+        if (activityId != null) {
+          Nav.toActivityDetails(activityId!);
+        } else {
+          Nav.toActivities();
+        }
       },
       child: Container(
         width: 180,

@@ -280,8 +280,8 @@ class _ChatScreenState extends State<ChatScreen> {
             }),
           ),
 
-          // Input field
-          _MessageInput(
+          // Input field - wrapped in Obx so isSending updates reactively
+          Obx(() => _MessageInput(
             controller: chatController.messageController,
             onSend: () async {
               final success = await chatController.sendMessage();
@@ -291,7 +291,7 @@ class _ChatScreenState extends State<ChatScreen> {
             },
             onAttachment: _showAttachmentOptions,
             isSending: chatController.isSending.value,
-          ),
+          )),
         ],
       ),
     );

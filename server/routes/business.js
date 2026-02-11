@@ -684,6 +684,16 @@ router.post('/unfollow', auth, async (req, res) => {
     }
 
     const userId = req.user.userId;
+    const business = await Business.findById(businessId);
+    if (!business) {
+      return res.status(404).json({ success: false, message: 'Business not found' });
+    }
+
+    const isFollowing = business.followers && business.followers.includes(userId);
+    if (!isFollowing) {
+      return res.status(400).json({ success: false, message: 'Not following this business' });
+    }
+
     await Business.findByIdAndUpdate(businessId, {
       $pull: { followers: userId },
       $inc: { followerCount: -1 },

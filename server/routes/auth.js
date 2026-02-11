@@ -381,21 +381,19 @@ router.post('/reset-password', async (req, res) => {
 
     let targetEmail;
 
-    // Prefer resetToken if provided; fall back to email in body
-    if (resetToken) {
-      try {
-        const decoded = jwt.verify(resetToken, config.jwt.secret);
-        if (decoded.purpose !== 'password-reset') {
-          return res.status(400).json({ success: false, message: 'Invalid reset token' });
-        }
-        targetEmail = decoded.email;
-      } catch (_) {
-        return res.status(400).json({ success: false, message: 'Reset token is invalid or expired' });
+    // Only allow password reset with a valid reset token (OTP-verified)
+    if (!resetToken) {
+      return res.status(400).json({ success: false, message: 'Reset token is required' });
+    }
+
+    try {
+      const decoded = jwt.verify(resetToken, config.jwt.secret);
+      if (decoded.purpose !== 'password-reset') {
+        return res.status(400).json({ success: false, message: 'Invalid reset token' });
       }
-    } else if (email) {
-      targetEmail = email.toLowerCase().trim();
-    } else {
-      return res.status(400).json({ success: false, message: 'resetToken or email is required' });
+      targetEmail = decoded.email;
+    } catch (_) {
+      return res.status(400).json({ success: false, message: 'Reset token is invalid or expired' });
     }
 
     const user = await User.findOne({ email: targetEmail }).select('+password');

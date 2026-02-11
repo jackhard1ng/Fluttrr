@@ -132,6 +132,13 @@ router.post('/:storyId/react', auth, async (req, res) => {
     const story = await Story.findOne({ storyId: req.params.storyId });
     if (!story) return res.status(404).json({ success: false, message: 'Story not found' });
 
+    const alreadyReacted = story.reactions.some(
+      (r) => String(r.userId) === String(req.user.userId) && r.emoji === emoji
+    );
+    if (alreadyReacted) {
+      return res.status(400).json({ success: false, message: 'Already reacted with this emoji' });
+    }
+
     story.reactions.push({
       userId: req.user.userId,
       userName: req.user.userName,

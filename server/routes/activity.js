@@ -298,10 +298,16 @@ router.put('/update/:activityId', auth, async (req, res) => {
     if (date_time !== undefined) activity.dateTime = new Date(date_time);
     if (event_type !== undefined) activity.eventType = event_type;
     if (total_slots !== undefined) {
-      const oldTotal = activity.totalSlots;
       const newTotal = parseInt(total_slots);
+      const currentAttendees = activity.attendees ? activity.attendees.length : 0;
+      if (newTotal < currentAttendees) {
+        return res.status(400).json({
+          success: false,
+          message: `Cannot reduce slots below current attendee count (${currentAttendees})`,
+        });
+      }
       activity.totalSlots = newTotal;
-      activity.remainingSlots = activity.remainingSlots + (newTotal - oldTotal);
+      activity.remainingSlots = newTotal - currentAttendees;
     }
 
     await activity.save();
@@ -341,29 +347,41 @@ router.delete('/delete/:activityId', auth, async (req, res) => {
 router.post('/join', auth, async (req, res) => {
   try {
     const { activityId } = req.body;
-    const activity = await Activity.findOne({ activityId: parseInt(activityId) });
-    if (!activity) {
-      return res.status(404).json({ success: false, message: 'Activity not found' });
-    }
 
-    const alreadyJoined = activity.attendees.some(
-      (a) => String(a.userId) === String(req.user.userId)
+    // Atomic update: only joins if user not already attending AND slots available
+    const result = await Activity.findOneAndUpdate(
+      {
+        activityId: parseInt(activityId),
+        remainingSlots: { $gt: 0 },
+        'attendees.userId': { $ne: req.user.userId },
+      },
+      {
+        $push: {
+          attendees: {
+            userId: req.user.userId,
+            name: req.user.userName || 'Unknown',
+            images: req.user.profile?.images || [],
+          },
+        },
+        $inc: { remainingSlots: -1 },
+      },
+      { new: true }
     );
-    if (alreadyJoined) {
-      return res.status(400).json({ success: false, message: 'Already joined this activity' });
-    }
 
-    if (activity.remainingSlots <= 0) {
+    if (!result) {
+      // Determine the specific reason for failure
+      const activity = await Activity.findOne({ activityId: parseInt(activityId) });
+      if (!activity) {
+        return res.status(404).json({ success: false, message: 'Activity not found' });
+      }
+      const alreadyJoined = activity.attendees.some(
+        (a) => String(a.userId) === String(req.user.userId)
+      );
+      if (alreadyJoined) {
+        return res.status(400).json({ success: false, message: 'Already joined this activity' });
+      }
       return res.status(400).json({ success: false, message: 'No remaining slots' });
     }
-
-    activity.attendees.push({
-      userId: req.user.userId,
-      name: req.user.userName || 'Unknown',
-      images: req.user.profile?.images || [],
-    });
-    activity.remainingSlots -= 1;
-    await activity.save();
 
     res.json({ success: true });
   } catch (error) {
