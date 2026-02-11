@@ -177,7 +177,9 @@ class GroupsScreen extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
-        onTap: () => Get.to(() => GroupDetailsScreen(groupId: group.groupId!)),
+        onTap: group.groupId != null
+            ? () => Get.to(() => GroupDetailsScreen(groupId: group.groupId!))
+            : null,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -308,7 +310,7 @@ class GroupsScreen extends StatelessWidget {
                 )
               else
                 Obx(() => ElevatedButton(
-                  onPressed: controller.isJoining.value
+                  onPressed: controller.isJoining.value || group.groupId == null
                       ? null
                       : () => controller.joinGroup(group.groupId!),
                   style: ElevatedButton.styleFrom(
@@ -378,10 +380,12 @@ class GroupsScreen extends StatelessWidget {
                         ),
                         title: Text(group.name ?? 'Unnamed'),
                         subtitle: Text('${group.memberCount} members'),
-                        onTap: () {
-                          Get.back();
-                          Get.to(() => GroupDetailsScreen(groupId: group.groupId!));
-                        },
+                        onTap: group.groupId != null
+                            ? () {
+                                Get.back();
+                                Get.to(() => GroupDetailsScreen(groupId: group.groupId!));
+                              }
+                            : null,
                       );
                     },
                   );

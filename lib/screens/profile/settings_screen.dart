@@ -165,6 +165,9 @@ class SettingsScreen extends StatelessWidget {
             onPressed: () async {
               HapticFeedback.mediumImpact();
               Navigator.pop(context);
+              if (!Get.isRegistered<AuthController>()) {
+                Get.put(AuthController());
+              }
               final authController = Get.find<AuthController>();
               await authController.logout();
               Nav.toLogin();
@@ -239,10 +242,16 @@ class SettingsScreen extends StatelessWidget {
 
               Navigator.pop(dialogContext);
 
+              if (!Get.isRegistered<ProfileController>()) {
+                Get.put(ProfileController());
+              }
               final profileController = Get.find<ProfileController>();
               final success = await profileController.deleteAccount(password);
 
               if (success) {
+                if (!Get.isRegistered<AuthController>()) {
+                  Get.put(AuthController());
+                }
                 final authController = Get.find<AuthController>();
                 await authController.logout();
                 Get.snackbar(

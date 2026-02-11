@@ -116,7 +116,7 @@ router.get('/list', auth, async (req, res) => {
       filter.$or = [
         { name: { $regex: query, $options: 'i' } },
         { description: { $regex: query, $options: 'i' } },
-        { tags: { $in: [new RegExp(query, 'i')] } },
+        { tags: { $elemMatch: { $regex: query, $options: 'i' } } },
       ];
     }
 
@@ -570,8 +570,8 @@ router.get('/search', auth, async (req, res) => {
       $or: [
         { name: { $regex: query, $options: 'i' } },
         { description: { $regex: query, $options: 'i' } },
-        { tags: { $in: [new RegExp(query, 'i')] } },
-        { interests: { $in: [new RegExp(query, 'i')] } },
+        { tags: { $elemMatch: { $regex: query, $options: 'i' } } },
+        { interests: { $elemMatch: { $regex: query, $options: 'i' } } },
       ],
     };
 

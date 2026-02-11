@@ -38,8 +38,15 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
   void _initControllers() {
     // Initialize all required controllers
-    Get.put(ActivityController());
-    Get.put(ChatController());
+    if (!Get.isRegistered<ActivityController>()) {
+      Get.put(ActivityController());
+    }
+    if (!Get.isRegistered<ChatController>()) {
+      Get.put(ChatController());
+    }
+    if (!Get.isRegistered<ProfileController>()) {
+      Get.put(ProfileController());
+    }
 
     // Set user online
     final profileController = Get.find<ProfileController>();
@@ -54,6 +61,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!Get.isRegistered<ProfileController>()) return;
     final profileController = Get.find<ProfileController>();
 
     switch (state) {

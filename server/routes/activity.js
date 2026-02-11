@@ -1462,7 +1462,7 @@ router.post('/recurring/cancel-instance', auth, async (req, res) => {
     if (!series.recurringInstances) series.recurringInstances = [];
 
     const instance = {
-      instanceId: instance_id || Date.now(),
+      instanceId: String(instance_id || Date.now()),
       seriesId: parseInt(series_id),
       status: 'cancelled',
       cancellationReason: cancellation_reason || '',
@@ -1473,7 +1473,7 @@ router.post('/recurring/cancel-instance', auth, async (req, res) => {
 
     // Check if instance already exists and update, or add new
     const existingIndex = series.recurringInstances.findIndex(
-      (i) => i.instanceId === instance.instanceId
+      (i) => String(i.instanceId) === String(instance.instanceId)
     );
     if (existingIndex !== -1) {
       series.recurringInstances[existingIndex] = instance;

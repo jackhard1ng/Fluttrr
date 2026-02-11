@@ -101,6 +101,7 @@ class AdminController extends GetxController {
   /// Check if current user's email is in the owner/admin list
   bool _checkEmailBasedAccess() {
     try {
+      if (!Get.isRegistered<ProfileController>()) return false;
       final profileController = Get.find<ProfileController>();
       final userEmail = profileController.currentUser.value?.email?.toLowerCase();
 

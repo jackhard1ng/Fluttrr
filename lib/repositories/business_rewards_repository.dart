@@ -71,7 +71,7 @@ class BusinessRewardsRepository extends BaseRepository {
     final response = await get<dynamic>(
       ApiEndpoints.businessReferralCode,
     );
-    if (response.success && response.data != null) {
+    if (response.success && response.data != null && response.data is Map<String, dynamic>) {
       return ApiResponse.success(
         data: response.data as Map<String, dynamic>,
         message: response.message,
@@ -86,7 +86,7 @@ class BusinessRewardsRepository extends BaseRepository {
       ApiEndpoints.businessReferralCode,
       body: {'generate': true},
     );
-    if (response.success && response.data != null) {
+    if (response.success && response.data != null && response.data is Map<String, dynamic>) {
       return ApiResponse.success(
         data: response.data as Map<String, dynamic>,
         message: response.message,
