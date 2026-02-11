@@ -113,7 +113,7 @@ router.get('/events', auth, async (req, res) => {
 router.get('/tagged', auth, async (req, res) => {
   try {
     const memories = await Memory.find({
-      'photos.tags': req.user.userId,
+      'photos.tags.userId': String(req.user.userId),
     }).sort({ createdAt: -1 });
     const data = memories.map((m) => m.toApiResponse(req.user.userId));
     res.json({ success: true, data });
@@ -126,7 +126,7 @@ router.get('/tagged', auth, async (req, res) => {
 router.get('/tagged-in', auth, async (req, res) => {
   try {
     const memories = await Memory.find({
-      'photos.tags': req.user.userId,
+      'photos.tags.userId': String(req.user.userId),
     }).sort({ createdAt: -1 });
     const data = memories.map((m) => m.toApiResponse(req.user.userId));
     res.json({ success: true, data });
@@ -235,8 +235,9 @@ router.post('/:memoryId/like', auth, async (req, res) => {
     const memory = await Memory.findOne({ memoryId: req.params.memoryId });
     if (!memory) return res.status(404).json({ message: 'Memory not found' });
 
-    if (!memory.likedBy.includes(req.user.userId)) {
-      memory.likedBy.push(req.user.userId);
+    const userIdStr = String(req.user.userId);
+    if (!memory.likedBy.includes(userIdStr)) {
+      memory.likedBy.push(userIdStr);
       memory.likeCount = memory.likedBy.length;
       await memory.save();
     }
@@ -253,7 +254,8 @@ router.delete('/:memoryId/like', auth, async (req, res) => {
     const memory = await Memory.findOne({ memoryId: req.params.memoryId });
     if (!memory) return res.status(404).json({ message: 'Memory not found' });
 
-    memory.likedBy = memory.likedBy.filter((id) => id !== req.user.userId);
+    const userIdStr = String(req.user.userId);
+    memory.likedBy = memory.likedBy.filter((id) => id !== userIdStr);
     memory.likeCount = memory.likedBy.length;
     await memory.save();
 
@@ -284,7 +286,7 @@ router.post('/:memoryId/comments', auth, async (req, res) => {
     if (!memory) return res.status(404).json({ message: 'Memory not found' });
 
     const comment = {
-      userId: req.user.userId,
+      userId: String(req.user.userId),
       userName: req.user.userName,
       userAvatar: req.user.profile?.images?.[0] || '',
       content,

@@ -266,7 +266,7 @@ class ActivityController extends GetxController {
         location: locationController.text.trim(),
         latitude: selectedLatitude.value,
         longitude: selectedLongitude.value,
-        dateTime: selectedDateTime.value!,
+        dateTime: selectedDateTime.value ?? DateTime.now(),
         eventType: selectedEventType.value,
         totalSlots: int.tryParse(slotsController.text) ?? 0,
         images: selectedImages.isNotEmpty ? selectedImages : null,

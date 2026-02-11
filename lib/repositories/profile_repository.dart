@@ -113,7 +113,7 @@ class ProfileRepository extends BaseRepository {
   Future<ApiResponse<int>> getProfileCompletion() async {
     final response = await get<dynamic>(ApiEndpoints.profileCompletion);
     if (response.success && response.data != null) {
-      final percentage = response.data['percentage'] ?? response.data['completionPercentage'] ?? 0;
+      final percentage = response.data['data'] ?? response.data['percentage'] ?? response.data['completionPercentage'] ?? 0;
       return ApiResponse.success(data: _safeToInt(percentage));
     }
     return ApiResponse.failure(error: response.error);
@@ -138,7 +138,8 @@ class ProfileRepository extends BaseRepository {
   Future<ApiResponse<List<String>>> getGalleryImages() async {
     final response = await get<dynamic>(ApiEndpoints.galleryList);
     if (response.success && response.data != null) {
-      final images = (response.data['images'] as List<dynamic>?)
+      final rawImages = response.data['data'] ?? response.data['images'];
+      final images = (rawImages as List<dynamic>?)
               ?.whereType<String>()
               .toList() ??
           [];
@@ -155,7 +156,7 @@ class ProfileRepository extends BaseRepository {
       fieldName: 'image',
     );
     if (response.success && response.data != null) {
-      final imageUrl = response.data['imageUrl'] ?? response.data['url'] ?? '';
+      final imageUrl = response.data['data'] ?? response.data['imageUrl'] ?? response.data['url'] ?? '';
       return ApiResponse.success(data: _safeToString(imageUrl));
     }
     return ApiResponse.failure(error: response.error);
@@ -194,7 +195,7 @@ class ProfileRepository extends BaseRepository {
   Future<ApiResponse<int>> getTotalActivityCount() async {
     final response = await get<dynamic>(ApiEndpoints.createdActivitiesCount);
     if (response.success && response.data != null) {
-      final count = response.data['count'] ?? 0;
+      final count = response.data['data'] ?? response.data['count'] ?? 0;
       return ApiResponse.success(data: _safeToInt(count));
     }
     return ApiResponse.failure(error: response.error);
@@ -210,7 +211,7 @@ class ProfileRepository extends BaseRepository {
   Future<ApiResponse<int>> getJoinedActivitiesCount() async {
     final response = await get<dynamic>(ApiEndpoints.joinedActivitiesCount);
     if (response.success && response.data != null) {
-      final count = response.data['count'] ?? 0;
+      final count = response.data['data'] ?? response.data['count'] ?? 0;
       return ApiResponse.success(data: _safeToInt(count));
     }
     return ApiResponse.failure(error: response.error);

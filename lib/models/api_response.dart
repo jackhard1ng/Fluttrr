@@ -113,13 +113,20 @@ class PaginationInfo {
 
   factory PaginationInfo.fromJson(Map<String, dynamic> json) {
     return PaginationInfo(
-      currentPage: json['current_page'] ?? json['currentPage'] ?? 1,
-      totalPages: json['total_pages'] ?? json['totalPages'] ?? 1,
-      totalItems: json['total_items'] ?? json['totalItems'] ?? 0,
-      itemsPerPage: json['items_per_page'] ?? json['itemsPerPage'] ?? 10,
+      currentPage: _toInt(json['current_page'] ?? json['currentPage'], 1),
+      totalPages: _toInt(json['total_pages'] ?? json['totalPages'], 1),
+      totalItems: _toInt(json['total_items'] ?? json['totalItems'], 0),
+      itemsPerPage: _toInt(json['items_per_page'] ?? json['itemsPerPage'], 10),
       hasNextPage: json['has_next_page'] == true || json['hasNextPage'] == true,
       hasPreviousPage: json['has_previous_page'] == true || json['hasPreviousPage'] == true,
     );
+  }
+
+  static int _toInt(dynamic value, int fallback) {
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? fallback;
+    return fallback;
   }
 
   Map<String, dynamic> toJson() {

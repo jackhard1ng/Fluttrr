@@ -40,7 +40,7 @@ router.post('/login', async (req, res) => {
       success: true,
       token,
       refreshToken,
-      userId: user._id,
+      userId: user.userId,
       message: 'Business login successful',
     });
   } catch (error) {

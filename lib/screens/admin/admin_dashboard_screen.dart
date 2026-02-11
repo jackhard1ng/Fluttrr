@@ -95,7 +95,8 @@ class AdminDashboardScreen extends StatelessWidget {
   }
 
   Widget _buildAdminInfoCard(AdminController controller) {
-    final admin = controller.currentAdmin.value!;
+    final admin = controller.currentAdmin.value;
+    if (admin == null) return const SizedBox.shrink();
 
     return Card(
       child: Padding(

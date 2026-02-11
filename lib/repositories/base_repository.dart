@@ -677,6 +677,10 @@ abstract class BaseRepository {
         T? parsedData;
         if (fromJson != null) {
           parsedData = fromJson(data);
+        } else {
+          // When no fromJson provided, pass through raw data map
+          // so callers can access response fields directly
+          parsedData = data as T?;
         }
 
         return ApiResponse.success(
