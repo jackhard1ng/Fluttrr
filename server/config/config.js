@@ -1,7 +1,15 @@
+// Validate required secrets in production
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.JWT_SECRET || !process.env.JWT_REFRESH_SECRET) {
+    console.error('FATAL: JWT_SECRET and JWT_REFRESH_SECRET must be set in production');
+    process.exit(1);
+  }
+}
+
 module.exports = {
   jwt: {
-    secret: process.env.JWT_SECRET || 'fluttrr-dev-secret-change-in-production',
-    refreshSecret: process.env.JWT_REFRESH_SECRET || 'fluttrr-refresh-secret-change-in-production',
+    secret: process.env.JWT_SECRET || 'fluttrr-dev-secret-DO-NOT-USE-IN-PROD',
+    refreshSecret: process.env.JWT_REFRESH_SECRET || 'fluttrr-refresh-secret-DO-NOT-USE-IN-PROD',
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d',
   },

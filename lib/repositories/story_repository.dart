@@ -20,11 +20,11 @@ class StoryRepository {
         // Backend wraps in { success, data: { userStories, eventStories } }
         final data = body['data'] as Map<String, dynamic>? ?? body;
 
-        final userStories = (data['userStories'] ?? data['user_stories'] as List<dynamic>?)
+        final userStories = ((data['userStories'] ?? data['user_stories']) as List<dynamic>?)
             ?.map((s) => UserStoryGroup.fromJson(s as Map<String, dynamic>))
             .toList() ?? [];
 
-        final eventStories = (data['eventStories'] ?? data['event_stories'] as List<dynamic>?)
+        final eventStories = ((data['eventStories'] ?? data['event_stories']) as List<dynamic>?)
             ?.map((s) => EventStoryGroup.fromJson(s as Map<String, dynamic>))
             .toList() ?? [];
 
@@ -126,6 +126,31 @@ class StoryRepository {
       return null;
     } catch (e) {
       debugPrint('Error creating story: $e');
+      return null;
+    }
+  }
+
+  /// Create a text-only story (no file upload)
+  Future<StoryModel?> createTextStory({
+    String? eventId,
+    String? caption,
+  }) async {
+    try {
+      final body = {
+        'type': 'text',
+        if (eventId != null) 'event_id': eventId,
+        if (caption != null) 'caption': caption,
+      };
+
+      final response = await _client.post(ApiEndpoints.stories, body);
+
+      if (response.statusCode == 201 && response.data != null) {
+        return StoryModel.fromJson(response.data);
+      }
+
+      return null;
+    } catch (e) {
+      debugPrint('Error creating text story: $e');
       return null;
     }
   }

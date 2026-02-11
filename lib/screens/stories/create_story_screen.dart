@@ -186,14 +186,25 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
 
     setState(() => _isLoading = true);
 
-    final story = await _controller.createStory(
-      media: _selectedMedia ?? File(''),
-      type: _storyType,
-      eventId: widget.eventId,
-      caption: _captionController.text.trim().isNotEmpty
-          ? _captionController.text.trim()
-          : null,
-    );
+    final caption = _captionController.text.trim().isNotEmpty
+        ? _captionController.text.trim()
+        : null;
+
+    StoryModel? story;
+    if (_storyType == StoryType.text) {
+      // Text stories don't need a media file
+      story = await _controller.createTextStory(
+        eventId: widget.eventId,
+        caption: caption,
+      );
+    } else {
+      story = await _controller.createStory(
+        media: _selectedMedia!,
+        type: _storyType,
+        eventId: widget.eventId,
+        caption: caption,
+      );
+    }
 
     setState(() => _isLoading = false);
 

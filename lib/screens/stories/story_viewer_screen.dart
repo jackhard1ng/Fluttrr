@@ -40,7 +40,10 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.initialIndex;
+    // Clamp initialIndex to valid range to prevent out-of-bounds access
+    _currentIndex = widget.stories.isEmpty
+        ? 0
+        : widget.initialIndex.clamp(0, widget.stories.length - 1);
 
     _progressController = AnimationController(
       vsync: this,
@@ -104,6 +107,27 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
 
   @override
   Widget build(BuildContext context) {
+    if (widget.stories.isEmpty) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.auto_stories, size: 64, color: Colors.white54),
+              const SizedBox(height: 16),
+              const Text('No stories available', style: TextStyle(color: Colors.white54)),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () => Get.back(),
+                child: const Text('Go Back'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     final story = widget.stories[_currentIndex];
 
     return Scaffold(
@@ -203,7 +227,9 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
                         backgroundColor: AppColors.primaryBlue,
                         child: story.userAvatar == null
                             ? Text(
-                                story.userName[0].toUpperCase(),
+                                story.userName.isNotEmpty
+                                    ? story.userName[0].toUpperCase()
+                                    : '?',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,

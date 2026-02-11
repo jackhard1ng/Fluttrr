@@ -6,12 +6,13 @@ const config = require('../config/config');
 const User = require('../models/User');
 const Otp = require('../models/Otp');
 const { auth, generateTokens } = require('../middleware/auth');
+const crypto = require('crypto');
 const { sendOtpEmail } = require('../services/emailService');
 
 // ============================================================
-// Helper: generate a 6-digit OTP
+// Helper: generate a cryptographically secure 6-digit OTP
 // ============================================================
-const generateOtp = () => String(Math.floor(100000 + Math.random() * 900000));
+const generateOtp = () => String(crypto.randomInt(100000, 999999));
 
 // ============================================================
 // POST /login
@@ -147,6 +148,13 @@ router.post('/verify-otp', async (req, res) => {
     }
 
     if (otpRecord.otp !== otp.toString()) {
+      // Increment attempts and delete OTP if max reached
+      otpRecord.attempts = (otpRecord.attempts || 0) + 1;
+      if (otpRecord.attempts >= 5) {
+        await Otp.deleteOne({ _id: otpRecord._id });
+        return res.status(429).json({ success: false, message: 'Too many failed attempts. Please request a new OTP' });
+      }
+      await otpRecord.save();
       return res.status(400).json({ success: false, message: 'Invalid OTP' });
     }
 
@@ -229,7 +237,6 @@ router.post('/google-login', async (req, res) => {
     if (!user) {
       // Create a new account for this Google user
       // userId is auto-assigned by the pre-save hook via Counter model
-      const crypto = require('crypto');
       user = await User.create({
         userName: googleName,
         email: normalizedEmail,
@@ -335,6 +342,13 @@ router.post('/verify-reset-otp', async (req, res) => {
     }
 
     if (otpRecord.otp !== otp.toString()) {
+      // Increment attempts and delete OTP if max reached
+      otpRecord.attempts = (otpRecord.attempts || 0) + 1;
+      if (otpRecord.attempts >= 5) {
+        await Otp.deleteOne({ _id: otpRecord._id });
+        return res.status(429).json({ success: false, message: 'Too many failed attempts. Please request a new OTP' });
+      }
+      await otpRecord.save();
       return res.status(400).json({ success: false, message: 'Invalid OTP' });
     }
 

@@ -134,6 +134,54 @@ class StoryController extends GetxController {
     }
   }
 
+  /// Create a text-only story (no media file)
+  Future<StoryModel?> createTextStory({
+    String? eventId,
+    String? caption,
+  }) async {
+    isUploading.value = true;
+    uploadProgress.value = 0.0;
+
+    try {
+      uploadProgress.value = 0.5;
+
+      final story = await _repository.createTextStory(
+        eventId: eventId,
+        caption: caption,
+      );
+
+      uploadProgress.value = 1.0;
+
+      if (story != null) {
+        myStories.insert(0, story);
+        _analytics.trackEvent('story_created', parameters: {
+          'type': 'text',
+          'has_event': eventId != null,
+          'has_caption': caption != null && caption.isNotEmpty,
+        });
+
+        Get.snackbar(
+          'Story Posted!',
+          'Your story is now visible to friends',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+
+      return story;
+    } catch (e) {
+      debugPrint('Error creating text story: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to post story. Please try again.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return null;
+    } finally {
+      isUploading.value = false;
+      uploadProgress.value = 0.0;
+    }
+  }
+
   /// Open user story group
   void openUserStories(UserStoryGroup group) {
     currentStoryGroup.value = group.stories.where((s) => !s.isExpired).toList();
