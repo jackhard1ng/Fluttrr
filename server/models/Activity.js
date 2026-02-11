@@ -133,6 +133,18 @@ activitySchema.set('toJSON', {
       creator_name: ret.creatorName,
       creator_image: ret.creatorImages, // Flutter reads json['creator_image'] as array
       status: ret.status,
+      is_recurring_series: ret.isRecurringSeries || false,
+      series_id: ret.seriesId || null,
+      recurrence_rule: ret.recurrenceRule ? {
+        recurrence_type: ret.recurrenceRule.recurrenceType,
+        interval: ret.recurrenceRule.interval,
+        days_of_week: ret.recurrenceRule.daysOfWeek,
+        day_of_month: ret.recurrenceRule.dayOfMonth,
+        start_date: ret.recurrenceRule.startDate,
+        end_date: ret.recurrenceRule.endDate,
+        max_occurrences: ret.recurrenceRule.maxOccurrences,
+        time_of_day: ret.recurrenceRule.timeOfDay,
+      } : null,
       created_at: ret.createdAt,
       updated_at: ret.updatedAt,
     };

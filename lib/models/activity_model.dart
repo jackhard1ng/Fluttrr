@@ -18,6 +18,9 @@ class ActivityModel {
   final int? creatorId;
   final String? creatorName;
   final List<String> creatorImages;
+  final bool isRecurringSeries;
+  final int? seriesId;
+  final RecurrenceRule? recurrenceRule;
 
   const ActivityModel({
     this.activityId,
@@ -38,6 +41,9 @@ class ActivityModel {
     this.creatorId,
     this.creatorName,
     this.creatorImages = const [],
+    this.isRecurringSeries = false,
+    this.seriesId,
+    this.recurrenceRule,
   });
 
   // Convenience getters
@@ -63,6 +69,11 @@ class ActivityModel {
       creatorId: json['creator_id'] as int?,
       creatorName: json['creator_name'] as String?,
       creatorImages: _parseStringList(json['creator_image']),
+      isRecurringSeries: json['is_recurring_series'] == true,
+      seriesId: json['series_id'] as int?,
+      recurrenceRule: json['recurrence_rule'] != null
+          ? RecurrenceRule.fromJson(json['recurrence_rule'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -86,6 +97,9 @@ class ActivityModel {
       'creator_id': creatorId,
       'creator_name': creatorName,
       'creator_image': creatorImages,
+      'is_recurring_series': isRecurringSeries,
+      'series_id': seriesId,
+      'recurrence_rule': recurrenceRule?.toJson(),
     };
   }
 
@@ -108,6 +122,9 @@ class ActivityModel {
     int? creatorId,
     String? creatorName,
     List<String>? creatorImages,
+    bool? isRecurringSeries,
+    int? seriesId,
+    RecurrenceRule? recurrenceRule,
   }) {
     return ActivityModel(
       activityId: activityId ?? this.activityId,
@@ -128,6 +145,9 @@ class ActivityModel {
       creatorId: creatorId ?? this.creatorId,
       creatorName: creatorName ?? this.creatorName,
       creatorImages: creatorImages ?? this.creatorImages,
+      isRecurringSeries: isRecurringSeries ?? this.isRecurringSeries,
+      seriesId: seriesId ?? this.seriesId,
+      recurrenceRule: recurrenceRule ?? this.recurrenceRule,
     );
   }
 
@@ -149,6 +169,28 @@ class ActivityModel {
   bool get isUpcoming => dateTime?.isAfter(DateTime.now()) ?? false;
 
   bool get isPast => dateTime?.isBefore(DateTime.now()) ?? false;
+
+  bool get isRecurring => isRecurringSeries && recurrenceRule != null;
+
+  String? get recurrenceLabel {
+    if (!isRecurring || recurrenceRule == null) return null;
+    switch (recurrenceRule!.recurrenceType) {
+      case 'daily':
+        return recurrenceRule!.interval > 1
+            ? 'Every ${recurrenceRule!.interval} days'
+            : 'Daily';
+      case 'weekly':
+        return recurrenceRule!.interval > 1
+            ? 'Every ${recurrenceRule!.interval} weeks'
+            : 'Weekly';
+      case 'monthly':
+        return recurrenceRule!.interval > 1
+            ? 'Every ${recurrenceRule!.interval} months'
+            : 'Monthly';
+      default:
+        return 'Recurring';
+    }
+  }
 
   // Convenience aliases for compatibility
   int? get userId => creatorId;
@@ -185,6 +227,58 @@ class Attendee {
   }
 
   String? get profileImage => images.isNotEmpty ? images.first : null;
+}
+
+/// Recurrence rule for recurring events
+class RecurrenceRule {
+  final String recurrenceType; // 'daily', 'weekly', 'monthly'
+  final int interval;
+  final List<int> daysOfWeek; // 0=Sun..6=Sat for weekly
+  final int? dayOfMonth; // 1-31 for monthly
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final int? maxOccurrences;
+  final String timeOfDay; // 'HH:MM'
+
+  const RecurrenceRule({
+    required this.recurrenceType,
+    this.interval = 1,
+    this.daysOfWeek = const [],
+    this.dayOfMonth,
+    this.startDate,
+    this.endDate,
+    this.maxOccurrences,
+    this.timeOfDay = '18:00',
+  });
+
+  factory RecurrenceRule.fromJson(Map<String, dynamic> json) {
+    return RecurrenceRule(
+      recurrenceType: json['recurrence_type'] as String? ?? 'weekly',
+      interval: json['interval'] as int? ?? 1,
+      daysOfWeek: (json['days_of_week'] as List<dynamic>?)
+              ?.map((e) => e as int)
+              .toList() ??
+          [],
+      dayOfMonth: json['day_of_month'] as int?,
+      startDate: _parseDateTime(json['start_date']),
+      endDate: _parseDateTime(json['end_date']),
+      maxOccurrences: json['max_occurrences'] as int?,
+      timeOfDay: json['time_of_day'] as String? ?? '18:00',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'recurrence_type': recurrenceType,
+      'interval': interval,
+      'days_of_week': daysOfWeek,
+      'day_of_month': dayOfMonth,
+      'start_date': startDate?.toIso8601String(),
+      'end_date': endDate?.toIso8601String(),
+      'max_occurrences': maxOccurrences,
+      'time_of_day': timeOfDay,
+    };
+  }
 }
 
 /// Activity list response

@@ -491,25 +491,57 @@ class _MapActivityCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (activity.eventType != null)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.xs,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryBlue.withAlpha(26),
-                        borderRadius: BorderRadius.circular(AppRadius.xs),
-                      ),
-                      child: Text(
-                        activity.eventType!,
-                        style: const TextStyle(
-                          color: AppColors.primaryBlue,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
+                  Row(
+                    children: [
+                      if (activity.eventType != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.xs,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryBlue.withAlpha(26),
+                            borderRadius: BorderRadius.circular(AppRadius.xs),
+                          ),
+                          child: Text(
+                            activity.eventType!,
+                            style: const TextStyle(
+                              color: AppColors.primaryBlue,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
+                      if (activity.isRecurring) ...[
+                        const SizedBox(width: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.xs,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.friendlyTeal.withAlpha(26),
+                            borderRadius: BorderRadius.circular(AppRadius.xs),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.repeat, size: 10, color: AppColors.friendlyTeal),
+                              const SizedBox(width: 2),
+                              Text(
+                                activity.recurrenceLabel ?? 'Recurring',
+                                style: const TextStyle(
+                                  color: AppColors.friendlyTeal,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
                     activity.displayName,
@@ -699,6 +731,42 @@ class ActivityCard extends StatelessWidget {
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
+                        ),
+                      ),
+                    ),
+
+                  // Recurring badge
+                  if (activity.isRecurring)
+                    Positioned(
+                      top: AppSpacing.sm,
+                      left: activity.eventType != null
+                          ? null // positioned after event type badge
+                          : AppSpacing.sm,
+                      right: null,
+                      bottom: AppSpacing.sm,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.sm,
+                          vertical: AppSpacing.xs,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.friendlyTeal,
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.repeat, color: Colors.white, size: 12),
+                            const SizedBox(width: 4),
+                            Text(
+                              activity.recurrenceLabel ?? 'Recurring',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

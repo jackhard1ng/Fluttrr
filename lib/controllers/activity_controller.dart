@@ -48,6 +48,14 @@ class ActivityController extends GetxController {
   final RxDouble selectedLongitude = 0.0.obs;
   final RxList<File> selectedImages = <File>[].obs;
 
+  // Recurring event form state
+  final RxBool isRecurring = false.obs;
+  final RxString recurrenceType = 'weekly'.obs; // daily, weekly, monthly
+  final RxInt recurrenceInterval = 1.obs;
+  final RxList<int> selectedDaysOfWeek = <int>[].obs; // 0=Sun..6=Sat
+  final RxInt selectedDayOfMonth = 1.obs;
+  final Rx<DateTime?> recurrenceEndDate = Rx<DateTime?>(null);
+
   // Filter state
   final RxString filterEventType = ''.obs;
   final Rx<DateTime?> filterStartDate = Rx<DateTime?>(null);
@@ -260,6 +268,11 @@ class ActivityController extends GetxController {
     errorMessage.value = '';
 
     try {
+      // Route to recurring or single event creation
+      if (isRecurring.value) {
+        return await _createRecurringActivity(requestHash);
+      }
+
       final response = await _activityRepository.createActivity(
         name: nameController.text.trim(),
         description: descriptionController.text.trim(),
@@ -287,6 +300,42 @@ class ActivityController extends GetxController {
     } finally {
       _isCreatingActivity = false;
       isCreating.value = false;
+    }
+  }
+
+  /// Create recurring activity series
+  Future<bool> _createRecurringActivity(String requestHash) async {
+    // Build time string from selectedDateTime
+    final dt = selectedDateTime.value ?? DateTime.now();
+    final timeOfDay = '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+
+    final response = await _activityRepository.createRecurringActivity(
+      name: nameController.text.trim(),
+      description: descriptionController.text.trim(),
+      location: locationController.text.trim(),
+      latitude: selectedLatitude.value,
+      longitude: selectedLongitude.value,
+      eventType: selectedEventType.value,
+      totalSlots: int.tryParse(slotsController.text) ?? 0,
+      recurrenceType: recurrenceType.value,
+      interval: recurrenceInterval.value,
+      startDate: selectedDateTime.value ?? DateTime.now(),
+      timeOfDay: timeOfDay,
+      daysOfWeek: recurrenceType.value == 'weekly' && selectedDaysOfWeek.isNotEmpty
+          ? selectedDaysOfWeek.toList()
+          : null,
+      dayOfMonth: recurrenceType.value == 'monthly' ? selectedDayOfMonth.value : null,
+      endDate: recurrenceEndDate.value,
+    );
+
+    if (response.success) {
+      _lastCreateRequestHash = requestHash;
+      _clearCreateForm();
+      await loadMyActivities();
+      return true;
+    } else {
+      errorMessage.value = response.displayMessage;
+      return false;
     }
   }
 
@@ -499,6 +548,12 @@ class ActivityController extends GetxController {
     selectedLatitude.value = 0;
     selectedLongitude.value = 0;
     selectedImages.clear();
+    isRecurring.value = false;
+    recurrenceType.value = 'weekly';
+    recurrenceInterval.value = 1;
+    selectedDaysOfWeek.clear();
+    selectedDayOfMonth.value = 1;
+    recurrenceEndDate.value = null;
   }
 
   /// Set activity for editing

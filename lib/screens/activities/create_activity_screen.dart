@@ -244,6 +244,11 @@ class CreateActivityScreen extends StatelessWidget {
 
               const SizedBox(height: AppSpacing.lg),
 
+              // Recurring event toggle
+              _RecurringEventSection(activityController: activityController),
+
+              const SizedBox(height: AppSpacing.lg),
+
               // Capacity settings
               Text(
                 'Capacity',
@@ -405,7 +410,9 @@ class CreateActivityScreen extends StatelessWidget {
 
               // Create button
               Obx(() => GradientButton(
-                    text: 'Create Activity',
+                    text: activityController.isRecurring.value
+                        ? 'Create Recurring Activity'
+                        : 'Create Activity',
                     isLoading: activityController.isCreating.value,
                     onPressed: () async {
                       // If no limit, ensure slots field is empty/zero
@@ -418,7 +425,9 @@ class CreateActivityScreen extends StatelessWidget {
                         Get.back();
                         Get.snackbar(
                           'Success',
-                          'Activity created successfully!',
+                          activityController.isRecurring.value
+                              ? 'Recurring activity created!'
+                              : 'Activity created successfully!',
                           snackPosition: SnackPosition.BOTTOM,
                           backgroundColor: AppColors.success,
                           colorText: Colors.white,
@@ -588,5 +597,434 @@ class CreateActivityScreen extends StatelessWidget {
         );
       }
     }
+  }
+}
+
+/// Recurring event configuration section
+class _RecurringEventSection extends StatelessWidget {
+  final ActivityController activityController;
+
+  const _RecurringEventSection({required this.activityController});
+
+  static const List<String> _dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Toggle
+            GestureDetector(
+              onTap: () => activityController.isRecurring.value =
+                  !activityController.isRecurring.value,
+              child: Container(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: activityController.isRecurring.value
+                      ? AppColors.primaryBlue.withAlpha(26)
+                      : AppColors.lightGrey,
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  border: Border.all(
+                    color: activityController.isRecurring.value
+                        ? AppColors.primaryBlue
+                        : Colors.transparent,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.repeat,
+                      color: activityController.isRecurring.value
+                          ? AppColors.primaryBlue
+                          : AppColors.grey,
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Recurring Event',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: activityController.isRecurring.value
+                                  ? AppColors.primaryBlue
+                                  : AppColors.darkGrey,
+                            ),
+                          ),
+                          Text(
+                            'Repeats on a schedule (e.g. \$2 Tuesdays)',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.mediumGrey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: activityController.isRecurring.value,
+                      onChanged: (v) => activityController.isRecurring.value = v,
+                      activeColor: AppColors.primaryBlue,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Recurring options (visible when toggled on)
+            if (activityController.isRecurring.value) ...[
+              const SizedBox(height: AppSpacing.lg),
+
+              // Frequency type
+              Text(
+                'Frequency',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Row(
+                children: [
+                  _FrequencyChip(
+                    label: 'Daily',
+                    icon: Icons.today,
+                    isSelected: activityController.recurrenceType.value == 'daily',
+                    onTap: () => activityController.recurrenceType.value = 'daily',
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  _FrequencyChip(
+                    label: 'Weekly',
+                    icon: Icons.view_week,
+                    isSelected: activityController.recurrenceType.value == 'weekly',
+                    onTap: () => activityController.recurrenceType.value = 'weekly',
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  _FrequencyChip(
+                    label: 'Monthly',
+                    icon: Icons.calendar_month,
+                    isSelected: activityController.recurrenceType.value == 'monthly',
+                    onTap: () => activityController.recurrenceType.value = 'monthly',
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: AppSpacing.lg),
+
+              // Interval (every N days/weeks/months)
+              Row(
+                children: [
+                  Text(
+                    'Every',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Container(
+                    width: 60,
+                    decoration: BoxDecoration(
+                      color: AppColors.lightGrey,
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            if (activityController.recurrenceInterval.value > 1) {
+                              activityController.recurrenceInterval.value--;
+                            }
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Icon(Icons.remove, size: 16),
+                          ),
+                        ),
+                        Text(
+                          '${activityController.recurrenceInterval.value}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            if (activityController.recurrenceInterval.value < 12) {
+                              activityController.recurrenceInterval.value++;
+                            }
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Icon(Icons.add, size: 16),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Text(
+                    activityController.recurrenceType.value == 'daily'
+                        ? (activityController.recurrenceInterval.value == 1 ? 'day' : 'days')
+                        : activityController.recurrenceType.value == 'weekly'
+                            ? (activityController.recurrenceInterval.value == 1 ? 'week' : 'weeks')
+                            : (activityController.recurrenceInterval.value == 1 ? 'month' : 'months'),
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                ],
+              ),
+
+              // Weekly: day-of-week picker
+              if (activityController.recurrenceType.value == 'weekly') ...[
+                const SizedBox(height: AppSpacing.lg),
+                Text(
+                  'Repeat On',
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: List.generate(7, (index) {
+                    final isSelected = activityController.selectedDaysOfWeek.contains(index);
+                    return GestureDetector(
+                      onTap: () {
+                        if (isSelected) {
+                          activityController.selectedDaysOfWeek.remove(index);
+                        } else {
+                          activityController.selectedDaysOfWeek.add(index);
+                        }
+                      },
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? AppColors.primaryBlue
+                              : AppColors.lightGrey,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            _dayLabels[index],
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : AppColors.darkGrey,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ],
+
+              // Monthly: day-of-month picker
+              if (activityController.recurrenceType.value == 'monthly') ...[
+                const SizedBox(height: AppSpacing.lg),
+                Row(
+                  children: [
+                    Text(
+                      'Day of Month:',
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                      decoration: BoxDecoration(
+                        color: AppColors.lightGrey,
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                      ),
+                      child: DropdownButton<int>(
+                        value: activityController.selectedDayOfMonth.value,
+                        underline: const SizedBox.shrink(),
+                        items: List.generate(
+                          31,
+                          (i) => DropdownMenuItem(
+                            value: i + 1,
+                            child: Text('${i + 1}'),
+                          ),
+                        ),
+                        onChanged: (v) {
+                          if (v != null) activityController.selectedDayOfMonth.value = v;
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+
+              // End date (optional)
+              const SizedBox(height: AppSpacing.lg),
+              Text(
+                'End Date (optional)',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              GestureDetector(
+                onTap: () => _selectEndDate(context),
+                child: Container(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  decoration: BoxDecoration(
+                    color: AppColors.lightGrey,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.event_busy,
+                        color: AppColors.grey,
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Text(
+                          activityController.recurrenceEndDate.value != null
+                              ? DateFormat('MMMM d, y')
+                                  .format(activityController.recurrenceEndDate.value!)
+                              : 'No end date (runs indefinitely)',
+                          style: TextStyle(
+                            color: activityController.recurrenceEndDate.value != null
+                                ? AppColors.black
+                                : AppColors.grey,
+                          ),
+                        ),
+                      ),
+                      if (activityController.recurrenceEndDate.value != null)
+                        GestureDetector(
+                          onTap: () => activityController.recurrenceEndDate.value = null,
+                          child: const Icon(Icons.close, size: 18, color: AppColors.grey),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Summary
+              const SizedBox(height: AppSpacing.md),
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: AppColors.friendlyTeal.withAlpha(26),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.info_outline,
+                      color: AppColors.friendlyTeal,
+                      size: 18,
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Text(
+                        _buildRecurrenceSummary(),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.friendlyTeal,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ));
+  }
+
+  Future<void> _selectEndDate(BuildContext context) async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now().add(const Duration(days: 30)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+    );
+    if (date != null) {
+      activityController.recurrenceEndDate.value = date;
+    }
+  }
+
+  String _buildRecurrenceSummary() {
+    final type = activityController.recurrenceType.value;
+    final interval = activityController.recurrenceInterval.value;
+
+    String freq;
+    if (type == 'daily') {
+      freq = interval == 1 ? 'every day' : 'every $interval days';
+    } else if (type == 'weekly') {
+      final days = activityController.selectedDaysOfWeek.toList()..sort();
+      final dayNames = days.map((d) => _dayFullName(d)).join(', ');
+      freq = interval == 1 ? 'every week' : 'every $interval weeks';
+      if (dayNames.isNotEmpty) {
+        freq += ' on $dayNames';
+      }
+    } else {
+      final dom = activityController.selectedDayOfMonth.value;
+      freq = interval == 1
+          ? 'every month on day $dom'
+          : 'every $interval months on day $dom';
+    }
+
+    final end = activityController.recurrenceEndDate.value;
+    if (end != null) {
+      freq += ' until ${DateFormat('MMM d, y').format(end)}';
+    }
+
+    return 'Repeats $freq';
+  }
+
+  String _dayFullName(int day) {
+    const names = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return names[day];
+  }
+}
+
+/// Frequency selection chip
+class _FrequencyChip extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _FrequencyChip({
+    required this.label,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppColors.primaryBlue.withAlpha(26)
+                : AppColors.lightGrey,
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            border: Border.all(
+              color: isSelected ? AppColors.primaryBlue : Colors.transparent,
+            ),
+          ),
+          child: Column(
+            children: [
+              Icon(
+                icon,
+                color: isSelected ? AppColors.primaryBlue : AppColors.grey,
+                size: 22,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  color: isSelected ? AppColors.primaryBlue : AppColors.grey,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

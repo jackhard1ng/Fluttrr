@@ -162,6 +162,46 @@ class ActivityRepository extends BaseRepository {
     return response;
   }
 
+  /// Create recurring activity series
+  Future<ApiResponse<dynamic>> createRecurringActivity({
+    required String name,
+    required String description,
+    required String location,
+    required double latitude,
+    required double longitude,
+    required String eventType,
+    required int totalSlots,
+    required String recurrenceType,
+    required int interval,
+    required DateTime startDate,
+    required String timeOfDay,
+    List<int>? daysOfWeek,
+    int? dayOfMonth,
+    DateTime? endDate,
+    int? maxOccurrences,
+  }) async {
+    return post<dynamic>(
+      ApiEndpoints.createRecurringEvent,
+      body: {
+        'name': name,
+        'description': description,
+        'location': location,
+        'latitude': latitude,
+        'longitude': longitude,
+        'event_type': eventType,
+        'total_slots': totalSlots,
+        'recurrence_type': recurrenceType,
+        'interval': interval,
+        'start_date': startDate.toIso8601String(),
+        'time_of_day': timeOfDay,
+        if (daysOfWeek != null) 'days_of_week': daysOfWeek,
+        if (dayOfMonth != null) 'day_of_month': dayOfMonth,
+        if (endDate != null) 'end_date': endDate.toIso8601String(),
+        if (maxOccurrences != null) 'max_occurrences': maxOccurrences,
+      },
+    );
+  }
+
   /// Upload images for an activity
   Future<ApiResponse<dynamic>> _uploadActivityImages(int activityId, List<File> images) async {
     final files = <String, File>{};
