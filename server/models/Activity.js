@@ -53,6 +53,26 @@ const activitySchema = new mongoose.Schema(
       enum: ['active', 'cancelled', 'completed'],
       default: 'active',
     },
+
+    // Event feedback
+    feedback: { type: [mongoose.Schema.Types.Mixed], default: [] },
+    attendeeRatings: { type: [mongoose.Schema.Types.Mixed], default: [] },
+    thankYouMessages: { type: [mongoose.Schema.Types.Mixed], default: [] },
+
+    // Guest invites
+    guests: { type: [mongoose.Schema.Types.Mixed], default: [] },
+
+    // Reminders
+    reminders: { type: [mongoose.Schema.Types.Mixed], default: [] },
+
+    // Waitlist
+    waitlist: { type: [mongoose.Schema.Types.Mixed], default: [] },
+
+    // Recurring events
+    isRecurringSeries: { type: Boolean, default: false },
+    seriesId: { type: Number, default: null },
+    recurrenceRule: { type: mongoose.Schema.Types.Mixed, default: null },
+    recurringInstances: { type: [mongoose.Schema.Types.Mixed], default: [] },
   },
   { timestamps: true }
 );
@@ -63,6 +83,10 @@ const activitySchema = new mongoose.Schema(
 activitySchema.index({ latitude: 1, longitude: 1 });
 activitySchema.index({ dateTime: 1 });
 activitySchema.index({ status: 1, dateTime: 1 });
+activitySchema.index({ 'attendees.userId': 1 });
+activitySchema.index({ 'reminders.userId': 1 });
+activitySchema.index({ 'waitlist.userId': 1 });
+activitySchema.index({ seriesId: 1 }, { sparse: true });
 
 // ---------------------------------------------------------------------------
 // Pre-save: auto-increment activityId

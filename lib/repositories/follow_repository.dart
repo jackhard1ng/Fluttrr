@@ -104,7 +104,8 @@ class FollowRepository extends BaseRepository {
       '${ApiEndpoints.followBusiness}/$businessId/check',
     );
     if (response.success) {
-      final data = response.data as Map<String, dynamic>?;
+      final raw = response.data;
+      final data = (raw is Map<String, dynamic>) ? raw : null;
       return ApiResponse.success(data: data?['is_following'] == true);
     }
     return ApiResponse.failure(error: response.error ?? 'Failed to check follow status');

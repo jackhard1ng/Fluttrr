@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 const http = require('http');
 const path = require('path');
 const connectDB = require('./config/database');
@@ -19,12 +20,41 @@ connectDB();
 const io = initSocket(server);
 app.set('io', io);
 
+// CORS - allow Flutter app and web origins
+const allowedOrigins = (process.env.CORS_ORIGINS || 'https://fluttrr.com,https://www.fluttrr.com,https://api.fluttrr.com').split(',');
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(null, true); // Allow all for now; tighten in production
+  },
+  credentials: true,
+}));
+
 // Middleware
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
-app.use(cors());
 app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Rate limiting - strict for auth endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // 20 attempts per window
+  message: { success: false, message: 'Too many attempts. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// General API rate limiter
+const apiLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 100, // 100 requests per minute
+  message: { success: false, message: 'Too many requests. Please slow down.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -38,7 +68,14 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// API Routes
+// API Routes - auth routes get stricter rate limiting
+app.use('/api/user/login', authLimiter);
+app.use('/api/user/send-otp', authLimiter);
+app.use('/api/user/verify-otp', authLimiter);
+app.use('/api/user/google-login', authLimiter);
+app.use('/api/user/reset-password', authLimiter);
+app.use('/api/user/delete-account', authLimiter);
+app.use('/api', apiLimiter);
 app.use('/api/user', require('./routes/auth'));
 app.use('/api/user', require('./routes/user'));
 app.use('/api/activity', require('./routes/activity'));
