@@ -165,7 +165,7 @@ class PushNotificationService {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer $authToken',
           },
-          body: jsonEncode({'fcmToken': token}),
+          body: jsonEncode({'token': token, 'platform': 'mobile'}),
         );
         debugPrint('FCM token sent to server');
       }

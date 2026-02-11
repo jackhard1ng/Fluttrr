@@ -198,8 +198,8 @@ class AuthController extends GetxController {
   Future<bool> verifyOtp() async {
     errorMessage.value = '';
 
-    if (otpController.text.isEmpty || otpController.text.length < 4) {
-      errorMessage.value = 'Please enter a valid OTP';
+    if (otpController.text.isEmpty || otpController.text.length < 6) {
+      errorMessage.value = 'Please enter a valid 6-digit OTP';
       return false;
     }
 
@@ -266,8 +266,8 @@ class AuthController extends GetxController {
   Future<bool> verifyPasswordResetOtp() async {
     errorMessage.value = '';
 
-    if (otpController.text.isEmpty || otpController.text.length < 4) {
-      errorMessage.value = 'Please enter a valid OTP';
+    if (otpController.text.isEmpty || otpController.text.length < 6) {
+      errorMessage.value = 'Please enter a valid 6-digit OTP';
       return false;
     }
 

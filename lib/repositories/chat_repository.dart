@@ -55,9 +55,12 @@ class ChatRepository extends BaseRepository {
       return ApiResponse.failure(error: idError);
     }
 
-    final contentError = _validateContent(content);
-    if (contentError != null) {
-      return ApiResponse.failure(error: contentError);
+    // Only validate content if no image is provided (allow image-only messages)
+    if (imageUrl == null || imageUrl.isEmpty) {
+      final contentError = _validateContent(content);
+      if (contentError != null) {
+        return ApiResponse.failure(error: contentError);
+      }
     }
 
     final urlError = _validateUrl(imageUrl);

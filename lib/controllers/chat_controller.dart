@@ -6,6 +6,7 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../constants/api_endpoints.dart';
 import '../models/chat_model.dart';
 import '../repositories/chat_repository.dart';
+import '../services/token_manager.dart';
 
 /// Chat controller with Socket.IO support
 class ChatController extends GetxController {
@@ -72,10 +73,17 @@ class ChatController extends GetxController {
     if (_currentUserId == null) return;
 
     try {
+      final authToken = TokenManager.token;
+      if (authToken == null) {
+        debugPrint('Socket: No auth token available, skipping connection');
+        return;
+      }
+
       final socket = io.io(
         ApiEndpoints.baseUrl,
         io.OptionBuilder()
             .setTransports(['websocket'])
+            .setAuth({'token': authToken})
             .setQuery({'userId': _currentUserId.toString()})
             .enableAutoConnect()
             .enableReconnection()
@@ -96,9 +104,9 @@ class ChatController extends GetxController {
         isConnected.value = false;
       });
 
-      socket.on('newMessage', _handleNewMessage);
-      socket.on('messageRead', _handleMessageRead);
-      socket.on('typing', _handleTyping);
+      socket.on('new_message', _handleNewMessage);
+      socket.on('messages_read', _handleMessageRead);
+      socket.on('user_typing', _handleTyping);
 
       socket.connect();
     } catch (e) {
@@ -109,9 +117,9 @@ class ChatController extends GetxController {
   /// Disconnect socket and unregister all event listeners
   void _disconnectSocket() {
     // Unregister all event listeners to prevent memory leaks
-    _socket?.off('newMessage');
-    _socket?.off('messageRead');
-    _socket?.off('typing');
+    _socket?.off('new_message');
+    _socket?.off('messages_read');
+    _socket?.off('user_typing');
     _socket?.off('connect');
     _socket?.off('disconnect');
 

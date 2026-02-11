@@ -23,7 +23,7 @@ const formatUserForClient = (user) => {
       interests: user.profile?.interests || [],
       images: user.profile?.images || [],
       location: user.profile?.location || null,
-      coverImage: user.profile?.coverImage || [],
+      coverImage: user.profile?.coverImage || null,
       Language: user.profile?.Language || [],
       latitude: user.profile?.latitude || null,
       longitude: user.profile?.longitude || null,
@@ -687,8 +687,8 @@ router.post('/send-phone-otp', auth, async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    // Generate a 4-digit OTP
-    const otp = String(Math.floor(1000 + Math.random() * 9000));
+    // Generate a 6-digit OTP
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
 
     // Store phone verification data on the user (schema uses snake_case)
     user.phoneVerification = {

@@ -68,7 +68,9 @@ class EventModel {
       hostName: json['host_name'] ?? '',
       // Use safe date parsing with fallback to current date
       date: DateTimeFormatter.tryParse(json['date']) ?? DateTime.now(),
-      startTime: _parseTime(json['start_time']),
+      startTime: json['start_time'] != null
+          ? _parseTime(json['start_time'])
+          : const TimeOfDay(hour: 0, minute: 0),
       endTime: json['end_time'] != null ? _parseTime(json['end_time']) : null,
       location: json['location'] ?? '',
       locationAddress: json['location_address'],
