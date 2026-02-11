@@ -308,6 +308,7 @@ class _YourEventsSectionState extends State<_YourEventsSection> {
   Future<void> _loadUpcoming() async {
     try {
       final response = await _repo.getJoinedActivities();
+      if (!mounted) return;
       if (response.success && response.data != null) {
         final now = DateTime.now();
         setState(() {
@@ -324,6 +325,7 @@ class _YourEventsSectionState extends State<_YourEventsSection> {
         setState(() => _isLoading = false);
       }
     } catch (_) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
     }
   }
@@ -1250,6 +1252,7 @@ class _TrendingSectionState extends State<_TrendingSection> {
   Future<void> _loadTrending() async {
     try {
       final response = await _repo.getTrendingActivities(limit: 6);
+      if (!mounted) return;
       if (response.success && response.data != null) {
         setState(() {
           _trendingEvents = response.data!;
@@ -1259,6 +1262,7 @@ class _TrendingSectionState extends State<_TrendingSection> {
         setState(() => _isLoading = false);
       }
     } catch (_) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
     }
   }
@@ -1441,6 +1445,7 @@ class _SuggestedSectionState extends State<_SuggestedSection> {
   Future<void> _loadSuggestions() async {
     try {
       final response = await _repo.getSuggestedActivities(limit: 5);
+      if (!mounted) return;
       if (response.success && response.data != null) {
         setState(() {
           _suggestions = response.data!;
@@ -1450,6 +1455,7 @@ class _SuggestedSectionState extends State<_SuggestedSection> {
         setState(() => _isLoading = false);
       }
     } catch (_) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
     }
   }

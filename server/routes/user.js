@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Activity = require('../models/Activity');
 const { auth } = require('../middleware/auth');
@@ -1064,7 +1065,6 @@ router.post('/delete-account', auth, async (req, res) => {
     }
 
     // Verify password
-    const bcrypt = require('bcryptjs');
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Incorrect password' });

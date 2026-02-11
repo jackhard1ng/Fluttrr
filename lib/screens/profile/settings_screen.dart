@@ -218,7 +218,6 @@ class SettingsScreen extends StatelessWidget {
           TextButton(
             onPressed: () {
               HapticFeedback.lightImpact();
-              passwordController.dispose();
               Navigator.pop(dialogContext);
             },
             child: const Text('Cancel'),
@@ -239,7 +238,6 @@ class SettingsScreen extends StatelessWidget {
               }
 
               Navigator.pop(dialogContext);
-              passwordController.dispose();
 
               final profileController = Get.find<ProfileController>();
               final success = await profileController.deleteAccount(password);
@@ -682,19 +680,23 @@ class _NotificationPreferencesSheetState extends State<_NotificationPreferencesS
   Future<void> _loadPreferences() async {
     try {
       final response = await _repo.getNotificationPreferences();
+      if (!mounted) return;
       if (response.success && response.data != null) {
         final data = response.data!;
         setState(() {
-          _activityReminders = data['activityReminders'] ?? true;
-          _messageNotifications = data['messageNotifications'] ?? true;
-          _promotionalEmails = data['promotionalEmails'] ?? false;
-          _reminderTime = data['reminderTime'] ?? 30;
+          _activityReminders = (data['activityReminders'] as bool?) ?? true;
+          _messageNotifications = (data['messageNotifications'] as bool?) ?? true;
+          _promotionalEmails = (data['promotionalEmails'] as bool?) ?? false;
+          _reminderTime = (data['reminderTime'] is int)
+              ? data['reminderTime'] as int
+              : int.tryParse(data['reminderTime']?.toString() ?? '') ?? 30;
           _isLoading = false;
         });
       } else {
         setState(() => _isLoading = false);
       }
     } catch (_) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
     }
   }
@@ -709,10 +711,11 @@ class _NotificationPreferencesSheetState extends State<_NotificationPreferencesS
         reminderTime: _reminderTime,
       );
 
+      if (!mounted) return;
       setState(() => _isSaving = false);
 
       if (response.success) {
-        if (mounted) Navigator.pop(context);
+        Navigator.pop(context);
         Get.snackbar(
           'Preferences Saved',
           'Your notification preferences have been updated',
@@ -731,6 +734,7 @@ class _NotificationPreferencesSheetState extends State<_NotificationPreferencesS
         );
       }
     } catch (_) {
+      if (!mounted) return;
       setState(() => _isSaving = false);
     }
   }

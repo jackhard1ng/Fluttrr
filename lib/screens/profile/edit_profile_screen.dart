@@ -190,9 +190,33 @@ class EditProfileScreen extends StatelessWidget {
             Center(
               child: Stack(
                 children: [
-                  Obx(() => UserAvatar(
-                        imageUrl: profileController.profileImage,
-                        size: 100,
+                  Obx(() => Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          UserAvatar(
+                            imageUrl: profileController.profileImage,
+                            size: 100,
+                          ),
+                          if (profileController.isUploadingImage.value)
+                            Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                color: Colors.black.withAlpha(128),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Center(
+                                child: SizedBox(
+                                  width: 30,
+                                  height: 30,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 3,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       )),
                   Positioned(
                     right: 0,

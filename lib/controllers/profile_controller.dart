@@ -236,13 +236,13 @@ class ProfileController extends GetxController {
     try {
       final response = await _profileRepository.uploadProfilePhoto(image);
 
-      isUploadingImage.value = false;
-
       if (response.success && response.data != null) {
         // Reload profile to get updated image
         await loadProfile();
+        isUploadingImage.value = false;
         return true;
       }
+      isUploadingImage.value = false;
       return false;
     } catch (e) {
       isUploadingImage.value = false;
