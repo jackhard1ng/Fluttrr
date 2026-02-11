@@ -52,10 +52,10 @@ class ProfileController extends GetxController {
 
   @override
   void onClose() {
-    userNameController.dispose();
-    bioController.dispose();
-    ageController.dispose();
-    locationController.dispose();
+    // Text controllers are intentionally NOT disposed here because
+    // widgets (e.g. ProfileSetupScreen) may still reference them
+    // after this controller is deleted during navigation transitions.
+    // They will be garbage collected when no longer referenced.
     super.onClose();
   }
 
