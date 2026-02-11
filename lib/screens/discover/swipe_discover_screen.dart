@@ -1111,7 +1111,7 @@ class _FiltersSheetState extends State<_FiltersSheet> {
                       ),
                     ),
                     Text(
-                      '${_maxDistance.round()} km',
+                      '${_maxDistance.round()} mi',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: AppColors.primaryBlue,

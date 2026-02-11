@@ -280,6 +280,39 @@ class _ActivitiesMapViewState extends State<_ActivitiesMapView> {
   final MapController _mapController = MapController();
   ActivityModel? _selectedActivity;
 
+  String _markerEmoji(String? eventType) {
+    switch (eventType?.toLowerCase()) {
+      case 'sports': return '\u{26BD}';
+      case 'music': return '\u{1F3B5}';
+      case 'food': return '\u{1F355}';
+      case 'art': return '\u{1F3A8}';
+      case 'social': return '\u{1F389}';
+      case 'gaming': return '\u{1F3AE}';
+      case 'fitness': return '\u{1F4AA}';
+      case 'travel': return '\u{2708}';
+      case 'outdoor': return '\u{26F0}';
+      case 'wellness': return '\u{1F9D8}';
+      case 'learning': return '\u{1F4DA}';
+      default: return '\u{1F4CD}';
+    }
+  }
+
+  Color _markerColor(String? eventType) {
+    switch (eventType?.toLowerCase()) {
+      case 'sports': return const Color(0xFF4CAF50);
+      case 'music': return const Color(0xFF9C27B0);
+      case 'food': return const Color(0xFFFF5722);
+      case 'art': return const Color(0xFFE91E63);
+      case 'social': return AppColors.primaryBlue;
+      case 'gaming': return const Color(0xFF3F51B5);
+      case 'fitness': return const Color(0xFFFF9800);
+      case 'outdoor': return const Color(0xFF2E7D32);
+      case 'wellness': return const Color(0xFF00BCD4);
+      case 'learning': return const Color(0xFF795548);
+      default: return AppColors.friendlyTeal;
+    }
+  }
+
   @override
   void dispose() {
     _mapController.dispose();
@@ -331,7 +364,7 @@ class _ActivitiesMapViewState extends State<_ActivitiesMapView> {
                       decoration: BoxDecoration(
                         color: isSelected
                             ? AppColors.primaryBlue
-                            : AppColors.friendlyTeal,
+                            : _markerColor(activity.eventType),
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: Colors.white,
@@ -339,10 +372,11 @@ class _ActivitiesMapViewState extends State<_ActivitiesMapView> {
                         ),
                         boxShadow: AppShadows.medium,
                       ),
-                      child: Icon(
-                        Icons.event,
-                        color: Colors.white,
-                        size: isSelected ? 24 : 20,
+                      child: Center(
+                        child: Text(
+                          _markerEmoji(activity.eventType),
+                          style: TextStyle(fontSize: isSelected ? 18 : 14),
+                        ),
                       ),
                     ),
                   ),
@@ -820,7 +854,7 @@ class _FilterBottomSheet extends StatelessWidget {
                 min: 5,
                 max: 100,
                 divisions: 19,
-                label: '${controller.filterRadius.value.round()} km',
+                label: '${controller.filterRadius.value.round()} mi',
                 onChanged: (value) => controller.filterRadius.value = value,
               )),
 

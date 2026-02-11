@@ -265,13 +265,16 @@ class LocationService {
     );
   }
 
-  /// Calculate distance in a readable format
+  /// Calculate distance in a readable format (miles)
   String formatDistance(double distanceInMeters) {
-    if (distanceInMeters < 1000) {
-      return '${distanceInMeters.toStringAsFixed(0)} m';
+    final miles = distanceInMeters / 1609.344;
+    if (miles < 0.1) {
+      final feet = (distanceInMeters * 3.28084).round();
+      return '$feet ft';
+    } else if (miles < 10) {
+      return '${miles.toStringAsFixed(1)} mi';
     } else {
-      final km = distanceInMeters / 1000;
-      return '${km.toStringAsFixed(1)} km';
+      return '${miles.round()} mi';
     }
   }
 
