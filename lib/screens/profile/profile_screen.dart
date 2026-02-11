@@ -15,6 +15,9 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!Get.isRegistered<ProfileController>()) {
+      Get.put(ProfileController());
+    }
     final profileController = Get.find<ProfileController>();
 
     return Scaffold(

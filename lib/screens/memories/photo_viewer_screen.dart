@@ -504,6 +504,9 @@ class _TagUserSheetState extends State<_TagUserSheet> {
   }
 
   void _tagUser(String userId, String userName) async {
+    if (!Get.isRegistered<MemoryController>()) {
+      Get.put(MemoryController());
+    }
     final controller = Get.find<MemoryController>();
 
     Get.back();

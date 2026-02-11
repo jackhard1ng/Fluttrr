@@ -46,6 +46,9 @@ class _PublicBusinessProfileScreenState
     setState(() => _isFollowLoading = true);
 
     try {
+      if (!Get.isRegistered<BusinessController>()) {
+        Get.put(BusinessController());
+      }
       final businessController = Get.find<BusinessController>();
       final businessId = int.tryParse(widget.businessId);
 

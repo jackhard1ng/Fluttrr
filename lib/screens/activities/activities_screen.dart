@@ -33,6 +33,12 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!Get.isRegistered<ActivityController>()) {
+      Get.put(ActivityController());
+    }
+    if (!Get.isRegistered<ProfileController>()) {
+      Get.put(ProfileController());
+    }
     final activityController = Get.find<ActivityController>();
     final profileController = Get.find<ProfileController>();
     final canCreateEvents = profileController.currentUser.value?.canCreateEvents ?? false;

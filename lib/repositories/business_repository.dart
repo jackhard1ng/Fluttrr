@@ -397,14 +397,15 @@ class BusinessRepository extends BaseRepository {
       List<dynamic> events = [];
 
       if (data is Map<String, dynamic>) {
-        events = data['data'] as List<dynamic>? ?? [];
+        final rawEvents = data['data'];
+        events = (rawEvents is List) ? rawEvents : [];
       } else if (data is List) {
         events = data;
       }
 
       final eventsList = events
-          .where((e) => e != null)
-          .map((e) => BusinessEvent.fromJson(e as Map<String, dynamic>))
+          .whereType<Map<String, dynamic>>()
+          .map((e) => BusinessEvent.fromJson(e))
           .toList();
 
       return ApiResponse.success(data: eventsList);

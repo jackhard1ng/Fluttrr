@@ -16,6 +16,9 @@ class CreateActivityScreen extends StatelessWidget {
     if (!Get.isRegistered<ActivityController>()) {
       Get.put(ActivityController());
     }
+    if (!Get.isRegistered<ProfileController>()) {
+      Get.put(ProfileController());
+    }
     final activityController = Get.find<ActivityController>();
     final profileController = Get.find<ProfileController>();
 

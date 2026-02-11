@@ -241,7 +241,7 @@ class AchievementUnlocked extends StatelessWidget {
     required this.title,
     this.description,
     required this.icon,
-    this.color = Colors.amber,
+    this.color = AppColors.primaryBlue,
     this.onDismiss,
   });
 

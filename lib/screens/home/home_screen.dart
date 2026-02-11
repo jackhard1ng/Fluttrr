@@ -56,6 +56,9 @@ class _HomeScreenState extends State<HomeScreen> {
               color: AppColors.primaryBlue,
               onRefresh: () async {
                 HapticFeedback.mediumImpact();
+                if (!Get.isRegistered<DiscoverController>()) {
+                  Get.put(DiscoverController());
+                }
                 final discoverController = Get.find<DiscoverController>();
                 await discoverController.refreshEvents();
               },

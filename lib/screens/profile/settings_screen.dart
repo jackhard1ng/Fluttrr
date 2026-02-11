@@ -579,15 +579,10 @@ class _AdminPanelTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Check if admin controller exists and user is admin
-    final AdminController adminController;
-    try {
-      adminController = Get.find<AdminController>();
-    } catch (_) {
-      // Controller not registered, try to create it
+    if (!Get.isRegistered<AdminController>()) {
       Get.put(AdminController());
-      return _buildAdminCheck();
     }
+    final adminController = Get.find<AdminController>();
 
     return Obx(() {
       if (!adminController.isAdmin) {

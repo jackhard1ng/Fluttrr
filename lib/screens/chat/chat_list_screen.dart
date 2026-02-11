@@ -186,6 +186,9 @@ class _DirectChatsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!Get.isRegistered<ChatController>()) {
+      Get.put(ChatController());
+    }
     final chatController = Get.find<ChatController>();
 
     return Obx(() {
@@ -221,6 +224,9 @@ class _GroupChatsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!Get.isRegistered<ChatController>()) {
+      Get.put(ChatController());
+    }
     final chatController = Get.find<ChatController>();
 
     return Obx(() {
@@ -248,6 +254,9 @@ class _BusinessChatsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!Get.isRegistered<ChatController>()) {
+      Get.put(ChatController());
+    }
     final chatController = Get.find<ChatController>();
 
     return Obx(() {

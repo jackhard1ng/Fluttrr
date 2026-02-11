@@ -13,6 +13,9 @@ class EditProfileScreen extends StatelessWidget {
   const EditProfileScreen({super.key});
 
   Future<void> _pickAndUploadPhoto(ImageSource source) async {
+    if (!Get.isRegistered<ProfileController>()) {
+      Get.put(ProfileController());
+    }
     final profileController = Get.find<ProfileController>();
     final picker = ImagePicker();
 
