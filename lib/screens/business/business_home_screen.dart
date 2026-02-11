@@ -19,7 +19,9 @@ class BusinessHomeScreen extends StatefulWidget {
 class _BusinessHomeScreenState extends State<BusinessHomeScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final _businessController = Get.find<BusinessController>();
+  final _businessController = Get.isRegistered<BusinessController>()
+      ? Get.find<BusinessController>()
+      : Get.put(BusinessController());
 
   @override
   void initState() {

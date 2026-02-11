@@ -27,7 +27,9 @@ class EventMemoriesScreen extends StatefulWidget {
 }
 
 class _EventMemoriesScreenState extends State<EventMemoriesScreen> {
-  final MemoryController _controller = Get.find<MemoryController>();
+  final MemoryController _controller = Get.isRegistered<MemoryController>()
+      ? Get.find<MemoryController>()
+      : Get.put(MemoryController());
   final ScrollController _scrollController = ScrollController();
 
   @override

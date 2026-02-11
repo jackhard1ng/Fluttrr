@@ -15,7 +15,9 @@ class SubscriptionScreen extends StatefulWidget {
 }
 
 class _SubscriptionScreenState extends State<SubscriptionScreen> {
-  final _businessController = Get.find<BusinessController>();
+  final _businessController = Get.isRegistered<BusinessController>()
+      ? Get.find<BusinessController>()
+      : Get.put(BusinessController());
   int _selectedPlanIndex = 1; // Default to Pro plan
 
   final List<_SubscriptionPlan> _plans = [

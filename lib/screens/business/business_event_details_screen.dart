@@ -26,7 +26,9 @@ class BusinessEventDetailsScreen extends StatefulWidget {
 
 class _BusinessEventDetailsScreenState
     extends State<BusinessEventDetailsScreen> {
-  final _businessController = Get.find<BusinessController>();
+  final _businessController = Get.isRegistered<BusinessController>()
+      ? Get.find<BusinessController>()
+      : Get.put(BusinessController());
 
   @override
   void initState() {

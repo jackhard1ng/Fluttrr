@@ -15,7 +15,9 @@ class BusinessAnalyticsScreen extends StatefulWidget {
 }
 
 class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen> {
-  final _businessController = Get.find<BusinessController>();
+  final _businessController = Get.isRegistered<BusinessController>()
+      ? Get.find<BusinessController>()
+      : Get.put(BusinessController());
   String _selectedPeriod = '7 days';
 
   final List<String> _periods = ['7 days', '30 days', '90 days', 'All time'];

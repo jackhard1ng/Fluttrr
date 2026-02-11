@@ -260,7 +260,9 @@ class _StatsOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final businessController = Get.find<BusinessController>();
+    final businessController = Get.isRegistered<BusinessController>()
+        ? Get.find<BusinessController>()
+        : Get.put(BusinessController());
 
     return Obx(() {
       final analytics = businessController.analytics.value;

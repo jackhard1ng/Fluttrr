@@ -20,7 +20,9 @@ class CreateBusinessEventScreen extends StatefulWidget {
 
 class _CreateBusinessEventScreenState extends State<CreateBusinessEventScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _businessController = Get.find<BusinessController>();
+  final _businessController = Get.isRegistered<BusinessController>()
+      ? Get.find<BusinessController>()
+      : Get.put(BusinessController());
   final _imagePicker = ImagePicker();
 
   // Text controllers

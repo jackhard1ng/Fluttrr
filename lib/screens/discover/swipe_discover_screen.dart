@@ -31,6 +31,10 @@ class _SwipeDiscoverScreenState extends State<SwipeDiscoverScreen>
   @override
   void initState() {
     super.initState();
+    // Ensure ActivityController is available
+    if (!Get.isRegistered<ActivityController>()) {
+      Get.put(ActivityController());
+    }
     _swipeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),

@@ -28,6 +28,9 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
   }
 
   void _loadActivity() {
+    if (!Get.isRegistered<ActivityController>()) {
+      Get.put(ActivityController());
+    }
     final controller = Get.find<ActivityController>();
     controller.loadActivityDetails(widget.activityId);
   }
@@ -105,7 +108,9 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
     // Check if context is still mounted before showing bottom sheet (#93)
     if (!context.mounted) return;
 
-    final chatController = Get.find<ChatController>();
+    final chatController = Get.isRegistered<ChatController>()
+        ? Get.find<ChatController>()
+        : Get.put(ChatController());
 
     showModalBottomSheet(
       context: context,
@@ -225,7 +230,9 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
   void _sendToConversation(dynamic conversation, dynamic activity) async {
     HapticFeedback.mediumImpact();
 
-    final chatController = Get.find<ChatController>();
+    final chatController = Get.isRegistered<ChatController>()
+        ? Get.find<ChatController>()
+        : Get.put(ChatController());
     final friendName = conversation.otherUserName ?? 'your friend';
 
     // Create a message about the activity

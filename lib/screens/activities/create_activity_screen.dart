@@ -13,6 +13,9 @@ class CreateActivityScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!Get.isRegistered<ActivityController>()) {
+      Get.put(ActivityController());
+    }
     final activityController = Get.find<ActivityController>();
     final profileController = Get.find<ProfileController>();
 
