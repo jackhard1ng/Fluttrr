@@ -796,7 +796,9 @@ class _ChatModerationScreenState extends State<ChatModerationScreen> {
   }
 
   void _warnUserForMessage(ModeratedMessageModel message, ModeratedChatModel chat) {
-    final controller = Get.find<AdminController>();
+    final controller = Get.isRegistered<AdminController>()
+        ? Get.find<AdminController>()
+        : Get.put(AdminController());
     final userName = message.senderId == chat.participantOneId
         ? chat.participantOneName
         : chat.participantTwoName;

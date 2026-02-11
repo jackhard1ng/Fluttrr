@@ -37,7 +37,7 @@ router.get('/status', auth, async (req, res) => {
       success: true,
       data: {
         adminId: req.user._id,
-        userId: req.user._id.toString(),
+        userId: req.user.userId,
         email: req.user.email,
         name: req.user.userName,
         role: req.user.role || 'user',

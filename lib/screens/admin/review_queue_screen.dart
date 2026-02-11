@@ -10,7 +10,9 @@ class ReviewQueueScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<AdminController>();
+    final controller = Get.isRegistered<AdminController>()
+        ? Get.find<AdminController>()
+        : Get.put(AdminController());
 
     // Load both pending businesses and reports
     controller.businessFilter.value = BusinessVerificationStatus.pending;

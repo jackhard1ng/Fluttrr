@@ -10,7 +10,9 @@ class CreateGroupScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<GroupController>();
+    final controller = Get.isRegistered<GroupController>()
+        ? Get.find<GroupController>()
+        : Get.put(GroupController());
 
     return Scaffold(
       appBar: AppBar(

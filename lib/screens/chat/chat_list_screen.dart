@@ -29,6 +29,9 @@ class _ChatListScreenState extends State<ChatListScreen>
   }
 
   Future<void> _loadChats() async {
+    if (!Get.isRegistered<ChatController>()) {
+      Get.put(ChatController());
+    }
     final controller = Get.find<ChatController>();
     // Load all chat types with error handling
     await Future.wait([
