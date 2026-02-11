@@ -356,6 +356,10 @@ router.post('/create-event', auth, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Business profile not found. Please set up your business profile first.' });
     }
 
+    if (!business.isVerified) {
+      return res.status(403).json({ success: false, message: 'Your business must be verified before you can create events. Please contact support or wait for admin verification.' });
+    }
+
     const {
       name,
       description,

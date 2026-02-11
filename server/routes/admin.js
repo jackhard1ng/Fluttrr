@@ -5,7 +5,7 @@ const { auth } = require('../middleware/auth');
 // Admin auth middleware - check if user is admin
 const adminAuth = async (req, res, next) => {
   if (!req.user || req.user.role !== 'admin') {
-    return res.status(403).json({ message: 'Admin access required' });
+    return res.status(403).json({ success: false, message: 'Admin access required' });
   }
   next();
 };
@@ -26,7 +26,7 @@ router.post('/complain', auth, async (req, res) => {
     res.json({ success: true, message: 'Complaint submitted', data: complaint });
   } catch (error) {
     console.error('Submit complaint error:', error);
-    res.status(500).json({ message: 'Failed to submit complaint' });
+    res.status(500).json({ success: false, message: 'Failed to submit complaint' });
   }
 });
 
@@ -46,7 +46,7 @@ router.get('/status', auth, async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get admin status' });
+    res.status(500).json({ success: false, message: 'Failed to get admin status' });
   }
 });
 
@@ -111,7 +111,7 @@ router.get('/stats', auth, adminAuth, async (req, res) => {
     });
   } catch (error) {
     console.error('Admin stats error:', error);
-    res.status(500).json({ message: 'Failed to get stats' });
+    res.status(500).json({ success: false, message: 'Failed to get stats' });
   }
 });
 
@@ -158,7 +158,7 @@ router.get('/users', auth, adminAuth, async (req, res) => {
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: lim, total, pages: Math.ceil(total / lim) } });
   } catch (error) {
     console.error('Admin list users error:', error);
-    res.status(500).json({ message: 'Failed to list users' });
+    res.status(500).json({ success: false, message: 'Failed to list users' });
   }
 });
 
@@ -167,10 +167,10 @@ router.get('/users/:id', auth, adminAuth, async (req, res) => {
   try {
     const User = require('../models/User');
     const user = await User.findById(req.params.id).select('-password -refreshToken');
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     res.json({ success: true, data: user });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get user' });
+    res.status(500).json({ success: false, message: 'Failed to get user' });
   }
 });
 
@@ -179,10 +179,10 @@ router.post('/users/:id/suspend', auth, adminAuth, async (req, res) => {
   try {
     const User = require('../models/User');
     const user = await User.findByIdAndUpdate(req.params.id, { status: 'suspended' }, { new: true }).select('-password');
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     res.json({ success: true, data: user, message: 'User suspended' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to suspend user' });
+    res.status(500).json({ success: false, message: 'Failed to suspend user' });
   }
 });
 
@@ -191,10 +191,10 @@ router.post('/users/:id/unsuspend', auth, adminAuth, async (req, res) => {
   try {
     const User = require('../models/User');
     const user = await User.findByIdAndUpdate(req.params.id, { status: 'active' }, { new: true }).select('-password');
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     res.json({ success: true, data: user, message: 'User unsuspended' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to unsuspend user' });
+    res.status(500).json({ success: false, message: 'Failed to unsuspend user' });
   }
 });
 
@@ -203,10 +203,10 @@ router.post('/users/:id/ban', auth, adminAuth, async (req, res) => {
   try {
     const User = require('../models/User');
     const user = await User.findByIdAndUpdate(req.params.id, { status: 'banned' }, { new: true }).select('-password');
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     res.json({ success: true, data: user, message: 'User banned' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to ban user' });
+    res.status(500).json({ success: false, message: 'Failed to ban user' });
   }
 });
 
@@ -215,10 +215,10 @@ router.post('/users/:id/unban', auth, adminAuth, async (req, res) => {
   try {
     const User = require('../models/User');
     const user = await User.findByIdAndUpdate(req.params.id, { status: 'active' }, { new: true }).select('-password');
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     res.json({ success: true, data: user, message: 'User unbanned' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to unban user' });
+    res.status(500).json({ success: false, message: 'Failed to unban user' });
   }
 });
 
@@ -228,7 +228,7 @@ router.post('/users/:id/warn', auth, adminAuth, async (req, res) => {
     const { reason } = req.body;
     res.json({ success: true, message: `Warning sent${reason ? ': ' + reason : ''}` });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to warn user' });
+    res.status(500).json({ success: false, message: 'Failed to warn user' });
   }
 });
 
@@ -237,10 +237,10 @@ router.delete('/users/:id', auth, adminAuth, async (req, res) => {
   try {
     const User = require('../models/User');
     const user = await User.findByIdAndUpdate(req.params.id, { status: 'deleted' }, { new: true }).select('-password');
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     res.json({ success: true, message: 'User deleted' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to delete user' });
+    res.status(500).json({ success: false, message: 'Failed to delete user' });
   }
 });
 
@@ -283,7 +283,7 @@ router.get('/businesses', auth, adminAuth, async (req, res) => {
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: lim, total, pages: Math.ceil(total / lim) } });
   } catch (error) {
     console.error('Admin list businesses error:', error);
-    res.status(500).json({ message: 'Failed to list businesses' });
+    res.status(500).json({ success: false, message: 'Failed to list businesses' });
   }
 });
 
@@ -292,10 +292,10 @@ router.get('/businesses/:id', auth, adminAuth, async (req, res) => {
   try {
     const Business = require('../models/Business');
     const business = await Business.findById(req.params.id);
-    if (!business) return res.status(404).json({ message: 'Business not found' });
+    if (!business) return res.status(404).json({ success: false, message: 'Business not found' });
     res.json({ success: true, data: business });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get business' });
+    res.status(500).json({ success: false, message: 'Failed to get business' });
   }
 });
 
@@ -304,10 +304,22 @@ router.post('/businesses/:id/verify', auth, adminAuth, async (req, res) => {
   try {
     const Business = require('../models/Business');
     const business = await Business.findByIdAndUpdate(req.params.id, { isVerified: true }, { new: true });
-    if (!business) return res.status(404).json({ message: 'Business not found' });
+    if (!business) return res.status(404).json({ success: false, message: 'Business not found' });
     res.json({ success: true, data: business, message: 'Business verified' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to verify business' });
+    res.status(500).json({ success: false, message: 'Failed to verify business' });
+  }
+});
+
+// POST /api/admin/businesses/:id/unverify
+router.post('/businesses/:id/unverify', auth, adminAuth, async (req, res) => {
+  try {
+    const Business = require('../models/Business');
+    const business = await Business.findByIdAndUpdate(req.params.id, { isVerified: false }, { new: true });
+    if (!business) return res.status(404).json({ success: false, message: 'Business not found' });
+    res.json({ success: true, data: business, message: 'Business verification removed' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to unverify business' });
   }
 });
 
@@ -316,10 +328,10 @@ router.post('/businesses/:id/suspend', auth, adminAuth, async (req, res) => {
   try {
     const Business = require('../models/Business');
     const business = await Business.findByIdAndUpdate(req.params.id, { isSuspended: true }, { new: true });
-    if (!business) return res.status(404).json({ message: 'Business not found' });
+    if (!business) return res.status(404).json({ success: false, message: 'Business not found' });
     res.json({ success: true, data: business, message: 'Business suspended' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to suspend business' });
+    res.status(500).json({ success: false, message: 'Failed to suspend business' });
   }
 });
 
@@ -328,10 +340,10 @@ router.post('/businesses/:id/unsuspend', auth, adminAuth, async (req, res) => {
   try {
     const Business = require('../models/Business');
     const business = await Business.findByIdAndUpdate(req.params.id, { isSuspended: false }, { new: true });
-    if (!business) return res.status(404).json({ message: 'Business not found' });
+    if (!business) return res.status(404).json({ success: false, message: 'Business not found' });
     res.json({ success: true, data: business, message: 'Business unsuspended' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to unsuspend business' });
+    res.status(500).json({ success: false, message: 'Failed to unsuspend business' });
   }
 });
 
@@ -342,7 +354,7 @@ router.delete('/businesses/:id', auth, adminAuth, async (req, res) => {
     await Business.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: 'Business deleted' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to delete business' });
+    res.status(500).json({ success: false, message: 'Failed to delete business' });
   }
 });
 
@@ -351,12 +363,12 @@ router.post('/businesses/:id/toggle-featured', auth, adminAuth, async (req, res)
   try {
     const Business = require('../models/Business');
     const business = await Business.findById(req.params.id);
-    if (!business) return res.status(404).json({ message: 'Business not found' });
+    if (!business) return res.status(404).json({ success: false, message: 'Business not found' });
     business.isFeatured = !business.isFeatured;
     await business.save();
     res.json({ success: true, data: business, message: business.isFeatured ? 'Business featured' : 'Business unfeatured' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to toggle featured' });
+    res.status(500).json({ success: false, message: 'Failed to toggle featured' });
   }
 });
 
@@ -367,7 +379,7 @@ router.post('/businesses', auth, adminAuth, async (req, res) => {
     const business = await Business.create(req.body);
     res.json({ success: true, data: business });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to create business' });
+    res.status(500).json({ success: false, message: 'Failed to create business' });
   }
 });
 
@@ -413,7 +425,7 @@ router.get('/events', auth, adminAuth, async (req, res) => {
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: lim, total, pages: Math.ceil(total / lim) } });
   } catch (error) {
     console.error('Admin list events error:', error);
-    res.status(500).json({ message: 'Failed to list events' });
+    res.status(500).json({ success: false, message: 'Failed to list events' });
   }
 });
 
@@ -422,10 +434,10 @@ router.get('/events/:id', auth, adminAuth, async (req, res) => {
   try {
     const Activity = require('../models/Activity');
     const event = await Activity.findById(req.params.id);
-    if (!event) return res.status(404).json({ message: 'Event not found' });
+    if (!event) return res.status(404).json({ success: false, message: 'Event not found' });
     res.json({ success: true, data: event });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get event' });
+    res.status(500).json({ success: false, message: 'Failed to get event' });
   }
 });
 
@@ -434,10 +446,10 @@ router.post('/events/:id/approve', auth, adminAuth, async (req, res) => {
   try {
     const Activity = require('../models/Activity');
     const event = await Activity.findByIdAndUpdate(req.params.id, { status: 'active' }, { new: true });
-    if (!event) return res.status(404).json({ message: 'Event not found' });
+    if (!event) return res.status(404).json({ success: false, message: 'Event not found' });
     res.json({ success: true, data: event, message: 'Event approved' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to approve event' });
+    res.status(500).json({ success: false, message: 'Failed to approve event' });
   }
 });
 
@@ -446,10 +458,10 @@ router.post('/events/:id/reject', auth, adminAuth, async (req, res) => {
   try {
     const Activity = require('../models/Activity');
     const event = await Activity.findByIdAndUpdate(req.params.id, { status: 'rejected' }, { new: true });
-    if (!event) return res.status(404).json({ message: 'Event not found' });
+    if (!event) return res.status(404).json({ success: false, message: 'Event not found' });
     res.json({ success: true, data: event, message: 'Event rejected' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to reject event' });
+    res.status(500).json({ success: false, message: 'Failed to reject event' });
   }
 });
 
@@ -460,7 +472,7 @@ router.delete('/events/:id', auth, adminAuth, async (req, res) => {
     await Activity.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: 'Event deleted' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to delete event' });
+    res.status(500).json({ success: false, message: 'Failed to delete event' });
   }
 });
 
@@ -469,12 +481,12 @@ router.post('/events/:id/toggle-featured', auth, adminAuth, async (req, res) => 
   try {
     const Activity = require('../models/Activity');
     const event = await Activity.findById(req.params.id);
-    if (!event) return res.status(404).json({ message: 'Event not found' });
+    if (!event) return res.status(404).json({ success: false, message: 'Event not found' });
     event.isFeatured = !event.isFeatured;
     await event.save();
     res.json({ success: true, data: event, message: event.isFeatured ? 'Event featured' : 'Event unfeatured' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to toggle featured' });
+    res.status(500).json({ success: false, message: 'Failed to toggle featured' });
   }
 });
 
@@ -485,7 +497,7 @@ router.post('/events', auth, adminAuth, async (req, res) => {
     const event = await Activity.create(req.body);
     res.json({ success: true, data: event });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to create event' });
+    res.status(500).json({ success: false, message: 'Failed to create event' });
   }
 });
 
@@ -524,7 +536,7 @@ router.get('/reports', auth, adminAuth, async (req, res) => {
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: lim, total, pages: Math.ceil(total / lim) } });
   } catch (error) {
     console.error('Admin list reports error:', error);
-    res.status(500).json({ message: 'Failed to list reports' });
+    res.status(500).json({ success: false, message: 'Failed to list reports' });
   }
 });
 
@@ -533,10 +545,10 @@ router.get('/reports/:id', auth, adminAuth, async (req, res) => {
   try {
     const Complaint = require('../models/Complaint');
     const report = await Complaint.findById(req.params.id);
-    if (!report) return res.status(404).json({ message: 'Report not found' });
+    if (!report) return res.status(404).json({ success: false, message: 'Report not found' });
     res.json({ success: true, data: report });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to get report' });
+    res.status(500).json({ success: false, message: 'Failed to get report' });
   }
 });
 
@@ -545,10 +557,10 @@ router.post('/reports/:id/resolve', auth, adminAuth, async (req, res) => {
   try {
     const Complaint = require('../models/Complaint');
     const report = await Complaint.findByIdAndUpdate(req.params.id, { status: 'resolved' }, { new: true });
-    if (!report) return res.status(404).json({ message: 'Report not found' });
+    if (!report) return res.status(404).json({ success: false, message: 'Report not found' });
     res.json({ success: true, data: report, message: 'Report resolved' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to resolve report' });
+    res.status(500).json({ success: false, message: 'Failed to resolve report' });
   }
 });
 
@@ -557,10 +569,10 @@ router.post('/reports/:id/dismiss', auth, adminAuth, async (req, res) => {
   try {
     const Complaint = require('../models/Complaint');
     const report = await Complaint.findByIdAndUpdate(req.params.id, { status: 'dismissed' }, { new: true });
-    if (!report) return res.status(404).json({ message: 'Report not found' });
+    if (!report) return res.status(404).json({ success: false, message: 'Report not found' });
     res.json({ success: true, data: report, message: 'Report dismissed' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to dismiss report' });
+    res.status(500).json({ success: false, message: 'Failed to dismiss report' });
   }
 });
 
@@ -570,10 +582,10 @@ router.post('/reports/:id/assign', auth, adminAuth, async (req, res) => {
     const { admin_id } = req.body;
     const Complaint = require('../models/Complaint');
     const report = await Complaint.findByIdAndUpdate(req.params.id, { assignedTo: admin_id }, { new: true });
-    if (!report) return res.status(404).json({ message: 'Report not found' });
+    if (!report) return res.status(404).json({ success: false, message: 'Report not found' });
     res.json({ success: true, data: report, message: 'Report assigned' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to assign report' });
+    res.status(500).json({ success: false, message: 'Failed to assign report' });
   }
 });
 
@@ -589,7 +601,7 @@ router.get('/admins', auth, adminAuth, async (req, res) => {
     const admins = await User.find({ role: { $in: ['admin', 'moderator'] } }).select('-password -refreshToken');
     res.json({ success: true, data: admins });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to list admins' });
+    res.status(500).json({ success: false, message: 'Failed to list admins' });
   }
 });
 
@@ -598,10 +610,10 @@ router.post('/admins', auth, adminAuth, async (req, res) => {
     const { userId, role } = req.body;
     const User = require('../models/User');
     const user = await User.findByIdAndUpdate(userId, { role: role || 'moderator' }, { new: true }).select('-password');
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     res.json({ success: true, data: user, message: 'Admin role assigned' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to assign admin role' });
+    res.status(500).json({ success: false, message: 'Failed to assign admin role' });
   }
 });
 
@@ -610,10 +622,10 @@ router.put('/admins/:id', auth, adminAuth, async (req, res) => {
     const { role } = req.body;
     const User = require('../models/User');
     const user = await User.findByIdAndUpdate(req.params.id, { role: role || 'moderator' }, { new: true }).select('-password');
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     res.json({ success: true, data: user, message: 'Admin role updated' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to update admin' });
+    res.status(500).json({ success: false, message: 'Failed to update admin' });
   }
 });
 
@@ -621,10 +633,10 @@ router.delete('/admins/:id', auth, adminAuth, async (req, res) => {
   try {
     const User = require('../models/User');
     const user = await User.findByIdAndUpdate(req.params.id, { role: 'user' }, { new: true }).select('-password');
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     res.json({ success: true, message: 'Admin role removed' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to remove admin' });
+    res.status(500).json({ success: false, message: 'Failed to remove admin' });
   }
 });
 

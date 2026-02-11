@@ -177,6 +177,16 @@ class _CreateBusinessEventScreenState extends State<CreateBusinessEventScreen> {
         colorText: Colors.white,
       );
       Get.back();
+    } else {
+      Get.snackbar(
+        'Error',
+        _businessController.errorMessage.value.isNotEmpty
+            ? _businessController.errorMessage.value
+            : 'Failed to create event. Please try again.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.error,
+        colorText: Colors.white,
+      );
     }
   }
 
