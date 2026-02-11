@@ -10,6 +10,19 @@ const adminAuth = async (req, res, next) => {
   next();
 };
 
+// Allowed sort fields per entity to prevent information disclosure
+const ALLOWED_SORT_FIELDS = {
+  users: ['createdAt', 'userName', 'email', 'status', 'lastSeen', 'accountType', 'userId'],
+  businesses: ['createdAt', 'businessName', 'email', 'isVerified', 'followerCount', 'businessId'],
+  activities: ['createdAt', 'name', 'dateTime', 'eventType', 'activityId'],
+  complaints: ['createdAt', 'status', 'category', 'subject'],
+};
+
+function validateSortField(sortBy, entity) {
+  const allowed = ALLOWED_SORT_FIELDS[entity] || ['createdAt'];
+  return allowed.includes(sortBy) ? sortBy : 'createdAt';
+}
+
 // POST /api/admin/complain - Submit complaint (available to all authenticated users)
 router.post('/complain', auth, async (req, res) => {
   try {
@@ -132,11 +145,12 @@ router.get('/users', auth, adminAuth, async (req, res) => {
     }
 
     const sortDir = descending === 'true' ? -1 : 1;
+    const safeSortBy = validateSortField(sort_by, 'users');
     const users = await User.find(filter)
       .select('-password -refreshToken')
       .skip(skip)
       .limit(lim)
-      .sort({ [sort_by]: sortDir });
+      .sort({ [safeSortBy]: sortDir });
 
     const total = await User.countDocuments(filter);
 
@@ -261,10 +275,11 @@ router.get('/businesses', auth, adminAuth, async (req, res) => {
     }
 
     const sortDir = descending === 'true' ? -1 : 1;
+    const safeSortBy = validateSortField(sort_by, 'businesses');
     const businesses = await Business.find(filter)
       .skip(skip)
       .limit(lim)
-      .sort({ [sort_by]: sortDir });
+      .sort({ [safeSortBy]: sortDir });
 
     const total = await Business.countDocuments(filter);
 
@@ -401,10 +416,11 @@ router.get('/events', auth, adminAuth, async (req, res) => {
     }
 
     const sortDir = descending === 'true' ? -1 : 1;
+    const safeSortBy = validateSortField(sort_by, 'activities');
     const events = await Activity.find(filter)
       .skip(skip)
       .limit(lim)
-      .sort({ [sort_by]: sortDir });
+      .sort({ [safeSortBy]: sortDir });
 
     const total = await Activity.countDocuments(filter);
 
@@ -514,10 +530,11 @@ router.get('/reports', auth, adminAuth, async (req, res) => {
     if (type) filter.category = type;
 
     const sortDir = descending === 'true' ? -1 : 1;
+    const safeSortBy = validateSortField(sort_by, 'complaints');
     const reports = await Complaint.find(filter)
       .skip(skip)
       .limit(lim)
-      .sort({ [sort_by]: sortDir });
+      .sort({ [safeSortBy]: sortDir });
 
     const total = await Complaint.countDocuments(filter);
 

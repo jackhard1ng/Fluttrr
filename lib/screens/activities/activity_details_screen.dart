@@ -320,6 +320,14 @@ Join me! 🎉
                     ? Image.network(
                         activity.primaryImage!,
                         fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          color: AppColors.lightGrey,
+                          child: const Icon(
+                            Icons.event,
+                            size: 80,
+                            color: AppColors.grey,
+                          ),
+                        ),
                       )
                     : Container(
                         color: AppColors.lightGrey,

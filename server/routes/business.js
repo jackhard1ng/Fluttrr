@@ -535,6 +535,10 @@ router.post('/leave-event', auth, async (req, res) => {
     }
 
     const userId = req.user.userId;
+    if (!event.attendees || !event.attendees.includes(userId)) {
+      return res.status(400).json({ success: false, message: 'You have not joined this event' });
+    }
+
     await BusinessEvent.findByIdAndUpdate(eventId, {
       $pull: { attendees: userId },
       $inc: { attendeesCount: -1, remainingSlots: event.remainingSlots != null ? 1 : 0 },

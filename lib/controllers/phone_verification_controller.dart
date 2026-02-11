@@ -24,6 +24,7 @@ class PhoneVerificationController extends GetxController {
   // OTP cooldown
   final RxInt otpCooldownSeconds = 0.obs;
   final RxBool canResendOtp = true.obs;
+  bool _cooldownActive = false;
 
   // Country codes
   static const List<Map<String, String>> countryCodes = [
@@ -47,6 +48,7 @@ class PhoneVerificationController extends GetxController {
 
   @override
   void onClose() {
+    _cooldownActive = false;
     phoneController.dispose();
     otpController.dispose();
     super.onClose();
@@ -147,9 +149,11 @@ class PhoneVerificationController extends GetxController {
   void _startOtpCooldown() {
     canResendOtp.value = false;
     otpCooldownSeconds.value = 60;
+    _cooldownActive = true;
 
     Future.doWhile(() async {
       await Future.delayed(const Duration(seconds: 1));
+      if (!_cooldownActive) return false; // Controller disposed, stop timer
       otpCooldownSeconds.value--;
       if (otpCooldownSeconds.value <= 0) {
         canResendOtp.value = true;

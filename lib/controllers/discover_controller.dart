@@ -36,8 +36,10 @@ class DiscoverController extends GetxController {
       final response = await _activityRepository.getActivities();
       final data = response.data;
       if (response.success && data != null) {
-        events.value = data.map((activity) => EventModel(
-          id: activity.activityId?.toString() ?? '',
+        events.value = data
+          .where((activity) => activity.activityId != null)
+          .map((activity) => EventModel(
+          id: activity.activityId!.toString(),
           title: activity.name ?? '',
           description: activity.description,
           hostId: activity.userId?.toString() ?? '',
