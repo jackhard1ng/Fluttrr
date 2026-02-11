@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../../constants/utils.dart';
 import '../../config/routes.dart';
 import '../../controllers/business_controller.dart';
 import '../../controllers/profile_controller.dart';
-import '../../widgets/common_widgets.dart';
-import '../../widgets/animated_widgets.dart';
 
 /// Business dashboard - Main screen for business accounts
 /// Designed for ease of use with quick actions and clear stats
@@ -16,6 +15,10 @@ class BusinessDashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Ensure BusinessController is registered before widgets use it
+    if (!Get.isRegistered<BusinessController>()) {
+      Get.put(BusinessController());
+    }
     final profileController = Get.find<ProfileController>();
 
     return Scaffold(
@@ -36,7 +39,7 @@ class BusinessDashboardScreen extends StatelessWidget {
                     height: 40,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+                        colors: [AppColors.primaryBlue, AppColors.accentBlue],
                       ),
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -61,13 +64,13 @@ class BusinessDashboardScreen extends StatelessWidget {
                           )),
                       const Row(
                         children: [
-                          Icon(Icons.verified, size: 12, color: Color(0xFFFFD700)),
+                          Icon(Icons.verified, size: 12, color: AppColors.primaryBlue),
                           SizedBox(width: 4),
                           Text(
                             'Business Account',
                             style: TextStyle(
                               fontSize: 11,
-                              color: Color(0xFFFFD700),
+                              color: AppColors.primaryBlue,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -155,7 +158,7 @@ class BusinessDashboardScreen extends StatelessWidget {
       // Floating action button for quick event creation
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Nav.toBusinessCreateEvent(),
-        backgroundColor: const Color(0xFFFFD700),
+        backgroundColor: AppColors.primaryBlue,
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text(
           'New Event',
@@ -188,14 +191,14 @@ class _QuickCreateEventCard extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.lg),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+            colors: [AppColors.primaryBlue, AppColors.accentBlue],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(AppRadius.xl),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFFD700).withAlpha(77),
+              color: AppColors.primaryBlue.withAlpha(77),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -358,13 +361,27 @@ class _QuickActionsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GridView.count(
-      crossAxisCount: 2,
+      crossAxisCount: 3,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: AppSpacing.md,
       crossAxisSpacing: AppSpacing.md,
-      childAspectRatio: 1.5,
+      childAspectRatio: 0.95,
       children: [
+        _QuickActionTile(
+          icon: Icons.chat_outlined,
+          label: 'Messages',
+          subtitle: 'Chat with users',
+          color: AppColors.primaryBlue,
+          onTap: () => Nav.toChatList(),
+        ),
+        _QuickActionTile(
+          icon: Icons.store_outlined,
+          label: 'Profile',
+          subtitle: 'Business info',
+          color: AppColors.accentBlue,
+          onTap: () => Nav.toBusinessHome(),
+        ),
         _QuickActionTile(
           icon: Icons.photo_library_outlined,
           label: 'Event Photos',
@@ -376,13 +393,13 @@ class _QuickActionsGrid extends StatelessWidget {
           icon: Icons.history,
           label: 'Past Events',
           subtitle: 'View history',
-          color: AppColors.primaryBlue,
+          color: AppColors.friendlyTeal,
           onTap: () => Nav.toBusinessEvents(),
         ),
         _QuickActionTile(
           icon: Icons.star_outline,
           label: 'Reviews',
-          subtitle: '24 new',
+          subtitle: 'View ratings',
           color: AppColors.warmYellow,
           onTap: () => Nav.toBusinessReviews(),
         ),
@@ -390,7 +407,7 @@ class _QuickActionsGrid extends StatelessWidget {
           icon: Icons.analytics_outlined,
           label: 'Analytics',
           subtitle: 'Coming soon',
-          color: AppColors.friendlyTeal,
+          color: AppColors.friendlyPurple,
           onTap: () {
             Get.snackbar(
               'Coming Soon',
@@ -479,6 +496,8 @@ class _RecentReviewsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final businessController = Get.find<BusinessController>();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -486,7 +505,7 @@ class _RecentReviewsSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Recent Reviews',
+              'Reviews & Ratings',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -498,126 +517,107 @@ class _RecentReviewsSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AppSpacing.sm),
-        // Mock reviews
-        _ReviewCard(
-          userName: 'Sarah M.',
-          rating: 5,
-          review: 'Amazing event! The yoga session was so relaxing and well-organized.',
-          date: '2 days ago',
-          eventName: 'Morning Yoga',
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        _ReviewCard(
-          userName: 'Mike R.',
-          rating: 4,
-          review: 'Great atmosphere, would definitely come back for more events!',
-          date: '1 week ago',
-          eventName: 'Coffee Meetup',
-        ),
-      ],
-    );
-  }
-}
+        Obx(() {
+          final profile = businessController.businessProfile.value;
+          final rating = profile?.averageRating ?? 0.0;
+          final reviewCount = profile?.reviewCount ?? 0;
 
-class _ReviewCard extends StatelessWidget {
-  final String userName;
-  final int rating;
-  final String review;
-  final String date;
-  final String eventName;
-
-  const _ReviewCard({
-    required this.userName,
-    required this.rating,
-    required this.review,
-    required this.date,
-    required this.eventName,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppColors.lightGrey),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              // Avatar
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: AppColors.primaryBlue.withAlpha(26),
-                child: Text(
-                  userName[0],
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primaryBlue,
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              // Name and rating
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      userName,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    Row(
-                      children: [
-                        ...List.generate(5, (index) {
-                          return Icon(
-                            index < rating ? Icons.star : Icons.star_border,
-                            size: 14,
-                            color: AppColors.warmYellow,
-                          );
-                        }),
-                        const SizedBox(width: 8),
-                        Text(
-                          date,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: AppColors.mediumGrey,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            review,
-            style: const TextStyle(fontSize: 13),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          return Container(
+            padding: const EdgeInsets.all(AppSpacing.lg),
             decoration: BoxDecoration(
-              color: AppColors.lightGrey,
-              borderRadius: BorderRadius.circular(4),
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              border: Border.all(color: AppColors.lightGrey),
             ),
-            child: Text(
-              eventName,
-              style: TextStyle(
-                fontSize: 10,
-                color: AppColors.mediumGrey,
-              ),
-            ),
-          ),
-        ],
-      ),
+            child: reviewCount > 0
+                ? Row(
+                    children: [
+                      // Rating display
+                      Column(
+                        children: [
+                          Text(
+                            rating.toStringAsFixed(1),
+                            style: const TextStyle(
+                              fontSize: 36,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryBlue,
+                            ),
+                          ),
+                          Row(
+                            children: List.generate(5, (index) {
+                              return Icon(
+                                index < rating.round()
+                                    ? Icons.star
+                                    : Icons.star_border,
+                                size: 16,
+                                color: AppColors.warmYellow,
+                              );
+                            }),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '$reviewCount reviews',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.mediumGrey,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(width: AppSpacing.lg),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Your customers love your events!',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Tap "See All" to read all reviews and respond to feedback.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.mediumGrey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                : Column(
+                    children: [
+                      Icon(
+                        Icons.star_outline,
+                        size: 40,
+                        color: AppColors.mediumGrey,
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        'No reviews yet',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.mediumGrey,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Reviews will appear here once attendees rate your events.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.mediumGrey,
+                        ),
+                      ),
+                    ],
+                  ),
+          );
+        }),
+      ],
     );
   }
 }
@@ -628,6 +628,8 @@ class _UpcomingEventsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final businessController = Get.find<BusinessController>();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -647,22 +649,70 @@ class _UpcomingEventsSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AppSpacing.sm),
-        // Mock upcoming events
-        _UpcomingEventCard(
-          name: 'Weekend Hiking Adventure',
-          date: 'Saturday, Feb 8',
-          time: '9:00 AM',
-          attendees: 12,
-          maxAttendees: 20,
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        _UpcomingEventCard(
-          name: 'Coffee & Conversation',
-          date: 'Sunday, Feb 9',
-          time: '10:30 AM',
-          attendees: 8,
-          maxAttendees: null, // No limit
-        ),
+        Obx(() {
+          final now = DateTime.now();
+          final upcoming = businessController.myBusinessEvents
+              .where((e) => e.startDate != null && e.startDate!.isAfter(now))
+              .take(3)
+              .toList();
+
+          if (upcoming.isEmpty) {
+            return Container(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(AppRadius.md),
+                border: Border.all(color: AppColors.lightGrey),
+              ),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.event_busy,
+                    size: 40,
+                    color: AppColors.mediumGrey,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    'No upcoming events',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.mediumGrey,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Create your first event to get started!',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.mediumGrey,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return Column(
+            children: upcoming.map((event) {
+              final dateStr = event.startDate != null
+                  ? DateFormat('EEEE, MMM d').format(event.startDate!)
+                  : 'Date TBD';
+              final timeStr = event.startDate != null
+                  ? DateFormat('h:mm a').format(event.startDate!)
+                  : '';
+              return Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                child: _UpcomingEventCard(
+                  name: event.name ?? 'Untitled Event',
+                  date: dateStr,
+                  time: timeStr,
+                  attendees: event.attendeesCount ?? 0,
+                  maxAttendees: event.totalSlots,
+                ),
+              );
+            }).toList(),
+          );
+        }),
       ],
     );
   }
