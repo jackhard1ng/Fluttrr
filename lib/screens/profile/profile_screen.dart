@@ -75,8 +75,11 @@ class ProfileScreen extends StatelessWidget {
                   if (profileController.currentUser.value?.isBusinessAccount == true)
                     const SizedBox(height: AppSpacing.lg),
 
-                  // Profile completion
-                  _ProfileCompletion(controller: profileController),
+                  // Profile completion - tap to edit
+                  GestureDetector(
+                    onTap: Nav.toEditProfile,
+                    child: _ProfileCompletion(controller: profileController),
+                  ),
 
                   const SizedBox(height: AppSpacing.lg),
 
@@ -176,7 +179,7 @@ class _ProfileHeader extends StatelessWidget {
 
     return Column(
       children: [
-        // Avatar with business badge
+        // Avatar with edit hint and optional business badge
         Stack(
           children: [
             UserAvatar(
@@ -184,6 +187,29 @@ class _ProfileHeader extends StatelessWidget {
               size: 100,
               showOnlineIndicator: true,
               isOnline: controller.isOnline,
+            ),
+            // Edit hint on avatar
+            Positioned(
+              bottom: 0,
+              right: isBusinessAccount ? 28 : 0,
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryBlue,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(26),
+                      blurRadius: 4,
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.edit,
+                  size: 14,
+                  color: Colors.white,
+                ),
+              ),
             ),
             if (isBusinessAccount)
               Positioned(
