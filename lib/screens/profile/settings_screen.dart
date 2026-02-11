@@ -230,25 +230,12 @@ class SettingsScreen extends StatelessWidget {
       builder: (context) => AlertDialog(
         title: const Text('Change Password'),
         content: const Text(
-          'We\'ll send a password reset link to your email address.',
+          'Password reset is coming soon. For now, please contact support@fluttrr.com to change your password.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Get.snackbar(
-                'Email Sent',
-                'Check your inbox for the password reset link',
-                snackPosition: SnackPosition.BOTTOM,
-                backgroundColor: AppColors.success,
-                colorText: Colors.white,
-              );
-            },
-            child: const Text('Send Link'),
+            child: const Text('OK'),
           ),
         ],
       ),
@@ -610,7 +597,7 @@ class _LowProfileTile extends StatelessWidget {
           leading: Icon(
             profileController.isLowProfile.value
                 ? Icons.visibility_off
-                : Icons.visibility_off_outlined,
+                : Icons.visibility,
             color: profileController.isLowProfile.value
                 ? AppColors.primaryBlue
                 : AppColors.grey,

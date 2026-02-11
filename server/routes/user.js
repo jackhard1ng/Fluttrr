@@ -464,7 +464,7 @@ router.get('/achievement-list', auth, async (req, res) => {
     let claimedBadgeIds = [];
     try {
       const UserBadge = require('../models/UserBadge');
-      const userBadges = await UserBadge.find({ userId: req.userId });
+      const userBadges = await UserBadge.find({ userId: req.user.userId });
       claimedBadgeIds = userBadges.map((ub) => String(ub.badgeId));
     } catch (_) {
       // UserBadge model not available – no claimed badges
@@ -503,13 +503,13 @@ router.post('/claimed', auth, async (req, res) => {
       const UserBadge = require('../models/UserBadge');
 
       // Prevent duplicate claims
-      const existing = await UserBadge.findOne({ userId: req.userId, badgeId });
+      const existing = await UserBadge.findOne({ userId: req.user.userId, badgeId });
       if (existing) {
         return res.status(409).json({ success: false, message: 'Badge already claimed' });
       }
 
       await UserBadge.create({
-        userId: req.userId,
+        userId: req.user.userId,
         badgeId,
         claimedAt: new Date(),
       });

@@ -7,19 +7,26 @@ import '../../controllers/auth_controller.dart';
 import '../../widgets/common_widgets.dart';
 
 /// Registration screen
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
   @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final authController = Get.find<AuthController>();
+  final formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    // Clear fields once when entering registration
+    authController.clearFields();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final authController = Get.find<AuthController>();
-    final formKey = GlobalKey<FormState>();
-
-    // Clear fields when entering registration (deferred to avoid setState during build)
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      authController.clearFields();
-    });
-
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(

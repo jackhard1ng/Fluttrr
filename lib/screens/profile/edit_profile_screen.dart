@@ -104,14 +104,17 @@ class EditProfileScreen extends StatelessWidget {
                         final success =
                             await profileController.updateProfile();
                         if (success) {
-                          Get.back();
                           Get.snackbar(
-                            'Success',
+                            'Saved',
                             'Profile updated successfully',
                             snackPosition: SnackPosition.BOTTOM,
                             backgroundColor: AppColors.success,
                             colorText: Colors.white,
+                            duration: const Duration(seconds: 2),
                           );
+                          await Future.delayed(
+                              const Duration(milliseconds: 500));
+                          Get.back();
                         } else {
                           Get.snackbar(
                             'Error',
