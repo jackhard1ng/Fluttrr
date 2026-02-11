@@ -249,7 +249,7 @@ class _ProfileHeader extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+                    colors: [AppColors.primaryBlue, AppColors.accentBlue],
                   ),
                   borderRadius: BorderRadius.circular(AppRadius.circular),
                 ),
@@ -560,14 +560,14 @@ class _BusinessDashboardCard extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+            colors: [AppColors.primaryBlue, AppColors.accentBlue],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(AppRadius.lg),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFFD700).withAlpha(77),
+              color: AppColors.primaryBlue.withAlpha(77),
               blurRadius: 15,
               offset: const Offset(0, 5),
             ),

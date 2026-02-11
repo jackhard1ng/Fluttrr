@@ -180,9 +180,9 @@ class BusinessEvent {
 
   factory BusinessEvent.fromJson(Map<String, dynamic> json) {
     return BusinessEvent(
-      id: json['id'] as int?,
-      eventId: (json['event_id'] ?? json['eventId']) as int?,
-      businessId: (json['business_id'] ?? json['businessId']) as int?,
+      id: _safeInt(json['id']),
+      eventId: _safeInt(json['event_id'] ?? json['eventId']),
+      businessId: _safeInt(json['business_id'] ?? json['businessId']),
       name: json['name'] as String?,
       description: json['description'] as String?,
       location: json['location'] as String?,
@@ -195,16 +195,16 @@ class BusinessEvent {
       privacy: json['privacy'] as String?,
       image: json['image'] as String?,
       images: _parseStringList(json['images']),
-      totalSlots: (json['total_slots'] ?? json['totalSlots']) as int?,
-      maxAttendees: (json['max_attendees'] ?? json['maxAttendees']) as int?,
-      remainingSlots: (json['remaining_slots'] ?? json['remainingSlots']) as int?,
+      totalSlots: _safeInt(json['total_slots'] ?? json['totalSlots']),
+      maxAttendees: _safeInt(json['max_attendees'] ?? json['maxAttendees']),
+      remainingSlots: _safeInt(json['remaining_slots'] ?? json['remainingSlots']),
       price: (json['price'] as num?)?.toDouble(),
       currency: json['currency'] as String?,
       ticketUrl: (json['ticket_url'] ?? json['ticketUrl']) as String?,
-      attendeesCount: (json['attendees_count'] ?? json['attendeesCount'] ?? json['attendee_count'] ?? json['attendeeCount']) as int?,
-      views: (json['views'] ?? json['view_count'] ?? json['viewCount']) as int?,
-      clicks: (json['clicks'] ?? json['click_count'] ?? json['clickCount']) as int?,
-      saves: (json['saves'] ?? json['save_count'] ?? json['saveCount']) as int?,
+      attendeesCount: _safeInt(json['attendees_count'] ?? json['attendeesCount'] ?? json['attendee_count'] ?? json['attendeeCount']),
+      views: _safeInt(json['views'] ?? json['view_count'] ?? json['viewCount']),
+      clicks: _safeInt(json['clicks'] ?? json['click_count'] ?? json['clickCount']),
+      saves: _safeInt(json['saves'] ?? json['save_count'] ?? json['saveCount']),
       userJoined: json['user_joined'] == true || json['userJoined'] == true,
       userSaved: json['user_saved'] == true || json['userSaved'] == true,
     );
@@ -420,6 +420,15 @@ class TopEvent {
 }
 
 /// Helper functions
+/// Safely parse an int from dynamic (handles String, num, ObjectId, null)
+int? _safeInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value);
+  return null;
+}
+
 DateTime? _parseDateTime(dynamic value) {
   if (value == null) return null;
   if (value is String) return DateTime.tryParse(value);

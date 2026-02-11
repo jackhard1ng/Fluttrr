@@ -9,10 +9,23 @@ import 'base_repository.dart';
 class BusinessRepository extends BaseRepository {
   /// Get business profile
   Future<ApiResponse<BusinessModel>> getBusinessProfile() async {
-    return get<BusinessModel>(
-      ApiEndpoints.businessProfile,
-      fromJson: BusinessModel.fromJson,
-    );
+    // Manually unwrap { success, data } wrapper since base_repository
+    // passes the full response to fromJson
+    final response = await get<dynamic>(ApiEndpoints.businessProfile);
+
+    if (response.success && response.data != null) {
+      final raw = response.data;
+      Map<String, dynamic>? profileData;
+      if (raw is Map<String, dynamic>) {
+        profileData = raw['data'] is Map<String, dynamic>
+            ? raw['data'] as Map<String, dynamic>
+            : raw;
+      }
+      if (profileData != null) {
+        return ApiResponse.success(data: BusinessModel.fromJson(profileData));
+      }
+    }
+    return ApiResponse.failure(error: response.error ?? 'Failed to get business profile');
   }
 
   /// Create business profile
@@ -208,7 +221,9 @@ class BusinessRepository extends BaseRepository {
     String? currency,
     List<File>? images,
   }) async {
-    return post<BusinessEvent>(
+    // Don't use fromJson param — base_repository passes the full
+    // { success, data } wrapper; we unwrap 'data' ourselves.
+    final response = await post<dynamic>(
       ApiEndpoints.createBusinessEvent,
       body: {
         'name': name,
@@ -223,8 +238,21 @@ class BusinessRepository extends BaseRepository {
         if (price != null) 'price': price,
         if (currency != null) 'currency': currency,
       },
-      fromJson: BusinessEvent.fromJson,
     );
+
+    if (response.success && response.data != null) {
+      final raw = response.data;
+      Map<String, dynamic>? eventData;
+      if (raw is Map<String, dynamic>) {
+        eventData = raw['data'] is Map<String, dynamic>
+            ? raw['data'] as Map<String, dynamic>
+            : raw;
+      }
+      if (eventData != null) {
+        return ApiResponse.success(data: BusinessEvent.fromJson(eventData));
+      }
+    }
+    return ApiResponse.failure(error: response.error ?? 'Failed to create event');
   }
 
   /// Update business event

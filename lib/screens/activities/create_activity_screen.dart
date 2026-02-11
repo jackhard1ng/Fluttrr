@@ -75,20 +75,20 @@ class CreateActivityScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      const Color(0xFFFFD700).withAlpha(26),
-                      const Color(0xFFFFA500).withAlpha(26),
+                      AppColors.primaryBlue.withAlpha(26),
+                      AppColors.accentBlue.withAlpha(26),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(AppRadius.md),
                   border: Border.all(
-                    color: const Color(0xFFFFD700).withAlpha(77),
+                    color: AppColors.primaryBlue.withAlpha(77),
                   ),
                 ),
                 child: Row(
                   children: [
                     const Icon(
                       Icons.verified,
-                      color: Color(0xFFFFD700),
+                      color: AppColors.primaryBlue,
                       size: 24,
                     ),
                     const SizedBox(width: AppSpacing.sm),
@@ -446,8 +446,8 @@ class CreateActivityScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    const Color(0xFFFFD700).withAlpha(38),
-                    const Color(0xFFFFA500).withAlpha(38),
+                    AppColors.primaryBlue.withAlpha(38),
+                    AppColors.accentBlue.withAlpha(38),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -455,7 +455,7 @@ class CreateActivityScreen extends StatelessWidget {
               child: const Icon(
                 Icons.business_center_outlined,
                 size: 64,
-                color: Color(0xFFFFD700),
+                color: AppColors.primaryBlue,
               ),
             ),
 

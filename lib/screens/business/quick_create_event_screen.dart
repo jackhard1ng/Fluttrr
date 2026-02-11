@@ -71,7 +71,16 @@ class _QuickCreateEventScreenState extends State<QuickCreateEventScreen> {
   }
 
   Future<void> _createEvent() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      Get.snackbar(
+        'Missing Info',
+        'Please fill in all required fields',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.error,
+        colorText: Colors.white,
+      );
+      return;
+    }
     if (_selectedDate == null || _selectedTime == null) {
       Get.snackbar(
         'Missing Info',
@@ -760,12 +769,12 @@ class _CreateEventButton extends StatelessWidget {
       height: 56,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+          colors: [AppColors.primaryBlue, AppColors.accentBlue],
         ),
         borderRadius: BorderRadius.circular(AppRadius.md),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFFFD700).withAlpha(77),
+            color: AppColors.primaryBlue.withAlpha(77),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),

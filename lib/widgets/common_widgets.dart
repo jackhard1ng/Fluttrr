@@ -843,7 +843,7 @@ class BusinessBadge extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: paddingH, vertical: paddingV),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+            colors: [AppColors.primaryBlue, AppColors.accentBlue],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -871,14 +871,14 @@ class BusinessBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+          colors: [AppColors.primaryBlue, AppColors.accentBlue],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(AppRadius.sm),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFFFD700).withAlpha(77),
+            color: AppColors.primaryBlue.withAlpha(77),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

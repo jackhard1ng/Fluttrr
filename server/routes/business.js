@@ -14,23 +14,23 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
+      return res.status(400).json({ success: false, message: 'Email and password are required' });
     }
 
     const business = await Business.findOne({ email: email.toLowerCase() });
     if (!business) {
-      return res.status(404).json({ message: 'Business not found' });
+      return res.status(404).json({ success: false, message: 'Business not found' });
     }
 
     const User = require('../models/User');
     const user = await User.findOne({ _id: business.userId });
     if (!user) {
-      return res.status(404).json({ message: 'User account not found' });
+      return res.status(404).json({ success: false, message: 'User account not found' });
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
     const { generateTokens } = require('../middleware/auth');
@@ -45,7 +45,7 @@ router.post('/login', async (req, res) => {
     });
   } catch (error) {
     console.error('Business login error:', error);
-    res.status(500).json({ message: 'Failed to login' });
+    res.status(500).json({ success: false, message: 'Failed to login' });
   }
 });
 
@@ -54,13 +54,13 @@ router.post('/register', async (req, res) => {
   try {
     const { businessName, businessType, email, phone, password } = req.body;
     if (!businessName || !email || !password) {
-      return res.status(400).json({ message: 'Business name, email, and password are required' });
+      return res.status(400).json({ success: false, message: 'Business name, email, and password are required' });
     }
 
     const User = require('../models/User');
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
-      return res.status(409).json({ message: 'Email already registered' });
+      return res.status(409).json({ success: false, message: 'Email already registered' });
     }
 
     const user = await User.create({
@@ -91,7 +91,7 @@ router.post('/register', async (req, res) => {
     });
   } catch (error) {
     console.error('Business register error:', error);
-    res.status(500).json({ message: 'Failed to register business' });
+    res.status(500).json({ success: false, message: 'Failed to register business' });
   }
 });
 
@@ -104,13 +104,13 @@ router.get('/profile', auth, async (req, res) => {
   try {
     const business = await Business.findOne({ userId: req.user.userId });
     if (!business) {
-      return res.status(404).json({ message: 'Business profile not found' });
+      return res.status(404).json({ success: false, message: 'Business profile not found' });
     }
 
     res.json({ success: true, data: business });
   } catch (error) {
     console.error('Get business profile error:', error);
-    res.status(500).json({ message: 'Failed to get business profile' });
+    res.status(500).json({ success: false, message: 'Failed to get business profile' });
   }
 });
 
@@ -126,7 +126,7 @@ router.post(
     try {
       const existing = await Business.findOne({ userId: req.user.userId });
       if (existing) {
-        return res.status(409).json({ message: 'Business profile already exists' });
+        return res.status(409).json({ success: false, message: 'Business profile already exists' });
       }
 
       const profileData = { ...req.body, userId: req.user.userId };
@@ -144,7 +144,7 @@ router.post(
       res.status(201).json({ success: true, data: business });
     } catch (error) {
       console.error('Create business profile error:', error);
-      res.status(500).json({ message: 'Failed to create business profile' });
+      res.status(500).json({ success: false, message: 'Failed to create business profile' });
     }
   }
 );
@@ -159,13 +159,13 @@ router.put('/update/:businessId', auth, async (req, res) => {
     );
 
     if (!business) {
-      return res.status(404).json({ message: 'Business not found or not authorized' });
+      return res.status(404).json({ success: false, message: 'Business not found or not authorized' });
     }
 
     res.json({ success: true, data: business });
   } catch (error) {
     console.error('Update business profile error:', error);
-    res.status(500).json({ message: 'Failed to update business profile' });
+    res.status(500).json({ success: false, message: 'Failed to update business profile' });
   }
 });
 
@@ -173,7 +173,7 @@ router.put('/update/:businessId', auth, async (req, res) => {
 router.post('/upload-profile-image', auth, upload.single('profileImage'), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ message: 'No image provided' });
+      return res.status(400).json({ success: false, message: 'No image provided' });
     }
 
     const imageUrl = `/uploads/${req.file.filename}`;
@@ -184,13 +184,13 @@ router.post('/upload-profile-image', auth, upload.single('profileImage'), async 
     );
 
     if (!business) {
-      return res.status(404).json({ message: 'Business profile not found' });
+      return res.status(404).json({ success: false, message: 'Business profile not found' });
     }
 
     res.json({ success: true, data: business });
   } catch (error) {
     console.error('Upload profile image error:', error);
-    res.status(500).json({ message: 'Failed to upload profile image' });
+    res.status(500).json({ success: false, message: 'Failed to upload profile image' });
   }
 });
 
@@ -198,7 +198,7 @@ router.post('/upload-profile-image', auth, upload.single('profileImage'), async 
 router.post('/upload-cover-image', auth, upload.single('coverImage'), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ message: 'No image provided' });
+      return res.status(400).json({ success: false, message: 'No image provided' });
     }
 
     const imageUrl = `/uploads/${req.file.filename}`;
@@ -209,13 +209,13 @@ router.post('/upload-cover-image', auth, upload.single('coverImage'), async (req
     );
 
     if (!business) {
-      return res.status(404).json({ message: 'Business profile not found' });
+      return res.status(404).json({ success: false, message: 'Business profile not found' });
     }
 
     res.json({ success: true, data: business });
   } catch (error) {
     console.error('Upload cover image error:', error);
-    res.status(500).json({ message: 'Failed to upload cover image' });
+    res.status(500).json({ success: false, message: 'Failed to upload cover image' });
   }
 });
 
@@ -228,7 +228,7 @@ router.post('/request-otp', auth, async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) {
-      return res.status(400).json({ message: 'Email is required' });
+      return res.status(400).json({ success: false, message: 'Email is required' });
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -239,7 +239,7 @@ router.post('/request-otp', auth, async (req, res) => {
     );
 
     if (!business) {
-      return res.status(404).json({ message: 'Business not found' });
+      return res.status(404).json({ success: false, message: 'Business not found' });
     }
 
     const { sendOtpEmail } = require('../services/emailService');
@@ -248,7 +248,7 @@ router.post('/request-otp', auth, async (req, res) => {
     res.json({ success: true, message: 'OTP sent to email' });
   } catch (error) {
     console.error('Request OTP error:', error);
-    res.status(500).json({ message: 'Failed to send OTP' });
+    res.status(500).json({ success: false, message: 'Failed to send OTP' });
   }
 });
 
@@ -257,20 +257,20 @@ router.post('/verify', auth, async (req, res) => {
   try {
     const { email, otp } = req.body;
     if (!email || !otp) {
-      return res.status(400).json({ message: 'Email and OTP are required' });
+      return res.status(400).json({ success: false, message: 'Email and OTP are required' });
     }
 
     const business = await Business.findOne({ userId: req.user.userId });
     if (!business) {
-      return res.status(404).json({ message: 'Business not found' });
+      return res.status(404).json({ success: false, message: 'Business not found' });
     }
 
     if (business.verificationOtp !== otp) {
-      return res.status(400).json({ message: 'Invalid OTP' });
+      return res.status(400).json({ success: false, message: 'Invalid OTP' });
     }
 
     if (business.otpExpiresAt && business.otpExpiresAt < new Date()) {
-      return res.status(400).json({ message: 'OTP has expired' });
+      return res.status(400).json({ success: false, message: 'OTP has expired' });
     }
 
     business.isVerified = true;
@@ -281,7 +281,7 @@ router.post('/verify', auth, async (req, res) => {
     res.json({ success: true, message: 'Business verified successfully' });
   } catch (error) {
     console.error('Verify business error:', error);
-    res.status(500).json({ message: 'Failed to verify business' });
+    res.status(500).json({ success: false, message: 'Failed to verify business' });
   }
 });
 
@@ -290,7 +290,7 @@ router.get('/status', auth, async (req, res) => {
   try {
     const business = await Business.findOne({ userId: req.user.userId });
     if (!business) {
-      return res.status(404).json({ message: 'Business not found' });
+      return res.status(404).json({ success: false, message: 'Business not found' });
     }
 
     res.json({
@@ -302,7 +302,7 @@ router.get('/status', auth, async (req, res) => {
     });
   } catch (error) {
     console.error('Get business status error:', error);
-    res.status(500).json({ message: 'Failed to get business status' });
+    res.status(500).json({ success: false, message: 'Failed to get business status' });
   }
 });
 
@@ -323,7 +323,7 @@ router.get('/list', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('List business events error:', error);
-    res.status(500).json({ message: 'Failed to list business events' });
+    res.status(500).json({ success: false, message: 'Failed to list business events' });
   }
 });
 
@@ -332,7 +332,7 @@ router.get('/event-list', auth, async (req, res) => {
   try {
     const business = await Business.findOne({ userId: req.user.userId });
     if (!business) {
-      return res.status(404).json({ message: 'Business not found' });
+      return res.status(404).json({ success: false, message: 'Business not found' });
     }
 
     const events = await BusinessEvent.find({ businessId: business._id })
@@ -344,7 +344,7 @@ router.get('/event-list', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get my business events error:', error);
-    res.status(500).json({ message: 'Failed to get business events' });
+    res.status(500).json({ success: false, message: 'Failed to get business events' });
   }
 });
 
@@ -353,7 +353,7 @@ router.post('/create-event', auth, async (req, res) => {
   try {
     const business = await Business.findOne({ userId: req.user.userId });
     if (!business) {
-      return res.status(404).json({ message: 'Business profile not found' });
+      return res.status(404).json({ success: false, message: 'Business profile not found. Please set up your business profile first.' });
     }
 
     const {
@@ -370,24 +370,27 @@ router.post('/create-event', auth, async (req, res) => {
       currency,
     } = req.body;
 
-    if (!name || !description || !location) {
-      return res.status(400).json({ message: 'Name, description, and location are required' });
+    if (!name || !location) {
+      return res.status(400).json({ success: false, message: 'Name and location are required' });
     }
+
+    // Use != null instead of truthy checks to handle 0 values correctly
+    const parsedSlots = totalSlots != null ? parseInt(totalSlots) : undefined;
 
     const event = await BusinessEvent.create({
       businessId: business._id,
       name,
-      description,
+      description: description || '',
       location,
-      latitude: latitude ? parseFloat(latitude) : undefined,
-      longitude: longitude ? parseFloat(longitude) : undefined,
+      latitude: latitude != null ? parseFloat(latitude) : undefined,
+      longitude: longitude != null ? parseFloat(longitude) : undefined,
       startDate: startTime ? new Date(startTime) : new Date(),
       endDate: endTime ? new Date(endTime) : undefined,
       eventType: eventType || 'Free',
-      totalSlots: totalSlots ? parseInt(totalSlots) : undefined,
-      maxAttendees: totalSlots ? parseInt(totalSlots) : undefined,
-      remainingSlots: totalSlots ? parseInt(totalSlots) : undefined,
-      price: price ? parseFloat(price) : 0,
+      totalSlots: parsedSlots,
+      maxAttendees: parsedSlots,
+      remainingSlots: parsedSlots,
+      price: price != null ? parseFloat(price) : 0,
       currency: currency || 'USD',
       attendees: [],
       savedBy: [],
@@ -398,7 +401,7 @@ router.post('/create-event', auth, async (req, res) => {
     res.status(201).json({ success: true, data: formatBusinessEvent(event, req.user.userId) });
   } catch (error) {
     console.error('Create business event error:', error);
-    res.status(500).json({ message: 'Failed to create business event' });
+    res.status(500).json({ success: false, message: 'Failed to create business event' });
   }
 });
 
@@ -407,7 +410,7 @@ router.put('/update-event/:eventId', auth, async (req, res) => {
   try {
     const business = await Business.findOne({ userId: req.user.userId });
     if (!business) {
-      return res.status(404).json({ message: 'Business not found' });
+      return res.status(404).json({ success: false, message: 'Business not found' });
     }
 
     const updateData = { ...req.body };
@@ -427,13 +430,13 @@ router.put('/update-event/:eventId', auth, async (req, res) => {
     );
 
     if (!event) {
-      return res.status(404).json({ message: 'Event not found or not authorized' });
+      return res.status(404).json({ success: false, message: 'Event not found or not authorized' });
     }
 
     res.json({ success: true, data: formatBusinessEvent(event, req.user.userId) });
   } catch (error) {
     console.error('Update business event error:', error);
-    res.status(500).json({ message: 'Failed to update business event' });
+    res.status(500).json({ success: false, message: 'Failed to update business event' });
   }
 });
 
@@ -442,13 +445,13 @@ router.get('/event/:eventId', auth, async (req, res) => {
   try {
     const event = await BusinessEvent.findById(req.params.eventId);
     if (!event) {
-      return res.status(404).json({ message: 'Event not found' });
+      return res.status(404).json({ success: false, message: 'Event not found' });
     }
 
     res.json({ success: true, data: formatBusinessEvent(event, req.user.userId) });
   } catch (error) {
     console.error('Get business event details error:', error);
-    res.status(500).json({ message: 'Failed to get event details' });
+    res.status(500).json({ success: false, message: 'Failed to get event details' });
   }
 });
 
@@ -457,7 +460,7 @@ router.delete('/delete-event/:eventId', auth, async (req, res) => {
   try {
     const business = await Business.findOne({ userId: req.user.userId });
     if (!business) {
-      return res.status(404).json({ message: 'Business not found' });
+      return res.status(404).json({ success: false, message: 'Business not found' });
     }
 
     const event = await BusinessEvent.findOneAndDelete({
@@ -466,13 +469,13 @@ router.delete('/delete-event/:eventId', auth, async (req, res) => {
     });
 
     if (!event) {
-      return res.status(404).json({ message: 'Event not found or not authorized' });
+      return res.status(404).json({ success: false, message: 'Event not found or not authorized' });
     }
 
     res.json({ success: true, message: 'Event deleted successfully' });
   } catch (error) {
     console.error('Delete business event error:', error);
-    res.status(500).json({ message: 'Failed to delete event' });
+    res.status(500).json({ success: false, message: 'Failed to delete event' });
   }
 });
 
@@ -485,21 +488,21 @@ router.post('/join-event', auth, async (req, res) => {
   try {
     const { eventId } = req.body;
     if (!eventId) {
-      return res.status(400).json({ message: 'Event ID is required' });
+      return res.status(400).json({ success: false, message: 'Event ID is required' });
     }
 
     const event = await BusinessEvent.findById(eventId);
     if (!event) {
-      return res.status(404).json({ message: 'Event not found' });
+      return res.status(404).json({ success: false, message: 'Event not found' });
     }
 
     const userId = req.user.userId;
     if (event.attendees && event.attendees.includes(userId)) {
-      return res.status(400).json({ message: 'Already joined this event' });
+      return res.status(400).json({ success: false, message: 'Already joined this event' });
     }
 
     if (event.remainingSlots !== undefined && event.remainingSlots !== null && event.remainingSlots <= 0) {
-      return res.status(400).json({ message: 'Event is full' });
+      return res.status(400).json({ success: false, message: 'Event is full' });
     }
 
     await BusinessEvent.findByIdAndUpdate(eventId, {
@@ -510,7 +513,7 @@ router.post('/join-event', auth, async (req, res) => {
     res.json({ success: true, message: 'Joined event successfully' });
   } catch (error) {
     console.error('Join business event error:', error);
-    res.status(500).json({ message: 'Failed to join event' });
+    res.status(500).json({ success: false, message: 'Failed to join event' });
   }
 });
 
@@ -519,12 +522,12 @@ router.post('/leave-event', auth, async (req, res) => {
   try {
     const { eventId } = req.body;
     if (!eventId) {
-      return res.status(400).json({ message: 'Event ID is required' });
+      return res.status(400).json({ success: false, message: 'Event ID is required' });
     }
 
     const event = await BusinessEvent.findById(eventId);
     if (!event) {
-      return res.status(404).json({ message: 'Event not found' });
+      return res.status(404).json({ success: false, message: 'Event not found' });
     }
 
     const userId = req.user.userId;
@@ -536,7 +539,7 @@ router.post('/leave-event', auth, async (req, res) => {
     res.json({ success: true, message: 'Left event successfully' });
   } catch (error) {
     console.error('Leave business event error:', error);
-    res.status(500).json({ message: 'Failed to leave event' });
+    res.status(500).json({ success: false, message: 'Failed to leave event' });
   }
 });
 
@@ -545,12 +548,12 @@ router.post('/save-event', auth, async (req, res) => {
   try {
     const { eventId } = req.body;
     if (!eventId) {
-      return res.status(400).json({ message: 'Event ID is required' });
+      return res.status(400).json({ success: false, message: 'Event ID is required' });
     }
 
     const event = await BusinessEvent.findById(eventId);
     if (!event) {
-      return res.status(404).json({ message: 'Event not found' });
+      return res.status(404).json({ success: false, message: 'Event not found' });
     }
 
     const userId = req.user.userId;
@@ -571,7 +574,7 @@ router.post('/save-event', auth, async (req, res) => {
     res.json({ success: true, message: isSaved ? 'Event unsaved' : 'Event saved' });
   } catch (error) {
     console.error('Save business event error:', error);
-    res.status(500).json({ message: 'Failed to save event' });
+    res.status(500).json({ success: false, message: 'Failed to save event' });
   }
 });
 
@@ -585,7 +588,7 @@ router.get('/saved-list', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get saved events error:', error);
-    res.status(500).json({ message: 'Failed to get saved events' });
+    res.status(500).json({ success: false, message: 'Failed to get saved events' });
   }
 });
 
@@ -602,7 +605,7 @@ router.get('/top-events', auth, async (req, res) => {
     res.json({ success: true, data });
   } catch (error) {
     console.error('Get top events error:', error);
-    res.status(500).json({ message: 'Failed to get top events' });
+    res.status(500).json({ success: false, message: 'Failed to get top events' });
   }
 });
 
@@ -616,7 +619,7 @@ router.post('/events/:eventId/click', auth, async (req, res) => {
     res.json({ success: true, message: 'Click recorded' });
   } catch (error) {
     console.error('Record event click error:', error);
-    res.status(500).json({ message: 'Failed to record click' });
+    res.status(500).json({ success: false, message: 'Failed to record click' });
   }
 });
 
@@ -630,7 +633,7 @@ router.post('/events/:eventId/view', auth, async (req, res) => {
     res.json({ success: true, message: 'View recorded' });
   } catch (error) {
     console.error('Record event view error:', error);
-    res.status(500).json({ message: 'Failed to record view' });
+    res.status(500).json({ success: false, message: 'Failed to record view' });
   }
 });
 
@@ -643,17 +646,17 @@ router.post('/follow', auth, async (req, res) => {
   try {
     const { businessId } = req.body;
     if (!businessId) {
-      return res.status(400).json({ message: 'Business ID is required' });
+      return res.status(400).json({ success: false, message: 'Business ID is required' });
     }
 
     const business = await Business.findById(businessId);
     if (!business) {
-      return res.status(404).json({ message: 'Business not found' });
+      return res.status(404).json({ success: false, message: 'Business not found' });
     }
 
     const userId = req.user.userId;
     if (business.followers && business.followers.includes(userId)) {
-      return res.status(400).json({ message: 'Already following this business' });
+      return res.status(400).json({ success: false, message: 'Already following this business' });
     }
 
     await Business.findByIdAndUpdate(businessId, {
@@ -664,7 +667,7 @@ router.post('/follow', auth, async (req, res) => {
     res.json({ success: true, message: 'Now following business' });
   } catch (error) {
     console.error('Follow business error:', error);
-    res.status(500).json({ message: 'Failed to follow business' });
+    res.status(500).json({ success: false, message: 'Failed to follow business' });
   }
 });
 
@@ -673,7 +676,7 @@ router.post('/unfollow', auth, async (req, res) => {
   try {
     const { businessId } = req.body;
     if (!businessId) {
-      return res.status(400).json({ message: 'Business ID is required' });
+      return res.status(400).json({ success: false, message: 'Business ID is required' });
     }
 
     const userId = req.user.userId;
@@ -685,7 +688,7 @@ router.post('/unfollow', auth, async (req, res) => {
     res.json({ success: true, message: 'Unfollowed business' });
   } catch (error) {
     console.error('Unfollow business error:', error);
-    res.status(500).json({ message: 'Failed to unfollow business' });
+    res.status(500).json({ success: false, message: 'Failed to unfollow business' });
   }
 });
 
@@ -698,7 +701,7 @@ router.post('/create', auth, async (req, res) => {
   try {
     const { planId, paymentMethodId } = req.body;
     if (!planId || !paymentMethodId) {
-      return res.status(400).json({ message: 'Plan ID and payment method are required' });
+      return res.status(400).json({ success: false, message: 'Plan ID and payment method are required' });
     }
 
     const business = await Business.findOneAndUpdate(
@@ -719,13 +722,13 @@ router.post('/create', auth, async (req, res) => {
     );
 
     if (!business) {
-      return res.status(404).json({ message: 'Business not found' });
+      return res.status(404).json({ success: false, message: 'Business not found' });
     }
 
     res.json({ success: true, message: 'Subscription created successfully' });
   } catch (error) {
     console.error('Create subscription error:', error);
-    res.status(500).json({ message: 'Failed to create subscription' });
+    res.status(500).json({ success: false, message: 'Failed to create subscription' });
   }
 });
 
@@ -744,13 +747,13 @@ router.post('/cancel', auth, async (req, res) => {
     );
 
     if (!business) {
-      return res.status(404).json({ message: 'Business not found' });
+      return res.status(404).json({ success: false, message: 'Business not found' });
     }
 
     res.json({ success: true, message: 'Subscription cancelled' });
   } catch (error) {
     console.error('Cancel subscription error:', error);
-    res.status(500).json({ message: 'Failed to cancel subscription' });
+    res.status(500).json({ success: false, message: 'Failed to cancel subscription' });
   }
 });
 
@@ -759,7 +762,7 @@ router.get('/subscription-status', auth, async (req, res) => {
   try {
     const business = await Business.findOne({ userId: req.user.userId });
     if (!business) {
-      return res.status(404).json({ message: 'Business not found' });
+      return res.status(404).json({ success: false, message: 'Business not found' });
     }
 
     res.json({
@@ -775,7 +778,7 @@ router.get('/subscription-status', auth, async (req, res) => {
     });
   } catch (error) {
     console.error('Get subscription status error:', error);
-    res.status(500).json({ message: 'Failed to get subscription status' });
+    res.status(500).json({ success: false, message: 'Failed to get subscription status' });
   }
 });
 
@@ -788,7 +791,7 @@ router.get('/analytics', auth, async (req, res) => {
   try {
     const business = await Business.findOne({ userId: req.user.userId });
     if (!business) {
-      return res.status(404).json({ message: 'Business not found' });
+      return res.status(404).json({ success: false, message: 'Business not found' });
     }
 
     // Support period filtering: 7d, 30d, 90d, all (default: all)
@@ -877,7 +880,7 @@ router.get('/analytics', auth, async (req, res) => {
     });
   } catch (error) {
     console.error('Get business analytics error:', error);
-    res.status(500).json({ message: 'Failed to get analytics' });
+    res.status(500).json({ success: false, message: 'Failed to get analytics' });
   }
 });
 
@@ -907,7 +910,7 @@ router.get('/rewards/summary', auth, async (req, res) => {
     });
   } catch (error) {
     console.error('Get rewards summary error:', error);
-    res.status(500).json({ message: 'Failed to get rewards summary' });
+    res.status(500).json({ success: false, message: 'Failed to get rewards summary' });
   }
 });
 
@@ -917,7 +920,7 @@ router.get('/rewards/list', auth, async (req, res) => {
     res.json({ success: true, data: [] });
   } catch (error) {
     console.error('Get rewards list error:', error);
-    res.status(500).json({ message: 'Failed to get rewards list' });
+    res.status(500).json({ success: false, message: 'Failed to get rewards list' });
   }
 });
 
@@ -926,13 +929,13 @@ router.post('/rewards/claim', auth, async (req, res) => {
   try {
     const { reward_id } = req.body;
     if (!reward_id) {
-      return res.status(400).json({ message: 'Reward ID is required' });
+      return res.status(400).json({ success: false, message: 'Reward ID is required' });
     }
 
     res.json({ success: true, message: 'Reward claimed successfully' });
   } catch (error) {
     console.error('Claim reward error:', error);
-    res.status(500).json({ message: 'Failed to claim reward' });
+    res.status(500).json({ success: false, message: 'Failed to claim reward' });
   }
 });
 
@@ -946,7 +949,7 @@ router.get('/referrals', auth, async (req, res) => {
     res.json({ success: true, data: [] });
   } catch (error) {
     console.error('Get referrals error:', error);
-    res.status(500).json({ message: 'Failed to get referrals' });
+    res.status(500).json({ success: false, message: 'Failed to get referrals' });
   }
 });
 
@@ -962,7 +965,7 @@ router.get('/referral-code', auth, async (req, res) => {
     });
   } catch (error) {
     console.error('Get referral code error:', error);
-    res.status(500).json({ message: 'Failed to get referral code' });
+    res.status(500).json({ success: false, message: 'Failed to get referral code' });
   }
 });
 
@@ -977,7 +980,7 @@ router.post('/referral-code', auth, async (req, res) => {
     });
   } catch (error) {
     console.error('Generate referral code error:', error);
-    res.status(500).json({ message: 'Failed to generate referral code' });
+    res.status(500).json({ success: false, message: 'Failed to generate referral code' });
   }
 });
 

@@ -78,7 +78,7 @@ class HostingBadges {
               id: 'hosted_${m.$1}',
               name: m.$2,
               icon: m.$3,
-              color: const Color(0xFFFFD700),
+              color: AppColors.primaryBlue,
               count: m.$1,
             ))
         .toList();
@@ -346,12 +346,12 @@ class EventsHostedBadge extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color(0xFFFFD700).withAlpha(26),
-            const Color(0xFFFFA500).withAlpha(26),
+            AppColors.primaryBlue.withAlpha(26),
+            AppColors.accentBlue.withAlpha(26),
           ],
         ),
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: const Color(0xFFFFD700).withAlpha(77)),
+        border: Border.all(color: AppColors.primaryBlue.withAlpha(77)),
       ),
       child: Column(
         children: [
@@ -366,8 +366,8 @@ class EventsHostedBadge extends StatelessWidget {
                   height: 50,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+                    gradient: const LinearGradient(
+                      colors: [AppColors.primaryBlue, AppColors.accentBlue],
                     ),
                   ),
                   child: const Center(
@@ -445,7 +445,7 @@ class BadgeRow extends StatelessWidget {
           icon: isBusinessAccount ? Icons.event_available : Icons.event,
           value: isBusinessAccount ? (eventsHosted ?? 0) : eventsAttended,
           label: isBusinessAccount ? 'hosted' : 'attended',
-          color: isBusinessAccount ? const Color(0xFFFFD700) : AppColors.primaryBlue,
+          color: AppColors.primaryBlue,
         ),
 
         const SizedBox(width: 12),
