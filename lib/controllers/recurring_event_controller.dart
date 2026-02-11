@@ -237,7 +237,7 @@ class RecurringEventController extends GetxController {
         cancellationReason: reason,
       );
 
-      if (response.success) {
+      if (response.success && response.data != null) {
         // Update in list
         final index = upcomingInstances.indexWhere((i) => i.instanceId == instanceId);
         if (index != -1) {

@@ -12,8 +12,8 @@ router.post('/send', auth, async (req, res) => {
   try {
     const { receiverId, content, imageUrl } = req.body;
 
-    if (!receiverId) {
-      return res.status(400).json({ success: false, message: 'receiverId is required' });
+    if (!receiverId || isNaN(parseInt(receiverId))) {
+      return res.status(400).json({ success: false, message: 'receiverId must be a valid number' });
     }
     if (!content && !imageUrl) {
       return res.status(400).json({ success: false, message: 'content or imageUrl is required' });
@@ -249,8 +249,8 @@ router.post('/markAsRead', auth, async (req, res) => {
   try {
     const { senderId } = req.body;
 
-    if (!senderId) {
-      return res.status(400).json({ success: false, message: 'senderId is required' });
+    if (!senderId || isNaN(parseInt(senderId))) {
+      return res.status(400).json({ success: false, message: 'senderId must be a valid number' });
     }
 
     await Message.updateMany(

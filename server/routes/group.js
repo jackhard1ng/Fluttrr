@@ -113,10 +113,12 @@ router.get('/list', auth, async (req, res) => {
     }
 
     if (query) {
+      // Escape special regex chars to prevent ReDoS
+      const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       filter.$or = [
-        { name: { $regex: query, $options: 'i' } },
-        { description: { $regex: query, $options: 'i' } },
-        { tags: { $elemMatch: { $regex: query, $options: 'i' } } },
+        { name: { $regex: escapedQuery, $options: 'i' } },
+        { description: { $regex: escapedQuery, $options: 'i' } },
+        { tags: { $elemMatch: { $regex: escapedQuery, $options: 'i' } } },
       ];
     }
 
@@ -565,13 +567,15 @@ router.get('/search', auth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Search query is required' });
     }
 
+    // Escape special regex chars to prevent ReDoS
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const filter = {
       isActive: true,
       $or: [
-        { name: { $regex: query, $options: 'i' } },
-        { description: { $regex: query, $options: 'i' } },
-        { tags: { $elemMatch: { $regex: query, $options: 'i' } } },
-        { interests: { $elemMatch: { $regex: query, $options: 'i' } } },
+        { name: { $regex: escapedQuery, $options: 'i' } },
+        { description: { $regex: escapedQuery, $options: 'i' } },
+        { tags: { $elemMatch: { $regex: escapedQuery, $options: 'i' } } },
+        { interests: { $elemMatch: { $regex: escapedQuery, $options: 'i' } } },
       ],
     };
 
@@ -758,6 +762,9 @@ router.delete('/members/:groupId/:userId', auth, async (req, res) => {
       return res.status(403).json({ success: false, message: 'Only owners and admins can remove members' });
     }
 
+    if (isNaN(parseInt(req.params.userId))) {
+      return res.status(400).json({ success: false, message: 'Invalid user ID format' });
+    }
     const targetUserId = parseInt(req.params.userId);
     const targetMember = (group.members || []).find((m) => m.userId === targetUserId);
     if (!targetMember) {

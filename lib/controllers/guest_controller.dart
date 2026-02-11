@@ -53,7 +53,7 @@ class GuestController extends GetxController {
       final data = response.data;
       if (response.success && data != null) {
         currentEventGuests.value = data;
-        myGuests.value = data.guests
+        myGuests.value = (data.guests ?? [])
             .where((g) => g.invitedByUserId != null)
             .toList();
       } else {

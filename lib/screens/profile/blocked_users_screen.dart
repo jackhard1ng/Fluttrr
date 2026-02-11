@@ -136,7 +136,7 @@ class _BlockedUserTile extends StatelessWidget {
             radius: 24,
             backgroundColor: AppColors.mediumGrey.withAlpha(77),
             child: Text(
-              user.name[0].toUpperCase(),
+              user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
               style: TextStyle(
                 color: AppColors.darkGrey,
                 fontWeight: FontWeight.bold,

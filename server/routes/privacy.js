@@ -46,9 +46,27 @@ router.get('/getPrivacySettings', auth, async (req, res) => {
 router.post('/updatePrivacy', auth, async (req, res) => {
   try {
     const Privacy = require('../models/Privacy');
+
+    // Whitelist allowed fields to prevent NoSQL injection via arbitrary $set
+    const allowedFields = [
+      'showOnlineStatus', 'showLastSeen', 'showLocation', 'showAge',
+      'showDistance', 'profileVisibility', 'allowMessages',
+      'allowActivityInvites', 'showInNearby', 'showInSearch',
+      'pushEnabled', 'emailEnabled', 'newMatchNotifications',
+      'messageNotifications', 'activityNotifications',
+      'activityReminderNotifications', 'likeNotifications',
+      'commentNotifications', 'marketingNotifications',
+    ];
+    const update = {};
+    for (const key of Object.keys(req.body)) {
+      if (allowedFields.includes(key)) {
+        update[key] = req.body[key];
+      }
+    }
+
     const settings = await Privacy.findOneAndUpdate(
       { userId: req.user.userId },
-      { $set: req.body },
+      { $set: update },
       { new: true, upsert: true }
     );
 

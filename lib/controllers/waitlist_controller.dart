@@ -218,9 +218,9 @@ class WaitlistController extends GetxController {
           pendingOffers: currentEventWaitlist.value?.pendingOffers ?? 0,
           waitlistEnabled: currentEventWaitlist.value?.waitlistEnabled ?? true,
           maxWaitlistSize: currentEventWaitlist.value?.maxWaitlistSize ?? 50,
-          entries: currentEventWaitlist.value?.entries
+          entries: (currentEventWaitlist.value?.entries ?? [])
               .where((e) => e.waitlistId != waitlistId)
-              .toList() ?? [],
+              .toList(),
         );
         successMessage.value = 'User removed from waitlist';
         return true;

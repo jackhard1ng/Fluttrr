@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const User = require('../models/User');
 const Activity = require('../models/Activity');
 const { auth } = require('../middleware/auth');
@@ -364,7 +365,9 @@ router.get('/search', auth, async (req, res) => {
       return res.json({ success: true, data: [] });
     }
 
-    const searchRegex = new RegExp(query.trim(), 'i');
+    // Escape special regex chars to prevent ReDoS attacks
+    const escapedQuery = query.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const searchRegex = new RegExp(escapedQuery, 'i');
 
     const filter = {
       _id: { $ne: req.userId },
@@ -687,8 +690,8 @@ router.post('/send-phone-otp', auth, async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    // Generate a 6-digit OTP
-    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    // Generate a cryptographically secure 6-digit OTP
+    const otp = String(crypto.randomInt(100000, 999999));
 
     // Store phone verification data on the user (schema uses snake_case)
     user.phoneVerification = {

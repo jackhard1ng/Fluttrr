@@ -7,18 +7,28 @@ import '../../controllers/auth_controller.dart';
 import '../../widgets/common_widgets.dart';
 
 /// Forgot password screen
-class ForgotPasswordScreen extends StatelessWidget {
+class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final authController = Get.find<AuthController>();
-    final formKey = GlobalKey<FormState>();
+  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+}
 
-    // Clear email field
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  late final AuthController authController;
+  final formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    authController = Get.find<AuthController>();
+    // Clear fields once on screen open, not on every rebuild
     authController.emailController.clear();
     authController.errorMessage.value = '';
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(

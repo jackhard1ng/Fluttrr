@@ -216,7 +216,7 @@ class _AttendeeTile extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    attendee.name[0],
+                    attendee.name.isNotEmpty ? attendee.name[0].toUpperCase() : '?',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,

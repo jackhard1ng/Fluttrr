@@ -229,17 +229,23 @@ router.delete('/:memoryId', auth, async (req, res) => {
   }
 });
 
-// POST /api/memory/:memoryId/like
+// POST /api/memory/:memoryId/like (atomic to prevent race conditions)
 router.post('/:memoryId/like', auth, async (req, res) => {
   try {
-    const memory = await Memory.findOne({ memoryId: req.params.memoryId });
-    if (!memory) return res.status(404).json({ success: false, message: 'Memory not found' });
-
     const userIdStr = String(req.user.userId);
-    if (!memory.likedBy.includes(userIdStr)) {
-      memory.likedBy.push(userIdStr);
-      memory.likeCount = memory.likedBy.length;
-      await memory.save();
+
+    // Atomic: only add if not already liked
+    const memory = await Memory.findOneAndUpdate(
+      { memoryId: req.params.memoryId, likedBy: { $ne: userIdStr } },
+      { $addToSet: { likedBy: userIdStr }, $inc: { likeCount: 1 } },
+      { new: true }
+    );
+
+    if (!memory) {
+      // Either not found or already liked - check which
+      const existing = await Memory.findOne({ memoryId: req.params.memoryId });
+      if (!existing) return res.status(404).json({ success: false, message: 'Memory not found' });
+      return res.json({ success: true, data: existing.toApiResponse(req.user.userId) });
     }
 
     res.json({ success: true, data: memory.toApiResponse(req.user.userId) });
@@ -248,16 +254,23 @@ router.post('/:memoryId/like', auth, async (req, res) => {
   }
 });
 
-// DELETE /api/memory/:memoryId/like
+// DELETE /api/memory/:memoryId/like (atomic to prevent race conditions)
 router.delete('/:memoryId/like', auth, async (req, res) => {
   try {
-    const memory = await Memory.findOne({ memoryId: req.params.memoryId });
-    if (!memory) return res.status(404).json({ success: false, message: 'Memory not found' });
-
     const userIdStr = String(req.user.userId);
-    memory.likedBy = memory.likedBy.filter((id) => id !== userIdStr);
-    memory.likeCount = memory.likedBy.length;
-    await memory.save();
+
+    // Atomic: only remove if currently liked
+    const memory = await Memory.findOneAndUpdate(
+      { memoryId: req.params.memoryId, likedBy: userIdStr },
+      { $pull: { likedBy: userIdStr }, $inc: { likeCount: -1 } },
+      { new: true }
+    );
+
+    if (!memory) {
+      const existing = await Memory.findOne({ memoryId: req.params.memoryId });
+      if (!existing) return res.status(404).json({ success: false, message: 'Memory not found' });
+      return res.json({ success: true, data: existing.toApiResponse(req.user.userId) });
+    }
 
     res.json({ success: true, data: memory.toApiResponse(req.user.userId) });
   } catch (error) {
@@ -276,25 +289,27 @@ router.get('/:memoryId/comments', auth, async (req, res) => {
   }
 });
 
-// POST /api/memory/:memoryId/comments
+// POST /api/memory/:memoryId/comments (atomic to prevent race conditions)
 router.post('/:memoryId/comments', auth, async (req, res) => {
   try {
     const { content } = req.body;
     if (!content) return res.status(400).json({ success: false, message: 'content is required' });
-
-    const memory = await Memory.findOne({ memoryId: req.params.memoryId });
-    if (!memory) return res.status(404).json({ success: false, message: 'Memory not found' });
 
     const comment = {
       userId: String(req.user.userId),
       userName: req.user.userName,
       userAvatar: req.user.profile?.images?.[0] || '',
       content,
+      createdAt: new Date(),
     };
 
-    memory.comments.push(comment);
-    memory.commentCount = memory.comments.length;
-    await memory.save();
+    const memory = await Memory.findOneAndUpdate(
+      { memoryId: req.params.memoryId },
+      { $push: { comments: comment }, $inc: { commentCount: 1 } },
+      { new: true }
+    );
+
+    if (!memory) return res.status(404).json({ success: false, message: 'Memory not found' });
 
     const saved = memory.comments[memory.comments.length - 1];
     res.json({ success: true, data: saved });

@@ -7,20 +7,29 @@ import '../../controllers/auth_controller.dart';
 import '../../widgets/common_widgets.dart';
 
 /// Reset password screen
-class ResetPasswordScreen extends StatelessWidget {
-  ResetPasswordScreen({super.key});
+class ResetPasswordScreen extends StatefulWidget {
+  const ResetPasswordScreen({super.key});
 
+  @override
+  State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
+}
+
+class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
+  late final AuthController authController;
   final _formKey = GlobalKey<FormState>();
 
   @override
-  Widget build(BuildContext context) {
-    final authController = Get.find<AuthController>();
-
-    // Clear password fields
+  void initState() {
+    super.initState();
+    authController = Get.find<AuthController>();
+    // Clear fields once on screen open, not on every rebuild
     authController.passwordController.clear();
     authController.confirmPasswordController.clear();
     authController.errorMessage.value = '';
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(

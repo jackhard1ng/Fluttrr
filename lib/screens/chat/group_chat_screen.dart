@@ -505,7 +505,7 @@ class _MemberTile extends StatelessWidget {
       leading: CircleAvatar(
         backgroundColor: AppColors.primaryBlue.withAlpha(26),
         child: Text(
-          name[0],
+          name.isNotEmpty ? name[0].toUpperCase() : '?',
           style: TextStyle(
             color: AppColors.primaryBlue,
             fontWeight: FontWeight.bold,
@@ -674,7 +674,7 @@ class _MessageBubble extends StatelessWidget {
                 radius: 16,
                 backgroundColor: AppColors.primaryBlue.withAlpha(26),
                 child: Text(
-                  message.senderName[0],
+                  message.senderName.isNotEmpty ? message.senderName[0].toUpperCase() : '?',
                   style: TextStyle(
                     color: AppColors.primaryBlue,
                     fontWeight: FontWeight.bold,
