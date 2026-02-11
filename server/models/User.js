@@ -110,6 +110,12 @@ const userSchema = new mongoose.Schema(
       enum: ['active', 'suspended', 'banned', 'deleted'],
       default: 'active',
     },
+    reminderPreferences: {
+      activityReminders: { type: Boolean, default: true },
+      messageNotifications: { type: Boolean, default: true },
+      promotionalEmails: { type: Boolean, default: false },
+      reminderTime: { type: Number, default: 30 },
+    },
     refreshToken: { type: String, select: false },
     role: {
       type: String,

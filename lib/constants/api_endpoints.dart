@@ -55,6 +55,12 @@ class ApiEndpoints {
   static String get updateLowProfile => '$apiBase/user/low-profile';
   static String get profileCompletion => '$apiBase/user/monitoring';
 
+  // Profile photo endpoints
+  static String get uploadProfilePhoto => '$apiBase/user/upload-profile-photo';
+  static String get removeProfilePhoto => '$apiBase/user/remove-profile-photo';
+  static String get deleteAccount => '$apiBase/user/delete-account';
+  static String get notificationPreferences => '$apiBase/user/reminder-preferences';
+
   // Gallery endpoints
   static String get galleryList => '$apiBase/gallery/list';
   static String get galleryUpload => '$apiBase/gallery/upload';
@@ -73,6 +79,8 @@ class ApiEndpoints {
   static String get deleteActivity => '$apiBase/activity/delete';
   static String get activityImages => '$apiBase/activity/images';
   static String get upcomingActivities => '$apiBase/activity/upcoming';
+  static String get trendingActivities => '$apiBase/activity/trending';
+  static String get suggestedActivities => '$apiBase/activity/suggested';
   static String get createdActivitiesCount => '$apiBase/activity/created-activities-count';
   static String get joinedActivitiesCount => '$apiBase/activity/joined-activities-count';
   static String get userActivities => '$apiBase/activity/user-activities';

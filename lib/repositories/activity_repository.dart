@@ -79,6 +79,24 @@ class ActivityRepository extends BaseRepository {
     return _parseActivityList(response);
   }
 
+  /// Get trending activities (most popular upcoming)
+  Future<ApiResponse<List<ActivityModel>>> getTrendingActivities({int limit = 10}) async {
+    final response = await get<dynamic>(
+      ApiEndpoints.trendingActivities,
+      queryParams: {'limit': limit.toString()},
+    );
+    return _parseActivityList(response);
+  }
+
+  /// Get suggested activities (based on user interests)
+  Future<ApiResponse<List<ActivityModel>>> getSuggestedActivities({int limit = 10}) async {
+    final response = await get<dynamic>(
+      ApiEndpoints.suggestedActivities,
+      queryParams: {'limit': limit.toString()},
+    );
+    return _parseActivityList(response);
+  }
+
   /// Search/filter activities
   Future<ApiResponse<List<ActivityModel>>> searchActivities({
     String? query,

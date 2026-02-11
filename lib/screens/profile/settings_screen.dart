@@ -7,6 +7,7 @@ import '../../config/routes.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/admin_controller.dart';
 import '../../controllers/profile_controller.dart';
+import '../../repositories/profile_repository.dart';
 import '../../widgets/common_widgets.dart';
 import '../admin/admin_dashboard_screen.dart';
 
@@ -64,7 +65,7 @@ class SettingsScreen extends StatelessWidget {
           _SettingsTile(
             icon: Icons.notifications_outlined,
             title: 'Notification Preferences',
-            onTap: () => _showComingSoonDialog(context, 'Notification Preferences'),
+            onTap: () => _showNotificationPreferences(context),
           ),
 
           const SizedBox(height: AppSpacing.lg),
@@ -182,37 +183,91 @@ class SettingsScreen extends StatelessWidget {
     // Check if context is still mounted before showing dialog (#71)
     if (!context.mounted) return;
 
+    final passwordController = TextEditingController();
+
     HapticFeedback.mediumImpact();
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Delete Account'),
-        content: const Text(
-          'Are you sure you want to delete your account? This action cannot be undone.',
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'This will permanently delete your account and all data. This cannot be undone.',
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Enter your password to confirm:',
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                hintText: 'Your password',
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
             onPressed: () {
               HapticFeedback.lightImpact();
-              Navigator.pop(context);
+              passwordController.dispose();
+              Navigator.pop(dialogContext);
             },
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               HapticFeedback.mediumImpact();
-              Navigator.pop(context);
-              Get.snackbar(
-                'Account Deletion Requested',
-                'Please contact support@fluttrr.com to complete account deletion',
-                snackPosition: SnackPosition.BOTTOM,
-                backgroundColor: AppColors.primaryBlue,
-                colorText: Colors.white,
-                duration: const Duration(seconds: 5),
-              );
+              final password = passwordController.text.trim();
+              if (password.isEmpty) {
+                Get.snackbar(
+                  'Password Required',
+                  'Please enter your password to confirm',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: AppColors.error,
+                  colorText: Colors.white,
+                );
+                return;
+              }
+
+              Navigator.pop(dialogContext);
+              passwordController.dispose();
+
+              final profileController = Get.find<ProfileController>();
+              final success = await profileController.deleteAccount(password);
+
+              if (success) {
+                final authController = Get.find<AuthController>();
+                await authController.logout();
+                Get.snackbar(
+                  'Account Deleted',
+                  'Your account has been deleted',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: AppColors.success,
+                  colorText: Colors.white,
+                  duration: const Duration(seconds: 3),
+                );
+                Nav.toLogin();
+              } else {
+                Get.snackbar(
+                  'Deletion Failed',
+                  'Incorrect password or server error',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: AppColors.error,
+                  colorText: Colors.white,
+                );
+              }
             },
             child: const Text(
-              'Delete',
+              'Delete Permanently',
               style: TextStyle(color: AppColors.error),
             ),
           ),
@@ -239,6 +294,21 @@ class SettingsScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _showNotificationPreferences(BuildContext context) {
+    if (!context.mounted) return;
+
+    HapticFeedback.lightImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => const _NotificationPreferencesSheet(),
     );
   }
 
@@ -582,6 +652,205 @@ class _AdminPanelTile extends StatelessWidget {
       }
       return _AdminPanelTile();
     });
+  }
+}
+
+/// Notification preferences bottom sheet
+class _NotificationPreferencesSheet extends StatefulWidget {
+  const _NotificationPreferencesSheet();
+
+  @override
+  State<_NotificationPreferencesSheet> createState() => _NotificationPreferencesSheetState();
+}
+
+class _NotificationPreferencesSheetState extends State<_NotificationPreferencesSheet> {
+  final ProfileRepository _repo = ProfileRepository();
+  bool _isLoading = true;
+  bool _isSaving = false;
+
+  bool _activityReminders = true;
+  bool _messageNotifications = true;
+  bool _promotionalEmails = false;
+  int _reminderTime = 30;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    try {
+      final response = await _repo.getNotificationPreferences();
+      if (response.success && response.data != null) {
+        final data = response.data!;
+        setState(() {
+          _activityReminders = data['activityReminders'] ?? true;
+          _messageNotifications = data['messageNotifications'] ?? true;
+          _promotionalEmails = data['promotionalEmails'] ?? false;
+          _reminderTime = data['reminderTime'] ?? 30;
+          _isLoading = false;
+        });
+      } else {
+        setState(() => _isLoading = false);
+      }
+    } catch (_) {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _savePreferences() async {
+    setState(() => _isSaving = true);
+    try {
+      final response = await _repo.updateNotificationPreferences(
+        activityReminders: _activityReminders,
+        messageNotifications: _messageNotifications,
+        promotionalEmails: _promotionalEmails,
+        reminderTime: _reminderTime,
+      );
+
+      setState(() => _isSaving = false);
+
+      if (response.success) {
+        if (mounted) Navigator.pop(context);
+        Get.snackbar(
+          'Preferences Saved',
+          'Your notification preferences have been updated',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.success,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 2),
+        );
+      } else {
+        Get.snackbar(
+          'Error',
+          'Could not save preferences',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.error,
+          colorText: Colors.white,
+        );
+      }
+    } catch (_) {
+      setState(() => _isSaving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.lightGrey,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Notification Preferences',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            if (_isLoading)
+              const Center(child: CircularProgressIndicator())
+            else ...[
+              SwitchListTile(
+                title: const Text('Activity Reminders'),
+                subtitle: Text(
+                  'Get reminded before events you\'ve joined',
+                  style: TextStyle(fontSize: 12, color: AppColors.mediumGrey),
+                ),
+                value: _activityReminders,
+                onChanged: (v) => setState(() => _activityReminders = v),
+                activeColor: AppColors.primaryBlue,
+                contentPadding: EdgeInsets.zero,
+              ),
+              SwitchListTile(
+                title: const Text('Message Notifications'),
+                subtitle: Text(
+                  'Get notified when you receive new messages',
+                  style: TextStyle(fontSize: 12, color: AppColors.mediumGrey),
+                ),
+                value: _messageNotifications,
+                onChanged: (v) => setState(() => _messageNotifications = v),
+                activeColor: AppColors.primaryBlue,
+                contentPadding: EdgeInsets.zero,
+              ),
+              SwitchListTile(
+                title: const Text('Promotional Updates'),
+                subtitle: Text(
+                  'Receive news about new features and events',
+                  style: TextStyle(fontSize: 12, color: AppColors.mediumGrey),
+                ),
+                value: _promotionalEmails,
+                onChanged: (v) => setState(() => _promotionalEmails = v),
+                activeColor: AppColors.primaryBlue,
+                contentPadding: EdgeInsets.zero,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Reminder Time',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'How many minutes before an event to remind you',
+                style: TextStyle(fontSize: 12, color: AppColors.mediumGrey),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: [15, 30, 60, 120].map((mins) {
+                  final isSelected = _reminderTime == mins;
+                  final label = mins < 60 ? '$mins min' : '${mins ~/ 60} hr';
+                  return ChoiceChip(
+                    label: Text(label),
+                    selected: isSelected,
+                    onSelected: (_) => setState(() => _reminderTime = mins),
+                    selectedColor: AppColors.primaryBlue,
+                    labelStyle: TextStyle(
+                      color: isSelected ? Colors.white : AppColors.darkGrey,
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isSaving ? null : _savePreferences,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryBlue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                    ),
+                  ),
+                  child: _isSaving
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Text('Save Preferences', style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
   }
 }
 

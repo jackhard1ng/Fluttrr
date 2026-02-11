@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../constants/utils.dart';
 import '../../controllers/profile_controller.dart';
@@ -9,9 +12,57 @@ import '../../widgets/common_widgets.dart';
 class EditProfileScreen extends StatelessWidget {
   const EditProfileScreen({super.key});
 
+  Future<void> _pickAndUploadPhoto(ImageSource source) async {
+    final profileController = Get.find<ProfileController>();
+    final picker = ImagePicker();
+
+    try {
+      final pickedFile = await picker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+
+      if (pickedFile == null) return;
+
+      final file = File(pickedFile.path);
+      final success = await profileController.uploadProfilePhoto(file);
+
+      if (success) {
+        Get.snackbar(
+          'Photo Updated',
+          'Your profile photo has been updated',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.success,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 2),
+        );
+      } else {
+        Get.snackbar(
+          'Upload Failed',
+          'Could not upload photo. Please try again.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.error,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Could not access the selected source',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.error,
+        colorText: Colors.white,
+      );
+    }
+  }
+
   void _showPhotoOptions(BuildContext context) {
     // Check if context is still mounted before showing bottom sheet (#72)
     if (!context.mounted) return;
+
+    final profileController = Get.find<ProfileController>();
 
     Get.bottomSheet(
       Container(
@@ -28,12 +79,7 @@ class EditProfileScreen extends StatelessWidget {
               title: const Text('Take Photo'),
               onTap: () {
                 Get.back();
-                Get.snackbar(
-                  'Camera',
-                  'Camera access requires device permissions',
-                  snackPosition: SnackPosition.BOTTOM,
-                  duration: const Duration(seconds: 2),
-                );
+                _pickAndUploadPhoto(ImageSource.camera);
               },
             ),
             ListTile(
@@ -41,26 +87,24 @@ class EditProfileScreen extends StatelessWidget {
               title: const Text('Choose from Gallery'),
               onTap: () {
                 Get.back();
-                Get.snackbar(
-                  'Gallery',
-                  'Gallery access requires device permissions',
-                  snackPosition: SnackPosition.BOTTOM,
-                  duration: const Duration(seconds: 2),
-                );
+                _pickAndUploadPhoto(ImageSource.gallery);
               },
             ),
             ListTile(
               leading: Icon(Icons.delete, color: AppColors.error),
               title: Text('Remove Photo', style: TextStyle(color: AppColors.error)),
-              onTap: () {
+              onTap: () async {
                 Get.back();
-                Get.snackbar(
-                  'Photo Removed',
-                  'Your photo has been removed',
-                  snackPosition: SnackPosition.BOTTOM,
-                  backgroundColor: AppColors.error,
-                  colorText: Colors.white,
-                );
+                final success = await profileController.removeProfilePhoto();
+                if (success) {
+                  Get.snackbar(
+                    'Photo Removed',
+                    'Your profile photo has been removed',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: AppColors.success,
+                    colorText: Colors.white,
+                  );
+                }
               },
             ),
             const SizedBox(height: 16),

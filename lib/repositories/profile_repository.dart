@@ -148,6 +148,77 @@ class ProfileRepository extends BaseRepository {
     return ApiResponse.failure(error: response.error);
   }
 
+  /// Upload profile photo
+  Future<ApiResponse<String>> uploadProfilePhoto(File image) async {
+    final response = await uploadFile<dynamic>(
+      ApiEndpoints.uploadProfilePhoto,
+      file: image,
+      fieldName: 'photo',
+    );
+    if (response.success && response.data != null) {
+      final imageUrl = response.data['data'] ?? response.data['imageUrl'] ?? response.data['url'] ?? '';
+      return ApiResponse.success(data: _safeToString(imageUrl));
+    }
+    return ApiResponse.failure(error: response.error);
+  }
+
+  /// Remove profile photo
+  Future<ApiResponse<dynamic>> removeProfilePhoto() async {
+    return post(ApiEndpoints.removeProfilePhoto);
+  }
+
+  /// Delete user account (uses POST since body is needed for password)
+  Future<ApiResponse<dynamic>> deleteAccount(String password) async {
+    return post(
+      ApiEndpoints.deleteAccount,
+      body: {'password': password},
+    );
+  }
+
+  /// Get notification preferences
+  Future<ApiResponse<Map<String, dynamic>>> getNotificationPreferences() async {
+    final response = await get<dynamic>(ApiEndpoints.notificationPreferences);
+    if (response.success && response.data != null) {
+      final data = response.data['data'] ?? response.data;
+      if (data is Map<String, dynamic>) {
+        return ApiResponse.success(data: data);
+      }
+      return ApiResponse.success(data: {
+        'activityReminders': true,
+        'messageNotifications': true,
+        'promotionalEmails': false,
+        'reminderTime': 30,
+      });
+    }
+    return ApiResponse.failure(error: response.error);
+  }
+
+  /// Update notification preferences
+  Future<ApiResponse<Map<String, dynamic>>> updateNotificationPreferences({
+    bool? activityReminders,
+    bool? messageNotifications,
+    bool? promotionalEmails,
+    int? reminderTime,
+  }) async {
+    final body = <String, dynamic>{};
+    if (activityReminders != null) body['activityReminders'] = activityReminders;
+    if (messageNotifications != null) body['messageNotifications'] = messageNotifications;
+    if (promotionalEmails != null) body['promotionalEmails'] = promotionalEmails;
+    if (reminderTime != null) body['reminderTime'] = reminderTime;
+
+    final response = await put<dynamic>(
+      ApiEndpoints.notificationPreferences,
+      body: body,
+    );
+    if (response.success && response.data != null) {
+      final data = response.data['data'] ?? response.data;
+      if (data is Map<String, dynamic>) {
+        return ApiResponse.success(data: data);
+      }
+    }
+    return ApiResponse.failure(error: response.error);
+  }
+
   /// Upload gallery image with safe type conversion (#70)
   Future<ApiResponse<String>> uploadGalleryImage(File image) async {
     final response = await uploadFile<dynamic>(

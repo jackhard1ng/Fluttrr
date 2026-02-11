@@ -229,6 +229,54 @@ class ProfileController extends GetxController {
     }
   }
 
+  /// Upload profile photo
+  Future<bool> uploadProfilePhoto(File image) async {
+    isUploadingImage.value = true;
+
+    try {
+      final response = await _profileRepository.uploadProfilePhoto(image);
+
+      isUploadingImage.value = false;
+
+      if (response.success && response.data != null) {
+        // Reload profile to get updated image
+        await loadProfile();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      isUploadingImage.value = false;
+      debugPrint('Error uploading profile photo: $e');
+      return false;
+    }
+  }
+
+  /// Remove profile photo
+  Future<bool> removeProfilePhoto() async {
+    try {
+      final response = await _profileRepository.removeProfilePhoto();
+      if (response.success) {
+        await loadProfile();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint('Error removing profile photo: $e');
+      return false;
+    }
+  }
+
+  /// Delete user account
+  Future<bool> deleteAccount(String password) async {
+    try {
+      final response = await _profileRepository.deleteAccount(password);
+      return response.success;
+    } catch (e) {
+      debugPrint('Error deleting account: $e');
+      return false;
+    }
+  }
+
   /// Upload gallery image
   Future<bool> uploadGalleryImage(File image) async {
     isUploadingImage.value = true;

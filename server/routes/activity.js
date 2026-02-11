@@ -1552,4 +1552,72 @@ router.get('/recurring/instances/:seriesId', auth, async (req, res) => {
   }
 });
 
+// ============================================================
+// GET /trending - Get trending activities (most attendees, upcoming)
+// ============================================================
+router.get('/trending', auth, async (req, res) => {
+  try {
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 50);
+    const now = new Date();
+
+    // Find upcoming activities sorted by attendee count (most popular)
+    const activities = await Activity.find({
+      dateTime: { $gte: now },
+      status: { $ne: 'cancelled' },
+    })
+      .sort({ attendeeCount: -1, dateTime: 1 })
+      .limit(limit);
+
+    const data = activities.map((a) => formatActivity(a, req.user.userId));
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('Get trending activities error:', error);
+    res.status(500).json({ success: false, message: 'Failed to get trending activities' });
+  }
+});
+
+// ============================================================
+// GET /suggested - Get suggested activities based on user interests
+// ============================================================
+router.get('/suggested', auth, async (req, res) => {
+  try {
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 50);
+    const now = new Date();
+
+    // Get user interests
+    const User = require('../models/User');
+    const user = await User.findById(req.userId).select('profile.interests');
+    const interests = user?.profile?.interests || [];
+
+    let activities;
+
+    if (interests.length > 0) {
+      // Find upcoming activities matching user interests
+      activities = await Activity.find({
+        dateTime: { $gte: now },
+        status: { $ne: 'cancelled' },
+        eventType: { $in: interests },
+        'attendees.userId': { $ne: req.user.userId }, // Not already joined
+      })
+        .sort({ dateTime: 1 })
+        .limit(limit);
+    } else {
+      // No interests set - return upcoming activities
+      activities = await Activity.find({
+        dateTime: { $gte: now },
+        status: { $ne: 'cancelled' },
+        'attendees.userId': { $ne: req.user.userId },
+      })
+        .sort({ dateTime: 1 })
+        .limit(limit);
+    }
+
+    const data = activities.map((a) => formatActivity(a, req.user.userId));
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('Get suggested activities error:', error);
+    res.status(500).json({ success: false, message: 'Failed to get suggested activities' });
+  }
+});
+
 module.exports = router;

@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const Activity = require('../models/Activity');
 const { auth } = require('../middleware/auth');
+const upload = require('../middleware/upload');
 
 // ============================================================
 // Helper: format a user document into the shape the Flutter app expects
@@ -970,6 +971,119 @@ router.get('/user-activities', auth, async (req, res) => {
   } catch (error) {
     console.error('User activities error:', error);
     return res.status(500).json({ success: false, message: 'Server error fetching activities' });
+  }
+});
+
+// ============================================================
+// POST /upload-profile-photo
+// Upload or replace profile photo (requires auth)
+// ============================================================
+router.post('/upload-profile-photo', auth, upload.single('photo'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No photo provided' });
+    }
+
+    const imageUrl = `/uploads/${req.file.filename}`;
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (!user.profile) {
+      user.profile = {};
+    }
+
+    // Set as first image (profile photo)
+    if (!user.profile.images || user.profile.images.length === 0) {
+      user.profile.images = [imageUrl];
+    } else {
+      user.profile.images[0] = imageUrl;
+    }
+
+    // Recalculate completion
+    user.completionPercentage = calculateCompletionPercentage(user);
+    await user.save();
+
+    return res.json({
+      success: true,
+      data: imageUrl,
+      message: 'Profile photo updated',
+    });
+  } catch (error) {
+    console.error('Upload profile photo error:', error);
+    return res.status(500).json({ success: false, message: 'Failed to upload profile photo' });
+  }
+});
+
+// ============================================================
+// POST /remove-profile-photo
+// Remove profile photo (requires auth)
+// ============================================================
+router.post('/remove-profile-photo', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (user.profile && user.profile.images && user.profile.images.length > 0) {
+      user.profile.images.shift(); // Remove first image (profile photo)
+    }
+
+    user.completionPercentage = calculateCompletionPercentage(user);
+    await user.save();
+
+    return res.json({
+      success: true,
+      data: null,
+      message: 'Profile photo removed',
+    });
+  } catch (error) {
+    console.error('Remove profile photo error:', error);
+    return res.status(500).json({ success: false, message: 'Failed to remove profile photo' });
+  }
+});
+
+// ============================================================
+// POST /delete-account
+// Soft-delete user account (requires auth + password confirmation)
+// ============================================================
+router.post('/delete-account', auth, async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ success: false, message: 'Password is required to delete account' });
+    }
+
+    // Fetch user with password for verification
+    const user = await User.findById(req.userId).select('+password');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Verify password
+    const bcrypt = require('bcryptjs');
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Incorrect password' });
+    }
+
+    // Soft delete: mark as deleted, clear sensitive data
+    user.status = 'deleted';
+    user.fcmToken = null;
+    user.refreshToken = null;
+    user.onlineStatus = 'offline';
+    await user.save();
+
+    return res.json({
+      success: true,
+      message: 'Account deleted successfully',
+    });
+  } catch (error) {
+    console.error('Delete account error:', error);
+    return res.status(500).json({ success: false, message: 'Failed to delete account' });
   }
 });
 
