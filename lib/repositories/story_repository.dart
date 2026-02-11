@@ -16,14 +16,16 @@ class StoryRepository {
       final response = await _client.get(ApiEndpoints.stories);
 
       if (response.statusCode == 200 && response.data != null) {
-        final data = response.data as Map<String, dynamic>;
+        final body = response.data as Map<String, dynamic>;
+        // Backend wraps in { success, data: { userStories, eventStories } }
+        final data = body['data'] as Map<String, dynamic>? ?? body;
 
-        final userStories = (data['user_stories'] as List<dynamic>?)
-            ?.map((s) => UserStoryGroup.fromJson(s))
+        final userStories = (data['userStories'] ?? data['user_stories'] as List<dynamic>?)
+            ?.map((s) => UserStoryGroup.fromJson(s as Map<String, dynamic>))
             .toList() ?? [];
 
-        final eventStories = (data['event_stories'] as List<dynamic>?)
-            ?.map((s) => EventStoryGroup.fromJson(s))
+        final eventStories = (data['eventStories'] ?? data['event_stories'] as List<dynamic>?)
+            ?.map((s) => EventStoryGroup.fromJson(s as Map<String, dynamic>))
             .toList() ?? [];
 
         return {

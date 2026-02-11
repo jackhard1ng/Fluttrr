@@ -119,8 +119,8 @@ class ApiEndpoints {
   static String get saveBusinessEvent => '$apiBase/business/save-event';
   static String get savedEventsList => '$apiBase/business/saved-list';
   static String get topEvents => '$apiBase/business/top-events';
-  static String get eventClicks => '$apiBase/business/events/clicks/';
-  static String get eventViews => '$apiBase/business/events/views/';
+  static String get eventClicks => '$apiBase/business/events/';
+  static String get eventViews => '$apiBase/business/events/';
 
   // Business social endpoints
   static String get followBusiness => '$apiBase/business/follow';

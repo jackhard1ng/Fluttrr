@@ -15,7 +15,7 @@ class MemoryRepository extends BaseRepository {
     int limit = 20,
   }) async {
     final response = await get<dynamic>(
-      '${ApiEndpoints.apiBase}/memories/feed',
+      '${ApiEndpoints.apiBase}/memory/feed',
       queryParams: {
         'page': page.toString(),
         'limit': limit.toString(),
@@ -29,7 +29,7 @@ class MemoryRepository extends BaseRepository {
     int limit = 10,
   }) async {
     final response = await get<dynamic>(
-      '${ApiEndpoints.apiBase}/memories/featured',
+      '${ApiEndpoints.apiBase}/memory/featured',
       queryParams: {'limit': limit.toString()},
     );
     return parseListResponse(response, EventMemoryModel.fromJson);
@@ -44,8 +44,9 @@ class MemoryRepository extends BaseRepository {
     int limit = 20,
   }) async {
     final response = await get<dynamic>(
-      '${ApiEndpoints.apiBase}/events/$eventId/memories',
+      '${ApiEndpoints.apiBase}/memory/event',
       queryParams: {
+        'event_id': eventId,
         'page': page.toString(),
         'limit': limit.toString(),
       },
@@ -56,7 +57,7 @@ class MemoryRepository extends BaseRepository {
   /// Get memory details
   Future<ApiResponse<EventMemoryModel>> getMemoryDetails(String memoryId) async {
     return await get<EventMemoryModel>(
-      '${ApiEndpoints.apiBase}/memories/$memoryId',
+      '${ApiEndpoints.apiBase}/memory/$memoryId',
       fromJson: (data) => EventMemoryModel.fromJson(data['data'] ?? data),
     );
   }
@@ -68,7 +69,7 @@ class MemoryRepository extends BaseRepository {
     bool myEventsOnly = false,
   }) async {
     final response = await get<dynamic>(
-      '${ApiEndpoints.apiBase}/memories/events',
+      '${ApiEndpoints.apiBase}/memory/events',
       queryParams: {
         'page': page.toString(),
         'limit': limit.toString(),
@@ -93,7 +94,7 @@ class MemoryRepository extends BaseRepository {
     };
 
     return await uploadMultipleFiles<EventMemoryModel>(
-      '${ApiEndpoints.apiBase}/memories',
+      '${ApiEndpoints.apiBase}/memory',
       fileList: photos,
       fileListFieldName: 'photos',
       fields: fields,
@@ -107,7 +108,7 @@ class MemoryRepository extends BaseRepository {
     required List<File> photos,
   }) async {
     return await uploadMultipleFiles<EventMemoryModel>(
-      '${ApiEndpoints.apiBase}/memories/$memoryId/photos',
+      '${ApiEndpoints.apiBase}/memory/$memoryId/photos',
       fileList: photos,
       fileListFieldName: 'photos',
       fromJson: (data) => EventMemoryModel.fromJson(data['data'] ?? data),
@@ -120,7 +121,7 @@ class MemoryRepository extends BaseRepository {
     required String photoId,
   }) async {
     final response = await delete<dynamic>(
-      '${ApiEndpoints.apiBase}/memories/$memoryId/photos/$photoId',
+      '${ApiEndpoints.apiBase}/memory/$memoryId/photos/$photoId',
     );
     return ApiResponse<bool>(
       success: response.success,
@@ -133,7 +134,7 @@ class MemoryRepository extends BaseRepository {
   /// Delete entire memory
   Future<ApiResponse<bool>> deleteMemory(String memoryId) async {
     final response = await delete<dynamic>(
-      '${ApiEndpoints.apiBase}/memories/$memoryId',
+      '${ApiEndpoints.apiBase}/memory/$memoryId',
     );
     return ApiResponse<bool>(
       success: response.success,
@@ -149,7 +150,7 @@ class MemoryRepository extends BaseRepository {
     String? caption,
   }) async {
     return await put<EventMemoryModel>(
-      '${ApiEndpoints.apiBase}/memories/$memoryId',
+      '${ApiEndpoints.apiBase}/memory/$memoryId',
       body: {
         if (caption != null) 'caption': caption,
       },
@@ -162,7 +163,7 @@ class MemoryRepository extends BaseRepository {
   /// Like a memory
   Future<ApiResponse<EventMemoryModel>> likeMemory(String memoryId) async {
     return await post<EventMemoryModel>(
-      '${ApiEndpoints.apiBase}/memories/$memoryId/like',
+      '${ApiEndpoints.apiBase}/memory/$memoryId/like',
       fromJson: (data) => EventMemoryModel.fromJson(data['data'] ?? data),
     );
   }
@@ -170,7 +171,7 @@ class MemoryRepository extends BaseRepository {
   /// Unlike a memory
   Future<ApiResponse<EventMemoryModel>> unlikeMemory(String memoryId) async {
     final response = await delete<dynamic>(
-      '${ApiEndpoints.apiBase}/memories/$memoryId/like',
+      '${ApiEndpoints.apiBase}/memory/$memoryId/like',
     );
     if (!response.success) {
       return ApiResponse<EventMemoryModel>(
@@ -201,7 +202,7 @@ class MemoryRepository extends BaseRepository {
     int limit = 50,
   }) async {
     final response = await get<dynamic>(
-      '${ApiEndpoints.apiBase}/memories/$memoryId/comments',
+      '${ApiEndpoints.apiBase}/memory/$memoryId/comments',
       queryParams: {
         'page': page.toString(),
         'limit': limit.toString(),
@@ -216,7 +217,7 @@ class MemoryRepository extends BaseRepository {
     required String content,
   }) async {
     return await post<MemoryCommentModel>(
-      '${ApiEndpoints.apiBase}/memories/$memoryId/comments',
+      '${ApiEndpoints.apiBase}/memory/$memoryId/comments',
       body: {'content': content},
       fromJson: (data) => MemoryCommentModel.fromJson(data['data'] ?? data),
     );
@@ -228,7 +229,7 @@ class MemoryRepository extends BaseRepository {
     required String commentId,
   }) async {
     final response = await delete<dynamic>(
-      '${ApiEndpoints.apiBase}/memories/$memoryId/comments/$commentId',
+      '${ApiEndpoints.apiBase}/memory/$memoryId/comments/$commentId',
     );
     return ApiResponse<bool>(
       success: response.success,
@@ -244,7 +245,7 @@ class MemoryRepository extends BaseRepository {
     required String commentId,
   }) async {
     return await post<MemoryCommentModel>(
-      '${ApiEndpoints.apiBase}/memories/$memoryId/comments/$commentId/like',
+      '${ApiEndpoints.apiBase}/memory/$memoryId/comments/$commentId/like',
       fromJson: (data) => MemoryCommentModel.fromJson(data['data'] ?? data),
     );
   }
@@ -260,7 +261,7 @@ class MemoryRepository extends BaseRepository {
     required double yPosition,
   }) async {
     return await post<PhotoTagModel>(
-      '${ApiEndpoints.apiBase}/memories/$memoryId/photos/$photoId/tags',
+      '${ApiEndpoints.apiBase}/memory/$memoryId/photos/$photoId/tags',
       body: {
         'user_id': userId,
         'x_position': xPosition,
@@ -277,7 +278,7 @@ class MemoryRepository extends BaseRepository {
     required String tagId,
   }) async {
     final response = await delete<dynamic>(
-      '${ApiEndpoints.apiBase}/memories/$memoryId/photos/$photoId/tags/$tagId',
+      '${ApiEndpoints.apiBase}/memory/$memoryId/photos/$photoId/tags/$tagId',
     );
     return ApiResponse<bool>(
       success: response.success,
@@ -293,7 +294,7 @@ class MemoryRepository extends BaseRepository {
     int limit = 20,
   }) async {
     final response = await get<dynamic>(
-      '${ApiEndpoints.apiBase}/memories/tagged',
+      '${ApiEndpoints.apiBase}/memory/tagged',
       queryParams: {
         'page': page.toString(),
         'limit': limit.toString(),
@@ -311,7 +312,7 @@ class MemoryRepository extends BaseRepository {
     String? details,
   }) async {
     final response = await post<dynamic>(
-      '${ApiEndpoints.apiBase}/memories/$memoryId/report',
+      '${ApiEndpoints.apiBase}/memory/$memoryId/report',
       body: {
         'reason': reason,
         if (details != null) 'details': details,
@@ -334,7 +335,7 @@ class MemoryRepository extends BaseRepository {
     int limit = 20,
   }) async {
     final response = await get<dynamic>(
-      '${ApiEndpoints.apiBase}/users/$userId/memories',
+      '${ApiEndpoints.apiBase}/memory/my',
       queryParams: {
         'page': page.toString(),
         'limit': limit.toString(),
@@ -349,7 +350,7 @@ class MemoryRepository extends BaseRepository {
     int limit = 20,
   }) async {
     final response = await get<dynamic>(
-      '${ApiEndpoints.apiBase}/memories/mine',
+      '${ApiEndpoints.apiBase}/memory/mine',
       queryParams: {
         'page': page.toString(),
         'limit': limit.toString(),
@@ -364,7 +365,7 @@ class MemoryRepository extends BaseRepository {
     int limit = 20,
   }) async {
     final response = await get<dynamic>(
-      '${ApiEndpoints.apiBase}/memories/tagged-in',
+      '${ApiEndpoints.apiBase}/memory/tagged-in',
       queryParams: {
         'page': page.toString(),
         'limit': limit.toString(),

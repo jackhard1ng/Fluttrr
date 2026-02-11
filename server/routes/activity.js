@@ -518,7 +518,7 @@ router.post('/rate-attendee', auth, async (req, res) => {
     const ratingEntry = {
       raterId: req.user.userId,
       raterName: req.user.userName || 'Unknown',
-      ratedUserId: rated_user_id,
+      ratedUserId: parseInt(rated_user_id),
       rating: parseInt(rating),
       tags: tags || [],
       comment: comment || '',
