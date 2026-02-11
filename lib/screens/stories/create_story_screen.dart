@@ -25,7 +25,9 @@ class CreateStoryScreen extends StatefulWidget {
 }
 
 class _CreateStoryScreenState extends State<CreateStoryScreen> {
-  final StoryController _controller = Get.find<StoryController>();
+  final StoryController _controller = Get.isRegistered<StoryController>()
+      ? Get.find<StoryController>()
+      : Get.put(StoryController());
   final TextEditingController _captionController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
 

@@ -30,14 +30,18 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    if (!Get.isRegistered<ChatController>()) {
+      Get.put(ChatController());
+    }
     final chatController = Get.find<ChatController>();
     chatController.openConversation(widget.conversation);
   }
 
   @override
   void dispose() {
-    final chatController = Get.find<ChatController>();
-    chatController.closeConversation();
+    if (Get.isRegistered<ChatController>()) {
+      Get.find<ChatController>().closeConversation();
+    }
     _scrollController.dispose();
     super.dispose();
   }

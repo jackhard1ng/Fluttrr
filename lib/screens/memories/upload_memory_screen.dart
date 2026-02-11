@@ -24,7 +24,9 @@ class UploadMemoryScreen extends StatefulWidget {
 }
 
 class _UploadMemoryScreenState extends State<UploadMemoryScreen> {
-  final MemoryController _controller = Get.find<MemoryController>();
+  final MemoryController _controller = Get.isRegistered<MemoryController>()
+      ? Get.find<MemoryController>()
+      : Get.put(MemoryController());
   final TextEditingController _captionController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   final List<File> _selectedPhotos = [];

@@ -18,7 +18,9 @@ class MyMemoriesScreen extends StatefulWidget {
 
 class _MyMemoriesScreenState extends State<MyMemoriesScreen>
     with SingleTickerProviderStateMixin {
-  final MemoryController _controller = Get.find<MemoryController>();
+  final MemoryController _controller = Get.isRegistered<MemoryController>()
+      ? Get.find<MemoryController>()
+      : Get.put(MemoryController());
   late TabController _tabController;
   final ScrollController _scrollController = ScrollController();
 

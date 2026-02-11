@@ -24,7 +24,9 @@ class MemoryDetailScreen extends StatefulWidget {
 }
 
 class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
-  final MemoryController _controller = Get.find<MemoryController>();
+  final MemoryController _controller = Get.isRegistered<MemoryController>()
+      ? Get.find<MemoryController>()
+      : Get.put(MemoryController());
   final TextEditingController _commentController = TextEditingController();
   final FocusNode _commentFocus = FocusNode();
   final ScrollController _scrollController = ScrollController();

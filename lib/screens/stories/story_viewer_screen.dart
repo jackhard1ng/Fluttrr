@@ -26,7 +26,9 @@ class StoryViewerScreen extends StatefulWidget {
 
 class _StoryViewerScreenState extends State<StoryViewerScreen>
     with SingleTickerProviderStateMixin {
-  final StoryController _controller = Get.find<StoryController>();
+  final StoryController _controller = Get.isRegistered<StoryController>()
+      ? Get.find<StoryController>()
+      : Get.put(StoryController());
 
   late AnimationController _progressController;
   late int _currentIndex;
