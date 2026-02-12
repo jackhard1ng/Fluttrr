@@ -37,7 +37,8 @@ const messageSchema = new mongoose.Schema(
 // ---------------------------------------------------------------------------
 messageSchema.index({ senderId: 1, receiverId: 1, timestamp: -1 });
 messageSchema.index({ groupId: 1, timestamp: -1 });
-messageSchema.index({ receiverId: 1, isRead: 1 });
+messageSchema.index({ receiverId: 1, isRead: 1, timestamp: -1 });
+messageSchema.index({ groupId: 1, isRead: 1, timestamp: -1 });
 
 // ---------------------------------------------------------------------------
 // toJSON – convert to snake_case matching Flutter ChatMessage.fromJson

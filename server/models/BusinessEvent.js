@@ -61,6 +61,10 @@ businessEventSchema.index({ startDate: 1 });
 businessEventSchema.index({ latitude: 1, longitude: 1 });
 businessEventSchema.index({ status: 1 });
 businessEventSchema.index({ eventType: 1 });
+businessEventSchema.index({ businessId: 1, startDate: -1 });
+businessEventSchema.index({ status: 1, startDate: 1 });
+businessEventSchema.index({ attendees: 1 });
+businessEventSchema.index({ savedBy: 1 });
 
 // ---------------------------------------------------------------------------
 // Pre-save: auto-increment eventId

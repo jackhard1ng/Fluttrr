@@ -134,6 +134,9 @@ userSchema.index({ status: 1, 'profile.latitude': 1, 'profile.longitude': 1 });
 userSchema.index({ status: 1 });
 userSchema.index({ onlineStatus: 1 });
 userSchema.index({ accountType: 1 });
+userSchema.index({ googleId: 1 }, { sparse: true });
+userSchema.index({ accountType: 1, status: 1 });
+userSchema.index({ userName: 1 });
 
 // ---------------------------------------------------------------------------
 // Pre-save: auto-increment userId, hash password, calculate completion
