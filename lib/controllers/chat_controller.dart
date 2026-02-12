@@ -6,7 +6,7 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../constants/api_endpoints.dart';
 import '../models/chat_model.dart';
 import '../repositories/chat_repository.dart';
-import '../services/token_manager.dart';
+import '../services/storage_service.dart';
 
 /// Chat controller with Socket.IO support
 class ChatController extends GetxController {
@@ -42,7 +42,21 @@ class ChatController extends GetxController {
   void onInit() {
     super.onInit();
     _initHive();
+    _autoInitialize();
     loadChatList();
+  }
+
+  /// Auto-initialize with the current user's ID from stored user data
+  void _autoInitialize() {
+    try {
+      final userData = StorageService.getUser();
+      final userId = userData?['userId'] as int?;
+      if (userId != null) {
+        initialize(userId);
+      }
+    } catch (e) {
+      debugPrint('ChatController auto-init failed: $e');
+    }
   }
 
   @override

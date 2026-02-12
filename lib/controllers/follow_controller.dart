@@ -157,6 +157,7 @@ class FollowController extends GetxController {
 
   /// Toggle follow status
   Future<bool> toggleFollow(int businessId) async {
+    if (isFollowing.value) return false;
     if (isFollowingBusiness(businessId)) {
       return unfollowBusiness(businessId);
     } else {

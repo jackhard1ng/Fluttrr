@@ -421,6 +421,7 @@ class ActivityController extends GetxController {
 
   /// Join activity
   Future<bool> joinActivity(int activityId) async {
+    if (isJoining.value) return false;
     isJoining.value = true;
 
     try {
@@ -441,6 +442,7 @@ class ActivityController extends GetxController {
 
   /// Leave activity
   Future<bool> leaveActivity(int activityId) async {
+    if (isJoining.value) return false;
     isJoining.value = true;
 
     try {

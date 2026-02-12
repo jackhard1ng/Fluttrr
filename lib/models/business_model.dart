@@ -341,11 +341,11 @@ class BusinessAnalytics {
 
   factory BusinessAnalytics.fromJson(Map<String, dynamic> json) {
     return BusinessAnalytics(
-      totalViews: (json['total_views'] ?? json['totalViews'] ?? 0) as int,
-      totalClicks: (json['total_clicks'] ?? json['totalClicks'] ?? 0) as int,
-      totalFollowers: (json['total_followers'] ?? json['totalFollowers'] ?? 0) as int,
-      totalEvents: (json['total_events'] ?? json['totalEvents'] ?? 0) as int,
-      totalAttendees: (json['total_attendees'] ?? json['totalAttendees'] ?? 0) as int,
+      totalViews: (json['total_views'] ?? json['totalViews'] ?? 0 as num).toInt(),
+      totalClicks: (json['total_clicks'] ?? json['totalClicks'] ?? 0 as num).toInt(),
+      totalFollowers: (json['total_followers'] ?? json['totalFollowers'] ?? 0 as num).toInt(),
+      totalEvents: (json['total_events'] ?? json['totalEvents'] ?? 0 as num).toInt(),
+      totalAttendees: (json['total_attendees'] ?? json['totalAttendees'] ?? 0 as num).toInt(),
       viewRate: ((json['view_rate'] ?? json['viewRate']) as num?)?.toDouble(),
       clickRate: ((json['click_rate'] ?? json['clickRate']) as num?)?.toDouble(),
       conversionRate: ((json['conversion_rate'] ?? json['conversionRate']) as num?)?.toDouble(),

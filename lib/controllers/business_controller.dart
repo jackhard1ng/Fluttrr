@@ -689,6 +689,10 @@ class BusinessController extends GetxController {
           ? await _businessRepository.unfollowBusiness(businessId)
           : await _businessRepository.followBusiness(businessId);
 
+      if (response.success) {
+        // Reload profile to reflect updated follow state and follower count
+        await loadBusinessProfile();
+      }
       return response.success;
     } catch (e) {
       debugPrint('Error toggling follow business: $e');

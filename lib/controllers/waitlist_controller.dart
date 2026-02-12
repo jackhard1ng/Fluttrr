@@ -105,7 +105,7 @@ class WaitlistController extends GetxController {
 
   /// Leave a waitlist
   Future<bool> leaveWaitlist(int eventId) async {
-    isJoining.value = true;
+    isLeaving.value = true;
     errorMessage.value = '';
 
     try {
@@ -124,7 +124,7 @@ class WaitlistController extends GetxController {
       errorMessage.value = 'Failed to leave waitlist';
       return false;
     } finally {
-      isJoining.value = false;
+      isLeaving.value = false;
     }
   }
 

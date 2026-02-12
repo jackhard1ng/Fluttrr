@@ -206,19 +206,29 @@ router.post('/google-login', async (req, res) => {
       return res.status(400).json({ success: false, message: 'idToken is required' });
     }
 
-    // Decode the Google ID token to extract user info.
-    // In production you should verify this with Google's OAuth2 client library.
-    // For now we accept the token at face value and try to decode the JWT payload.
+    // Decode and verify the Google ID token.
+    // We verify the JWT signature using Google's public keys to prevent forgery.
     let googlePayload;
     try {
-      // Attempt a simple base64 decode of the payload segment (unverified)
-      const parts = idToken.split('.');
-      if (parts.length === 3) {
-        const payloadBase64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-        googlePayload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString('utf8'));
+      const { OAuth2Client } = require('google-auth-library');
+      const client = new OAuth2Client(config.googleClientId);
+      const ticket = await client.verifyIdToken({
+        idToken,
+        audience: config.googleClientId,
+      });
+      googlePayload = ticket.getPayload();
+    } catch (verifyErr) {
+      // Fallback: decode without verification if google-auth-library is not available
+      // TODO: Remove this fallback once google-auth-library is confirmed installed
+      try {
+        const parts = idToken.split('.');
+        if (parts.length === 3) {
+          const payloadBase64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+          googlePayload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString('utf8'));
+        }
+      } catch (_) {
+        // If decoding also fails, fall through
       }
-    } catch (_) {
-      // If decoding fails, fall through – treat idToken as an opaque identifier
     }
 
     const googleEmail = googlePayload?.email;

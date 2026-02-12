@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../repositories/auth_repository.dart';
+import '../services/storage_service.dart';
+import '../services/socket_service.dart';
+import 'chat_controller.dart';
 
 /// Authentication controller
 class AuthController extends GetxController {
@@ -219,13 +222,13 @@ class AuthController extends GetxController {
         return true;
       } else {
         errorMessage.value = response.displayMessage;
-        _tempEmail = ''; // Clear sensitive data on failure
+        // Keep _tempEmail so user can retry OTP
         return false;
       }
     } catch (e) {
       isLoading.value = false;
       errorMessage.value = 'OTP verification failed. Please try again.';
-      _tempEmail = ''; // Clear sensitive data on error
+      // Keep _tempEmail so user can retry OTP
       return false;
     }
   }
@@ -288,13 +291,13 @@ class AuthController extends GetxController {
         return true;
       } else {
         errorMessage.value = response.displayMessage;
-        _tempEmail = ''; // Clear on failure
+        // Keep _tempEmail so user can retry OTP
         return false;
       }
     } catch (e) {
       isLoading.value = false;
       errorMessage.value = 'OTP verification failed. Please try again.';
-      _tempEmail = ''; // Clear on error
+      // Keep _tempEmail so user can retry OTP
       return false;
     }
   }
@@ -372,7 +375,25 @@ class AuthController extends GetxController {
 
   /// Logout
   Future<void> logout() async {
+    // Disconnect chat socket before clearing tokens
+    if (Get.isRegistered<ChatController>()) {
+      try {
+        Get.find<ChatController>().onClose();
+      } catch (_) {}
+    }
+
     await _authRepository.logout();
+
+    // Clean up local user data
+    try {
+      await StorageService.clearUser();
+    } catch (_) {}
+
+    // Reset socket service so it can reconnect on next login
+    try {
+      SocketService().reset();
+    } catch (_) {}
+
     clearFields();
   }
 

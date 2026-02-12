@@ -352,10 +352,24 @@ class GroupController extends GetxController {
       if (response.success) {
         myGroups.removeWhere((g) => g.groupId == groupId);
 
+        // Update membership in all lists
+        void updateGroupLeave(RxList<GroupModel> list) {
+          final index = list.indexWhere((g) => g.groupId == groupId);
+          if (index != -1) {
+            list[index] = list[index].copyWith(
+              userIsMember: false,
+              memberCount: (list[index].memberCount - 1).clamp(0, 999999),
+            );
+          }
+        }
+
+        updateGroupLeave(allGroups);
+        updateGroupLeave(suggestedGroups);
+
         if (currentGroup.value?.groupId == groupId) {
           currentGroup.value = currentGroup.value?.copyWith(
             userIsMember: false,
-            userRole: null,
+            memberCount: ((currentGroup.value?.memberCount ?? 1) - 1).clamp(0, 999999),
           );
         }
 

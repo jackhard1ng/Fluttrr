@@ -152,9 +152,21 @@ router.post(
 // PUT /api/business/update/:businessId - Update business profile
 router.put('/update/:businessId', auth, async (req, res) => {
   try {
+    // Whitelist allowed fields to prevent mass-assignment
+    const allowedFields = [
+      'businessName', 'business_name', 'description', 'phone', 'email',
+      'category', 'address', 'location', 'website', 'facebook', 'instagram',
+      'images', 'profileImage', 'profile_image', 'coverImage', 'cover_image',
+      'latitude', 'longitude', 'socialLinks', 'social_links',
+    ];
+    const safeBody = {};
+    for (const key of allowedFields) {
+      if (req.body[key] !== undefined) safeBody[key] = req.body[key];
+    }
+
     const business = await Business.findOneAndUpdate(
       { _id: req.params.businessId, userId: req.user.userId },
-      { $set: req.body },
+      { $set: safeBody },
       { new: true }
     );
 
@@ -434,7 +446,17 @@ router.put('/update-event/:eventId', auth, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Business not found' });
     }
 
-    const updateData = { ...req.body };
+    // Whitelist allowed fields to prevent mass-assignment
+    const allowedEventFields = [
+      'name', 'description', 'location', 'latitude', 'longitude',
+      'startTime', 'endTime', 'eventType', 'totalSlots', 'price',
+      'currency', 'images', 'isActive', 'remainingSlots',
+    ];
+    const updateData = {};
+    for (const key of allowedEventFields) {
+      if (req.body[key] !== undefined) updateData[key] = req.body[key];
+    }
+
     if (updateData.startTime) {
       updateData.startDate = new Date(updateData.startTime);
       delete updateData.startTime;
