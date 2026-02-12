@@ -124,6 +124,9 @@ router.get('/chatlist', auth, async (req, res) => {
         $sort: { lastMessageTime: -1 },
       },
       {
+        $limit: 100,
+      },
+      {
         $project: {
           _id: 0,
           conversationId: { $concat: [{ $toString: userId }, '_', { $toString: '$otherUserId' }] },
@@ -211,6 +214,9 @@ router.get('/grouplist', auth, async (req, res) => {
       },
       {
         $sort: { lastMessageTime: -1 },
+      },
+      {
+        $limit: 100,
       },
       {
         $project: {

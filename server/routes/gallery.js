@@ -41,4 +41,34 @@ router.post('/upload', auth, upload.single('image'), async (req, res) => {
   }
 });
 
+// DELETE /api/gallery/delete
+router.delete('/delete', auth, async (req, res) => {
+  try {
+    const { imageUrl } = req.body;
+    if (!imageUrl || typeof imageUrl !== 'string') {
+      return res.status(400).json({ success: false, message: 'imageUrl is required' });
+    }
+
+    const User = require('../models/User');
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const images = user.profile?.images || [];
+    if (!images.includes(imageUrl)) {
+      return res.status(404).json({ success: false, message: 'Image not found in gallery' });
+    }
+
+    await User.findByIdAndUpdate(req.userId, {
+      $pull: { 'profile.images': imageUrl },
+    });
+
+    res.json({ success: true, message: 'Image removed from gallery' });
+  } catch (error) {
+    console.error('Delete gallery image error:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete image' });
+  }
+});
+
 module.exports = router;

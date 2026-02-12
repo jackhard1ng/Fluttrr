@@ -78,8 +78,12 @@ class EventModel {
       longitude: (json['longitude'] as num?)?.toDouble(),
       maxAttendees: (json['max_attendees'] as num?)?.toInt() ?? 20,
       currentAttendees: (json['current_attendees'] as num?)?.toInt() ?? 0,
-      categories: List<String>.from(json['categories'] ?? []),
-      tags: List<String>.from(json['tags'] ?? []),
+      categories: ((json['categories']) is List
+          ? (json['categories'] as List).map((e) => e.toString()).toList()
+          : <String>[]),
+      tags: ((json['tags']) is List
+          ? (json['tags'] as List).map((e) => e.toString()).toList()
+          : <String>[]),
       vibe: json['vibe'],
       isPrivate: json['is_private'] ?? false,
       isFeatured: json['is_featured'] ?? false,

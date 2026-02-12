@@ -350,10 +350,11 @@ class EventWithMemoriesModel {
           : DateTime.now(),
       memoryCount: json['memory_count'] as int? ?? 0,
       photoCount: json['photo_count'] as int? ?? 0,
-      previewPhotos: (json['preview_photos'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          [],
+      previewPhotos: (json['preview_photos'] is List
+              ? (json['preview_photos'] as List)
+                  .whereType<String>()
+                  .toList()
+              : <String>[]),
       contributorCount: json['contributor_count'] as int? ?? 0,
     );
   }

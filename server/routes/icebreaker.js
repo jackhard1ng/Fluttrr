@@ -74,13 +74,30 @@ router.post('/create', auth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'question or prompt is required' });
     }
 
+    // Validate inputs
+    const validTypes = ['question', 'game', 'challenge', 'poll', 'wouldYouRather', 'twoTruthsOneLie', 'thisOrThat'];
+    const validCategories = ['gettingToKnow', 'funAndSilly', 'deep', 'professional', 'creative', 'physical'];
+    if (type && !validTypes.includes(type)) {
+      return res.status(400).json({ success: false, message: 'Invalid icebreaker type' });
+    }
+    if (category && !validCategories.includes(category)) {
+      return res.status(400).json({ success: false, message: 'Invalid category' });
+    }
+    if (options && (!Array.isArray(options) || options.length > 10)) {
+      return res.status(400).json({ success: false, message: 'Options must be an array with max 10 items' });
+    }
+    const safeTimeLimit = parseInt(time_limit) || 60;
+    if (safeTimeLimit < 10 || safeTimeLimit > 3600) {
+      return res.status(400).json({ success: false, message: 'Time limit must be between 10 and 3600 seconds' });
+    }
+
     const icebreaker = await Icebreaker.create({
       question: question || prompt,
       prompt: prompt || question,
       type: type || 'question',
       category: category || 'gettingToKnow',
       options: options || [],
-      timeLimit: time_limit || 60,
+      timeLimit: safeTimeLimit,
       isCustom: true,
       creatorId: req.user.userId,
     });

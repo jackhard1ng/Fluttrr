@@ -68,11 +68,16 @@ class StoryModel {
       expiresAt: DateTime.tryParse(json['expires_at'] ?? '') ??
           DateTime.now().add(const Duration(hours: 24)),
       viewCount: json['view_count'] ?? json['viewCount'] ?? 0,
-      viewerIds: List<String>.from(json['viewer_ids'] ?? json['viewerIds'] ?? []),
+      viewerIds: ((json['viewer_ids'] ?? json['viewerIds']) is List
+          ? (json['viewer_ids'] ?? json['viewerIds']) as List
+          : []).map((e) => e.toString()).toList(),
       isViewed: json['is_viewed'] ?? json['isViewed'] ?? false,
-      reactions: (json['reactions'] as List<dynamic>?)
-          ?.map((r) => StoryReaction.fromJson(r))
-          .toList() ?? [],
+      reactions: (json['reactions'] is List
+          ? (json['reactions'] as List)
+              .whereType<Map<String, dynamic>>()
+              .map((r) => StoryReaction.fromJson(r))
+              .toList()
+          : <StoryReaction>[]),
     );
   }
 

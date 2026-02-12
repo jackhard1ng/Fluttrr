@@ -128,7 +128,7 @@ class ChatConversation {
       otherUserImages: _parseStringList(json['other_user_images'] ?? json['images']),
       lastMessage: (json['last_message'] ?? json['lastMessage']) as String?,
       lastMessageTime: _parseTimestamp(json['last_message_time'] ?? json['lastMessageTime']),
-      unreadCount: (json['unread_count'] ?? json['unreadCount'] ?? 0) as int,
+      unreadCount: _safeInt(json['unread_count'] ?? json['unreadCount']) ?? 0,
       isOnline: json['is_online'] == true || json['isOnline'] == true,
       isGroup: json['is_group'] == true || json['isGroup'] == true,
       groupName: (json['group_name'] ?? json['groupName']) as String?,
@@ -220,7 +220,7 @@ class GroupChat {
       members: _parseGroupMembers(json['members']),
       lastMessage: (json['last_message'] ?? json['lastMessage']) as String?,
       lastMessageTime: _parseTimestamp(json['last_message_time'] ?? json['lastMessageTime']),
-      unreadCount: (json['unread_count'] ?? json['unreadCount'] ?? 0) as int,
+      unreadCount: _safeInt(json['unread_count'] ?? json['unreadCount']) ?? 0,
     );
   }
 
@@ -308,6 +308,14 @@ List<String> _parseStringList(dynamic value) {
     return value.whereType<String>().toList();
   }
   return [];
+}
+
+int? _safeInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value);
+  return null;
 }
 
 List<int> _parseIntList(dynamic value) {

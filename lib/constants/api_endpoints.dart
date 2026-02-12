@@ -64,6 +64,7 @@ class ApiEndpoints {
   // Gallery endpoints
   static String get galleryList => '$apiBase/gallery/list';
   static String get galleryUpload => '$apiBase/gallery/upload';
+  static String get galleryDelete => '$apiBase/gallery/delete';
 
   // Activity endpoints
   static String get dailyActivities => '$apiBase/activity/daily-activities';
@@ -81,8 +82,8 @@ class ApiEndpoints {
   static String get upcomingActivities => '$apiBase/activity/upcoming';
   static String get trendingActivities => '$apiBase/activity/trending';
   static String get suggestedActivities => '$apiBase/activity/suggested';
-  static String get createdActivitiesCount => '$apiBase/activity/created-activities-count';
-  static String get joinedActivitiesCount => '$apiBase/activity/joined-activities-count';
+  static String get createdActivitiesCount => '$apiBase/user/created-activities-count';
+  static String get joinedActivitiesCount => '$apiBase/user/joined-activities-count';
   static String get userActivities => '$apiBase/activity/user-activities';
 
   // User search endpoints
