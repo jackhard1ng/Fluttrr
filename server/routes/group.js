@@ -490,6 +490,14 @@ router.get('/events/:groupId', auth, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Group not found' });
     }
 
+    // Private/secret groups: only members can view events
+    if (group.privacy === 'private' || group.privacy === 'secret') {
+      const isMember = (group.members || []).some((m) => m.userId === req.user.userId);
+      if (!isMember) {
+        return res.status(403).json({ success: false, message: 'Only group members can view events' });
+      }
+    }
+
     const filter = { groupId: req.params.groupId };
     if (upcoming_only === 'true') {
       filter.startDate = { $gte: new Date() };
@@ -841,10 +849,20 @@ router.put('/members/:groupId/role', auth, async (req, res) => {
       return res.status(403).json({ success: false, message: 'Cannot change the owner role' });
     }
 
-    await Group.updateOne(
-      { _id: req.params.groupId, 'members.userId': targetUserId },
-      { $set: { 'members.$.role': role } }
+    // Atomic role update to prevent race conditions
+    const updated = await Group.findOneAndUpdate(
+      {
+        _id: req.params.groupId,
+        'members.userId': targetUserId,
+        'members.role': { $ne: 'owner' },
+      },
+      { $set: { 'members.$.role': role } },
+      { new: true }
     );
+
+    if (!updated) {
+      return res.status(400).json({ success: false, message: 'Cannot update member role' });
+    }
 
     res.json({
       success: true,

@@ -645,6 +645,21 @@ router.post('/rate-attendee', auth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Rating must be between 1 and 5' });
     }
 
+    // Verify both rater and rated user attended the event
+    const activity = await Activity.findOne({ activityId: parseInt(event_id) });
+    if (!activity) {
+      return res.status(404).json({ success: false, message: 'Activity not found' });
+    }
+    const attendeeList = activity.attendees || [];
+    const raterAttended = attendeeList.some((a) => a.userId === req.user.userId);
+    if (!raterAttended && activity.creatorId !== req.user.userId) {
+      return res.status(403).json({ success: false, message: 'Only event participants can rate attendees' });
+    }
+    const ratedUserAttended = attendeeList.some((a) => a.userId === parsedRatedUserId);
+    if (!ratedUserAttended && activity.creatorId !== parsedRatedUserId) {
+      return res.status(400).json({ success: false, message: 'Rated user was not at this event' });
+    }
+
     const ratingEntry = {
       raterId: req.user.userId,
       raterName: req.user.userName || 'Unknown',
@@ -702,6 +717,12 @@ router.get('/attendee-ratings/:eventId', auth, async (req, res) => {
     const activity = await Activity.findOne({ activityId: parseInt(req.params.eventId) });
     if (!activity) {
       return res.status(404).json({ success: false, message: 'Activity not found' });
+    }
+
+    // Only event participants can view ratings
+    const isParticipant = (activity.attendees || []).some((a) => a.userId === req.user.userId);
+    if (!isParticipant && activity.creatorId !== req.user.userId) {
+      return res.status(403).json({ success: false, message: 'Only event participants can view ratings' });
     }
 
     const data = activity.attendeeRatings || [];
@@ -783,6 +804,11 @@ router.post('/send-thank-you', auth, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
+    // Only the event creator can send thank you messages
+    if (activity.creatorId !== req.user.userId) {
+      return res.status(403).json({ success: false, message: 'Only the event creator can send thank you messages' });
+    }
+
     // Store the thank you record on the activity
     if (!activity.thankYouMessages) activity.thankYouMessages = [];
     activity.thankYouMessages.push({
@@ -819,6 +845,11 @@ router.post('/invite-guest', auth, async (req, res) => {
     const activity = await Activity.findOne({ activityId: parseInt(event_id) });
     if (!activity) {
       return res.status(404).json({ success: false, message: 'Activity not found' });
+    }
+
+    // Only the event creator can invite guests
+    if (activity.creatorId !== req.user.userId) {
+      return res.status(403).json({ success: false, message: 'Only the event creator can invite guests' });
     }
 
     if (!activity.guests) activity.guests = [];
