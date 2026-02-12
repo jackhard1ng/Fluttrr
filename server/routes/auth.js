@@ -216,10 +216,10 @@ router.post('/google-login', async (req, res) => {
     let googlePayload;
     try {
       const { OAuth2Client } = require('google-auth-library');
-      const client = new OAuth2Client(config.googleClientId);
+      const client = new OAuth2Client(config.google.clientId);
       const ticket = await client.verifyIdToken({
         idToken,
-        audience: config.googleClientId,
+        audience: config.google.clientId,
       });
       googlePayload = ticket.getPayload();
     } catch (verifyErr) {
