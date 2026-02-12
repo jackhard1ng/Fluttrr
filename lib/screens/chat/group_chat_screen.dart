@@ -157,9 +157,10 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
               padding: const EdgeInsets.all(AppSpacing.md),
               itemCount: _messages.length,
               itemBuilder: (context, index) {
+                if (index >= _messages.length) return const SizedBox.shrink();
                 final message = _messages[index];
                 final showAvatar = index == 0 ||
-                    _messages[index - 1].senderId != message.senderId;
+                    (index - 1 < _messages.length && _messages[index - 1].senderId != message.senderId);
 
                 return _MessageBubble(
                   message: message,

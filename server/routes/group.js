@@ -760,7 +760,12 @@ router.put('/members/:groupId/role', auth, async (req, res) => {
       return res.status(403).json({ success: false, message: 'Only owners and admins can update member roles' });
     }
 
-    const targetMember = (group.members || []).find((m) => m.userId === parseInt(user_id));
+    const targetUserId = parseInt(user_id);
+    if (isNaN(targetUserId)) {
+      return res.status(400).json({ success: false, message: 'User ID must be a valid number' });
+    }
+
+    const targetMember = (group.members || []).find((m) => m.userId === targetUserId);
     if (!targetMember) {
       return res.status(404).json({ success: false, message: 'Member not found in group' });
     }
@@ -770,7 +775,7 @@ router.put('/members/:groupId/role', auth, async (req, res) => {
     }
 
     await Group.updateOne(
-      { _id: req.params.groupId, 'members.userId': parseInt(user_id) },
+      { _id: req.params.groupId, 'members.userId': targetUserId },
       { $set: { 'members.$.role': role } }
     );
 

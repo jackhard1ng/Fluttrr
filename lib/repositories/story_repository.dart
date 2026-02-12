@@ -15,7 +15,7 @@ class StoryRepository {
     try {
       final response = await _client.get(ApiEndpoints.stories);
 
-      if (response.statusCode == 200 && response.data != null) {
+      if (response.statusCode == 200 && response.data != null && response.data is Map<String, dynamic>) {
         final body = response.data as Map<String, dynamic>;
         // Backend wraps in { success, data: { userStories, eventStories } }
         final data = body['data'] as Map<String, dynamic>? ?? body;

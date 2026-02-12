@@ -1427,7 +1427,7 @@ class _ReviewCard extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    review.userName[0],
+                    review.userName.isNotEmpty ? review.userName[0] : '?',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: AppColors.primaryBlue,

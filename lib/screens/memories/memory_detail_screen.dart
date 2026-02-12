@@ -561,7 +561,7 @@ class _CommentTile extends StatelessWidget {
             backgroundColor: AppColors.primaryBlue,
             child: comment.userAvatar == null
                 ? Text(
-                    comment.userName[0].toUpperCase(),
+                    comment.userName.isNotEmpty ? comment.userName[0].toUpperCase() : '?',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 14,

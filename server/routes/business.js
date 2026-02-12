@@ -5,6 +5,12 @@ const BusinessEvent = require('../models/BusinessEvent');
 const { auth } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 
+// Helper: parse and validate numeric ID
+const parseId = (value) => {
+  const num = parseInt(value);
+  return isNaN(num) ? null : num;
+};
+
 // ============================================================
 // Authentication
 // ============================================================
@@ -573,8 +579,9 @@ router.delete('/delete-event/:eventId', auth, async (req, res) => {
 router.post('/join-event', auth, async (req, res) => {
   try {
     const { eventId } = req.body;
-    if (!eventId) {
-      return res.status(400).json({ success: false, message: 'Event ID is required' });
+    const eidJoin = parseId(eventId);
+    if (!eidJoin) {
+      return res.status(400).json({ success: false, message: 'Valid event ID is required' });
     }
 
     const userId = req.user.userId;
@@ -582,7 +589,7 @@ router.post('/join-event', auth, async (req, res) => {
     // Atomic: only match if user is NOT already in attendees and slots remain
     const updated = await BusinessEvent.findOneAndUpdate(
       {
-        eventId: parseInt(eventId),
+        eventId: eidJoin,
         attendees: { $ne: userId },
         $or: [
           { remainingSlots: null },
@@ -784,21 +791,22 @@ router.post('/events/:eventId/view', auth, async (req, res) => {
 router.post('/follow', auth, async (req, res) => {
   try {
     const { businessId } = req.body;
-    if (!businessId) {
-      return res.status(400).json({ success: false, message: 'Business ID is required' });
+    const bidFollow = parseId(businessId);
+    if (!bidFollow) {
+      return res.status(400).json({ success: false, message: 'Valid business ID is required' });
     }
 
     const userId = req.user.userId;
 
     // Atomic: only match if user is NOT already a follower
     const updated = await Business.findOneAndUpdate(
-      { businessId: parseInt(businessId), followers: { $ne: userId } },
+      { businessId: bidFollow, followers: { $ne: userId } },
       { $addToSet: { followers: userId }, $inc: { followerCount: 1 } },
       { new: true }
     );
 
     if (!updated) {
-      const business = await Business.findOne({ businessId: parseInt(businessId) });
+      const business = await Business.findOne({ businessId: bidFollow });
       if (!business) {
         return res.status(404).json({ success: false, message: 'Business not found' });
       }
@@ -816,21 +824,22 @@ router.post('/follow', auth, async (req, res) => {
 router.post('/unfollow', auth, async (req, res) => {
   try {
     const { businessId } = req.body;
-    if (!businessId) {
-      return res.status(400).json({ success: false, message: 'Business ID is required' });
+    const bidUnfollow = parseId(businessId);
+    if (!bidUnfollow) {
+      return res.status(400).json({ success: false, message: 'Valid business ID is required' });
     }
 
     const userId = req.user.userId;
 
     // Atomic: only match if user IS a follower
     const updated = await Business.findOneAndUpdate(
-      { businessId: parseInt(businessId), followers: userId },
+      { businessId: bidUnfollow, followers: userId },
       { $pull: { followers: userId }, $inc: { followerCount: -1 } },
       { new: true }
     );
 
     if (!updated) {
-      const business = await Business.findOne({ businessId: parseInt(businessId) });
+      const business = await Business.findOne({ businessId: bidUnfollow });
       if (!business) {
         return res.status(404).json({ success: false, message: 'Business not found' });
       }

@@ -364,7 +364,7 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
                     backgroundColor: AppColors.primaryBlue,
                     child: tag.userAvatar == null
                         ? Text(
-                            tag.userName[0].toUpperCase(),
+                            tag.userName.isNotEmpty ? tag.userName[0].toUpperCase() : '?',
                             style: const TextStyle(color: Colors.white),
                           )
                         : null,
