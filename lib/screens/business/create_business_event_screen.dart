@@ -187,6 +187,7 @@ class _CreateBusinessEventScreenState extends State<CreateBusinessEventScreen> {
       image: _eventImage!,
     );
 
+    if (!mounted) return;
     if (success) {
       Get.snackbar(
         'Success',

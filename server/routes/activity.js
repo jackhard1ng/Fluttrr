@@ -919,18 +919,30 @@ router.put('/guest-status', auth, async (req, res) => {
 router.delete('/cancel-guest/:guestId', auth, async (req, res) => {
   try {
     const guestId = parseInt(req.params.guestId);
+    if (isNaN(guestId)) {
+      return res.status(400).json({ success: false, message: 'Invalid guest ID' });
+    }
+
+    // Verify activity exists and user is the creator
     const activity = await Activity.findOne({ 'guests.guestId': guestId });
     if (!activity) {
       return res.status(404).json({ success: false, message: 'Guest not found' });
     }
 
-    const guestIndex = activity.guests.findIndex((g) => g.guestId === guestId);
-    if (guestIndex === -1) {
-      return res.status(404).json({ success: false, message: 'Guest not found' });
+    if (String(activity.creatorId) !== String(req.user.userId)) {
+      return res.status(403).json({ success: false, message: 'Only the event creator can cancel guest invites' });
     }
 
-    activity.guests[guestIndex].status = 'cancelled';
-    await activity.save();
+    // Atomic update
+    const result = await Activity.findOneAndUpdate(
+      { 'guests.guestId': guestId },
+      { $set: { 'guests.$[elem].status': 'cancelled' } },
+      { arrayFilters: [{ 'elem.guestId': guestId }], new: true }
+    );
+
+    if (!result) {
+      return res.status(404).json({ success: false, message: 'Guest not found' });
+    }
 
     res.json({ success: true });
   } catch (error) {
@@ -1003,15 +1015,22 @@ router.post('/invite-guest/resend', auth, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Guest not found' });
     }
 
-    const guest = activity.guests.find((g) => g.guestId === guest_id);
-    if (!guest) {
-      return res.status(404).json({ success: false, message: 'Guest not found' });
+    if (String(activity.creatorId) !== String(req.user.userId)) {
+      return res.status(403).json({ success: false, message: 'Only the event creator can resend invites' });
     }
 
-    // Update delivery preferences
-    if (send_sms !== undefined) guest.sendSms = send_sms;
-    if (send_email !== undefined) guest.sendEmail = send_email;
-    await activity.save();
+    // Atomic update of delivery preferences
+    const updateFields = {};
+    if (send_sms !== undefined) updateFields['guests.$[elem].sendSms'] = !!send_sms;
+    if (send_email !== undefined) updateFields['guests.$[elem].sendEmail'] = !!send_email;
+
+    if (Object.keys(updateFields).length > 0) {
+      await Activity.findOneAndUpdate(
+        { 'guests.guestId': guest_id },
+        { $set: updateFields },
+        { arrayFilters: [{ 'elem.guestId': guest_id }] }
+      );
+    }
 
     // In production, would re-send SMS/email here
     res.json({ success: true });

@@ -16,8 +16,14 @@ router.post('/send', auth, async (req, res) => {
     if (!receiverId || isNaN(parseInt(receiverId))) {
       return res.status(400).json({ success: false, message: 'receiverId must be a valid number' });
     }
+    if (parseInt(receiverId) === req.user.userId) {
+      return res.status(400).json({ success: false, message: 'Cannot send messages to yourself' });
+    }
     if (!content && !imageUrl) {
       return res.status(400).json({ success: false, message: 'content or imageUrl is required' });
+    }
+    if (content && typeof content !== 'string') {
+      return res.status(400).json({ success: false, message: 'content must be a string' });
     }
     if (content && content.length > 5000) {
       return res.status(400).json({ success: false, message: 'Message content exceeds 5000 character limit' });
@@ -367,6 +373,9 @@ router.post('/sendB', auth, async (req, res) => {
     }
     if (!content && !imageUrl) {
       return res.status(400).json({ success: false, message: 'content or imageUrl is required' });
+    }
+    if (content && typeof content !== 'string') {
+      return res.status(400).json({ success: false, message: 'content must be a string' });
     }
     if (content && content.length > 5000) {
       return res.status(400).json({ success: false, message: 'Message content exceeds 5000 character limit' });

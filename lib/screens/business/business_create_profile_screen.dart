@@ -176,6 +176,7 @@ class _BusinessCreateProfileScreenState
       _emailController.text,
     );
 
+    if (!mounted) return;
     if (success) {
       setState(() {
         _showOtpField = true;
@@ -208,6 +209,7 @@ class _BusinessCreateProfileScreenState
       otp: _otpController.text,
     );
 
+    if (!mounted) return;
     if (success) {
       setState(() {
         _isEmailVerified = true;
