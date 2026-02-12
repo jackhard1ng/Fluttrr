@@ -122,10 +122,12 @@ class NotificationListResponse {
   factory NotificationListResponse.fromJson(Map<String, dynamic> json) {
     return NotificationListResponse(
       message: json['message'] as String?,
-      data: (json['data'] as List<dynamic>?)
-              ?.map((e) => NotificationModel.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      data: (json['data'] is List)
+              ? (json['data'] as List)
+                  .whereType<Map<String, dynamic>>()
+                  .map((e) => NotificationModel.fromJson(e))
+                  .toList()
+              : [],
       unreadCount: json['unread_count'] ?? json['unreadCount'] ?? 0,
     );
   }

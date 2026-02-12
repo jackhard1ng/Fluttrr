@@ -330,8 +330,8 @@ List<GroupMember> _parseGroupMembers(dynamic value) {
   if (value == null) return [];
   if (value is List) {
     return value
-        .where((e) => e != null)
-        .map((e) => GroupMember.fromJson(e as Map<String, dynamic>))
+        .whereType<Map<String, dynamic>>()
+        .map((e) => GroupMember.fromJson(e))
         .toList();
   }
   return [];

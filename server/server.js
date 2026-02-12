@@ -21,7 +21,7 @@ const io = initSocket(server);
 app.set('io', io);
 
 // CORS - allow Flutter app and web origins
-const allowedOrigins = (process.env.CORS_ORIGINS || 'https://fluttrr.com,https://www.fluttrr.com,https://api.fluttrr.com').split(',');
+const allowedOrigins = (process.env.CORS_ORIGINS || 'https://fluttrr.com,https://www.fluttrr.com,https://api.fluttrr.com').split(',').map(o => o.trim()).filter(Boolean);
 app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (mobile apps, curl, etc.)

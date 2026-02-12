@@ -14,14 +14,15 @@ class NotificationRepository extends BaseRepository {
       List<dynamic> notifications = [];
 
       if (data is Map<String, dynamic>) {
-        notifications = data['data'] as List<dynamic>? ?? [];
+        final rawList = data['data'];
+        notifications = rawList is List ? rawList : [];
       } else if (data is List) {
         notifications = data;
       }
 
       final notificationList = notifications
-          .where((e) => e != null)
-          .map((e) => NotificationModel.fromJson(e as Map<String, dynamic>))
+          .whereType<Map<String, dynamic>>()
+          .map((e) => NotificationModel.fromJson(e))
           .toList();
 
       return ApiResponse.success(data: notificationList);

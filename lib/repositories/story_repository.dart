@@ -20,13 +20,21 @@ class StoryRepository {
         // Backend wraps in { success, data: { userStories, eventStories } }
         final data = body['data'] as Map<String, dynamic>? ?? body;
 
-        final userStories = ((data['userStories'] ?? data['user_stories']) as List<dynamic>?)
-            ?.map((s) => UserStoryGroup.fromJson(s as Map<String, dynamic>))
-            .toList() ?? [];
+        final rawUserStories = data['userStories'] ?? data['user_stories'];
+        final userStories = (rawUserStories is List)
+            ? rawUserStories
+                .whereType<Map<String, dynamic>>()
+                .map((s) => UserStoryGroup.fromJson(s))
+                .toList()
+            : <UserStoryGroup>[];
 
-        final eventStories = ((data['eventStories'] ?? data['event_stories']) as List<dynamic>?)
-            ?.map((s) => EventStoryGroup.fromJson(s as Map<String, dynamic>))
-            .toList() ?? [];
+        final rawEventStories = data['eventStories'] ?? data['event_stories'];
+        final eventStories = (rawEventStories is List)
+            ? rawEventStories
+                .whereType<Map<String, dynamic>>()
+                .map((s) => EventStoryGroup.fromJson(s))
+                .toList()
+            : <EventStoryGroup>[];
 
         return {
           'userStories': userStories,
@@ -47,9 +55,13 @@ class StoryRepository {
       final response = await _client.get('${ApiEndpoints.stories}/event/$eventId');
 
       if (response.statusCode == 200 && response.data != null) {
-        final stories = (response.data['stories'] as List<dynamic>?)
-            ?.map((s) => StoryModel.fromJson(s as Map<String, dynamic>))
-            .toList() ?? [];
+        final rawStories = response.data['stories'];
+        final stories = (rawStories is List)
+            ? rawStories
+                .whereType<Map<String, dynamic>>()
+                .map((s) => StoryModel.fromJson(s))
+                .toList()
+            : <StoryModel>[];
         return stories;
       }
 
@@ -66,9 +78,13 @@ class StoryRepository {
       final response = await _client.get('${ApiEndpoints.stories}/user/$userId');
 
       if (response.statusCode == 200 && response.data != null) {
-        final stories = (response.data['stories'] as List<dynamic>?)
-            ?.map((s) => StoryModel.fromJson(s as Map<String, dynamic>))
-            .toList() ?? [];
+        final rawStories = response.data['stories'];
+        final stories = (rawStories is List)
+            ? rawStories
+                .whereType<Map<String, dynamic>>()
+                .map((s) => StoryModel.fromJson(s))
+                .toList()
+            : <StoryModel>[];
         return stories;
       }
 
@@ -85,9 +101,13 @@ class StoryRepository {
       final response = await _client.get('${ApiEndpoints.stories}/me');
 
       if (response.statusCode == 200 && response.data != null) {
-        final stories = (response.data['stories'] as List<dynamic>?)
-            ?.map((s) => StoryModel.fromJson(s as Map<String, dynamic>))
-            .toList() ?? [];
+        final rawStories = response.data['stories'];
+        final stories = (rawStories is List)
+            ? rawStories
+                .whereType<Map<String, dynamic>>()
+                .map((s) => StoryModel.fromJson(s))
+                .toList()
+            : <StoryModel>[];
         return stories;
       }
 
@@ -207,9 +227,10 @@ class StoryRepository {
       );
 
       if (response.statusCode == 200 && response.data != null) {
-        return List<Map<String, dynamic>>.from(
-          response.data['viewers'] ?? [],
-        );
+        final rawViewers = response.data['viewers'];
+        if (rawViewers is List) {
+          return rawViewers.whereType<Map<String, dynamic>>().toList();
+        }
       }
 
       return [];
