@@ -571,6 +571,12 @@ class _OfferRideSheetState extends State<OfferRideSheet> {
   int _seats = 3;
 
   @override
+  void dispose() {
+    _locationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
@@ -785,6 +791,13 @@ class RequestRideSheet extends StatefulWidget {
 class _RequestRideSheetState extends State<RequestRideSheet> {
   final _locationController = TextEditingController();
   final _noteController = TextEditingController();
+
+  @override
+  void dispose() {
+    _locationController.dispose();
+    _noteController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

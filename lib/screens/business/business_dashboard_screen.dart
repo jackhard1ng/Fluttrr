@@ -365,7 +365,7 @@ class _QuickActionsGrid extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: AppSpacing.md,
       crossAxisSpacing: AppSpacing.md,
-      childAspectRatio: 0.85,
+      childAspectRatio: 0.8,
       children: [
         _QuickActionTile(
           icon: Icons.notifications_outlined,
@@ -470,13 +470,17 @@ class _QuickActionTile extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
-                fontSize: 14,
+                fontSize: 13,
               ),
             ),
             Text(
               subtitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: AppColors.mediumGrey,
                 fontSize: 11,

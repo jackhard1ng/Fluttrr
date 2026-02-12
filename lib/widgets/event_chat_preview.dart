@@ -189,6 +189,12 @@ class _EventChatScreenState extends State<EventChatScreen> {
   final List<_ChatMessage> _messages = [];
 
   @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     _loadMockMessages();

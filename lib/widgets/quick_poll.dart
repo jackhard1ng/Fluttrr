@@ -212,6 +212,15 @@ class _CreatePollSheetState extends State<CreatePollSheet> {
   ];
 
   @override
+  void dispose() {
+    _questionController.dispose();
+    for (final c in _optionControllers) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(

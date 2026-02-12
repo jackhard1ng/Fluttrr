@@ -60,6 +60,10 @@ class _EventCountdownCardState extends State<EventCountdownCard> {
       setState(() {
         _timeRemaining = widget.eventDate.difference(now);
       });
+    } else if (_timeRemaining != Duration.zero) {
+      setState(() {
+        _timeRemaining = Duration.zero;
+      });
     }
   }
 

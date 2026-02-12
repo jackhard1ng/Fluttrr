@@ -190,7 +190,7 @@ class SocketService {
     });
 
     _socket?.onReconnectAttempt((attemptNumber) {
-      _reconnectAttempts = attemptNumber as int; // Track attempt number (#55)
+      _reconnectAttempts = attemptNumber is int ? attemptNumber : (attemptNumber as num?)?.toInt() ?? 0; // Track attempt number (#55)
       final delay = _calculateReconnectDelay();
       debugPrint('Socket reconnection attempt: $attemptNumber (delay: ${delay}ms)');
     });
@@ -413,6 +413,13 @@ class SocketService {
   /// Remove listener for a custom event
   void off(String event) {
     _socket?.off(event);
+  }
+
+  /// Reset the service so it can be re-initialized after dispose
+  void reset() {
+    _isDisposed = false;
+    _isInitializing = false;
+    _reconnectAttempts = 0;
   }
 
   /// Dispose of the service

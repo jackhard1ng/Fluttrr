@@ -133,11 +133,12 @@ class EventMemoryModel {
   String get timeSinceEvent {
     final difference = DateTime.now().difference(eventDate);
     if (difference.inDays > 30) {
-      return '${(difference.inDays / 30).floor()} months ago';
+      final months = (difference.inDays / 30).floor();
+      return '$months ${months == 1 ? 'month' : 'months'} ago';
     } else if (difference.inDays > 0) {
-      return '${difference.inDays} days ago';
+      return '${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} ago';
     } else if (difference.inHours > 0) {
-      return '${difference.inHours} hours ago';
+      return '${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} ago';
     } else {
       return 'Just now';
     }

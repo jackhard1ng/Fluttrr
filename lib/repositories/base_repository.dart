@@ -603,11 +603,12 @@ abstract class BaseRepository {
         final streamedResponse = await request.send().timeout(uploadConfig.timeout);
         final response = await http.Response.fromStream(streamedResponse);
 
-        // Handle 401 with token refresh and retry
+        // Handle 401 with token refresh and retry (once only)
         if (response.statusCode == 401 && requiresAuth) {
           final refreshed = await _handleTokenRefresh();
           if (refreshed) {
-            continue; // Retry the loop with new token
+            attempt++;
+            continue; // Retry with new token
           }
         }
 
