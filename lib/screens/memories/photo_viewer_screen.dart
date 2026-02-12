@@ -581,16 +581,20 @@ class _TagUserSheetState extends State<_TagUserSheet> {
                   itemCount: _users.length,
                   itemBuilder: (context, index) {
                     final user = _users[index];
+                    final name = (user['name'] as String?) ?? '';
+                    final id = user['id'] as String?;
                     return ListTile(
                       leading: CircleAvatar(
                         backgroundColor: AppColors.primaryBlue,
                         child: Text(
-                          user['name']![0].toUpperCase(),
+                          name.isNotEmpty ? name[0].toUpperCase() : '?',
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
-                      title: Text(user['name']!),
-                      onTap: () => _tagUser(user['id']!, user['name']!),
+                      title: Text(name.isEmpty ? 'Unknown' : name),
+                      onTap: id != null
+                          ? () => _tagUser(id, name.isEmpty ? 'Unknown' : name)
+                          : null,
                     );
                   },
                 ),

@@ -75,8 +75,8 @@ class BusinessModel {
       followerCount: (json['follower_count'] ?? json['followerCount'] ?? 0) as int,
       eventCount: (json['event_count'] ?? json['eventCount'] ?? 0) as int,
       isFollowing: json['is_following'] == true || json['isFollowing'] == true,
-      subscriptionStatus: json['subscription_status'] != null
-          ? SubscriptionStatus.fromJson(json['subscription_status'])
+      subscriptionStatus: json['subscription_status'] is Map<String, dynamic>
+          ? SubscriptionStatus.fromJson(json['subscription_status'] as Map<String, dynamic>)
           : null,
       averageRating: ((json['average_rating'] ?? json['averageRating'] ?? json['rating']) as num?)?.toDouble(),
       reviewCount: (json['review_count'] ?? json['reviewCount'] ?? 0) as int,

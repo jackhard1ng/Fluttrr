@@ -47,13 +47,18 @@ const sendOtpEmail = async (email, otp, type = 'verification') => {
     businessVerification: `Your business verification code is: ${otp}\n\nThis code expires in 10 minutes.`,
   };
 
-  const mail = getTransporter();
-  await mail.sendMail({
-    from: config.email.from,
-    to: email,
-    subject: subjects[type] || 'Fluttrr Verification Code',
-    text: messages[type] || `Your code is: ${otp}`,
-  });
+  try {
+    const mail = getTransporter();
+    await mail.sendMail({
+      from: config.email.from,
+      to: email,
+      subject: subjects[type] || 'Fluttrr Verification Code',
+      text: messages[type] || `Your code is: ${otp}`,
+    });
+  } catch (error) {
+    console.error('Failed to send OTP email:', error.message);
+    throw new Error('Failed to send verification email. Please try again.');
+  }
 };
 
 module.exports = { sendOtpEmail };

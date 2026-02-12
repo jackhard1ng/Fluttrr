@@ -47,19 +47,30 @@ router.post('/updatePrivacy', auth, async (req, res) => {
   try {
     const Privacy = require('../models/Privacy');
 
-    // Whitelist allowed fields to prevent NoSQL injection via arbitrary $set
-    const allowedFields = [
+    // Whitelist allowed fields with type validation
+    const booleanFields = [
       'showOnlineStatus', 'showLastSeen', 'showLocation', 'showAge',
-      'showDistance', 'profileVisibility', 'allowMessages',
+      'showDistance', 'allowMessages',
       'allowActivityInvites', 'showInNearby', 'showInSearch',
       'pushEnabled', 'emailEnabled', 'newMatchNotifications',
       'messageNotifications', 'activityNotifications',
       'activityReminderNotifications', 'likeNotifications',
       'commentNotifications', 'marketingNotifications',
     ];
+    const enumFields = {
+      profileVisibility: ['everyone', 'matchesOnly', 'nobody'],
+    };
     const update = {};
     for (const key of Object.keys(req.body)) {
-      if (allowedFields.includes(key)) {
+      if (booleanFields.includes(key)) {
+        if (typeof req.body[key] !== 'boolean') {
+          return res.status(400).json({ success: false, message: `${key} must be a boolean` });
+        }
+        update[key] = req.body[key];
+      } else if (enumFields[key]) {
+        if (!enumFields[key].includes(req.body[key])) {
+          return res.status(400).json({ success: false, message: `${key} must be one of: ${enumFields[key].join(', ')}` });
+        }
         update[key] = req.body[key];
       }
     }

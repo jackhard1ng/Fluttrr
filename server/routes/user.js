@@ -128,13 +128,52 @@ router.post('/create-profile', auth, async (req, res) => {
       user.profile = {};
     }
 
-    if (age !== undefined) user.profile.age = age;
-    if (gender !== undefined) user.profile.gender = gender;
-    if (bio !== undefined) user.profile.bio = bio;
-    if (interests !== undefined) user.profile.interests = interests;
-    if (location !== undefined) user.profile.location = location;
-    if (latitude !== undefined) user.profile.latitude = latitude;
-    if (longitude !== undefined) user.profile.longitude = longitude;
+    if (age !== undefined) {
+      const ageNum = parseInt(age, 10);
+      if (isNaN(ageNum) || ageNum < 13 || ageNum > 120) {
+        return res.status(400).json({ success: false, message: 'Age must be between 13 and 120' });
+      }
+      user.profile.age = ageNum;
+    }
+    if (gender !== undefined) {
+      const validGenders = ['male', 'female', 'other'];
+      if (!validGenders.includes(String(gender).toLowerCase())) {
+        return res.status(400).json({ success: false, message: 'Gender must be male, female, or other' });
+      }
+      user.profile.gender = gender;
+    }
+    if (bio !== undefined) {
+      if (typeof bio !== 'string' || bio.length > 500) {
+        return res.status(400).json({ success: false, message: 'Bio must be 500 characters or less' });
+      }
+      user.profile.bio = bio;
+    }
+    if (interests !== undefined) {
+      if (!Array.isArray(interests) || interests.length > 20) {
+        return res.status(400).json({ success: false, message: 'Interests must be an array with max 20 items' });
+      }
+      user.profile.interests = interests.map((i) => String(i).slice(0, 100));
+    }
+    if (location !== undefined) {
+      if (typeof location !== 'string' || location.length > 200) {
+        return res.status(400).json({ success: false, message: 'Location must be 200 characters or less' });
+      }
+      user.profile.location = location;
+    }
+    if (latitude !== undefined) {
+      const lat = parseFloat(latitude);
+      if (isNaN(lat) || lat < -90 || lat > 90) {
+        return res.status(400).json({ success: false, message: 'Invalid latitude' });
+      }
+      user.profile.latitude = lat;
+    }
+    if (longitude !== undefined) {
+      const lng = parseFloat(longitude);
+      if (isNaN(lng) || lng < -180 || lng > 180) {
+        return res.status(400).json({ success: false, message: 'Invalid longitude' });
+      }
+      user.profile.longitude = lng;
+    }
 
     // Recalculate completion
     user.completionPercentage = calculateCompletionPercentage(user);
@@ -166,13 +205,50 @@ router.put('/update', auth, async (req, res) => {
       user.profile = {};
     }
 
-    if (userName !== undefined) user.userName = userName;
-    if (age !== undefined) user.profile.age = age;
-    if (gender !== undefined) user.profile.gender = gender;
-    if (bio !== undefined) user.profile.bio = bio;
-    if (interests !== undefined) user.profile.interests = interests;
-    if (location !== undefined) user.profile.location = location;
-    if (Language !== undefined) user.profile.Language = Language;
+    if (userName !== undefined) {
+      if (typeof userName !== 'string' || userName.length > 50) {
+        return res.status(400).json({ success: false, message: 'Username must be 50 characters or less' });
+      }
+      user.userName = userName;
+    }
+    if (age !== undefined) {
+      const ageNum = parseInt(age, 10);
+      if (isNaN(ageNum) || ageNum < 13 || ageNum > 120) {
+        return res.status(400).json({ success: false, message: 'Age must be between 13 and 120' });
+      }
+      user.profile.age = ageNum;
+    }
+    if (gender !== undefined) {
+      const validGenders = ['male', 'female', 'other'];
+      if (!validGenders.includes(String(gender).toLowerCase())) {
+        return res.status(400).json({ success: false, message: 'Gender must be male, female, or other' });
+      }
+      user.profile.gender = gender;
+    }
+    if (bio !== undefined) {
+      if (typeof bio !== 'string' || bio.length > 500) {
+        return res.status(400).json({ success: false, message: 'Bio must be 500 characters or less' });
+      }
+      user.profile.bio = bio;
+    }
+    if (interests !== undefined) {
+      if (!Array.isArray(interests) || interests.length > 20) {
+        return res.status(400).json({ success: false, message: 'Interests must be an array with max 20 items' });
+      }
+      user.profile.interests = interests.map((i) => String(i).slice(0, 100));
+    }
+    if (location !== undefined) {
+      if (typeof location !== 'string' || location.length > 200) {
+        return res.status(400).json({ success: false, message: 'Location must be 200 characters or less' });
+      }
+      user.profile.location = location;
+    }
+    if (Language !== undefined) {
+      if (!Array.isArray(Language) || Language.length > 20) {
+        return res.status(400).json({ success: false, message: 'Languages must be an array with max 20 items' });
+      }
+      user.profile.Language = Language.map((l) => String(l).slice(0, 50));
+    }
 
     user.completionPercentage = calculateCompletionPercentage(user);
 
@@ -205,9 +281,26 @@ router.post('/update-location', auth, async (req, res) => {
       user.profile = {};
     }
 
-    if (latitude !== undefined) user.profile.latitude = latitude;
-    if (longitude !== undefined) user.profile.longitude = longitude;
-    if (location !== undefined) user.profile.location = location;
+    if (latitude !== undefined) {
+      const lat = parseFloat(latitude);
+      if (isNaN(lat) || lat < -90 || lat > 90) {
+        return res.status(400).json({ success: false, message: 'Invalid latitude' });
+      }
+      user.profile.latitude = lat;
+    }
+    if (longitude !== undefined) {
+      const lng = parseFloat(longitude);
+      if (isNaN(lng) || lng < -180 || lng > 180) {
+        return res.status(400).json({ success: false, message: 'Invalid longitude' });
+      }
+      user.profile.longitude = lng;
+    }
+    if (location !== undefined) {
+      if (typeof location !== 'string' || location.length > 200) {
+        return res.status(400).json({ success: false, message: 'Location must be 200 characters or less' });
+      }
+      user.profile.location = location;
+    }
 
     await user.save();
 

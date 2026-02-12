@@ -171,8 +171,8 @@ class LeaderboardResponse {
               ?.map((e) => LeaderboardEntry.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      currentUser: json['current_user'] != null
-          ? LeaderboardEntry.fromJson(json['current_user'])
+      currentUser: json['current_user'] is Map<String, dynamic>
+          ? LeaderboardEntry.fromJson(json['current_user'] as Map<String, dynamic>)
           : null,
     );
   }

@@ -474,6 +474,8 @@ router.post('/change-password', auth, async (req, res) => {
 
     // Set plain password - the pre-save hook will hash it
     user.password = newPassword;
+    // Invalidate refresh token so all existing sessions are revoked
+    user.refreshToken = null;
     await user.save();
 
     return res.json({ success: true, message: 'Password changed successfully' });
@@ -506,9 +508,14 @@ router.post('/refresh-token', async (req, res) => {
     }
 
     // Verify that the user still exists and is in good standing
-    const user = await User.findById(decoded.userId);
+    const user = await User.findById(decoded.userId).select('+refreshToken');
     if (!user) {
       return res.status(401).json({ success: false, message: 'User not found' });
+    }
+
+    // Validate the refresh token matches the one stored in DB
+    if (!user.refreshToken || user.refreshToken !== refreshToken) {
+      return res.status(401).json({ success: false, message: 'Refresh token has been revoked' });
     }
 
     if (user.status === 'suspended' || user.status === 'banned' || user.status === 'deleted') {

@@ -66,8 +66,12 @@ router.get('/event/:eventId', auth, async (req, res) => {
 // GET /api/story/user/:userId
 router.get('/user/:userId', auth, async (req, res) => {
   try {
+    const targetUserId = parseInt(req.params.userId);
+    if (isNaN(targetUserId)) {
+      return res.status(400).json({ success: false, message: 'Invalid user ID' });
+    }
     const stories = await Story.find({
-      userId: parseInt(req.params.userId),
+      userId: targetUserId,
       expiresAt: { $gt: new Date() },
     }).sort({ createdAt: -1 });
     res.json({ success: true, data: stories });

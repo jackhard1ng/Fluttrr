@@ -89,13 +89,21 @@ const initSocket = (server) => {
 
     // Typing indicators
     socket.on('typing', (data) => {
+      if (!data || typeof data !== 'object') return;
       const { receiverId } = data;
-      io.to(`user_${receiverId}`).emit('user_typing', { userId, receiverId });
+      if (receiverId == null || (typeof receiverId !== 'number' && typeof receiverId !== 'string')) return;
+      const numReceiverId = typeof receiverId === 'string' ? parseInt(receiverId) : receiverId;
+      if (isNaN(numReceiverId) || numReceiverId === userId) return;
+      io.to(`user_${numReceiverId}`).emit('user_typing', { userId, receiverId: numReceiverId });
     });
 
     socket.on('stop_typing', (data) => {
+      if (!data || typeof data !== 'object') return;
       const { receiverId } = data;
-      io.to(`user_${receiverId}`).emit('user_stop_typing', { userId, receiverId });
+      if (receiverId == null || (typeof receiverId !== 'number' && typeof receiverId !== 'string')) return;
+      const numReceiverId = typeof receiverId === 'string' ? parseInt(receiverId) : receiverId;
+      if (isNaN(numReceiverId) || numReceiverId === userId) return;
+      io.to(`user_${numReceiverId}`).emit('user_stop_typing', { userId, receiverId: numReceiverId });
     });
 
     // Join group/activity chat rooms (with membership validation)
@@ -118,8 +126,8 @@ const initSocket = (server) => {
           return;
         }
       } catch (_) {
-        // If check fails, allow join (fail-open for personal rooms like user_123)
-        if (!roomId.startsWith('user_')) return;
+        // Fail-closed: deny join on error (only allow user's own room)
+        if (roomId !== `user_${userId}`) return;
       }
 
       socket.join(roomId);

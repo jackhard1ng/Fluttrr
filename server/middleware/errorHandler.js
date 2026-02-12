@@ -23,9 +23,12 @@ const errorHandler = (err, req, res, _next) => {
     return res.status(400).json({ success: false, message: 'File too large. Maximum size is 5MB' });
   }
 
+  const message = process.env.NODE_ENV === 'production'
+    ? 'Internal server error'
+    : (err.message || 'Internal server error');
   res.status(err.status || 500).json({
     success: false,
-    message: err.message || 'Internal server error',
+    message,
   });
 };
 

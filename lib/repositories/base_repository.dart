@@ -731,7 +731,9 @@ abstract class BaseRepository {
           statusCode: response.statusCode,
         );
       } else {
-        final errorMessage = (data['message'] ?? data['error'] ?? 'Request failed') as String;
+        final errorMessage = (data['message'] is String ? data['message'] : null) ??
+            (data['error'] is String ? data['error'] : null) ??
+            'Request failed';
 
         return ApiResponse.failure(
           error: errorMessage,
