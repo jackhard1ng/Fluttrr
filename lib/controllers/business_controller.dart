@@ -164,6 +164,34 @@ class BusinessController extends GetxController {
     }
   }
 
+  /// Upload profile image
+  Future<bool> uploadProfileImage(File image) async {
+    try {
+      final response = await _businessRepository.uploadBusinessProfileImage(image);
+      if (response.success && response.data != null) {
+        businessProfile.value = response.data;
+      }
+      return response.success;
+    } catch (e) {
+      debugPrint('Error uploading profile image: $e');
+      return false;
+    }
+  }
+
+  /// Upload cover image
+  Future<bool> uploadCoverImage(File image) async {
+    try {
+      final response = await _businessRepository.uploadBusinessCoverImage(image);
+      if (response.success && response.data != null) {
+        businessProfile.value = response.data;
+      }
+      return response.success;
+    } catch (e) {
+      debugPrint('Error uploading cover image: $e');
+      return false;
+    }
+  }
+
   /// Load subscription status
   Future<void> loadSubscriptionStatus() async {
     try {
@@ -389,8 +417,15 @@ class BusinessController extends GetxController {
     }
   }
 
+  /// Check if business is verified (admin-verified)
+  bool get isBusinessVerified => businessProfile.value?.isVerified ?? false;
+
   /// Create business event using internal form controllers
   Future<bool> createBusinessEvent() async {
+    if (!isBusinessVerified) {
+      errorMessage.value = 'Your business must be verified by an admin before you can create events.';
+      return false;
+    }
     if (!_validateEventForm()) return false;
 
     final startTime = eventStartTime.value;
@@ -466,6 +501,10 @@ class BusinessController extends GetxController {
     String? ticketUrl,
     File? image,
   }) async {
+    if (!isBusinessVerified) {
+      errorMessage.value = 'Your business must be verified by an admin before you can create events.';
+      return false;
+    }
     isCreating.value = true;
     errorMessage.value = '';
 

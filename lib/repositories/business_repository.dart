@@ -151,9 +151,12 @@ class BusinessRepository extends BaseRepository {
     String? description,
     String? category,
     String? address,
+    String? location,
     double? latitude,
     double? longitude,
     String? website,
+    String? facebook,
+    String? instagram,
   }) async {
     final body = <String, dynamic>{};
     if (businessName != null) body['businessName'] = businessName;
@@ -162,9 +165,12 @@ class BusinessRepository extends BaseRepository {
     if (description != null) body['description'] = description;
     if (category != null) body['category'] = category;
     if (address != null) body['address'] = address;
+    if (location != null) body['location'] = location;
     if (latitude != null) body['latitude'] = latitude;
     if (longitude != null) body['longitude'] = longitude;
     if (website != null) body['website'] = website;
+    if (facebook != null) body['facebook'] = facebook;
+    if (instagram != null) body['instagram'] = instagram;
 
     return put<BusinessModel>(
       '${ApiEndpoints.updateBusinessProfile}$businessId',

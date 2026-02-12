@@ -81,15 +81,31 @@ class _BusinessHomeScreenState extends State<BusinessHomeScreen>
           _BusinessEventsTab(controller: _businessController),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Nav.toBusinessNewEvent(),
-        backgroundColor: AppColors.primaryBlue,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text(
-          'Create Event',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
+      floatingActionButton: Obx(() {
+        final isVerified = _businessController.businessProfile.value?.isVerified ?? false;
+        return FloatingActionButton.extended(
+          onPressed: () {
+            if (!isVerified) {
+              Get.snackbar(
+                'Not Verified',
+                'Your business must be verified by an admin before you can create events.',
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: AppColors.warning,
+                colorText: Colors.white,
+                duration: const Duration(seconds: 4),
+              );
+              return;
+            }
+            Nav.toBusinessNewEvent();
+          },
+          backgroundColor: isVerified ? AppColors.primaryBlue : AppColors.grey,
+          icon: Icon(isVerified ? Icons.add : Icons.lock, color: Colors.white),
+          label: Text(
+            isVerified ? 'Create Event' : 'Verification Required',
+            style: const TextStyle(color: Colors.white),
+          ),
+        );
+      }),
     );
   }
 }
@@ -139,7 +155,7 @@ class _BusinessProfileTab extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          business.name ?? 'Business Name',
+                          business.displayName,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -156,23 +172,65 @@ class _BusinessProfileTab extends StatelessWidget {
                             ),
                           ),
                         const SizedBox(height: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.sm,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withAlpha(51),
-                            borderRadius: BorderRadius.circular(AppRadius.sm),
-                          ),
-                          child: Text(
-                            business.subscriptionStatus?.planName ?? 'Free Plan',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.sm,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: business.isVerified
+                                    ? AppColors.success.withAlpha(51)
+                                    : AppColors.warning.withAlpha(51),
+                                borderRadius: BorderRadius.circular(AppRadius.sm),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    business.isVerified
+                                        ? Icons.verified
+                                        : Icons.pending,
+                                    color: business.isVerified
+                                        ? AppColors.success
+                                        : AppColors.warning,
+                                    size: 12,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    business.isVerified ? 'Verified' : 'Pending Verification',
+                                    style: TextStyle(
+                                      color: business.isVerified
+                                          ? AppColors.success
+                                          : AppColors.warning,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.sm,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withAlpha(51),
+                                borderRadius: BorderRadius.circular(AppRadius.sm),
+                              ),
+                              child: Text(
+                                business.subscriptionStatus?.planName ?? 'Free Plan',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

@@ -10,7 +10,7 @@ import '../../config/routes.dart';
 import '../../controllers/business_controller.dart';
 import '../../widgets/common_widgets.dart';
 
-/// Business create profile screen
+/// Business create/edit profile screen
 class BusinessCreateProfileScreen extends StatefulWidget {
   const BusinessCreateProfileScreen({super.key});
 
@@ -40,12 +40,57 @@ class _BusinessCreateProfileScreenState
   final _instagramController = TextEditingController();
 
   // State
+  bool _isEditMode = false;
   bool _isEmailVerified = false;
   bool _showOtpField = false;
   int _countdown = 0;
   Timer? _countdownTimer;
   File? _profileImage;
   File? _coverImage;
+  String? _existingProfileImageUrl;
+  String? _existingCoverImageUrl;
+  String _selectedCategory = '';
+
+  static const List<String> _businessTypes = [
+    'Cafe / Restaurant',
+    'Bar / Pub',
+    'Gym / Fitness',
+    'Entertainment Venue',
+    'Community Center',
+    'Co-working Space',
+    'Retail Store',
+    'Art Gallery / Museum',
+    'Sports Facility',
+    'Other',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeForm();
+  }
+
+  void _initializeForm() {
+    final business = _businessController.businessProfile.value;
+    if (business != null && _businessController.hasBusiness.value) {
+      // Edit mode: populate fields from existing profile
+      _isEditMode = true;
+      _nameController.text = business.businessName ?? business.name ?? '';
+      _descriptionController.text = business.description ?? '';
+      _emailController.text = business.email ?? '';
+      _phoneController.text = business.phone ?? '';
+      _addressController.text = business.address ?? '';
+      _locationController.text = business.location ?? '';
+      _websiteController.text = business.website ?? '';
+      _facebookController.text = business.facebook ?? '';
+      _instagramController.text = business.instagram ?? '';
+      _selectedCategory = business.category ?? '';
+      _existingProfileImageUrl = business.profileImage;
+      _existingCoverImageUrl = business.coverImage;
+      // In edit mode, email is already verified
+      _isEmailVerified = true;
+    }
+  }
 
   @override
   void dispose() {
@@ -179,65 +224,112 @@ class _BusinessCreateProfileScreenState
     }
   }
 
-  Future<void> _createProfile() async {
+  Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (!_isEmailVerified) {
-      Get.snackbar(
-        'Error',
-        'Please verify your email first',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.error,
-        colorText: Colors.white,
-      );
-      return;
-    }
+    if (_isEditMode) {
+      // Edit mode: update existing profile
+      // Sync local fields to the controller's text controllers for updateBusinessProfile()
+      _businessController.businessNameController.text = _nameController.text.trim();
+      _businessController.businessEmailController.text = _emailController.text.trim();
+      _businessController.businessPhoneController.text = _phoneController.text.trim();
+      _businessController.businessDescriptionController.text = _descriptionController.text.trim();
+      _businessController.businessAddressController.text = _addressController.text.trim();
+      _businessController.businessWebsiteController.text = _websiteController.text.trim();
+      _businessController.selectedCategory.value = _selectedCategory;
 
-    if (_profileImage == null) {
-      Get.snackbar(
-        'Error',
-        'Please select a profile image',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.error,
-        colorText: Colors.white,
-      );
-      return;
-    }
+      final success = await _businessController.updateBusinessProfile();
 
-    if (_coverImage == null) {
-      Get.snackbar(
-        'Error',
-        'Please select a cover image',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.error,
-        colorText: Colors.white,
-      );
-      return;
-    }
+      if (success) {
+        // Upload new images if picked
+        if (_profileImage != null) {
+          await _businessController.uploadProfileImage(_profileImage!);
+        }
+        if (_coverImage != null) {
+          await _businessController.uploadCoverImage(_coverImage!);
+        }
 
-    final success = await _businessController.createBusinessProfile(
-      name: _nameController.text,
-      description: _descriptionController.text,
-      email: _emailController.text,
-      phone: _phoneController.text,
-      location: _locationController.text,
-      address: _addressController.text,
-      website: _websiteController.text,
-      facebook: _facebookController.text,
-      instagram: _instagramController.text,
-      profileImage: _profileImage!,
-      coverImage: _coverImage!,
-    );
+        Get.snackbar(
+          'Success',
+          'Business profile updated successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.success,
+          colorText: Colors.white,
+        );
+        Get.back();
+      } else {
+        Get.snackbar(
+          'Error',
+          _businessController.errorMessage.value.isNotEmpty
+              ? _businessController.errorMessage.value
+              : 'Failed to update profile',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.error,
+          colorText: Colors.white,
+        );
+      }
+    } else {
+      // Create mode: validate email and images
+      if (!_isEmailVerified) {
+        Get.snackbar(
+          'Error',
+          'Please verify your email first',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.error,
+          colorText: Colors.white,
+        );
+        return;
+      }
 
-    if (success) {
-      Get.snackbar(
-        'Success',
-        'Business profile created successfully',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.success,
-        colorText: Colors.white,
+      if (_profileImage == null) {
+        Get.snackbar(
+          'Error',
+          'Please select a profile image',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.error,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      if (_coverImage == null) {
+        Get.snackbar(
+          'Error',
+          'Please select a cover image',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.error,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      // Set category on controller before create
+      _businessController.selectedCategory.value = _selectedCategory;
+
+      final success = await _businessController.createBusinessProfile(
+        name: _nameController.text,
+        description: _descriptionController.text,
+        email: _emailController.text,
+        phone: _phoneController.text,
+        location: _locationController.text,
+        address: _addressController.text,
+        website: _websiteController.text,
+        facebook: _facebookController.text,
+        instagram: _instagramController.text,
+        profileImage: _profileImage!,
+        coverImage: _coverImage!,
       );
-      Nav.toBusinessHome();
+
+      if (success) {
+        Get.snackbar(
+          'Success',
+          'Business profile created successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.success,
+          colorText: Colors.white,
+        );
+        Nav.toBusinessHome();
+      }
     }
   }
 
@@ -245,7 +337,7 @@ class _BusinessCreateProfileScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Business Profile'),
+        title: Text(_isEditMode ? 'Edit Business Profile' : 'Create Business Profile'),
       ),
       body: Form(
         key: _formKey,
@@ -274,6 +366,12 @@ class _BusinessCreateProfileScreenState
                         return null;
                       },
                     ),
+
+                    const SizedBox(height: AppSpacing.lg),
+
+                    // Category
+                    _buildLabel('Business Category'),
+                    _buildCategoryDropdown(),
 
                     const SizedBox(height: AppSpacing.lg),
 
@@ -373,11 +471,12 @@ class _BusinessCreateProfileScreenState
 
                     const SizedBox(height: AppSpacing.xl),
 
-                    // Create button
+                    // Save/Create button
                     Obx(() => GradientButton(
-                          text: 'Create Profile',
-                          isLoading: _businessController.isLoading.value,
-                          onPressed: _createProfile,
+                          text: _isEditMode ? 'Save Profile' : 'Create Profile',
+                          isLoading: _businessController.isLoading.value ||
+                              _businessController.isCreating.value,
+                          onPressed: _saveProfile,
                         )),
 
                     const SizedBox(height: AppSpacing.xl),
@@ -404,7 +503,67 @@ class _BusinessCreateProfileScreenState
     );
   }
 
+  Widget _buildCategoryDropdown() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.lightGrey,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButtonFormField<String>(
+          value: _selectedCategory.isNotEmpty ? _selectedCategory : null,
+          hint: const Text('Select business category'),
+          isExpanded: true,
+          decoration: const InputDecoration(
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.zero,
+          ),
+          items: _businessTypes.map((type) {
+            return DropdownMenuItem(
+              value: type,
+              child: Text(type),
+            );
+          }).toList(),
+          onChanged: (value) {
+            if (value != null) {
+              setState(() => _selectedCategory = value);
+            }
+          },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please select a category';
+            }
+            return null;
+          },
+        ),
+      ),
+    );
+  }
+
   Widget _buildImageSection() {
+    // Determine which image to display for cover and profile
+    final ImageProvider? coverImageProvider;
+    if (_coverImage != null) {
+      coverImageProvider = FileImage(_coverImage!);
+    } else if (_existingCoverImageUrl != null && _existingCoverImageUrl!.isNotEmpty) {
+      coverImageProvider = NetworkImage(_existingCoverImageUrl!);
+    } else {
+      coverImageProvider = null;
+    }
+
+    final ImageProvider? profileImageProvider;
+    if (_profileImage != null) {
+      profileImageProvider = FileImage(_profileImage!);
+    } else if (_existingProfileImageUrl != null && _existingProfileImageUrl!.isNotEmpty) {
+      profileImageProvider = NetworkImage(_existingProfileImageUrl!);
+    } else {
+      profileImageProvider = null;
+    }
+
+    final bool hasCoverImage = coverImageProvider != null;
+    final bool hasProfileImage = profileImageProvider != null;
+
     return Stack(
       alignment: Alignment.bottomLeft,
       children: [
@@ -418,14 +577,14 @@ class _BusinessCreateProfileScreenState
               height: 150,
               decoration: BoxDecoration(
                 gradient: AppGradients.primaryHorizontal,
-                image: _coverImage != null
+                image: hasCoverImage
                     ? DecorationImage(
-                        image: FileImage(_coverImage!),
+                        image: coverImageProvider!,
                         fit: BoxFit.cover,
                       )
                     : null,
               ),
-              child: _coverImage == null
+              child: !hasCoverImage
                   ? const Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -443,7 +602,24 @@ class _BusinessCreateProfileScreenState
                         ],
                       ),
                     )
-                  : null,
+                  : Align(
+                      alignment: Alignment.topRight,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withAlpha(128),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                    ),
             ),
           ),
         ),
@@ -465,14 +641,14 @@ class _BusinessCreateProfileScreenState
                       color: Colors.white,
                       width: 3,
                     ),
-                    image: _profileImage != null
+                    image: hasProfileImage
                         ? DecorationImage(
-                            image: FileImage(_profileImage!),
+                            image: profileImageProvider!,
                             fit: BoxFit.cover,
                           )
                         : null,
                   ),
-                  child: _profileImage == null
+                  child: !hasProfileImage
                       ? const Icon(
                           Icons.add_a_photo,
                           color: AppColors.grey,
@@ -505,12 +681,13 @@ class _BusinessCreateProfileScreenState
   }
 
   Widget _buildEmailSection() {
-    if (_isEmailVerified) {
+    // In edit mode, show email as read-only with verified badge
+    if (_isEditMode || _isEmailVerified) {
       return CustomTextField(
         controller: _emailController,
         hintText: 'Business email',
         prefixIcon: const Icon(Icons.email),
-        enabled: false,
+        enabled: !_isEditMode, // Allow change only in create mode after verify
         suffixIcon: const Icon(
           Icons.verified,
           color: AppColors.success,

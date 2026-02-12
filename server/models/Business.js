@@ -53,6 +53,7 @@ const businessSchema = new mongoose.Schema(
     profileImage: { type: String, default: null },
     coverImage: { type: String, default: null },
     isVerified: { type: Boolean, default: false },
+    emailVerified: { type: Boolean, default: false },
     followerCount: { type: Number, default: 0, min: 0 },
     eventCount: { type: Number, default: 0, min: 0 },
     followers: { type: [Number], default: [] },

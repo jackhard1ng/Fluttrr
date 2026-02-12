@@ -126,6 +126,19 @@ class _CreateBusinessEventScreenState extends State<CreateBusinessEventScreen> {
   }
 
   Future<void> _createEvent() async {
+    // Check verification status first
+    if (!(_businessController.businessProfile.value?.isVerified ?? false)) {
+      Get.snackbar(
+        'Not Verified',
+        'Your business must be verified by an admin before you can create events.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.warning,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 4),
+      );
+      return;
+    }
+
     if (!_formKey.currentState!.validate()) return;
 
     if (_eventImage == null) {

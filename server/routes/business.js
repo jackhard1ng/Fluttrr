@@ -164,8 +164,15 @@ router.put('/update/:businessId', auth, async (req, res) => {
       if (req.body[key] !== undefined) safeBody[key] = req.body[key];
     }
 
+    // Support both numeric businessId and MongoDB _id
+    const idParam = req.params.businessId;
+    const isNumeric = /^\d+$/.test(idParam);
+    const query = isNumeric
+      ? { businessId: parseInt(idParam), userId: req.user.userId }
+      : { _id: idParam, userId: req.user.userId };
+
     const business = await Business.findOneAndUpdate(
-      { _id: req.params.businessId, userId: req.user.userId },
+      query,
       { $set: safeBody },
       { new: true }
     );
@@ -285,12 +292,14 @@ router.post('/verify', auth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'OTP has expired' });
     }
 
-    business.isVerified = true;
+    // OTP only verifies the email address, NOT the business itself.
+    // Business verification (isVerified) is done by admin only.
+    business.emailVerified = true;
     business.verificationOtp = undefined;
     business.otpExpiresAt = undefined;
     await business.save();
 
-    res.json({ success: true, message: 'Business verified successfully' });
+    res.json({ success: true, message: 'Email verified successfully' });
   } catch (error) {
     console.error('Verify business error:', error);
     res.status(500).json({ success: false, message: 'Failed to verify business' });
@@ -366,6 +375,11 @@ router.post('/create-event', auth, async (req, res) => {
     const business = await Business.findOne({ userId: req.user.userId });
     if (!business) {
       return res.status(404).json({ success: false, message: 'Business profile not found. Please set up your business profile first.' });
+    }
+
+    // Only verified businesses can create events (admin must verify)
+    if (!business.isVerified) {
+      return res.status(403).json({ success: false, message: 'Your business must be verified by an admin before you can create events. Please wait for verification.' });
     }
 
     const {
