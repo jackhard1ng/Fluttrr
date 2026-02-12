@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controllers/main_screen_controller.dart';
+import '../screens/business/business_main_screen.dart';
 import '../models/chat_model.dart';
 import '../models/business_model.dart';
 import '../screens/auth/splash_screen.dart';
@@ -456,8 +457,8 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.businessDashboard,
-      page: () => const BusinessDashboardScreen(),
-      transition: Transition.rightToLeft,
+      page: () => const BusinessMainScreen(),
+      transition: Transition.fadeIn,
     ),
     GetPage(
       name: AppRoutes.businessCreateProfile,
@@ -610,13 +611,22 @@ class Nav {
         },
       );
 
-  // Business
+  // Business - tab switching within BusinessMainScreen
+  static void _switchBusinessTab(int tabIndex) {
+    if (Get.isRegistered<BusinessMainScreenController>()) {
+      Get.until((route) => route.settings.name == AppRoutes.businessDashboard);
+      Get.find<BusinessMainScreenController>().switchTab(tabIndex);
+    } else {
+      Get.offAllNamed(AppRoutes.businessDashboard);
+    }
+  }
+
   static void toBusinessWelcome() => Get.toNamed(AppRoutes.businessWelcome);
-  static void toBusinessHome() => Get.offAllNamed(AppRoutes.businessHome);
+  static void toBusinessHome() => _switchBusinessTab(BusinessMainScreenController.profileTab);
   static void toBusinessDashboard() => Get.offAllNamed(AppRoutes.businessDashboard);
   static void toBusinessDashboardPush() => Get.toNamed(AppRoutes.businessDashboard);
   static void toBusinessCreateProfile() => Get.toNamed(AppRoutes.businessCreateProfile);
-  static void toBusinessEvents() => Get.toNamed(AppRoutes.businessEvents);
+  static void toBusinessEvents() => _switchBusinessTab(BusinessMainScreenController.eventsTab);
   static void toBusinessEventDetails(BusinessEvent event) => Get.toNamed(
         AppRoutes.businessEventDetails,
         arguments: event,
@@ -627,6 +637,7 @@ class Nav {
   static void toBusinessNewEvent() => Get.toNamed(AppRoutes.businessNewEvent);
   static void toBusinessPhotos() => Get.toNamed(AppRoutes.businessPhotos);
   static void toSubscription() => Get.toNamed(AppRoutes.subscription);
+  static void toBusinessMessages() => _switchBusinessTab(BusinessMainScreenController.messagesTab);
 
   // Memories
   static void toMemories() => Get.toNamed(AppRoutes.memories);

@@ -1,21 +1,117 @@
 const express = require('express');
 const router = express.Router();
 const { auth } = require('../middleware/auth');
+const config = require('../config/config');
+const Business = require('../models/Business');
 
-// POST /api/payment/stripe/create-payment-intent
-router.post('/stripe/create-payment-intent', auth, async (req, res) => {
+// Initialize Stripe (only if secret key is configured)
+let stripe = null;
+if (config.stripe.secretKey) {
+  stripe = require('stripe')(config.stripe.secretKey);
+  console.log('Stripe initialized successfully');
+} else {
+  console.warn('STRIPE_SECRET_KEY not set - payment endpoints will run in free/test mode');
+}
+
+// ==================== Event Posting Payment ====================
+
+// POST /api/payment/create-event-payment-intent
+// Creates a payment intent for posting a business event.
+// In free mode (no Stripe key), returns a free pass.
+router.post('/create-event-payment-intent', auth, async (req, res) => {
   try {
-    const { amount, currency } = req.body;
+    const business = await Business.findOne({ userId: req.user.userId });
+    if (!business) {
+      return res.status(404).json({ success: false, message: 'Business not found' });
+    }
 
-    // Placeholder - integrate Stripe when ready
-    // const stripe = require('stripe')(config.stripe.secretKey);
-    // const paymentIntent = await stripe.paymentIntents.create({ amount, currency });
+    // Free mode: no Stripe key configured, allow posting for free
+    if (!stripe) {
+      return res.json({
+        success: true,
+        data: {
+          clientSecret: null,
+          paymentIntentId: null,
+          freeMode: true,
+          message: 'Event posting is currently free!',
+        },
+      });
+    }
+
+    // Check if business has an active subscription that covers event posting
+    const sub = business.subscriptionStatus;
+    if (sub && sub.status === 'active' && sub.expiryDate > new Date()) {
+      return res.json({
+        success: true,
+        data: {
+          clientSecret: null,
+          paymentIntentId: null,
+          coveredBySubscription: true,
+          message: 'Event covered by your subscription.',
+        },
+      });
+    }
+
+    // Create a Stripe payment intent for per-event posting
+    const { amount = 999, currency = 'usd' } = req.body; // default $9.99
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency,
+      metadata: {
+        businessId: business.businessId.toString(),
+        userId: req.user.userId.toString(),
+        type: 'event_posting',
+      },
+    });
 
     res.json({
       success: true,
       data: {
-        clientSecret: 'placeholder_client_secret',
-        paymentIntentId: 'pi_placeholder_' + Date.now(),
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id,
+      },
+    });
+  } catch (error) {
+    console.error('Create event payment intent error:', error);
+    res.status(500).json({ success: false, message: 'Failed to create payment intent' });
+  }
+});
+
+// ==================== Subscription Management ====================
+
+// POST /api/payment/stripe/create-payment-intent
+// Generic payment intent creation for subscriptions
+router.post('/stripe/create-payment-intent', auth, async (req, res) => {
+  try {
+    const { amount = 2900, currency = 'usd' } = req.body;
+
+    // Free mode
+    if (!stripe) {
+      return res.json({
+        success: true,
+        data: {
+          clientSecret: 'free_mode_' + Date.now(),
+          paymentIntentId: 'pi_free_' + Date.now(),
+          freeMode: true,
+        },
+      });
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency,
+      metadata: {
+        userId: req.user.userId.toString(),
+        type: 'subscription',
+      },
+    });
+
+    res.json({
+      success: true,
+      data: {
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id,
       },
     });
   } catch (error) {
@@ -25,20 +121,117 @@ router.post('/stripe/create-payment-intent', auth, async (req, res) => {
 });
 
 // POST /api/payment/verify
+// Verify a payment was successful
 router.post('/verify', auth, async (req, res) => {
   try {
-    res.json({ success: true, message: 'Payment verified' });
+    const { paymentIntentId } = req.body;
+
+    if (!paymentIntentId) {
+      return res.status(400).json({ success: false, message: 'Payment intent ID required' });
+    }
+
+    // Free mode - always succeeds
+    if (!stripe || paymentIntentId.startsWith('pi_free_') || paymentIntentId.startsWith('free_mode_')) {
+      return res.json({ success: true, message: 'Payment verified (free mode)', data: { status: 'succeeded' } });
+    }
+
+    // Verify with Stripe
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+    if (paymentIntent.status === 'succeeded') {
+      return res.json({
+        success: true,
+        message: 'Payment verified',
+        data: { status: 'succeeded' },
+      });
+    }
+
+    res.status(400).json({
+      success: false,
+      message: `Payment not completed. Status: ${paymentIntent.status}`,
+      data: { status: paymentIntent.status },
+    });
   } catch (error) {
+    console.error('Verify payment error:', error);
     res.status(500).json({ success: false, message: 'Failed to verify payment' });
   }
 });
 
 // POST /api/payment/upgrade-to-premium
+// Upgrade business to a subscription plan
 router.post('/upgrade-to-premium', auth, async (req, res) => {
   try {
-    res.json({ success: true, message: 'Upgraded to premium' });
+    const { planId, paymentIntentId } = req.body;
+
+    const business = await Business.findOne({ userId: req.user.userId });
+    if (!business) {
+      return res.status(404).json({ success: false, message: 'Business not found' });
+    }
+
+    // Determine plan details
+    const plans = {
+      basic: { name: 'Basic', price: 0, durationDays: 365 },
+      pro: { name: 'Pro', price: 2900, durationDays: 30 },
+      enterprise: { name: 'Enterprise', price: 9900, durationDays: 30 },
+    };
+
+    const plan = plans[planId] || plans.basic;
+
+    // If Stripe is configured and plan is paid, verify the payment
+    if (stripe && plan.price > 0 && paymentIntentId) {
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      if (paymentIntent.status !== 'succeeded') {
+        return res.status(400).json({ success: false, message: 'Payment not completed' });
+      }
+    }
+
+    // Update business subscription
+    const now = new Date();
+    const expiryDate = new Date(now.getTime() + plan.durationDays * 24 * 60 * 60 * 1000);
+
+    business.subscriptionStatus = {
+      planId: planId || 'basic',
+      planName: plan.name,
+      status: 'active',
+      startDate: now,
+      expiryDate: expiryDate,
+    };
+    await business.save();
+
+    res.json({
+      success: true,
+      message: `Upgraded to ${plan.name} plan`,
+      data: {
+        subscriptionStatus: business.subscriptionStatus,
+      },
+    });
   } catch (error) {
+    console.error('Upgrade to premium error:', error);
     res.status(500).json({ success: false, message: 'Failed to upgrade' });
+  }
+});
+
+// POST /api/payment/cancel-subscription
+// Cancel the active subscription
+router.post('/cancel-subscription', auth, async (req, res) => {
+  try {
+    const business = await Business.findOne({ userId: req.user.userId });
+    if (!business) {
+      return res.status(404).json({ success: false, message: 'Business not found' });
+    }
+
+    if (business.subscriptionStatus) {
+      business.subscriptionStatus.status = 'cancelled';
+      await business.save();
+    }
+
+    res.json({
+      success: true,
+      message: 'Subscription cancelled',
+    });
+  } catch (error) {
+    console.error('Cancel subscription error:', error);
+    res.status(500).json({ success: false, message: 'Failed to cancel subscription' });
   }
 });
 

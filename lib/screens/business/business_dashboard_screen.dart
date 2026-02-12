@@ -154,19 +154,6 @@ class BusinessDashboardScreen extends StatelessWidget {
           ],
         ),
       ),
-      // Floating action button for quick event creation
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Nav.toBusinessCreateEvent(),
-        backgroundColor: AppColors.primaryBlue,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text(
-          'New Event',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
     );
   }
 
