@@ -756,8 +756,8 @@ router.put('/members/:groupId/role', auth, async (req, res) => {
 
     const userId = req.user.userId;
     const adminMember = (group.members || []).find((m) => m.userId === userId);
-    if (!adminMember || (adminMember.role !== 'owner' && adminMember.role !== 'admin')) {
-      return res.status(403).json({ success: false, message: 'Only owners and admins can update member roles' });
+    if (!adminMember || adminMember.role !== 'owner') {
+      return res.status(403).json({ success: false, message: 'Only the group owner can update member roles' });
     }
 
     const targetUserId = parseInt(user_id);

@@ -15,6 +15,7 @@ const subscriptionStatusSchema = new mongoose.Schema(
     startDate: { type: Date, default: null },
     expiryDate: { type: Date, default: null },
     isActive: { type: Boolean, default: false },
+    paymentIntentId: { type: String, default: null },
   },
   { _id: false }
 );

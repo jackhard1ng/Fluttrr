@@ -138,6 +138,7 @@ class _UploadMemoryScreenState extends State<UploadMemoryScreen> {
           : null,
     );
 
+    if (!mounted) return;
     setState(() => _isUploading = false);
 
     if (result != null) {

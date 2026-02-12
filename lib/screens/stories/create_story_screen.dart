@@ -96,6 +96,7 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                   source: ImageSource.camera,
                   imageQuality: 80,
                 );
+                if (!mounted) return;
                 if (photo != null) {
                   setState(() {
                     _selectedMedia = File(photo.path);
@@ -123,6 +124,7 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                   source: ImageSource.gallery,
                   imageQuality: 80,
                 );
+                if (!mounted) return;
                 if (photo != null) {
                   setState(() {
                     _selectedMedia = File(photo.path);

@@ -40,16 +40,22 @@ router.post('/create-event-payment-intent', auth, async (req, res) => {
 
     // Check if business has an active subscription that covers event posting
     const sub = business.subscriptionStatus;
-    if (sub && sub.status === 'active' && sub.expiryDate > new Date()) {
-      return res.json({
-        success: true,
-        data: {
-          clientSecret: null,
-          paymentIntentId: null,
-          coveredBySubscription: true,
-          message: 'Event covered by your subscription.',
-        },
-      });
+    if (sub && sub.status === 'active') {
+      if (sub.expiryDate && sub.expiryDate > new Date()) {
+        return res.json({
+          success: true,
+          data: {
+            clientSecret: null,
+            paymentIntentId: null,
+            coveredBySubscription: true,
+            message: 'Event covered by your subscription.',
+          },
+        });
+      } else {
+        // Auto-expire the subscription
+        business.subscriptionStatus.status = 'expired';
+        await business.save();
+      }
     }
 
     // Create a Stripe payment intent for per-event posting
@@ -190,6 +196,16 @@ router.post('/upgrade-to-premium', auth, async (req, res) => {
       if (!paymentIntentId) {
         return res.status(400).json({ success: false, message: 'Payment required for this plan' });
       }
+
+      // Idempotency: check if this paymentIntentId was already used
+      if (business.subscriptionStatus && business.subscriptionStatus.paymentIntentId === paymentIntentId) {
+        return res.json({
+          success: true,
+          message: `Already upgraded to ${business.subscriptionStatus.planName} plan`,
+          data: { subscriptionStatus: business.subscriptionStatus },
+        });
+      }
+
       const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
       if (paymentIntent.status !== 'succeeded') {
         return res.status(400).json({ success: false, message: 'Payment not completed' });
@@ -210,6 +226,7 @@ router.post('/upgrade-to-premium', auth, async (req, res) => {
       status: 'active',
       startDate: now,
       expiryDate: expiryDate,
+      paymentIntentId: paymentIntentId || null,
     };
     await business.save();
 

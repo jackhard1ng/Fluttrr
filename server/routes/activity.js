@@ -411,6 +411,18 @@ router.post('/join', auth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'No remaining slots' });
     }
 
+    // Safety check: if remainingSlots went negative due to race, revert
+    if (result.remainingSlots < 0) {
+      await Activity.findOneAndUpdate(
+        { _id: result._id },
+        {
+          $pull: { attendees: { userId: req.user.userId } },
+          $inc: { remainingSlots: 1 },
+        }
+      );
+      return res.status(400).json({ success: false, message: 'No remaining slots' });
+    }
+
     // Update user's joined activity count
     await User.findOneAndUpdate(
       { userId: req.user.userId },

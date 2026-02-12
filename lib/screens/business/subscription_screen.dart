@@ -103,6 +103,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         },
       );
 
+      if (!mounted) return;
       Get.back(); // Dismiss loading
 
       if (result.success) {
@@ -124,6 +125,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         );
       }
     } catch (e) {
+      if (!mounted) return;
       Get.back(); // Dismiss loading
       Get.snackbar(
         'Error',
