@@ -684,11 +684,29 @@ router.get('/admins', auth, adminAuth, async (req, res) => {
 
 router.post('/admins', auth, adminAuth, async (req, res) => {
   try {
+    // Only super_admin or admin can assign roles; admins cannot assign admin role
     const { userId, role } = req.body;
+    const validRoles = ['moderator', 'admin'];
+    const assignRole = role || 'moderator';
+    if (!validRoles.includes(assignRole)) {
+      return res.status(400).json({ success: false, message: 'Invalid role. Must be moderator or admin' });
+    }
+    // Only super_admin can assign admin-level roles
+    if (assignRole === 'admin' && req.user.role !== 'super_admin') {
+      return res.status(403).json({ success: false, message: 'Only super admins can assign admin roles' });
+    }
     const User = require('../models/User');
-    const user = await User.findByIdAndUpdate(userId, { role: role || 'moderator' }, { new: true }).select('-password');
-    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-    res.json({ success: true, data: user, message: 'Admin role assigned' });
+    const targetUser = await User.findOne({ userId: parseInt(userId) });
+    if (!targetUser) return res.status(404).json({ success: false, message: 'User not found' });
+    // Cannot modify another admin unless you are super_admin
+    if (targetUser.role === 'admin' && req.user.role !== 'super_admin') {
+      return res.status(403).json({ success: false, message: 'Only super admins can modify admin users' });
+    }
+    targetUser.role = assignRole;
+    await targetUser.save();
+    const result = targetUser.toJSON();
+    delete result.password;
+    res.json({ success: true, data: result, message: 'Admin role assigned' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to assign admin role' });
   }
@@ -697,10 +715,29 @@ router.post('/admins', auth, adminAuth, async (req, res) => {
 router.put('/admins/:id', auth, adminAuth, async (req, res) => {
   try {
     const { role } = req.body;
+    const validRoles = ['moderator', 'admin', 'user'];
+    const newRole = role || 'moderator';
+    if (!validRoles.includes(newRole)) {
+      return res.status(400).json({ success: false, message: 'Invalid role' });
+    }
+    if (newRole === 'admin' && req.user.role !== 'super_admin') {
+      return res.status(403).json({ success: false, message: 'Only super admins can assign admin roles' });
+    }
     const User = require('../models/User');
-    const user = await User.findByIdAndUpdate(req.params.id, { role: role || 'moderator' }, { new: true }).select('-password');
-    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-    res.json({ success: true, data: user, message: 'Admin role updated' });
+    const targetUser = await User.findById(req.params.id);
+    if (!targetUser) return res.status(404).json({ success: false, message: 'User not found' });
+    if (targetUser.role === 'admin' && req.user.role !== 'super_admin') {
+      return res.status(403).json({ success: false, message: 'Only super admins can modify admin users' });
+    }
+    // Cannot demote yourself
+    if (String(targetUser._id) === String(req.user._id)) {
+      return res.status(400).json({ success: false, message: 'Cannot modify your own role' });
+    }
+    targetUser.role = newRole;
+    await targetUser.save();
+    const result = targetUser.toJSON();
+    delete result.password;
+    res.json({ success: true, data: result, message: 'Admin role updated' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to update admin' });
   }
@@ -709,8 +746,18 @@ router.put('/admins/:id', auth, adminAuth, async (req, res) => {
 router.delete('/admins/:id', auth, adminAuth, async (req, res) => {
   try {
     const User = require('../models/User');
-    const user = await User.findByIdAndUpdate(req.params.id, { role: 'user' }, { new: true }).select('-password');
-    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    const targetUser = await User.findById(req.params.id);
+    if (!targetUser) return res.status(404).json({ success: false, message: 'User not found' });
+    // Cannot remove admin role from another admin unless super_admin
+    if (targetUser.role === 'admin' && req.user.role !== 'super_admin') {
+      return res.status(403).json({ success: false, message: 'Only super admins can remove admin roles' });
+    }
+    // Cannot demote yourself
+    if (String(targetUser._id) === String(req.user._id)) {
+      return res.status(400).json({ success: false, message: 'Cannot remove your own admin role' });
+    }
+    targetUser.role = 'user';
+    await targetUser.save();
     res.json({ success: true, message: 'Admin role removed' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to remove admin' });

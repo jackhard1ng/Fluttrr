@@ -5,6 +5,12 @@ const upload = require('../middleware/upload');
 const Activity = require('../models/Activity');
 const User = require('../models/User');
 
+// Helper: parse and validate a numeric ID from request params
+function parseNumericId(value) {
+  const parsed = parseInt(value);
+  return isNaN(parsed) ? null : parsed;
+}
+
 // ============================================================
 // Helper: Format activity data to match Flutter's ActivityModel
 // ============================================================
@@ -114,7 +120,9 @@ router.get('/list', auth, async (req, res) => {
 // ============================================================
 router.get('/activity-details/:activityId', auth, async (req, res) => {
   try {
-    const activity = await Activity.findOne({ activityId: parseInt(req.params.activityId) });
+    const activityId = parseNumericId(req.params.activityId);
+    if (!activityId) return res.status(400).json({ success: false, message: 'Invalid activity ID' });
+    const activity = await Activity.findOne({ activityId });
     if (!activity) {
       return res.status(404).json({ success: false, message: 'Activity not found' });
     }
@@ -360,6 +368,9 @@ router.delete('/delete/:activityId', auth, async (req, res) => {
 router.post('/join', auth, async (req, res) => {
   try {
     const { activityId } = req.body;
+    if (!activityId || isNaN(parseInt(activityId))) {
+      return res.status(400).json({ success: false, message: 'activityId must be a valid number' });
+    }
 
     // Atomic update: only joins if user not already attending AND slots available
     const result = await Activity.findOneAndUpdate(
@@ -415,6 +426,9 @@ router.post('/join', auth, async (req, res) => {
 router.post('/leave', auth, async (req, res) => {
   try {
     const { activityId } = req.body;
+    if (!activityId || isNaN(parseInt(activityId))) {
+      return res.status(400).json({ success: false, message: 'activityId must be a valid number' });
+    }
 
     // Atomic update: only leaves if user is actually attending
     const result = await Activity.findOneAndUpdate(
@@ -531,11 +545,13 @@ router.post('/feedback', auth, async (req, res) => {
 // ============================================================
 router.get('/feedback/:eventId', auth, async (req, res) => {
   try {
+    const eventId = parseNumericId(req.params.eventId);
+    if (!eventId) return res.status(400).json({ success: false, message: 'Invalid event ID' });
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
     const skip = (page - 1) * limit;
 
-    const activity = await Activity.findOne({ activityId: parseInt(req.params.eventId) });
+    const activity = await Activity.findOne({ activityId: eventId });
     if (!activity) {
       return res.status(404).json({ success: false, message: 'Activity not found' });
     }

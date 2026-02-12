@@ -163,6 +163,23 @@ NotificationType _parseNotificationType(dynamic value) {
         return NotificationType.comment;
       case 'badge':
         return NotificationType.badge;
+      case 'friend_request':
+      case 'friendrequest':
+        return NotificationType.friendRequest;
+      case 'event_reminder':
+      case 'eventreminder':
+        return NotificationType.eventReminder;
+      case 'new_message':
+      case 'newmessage':
+        return NotificationType.newMessage;
+      case 'event_update':
+      case 'eventupdate':
+        return NotificationType.eventUpdate;
+      case 'new_attendee':
+      case 'newattendee':
+        return NotificationType.newAttendee;
+      case 'update':
+        return NotificationType.update;
       default:
         return NotificationType.general;
     }

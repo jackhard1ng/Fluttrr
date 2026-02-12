@@ -84,6 +84,7 @@ const activitySchema = new mongoose.Schema(
 activitySchema.index({ latitude: 1, longitude: 1 });
 activitySchema.index({ dateTime: 1 });
 activitySchema.index({ status: 1, dateTime: 1 });
+activitySchema.index({ creatorId: 1, status: 1, dateTime: -1 });
 activitySchema.index({ 'attendees.userId': 1 });
 activitySchema.index({ 'reminders.userId': 1 });
 activitySchema.index({ 'waitlist.userId': 1 });

@@ -107,14 +107,20 @@ router.post('/', auth, upload.single('media'), async (req, res) => {
 // POST /api/story/:storyId/view
 router.post('/:storyId/view', auth, async (req, res) => {
   try {
-    const story = await Story.findOne({ storyId: req.params.storyId });
-    if (!story) return res.status(404).json({ success: false, message: 'Story not found' });
-
     const viewerId = String(req.user.userId);
-    if (!story.viewerIds.includes(viewerId)) {
-      story.viewerIds.push(viewerId);
-      story.viewCount = story.viewerIds.length;
-      await story.save();
+    // Atomic: only add viewer if not already present
+    const story = await Story.findOneAndUpdate(
+      { storyId: req.params.storyId, viewerIds: { $ne: viewerId } },
+      { $addToSet: { viewerIds: viewerId }, $inc: { viewCount: 1 } },
+      { new: true }
+    );
+
+    if (!story) {
+      // Either story doesn't exist or user already viewed
+      const existing = await Story.findOne({ storyId: req.params.storyId });
+      if (!existing) return res.status(404).json({ success: false, message: 'Story not found' });
+      // Already viewed — success
+      return res.json({ success: true });
     }
 
     res.json({ success: true });
@@ -127,25 +133,35 @@ router.post('/:storyId/view', auth, async (req, res) => {
 router.post('/:storyId/react', auth, async (req, res) => {
   try {
     const { emoji } = req.body;
-    if (!emoji) return res.status(400).json({ success: false, message: 'emoji is required' });
-
-    const story = await Story.findOne({ storyId: req.params.storyId });
-    if (!story) return res.status(404).json({ success: false, message: 'Story not found' });
-
-    const alreadyReacted = story.reactions.some(
-      (r) => String(r.userId) === String(req.user.userId) && r.emoji === emoji
-    );
-    if (alreadyReacted) {
-      return res.status(400).json({ success: false, message: 'Already reacted with this emoji' });
+    if (!emoji || typeof emoji !== 'string' || emoji.length > 10) {
+      return res.status(400).json({ success: false, message: 'emoji is required' });
     }
 
-    story.reactions.push({
-      userId: req.user.userId,
-      userName: req.user.userName,
-      userAvatar: req.user.profile?.images?.[0] || null,
-      emoji,
-    });
-    await story.save();
+    const userId = req.user.userId;
+    // Atomic: only add reaction if same user+emoji combo doesn't exist
+    const story = await Story.findOneAndUpdate(
+      {
+        storyId: req.params.storyId,
+        'reactions': { $not: { $elemMatch: { userId, emoji } } },
+      },
+      {
+        $push: {
+          reactions: {
+            userId,
+            userName: req.user.userName,
+            userAvatar: req.user.profile?.images?.[0] || null,
+            emoji,
+          },
+        },
+      },
+      { new: true }
+    );
+
+    if (!story) {
+      const existing = await Story.findOne({ storyId: req.params.storyId });
+      if (!existing) return res.status(404).json({ success: false, message: 'Story not found' });
+      return res.status(400).json({ success: false, message: 'Already reacted with this emoji' });
+    }
 
     res.json({ success: true });
   } catch (error) {

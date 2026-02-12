@@ -130,6 +130,7 @@ const userSchema = new mongoose.Schema(
 // Indexes
 // ---------------------------------------------------------------------------
 userSchema.index({ 'profile.latitude': 1, 'profile.longitude': 1 });
+userSchema.index({ status: 1, 'profile.latitude': 1, 'profile.longitude': 1 });
 userSchema.index({ status: 1 });
 userSchema.index({ onlineStatus: 1 });
 userSchema.index({ accountType: 1 });
