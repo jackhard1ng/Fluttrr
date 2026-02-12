@@ -50,19 +50,22 @@ router.delete('/delete', auth, async (req, res) => {
     }
 
     const User = require('../models/User');
-    const user = await User.findById(req.userId);
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
 
-    const images = user.profile?.images || [];
-    if (!images.includes(imageUrl)) {
+    // Atomic: pull image and check result in one operation to avoid race conditions
+    const updated = await User.findOneAndUpdate(
+      { _id: req.userId, 'profile.images': imageUrl },
+      { $pull: { 'profile.images': imageUrl } },
+      { new: true }
+    );
+
+    if (!updated) {
+      // Either user not found or image not in gallery
+      const user = await User.findById(req.userId);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
       return res.status(404).json({ success: false, message: 'Image not found in gallery' });
     }
-
-    await User.findByIdAndUpdate(req.userId, {
-      $pull: { 'profile.images': imageUrl },
-    });
 
     res.json({ success: true, message: 'Image removed from gallery' });
   } catch (error) {

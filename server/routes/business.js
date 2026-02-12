@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
 const Business = require('../models/Business');
 const BusinessEvent = require('../models/BusinessEvent');
 const { auth } = require('../middleware/auth');
@@ -170,6 +171,34 @@ router.put('/update/:businessId', auth, async (req, res) => {
       if (req.body[key] !== undefined) safeBody[key] = req.body[key];
     }
 
+    // Validate specific fields
+    if (safeBody.latitude !== undefined) {
+      const lat = parseFloat(safeBody.latitude);
+      if (isNaN(lat) || lat < -90 || lat > 90) {
+        return res.status(400).json({ success: false, message: 'Latitude must be between -90 and 90' });
+      }
+      safeBody.latitude = lat;
+    }
+    if (safeBody.longitude !== undefined) {
+      const lng = parseFloat(safeBody.longitude);
+      if (isNaN(lng) || lng < -180 || lng > 180) {
+        return res.status(400).json({ success: false, message: 'Longitude must be between -180 and 180' });
+      }
+      safeBody.longitude = lng;
+    }
+    if (safeBody.description !== undefined && typeof safeBody.description === 'string' && safeBody.description.length > 2000) {
+      return res.status(400).json({ success: false, message: 'Description must be 2000 characters or less' });
+    }
+    if (safeBody.images !== undefined) {
+      if (!Array.isArray(safeBody.images) || safeBody.images.length > 20) {
+        return res.status(400).json({ success: false, message: 'Images must be an array with max 20 items' });
+      }
+    }
+    const nameField = safeBody.businessName || safeBody.business_name;
+    if (nameField !== undefined && (typeof nameField !== 'string' || nameField.trim().length === 0 || nameField.length > 200)) {
+      return res.status(400).json({ success: false, message: 'Business name must be 1-200 characters' });
+    }
+
     // Support both numeric businessId and MongoDB _id
     const idParam = req.params.businessId;
     const isNumeric = /^\d+$/.test(idParam);
@@ -256,7 +285,7 @@ router.post('/request-otp', auth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Email is required' });
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = String(crypto.randomInt(100000, 999999));
 
     const business = await Business.findOneAndUpdate(
       { userId: req.user.userId },
@@ -501,10 +530,12 @@ router.put('/update-event/:eventId', auth, async (req, res) => {
     }
 
     // Whitelist allowed fields to prevent mass-assignment
+    // Note: remainingSlots, totalSlots, and price are excluded to prevent
+    // manipulation after creation (e.g. artificially increasing capacity)
     const allowedEventFields = [
       'name', 'description', 'location', 'latitude', 'longitude',
-      'startTime', 'endTime', 'eventType', 'totalSlots', 'price',
-      'currency', 'images', 'isActive', 'remainingSlots',
+      'startTime', 'endTime', 'eventType',
+      'currency', 'images', 'isActive',
     ];
     const updateData = {};
     for (const key of allowedEventFields) {
@@ -591,15 +622,12 @@ router.post('/join-event', auth, async (req, res) => {
 
     const userId = req.user.userId;
 
-    // Atomic: only match if user is NOT already in attendees and slots remain
-    const updated = await BusinessEvent.findOneAndUpdate(
+    // First try to join an event WITH remaining slots (decrement slot count)
+    let updated = await BusinessEvent.findOneAndUpdate(
       {
         eventId: eidJoin,
         attendees: { $ne: userId },
-        $or: [
-          { remainingSlots: null },
-          { remainingSlots: { $gt: 0 } },
-        ],
+        remainingSlots: { $gt: 0 },
       },
       {
         $addToSet: { attendees: userId, joinedBy: userId },
@@ -607,6 +635,22 @@ router.post('/join-event', auth, async (req, res) => {
       },
       { new: true }
     );
+
+    // If that didn't match, try joining an event with null remainingSlots (unlimited capacity)
+    if (!updated) {
+      updated = await BusinessEvent.findOneAndUpdate(
+        {
+          eventId: eidJoin,
+          attendees: { $ne: userId },
+          remainingSlots: null,
+        },
+        {
+          $addToSet: { attendees: userId, joinedBy: userId },
+          $inc: { attendeesCount: 1 },
+        },
+        { new: true }
+      );
+    }
 
     if (!updated) {
       // Determine why: event doesn't exist, already joined, or full
@@ -958,6 +1002,10 @@ router.get('/analytics', auth, async (req, res) => {
     const business = await Business.findOne({ userId: req.user.userId });
     if (!business) {
       return res.status(404).json({ success: false, message: 'Business not found' });
+    }
+
+    if (business.isSuspended) {
+      return res.status(403).json({ success: false, message: 'Your business has been suspended. Please contact support.' });
     }
 
     // Support period filtering: 7d, 30d, 90d, all (default: all)

@@ -360,7 +360,8 @@ router.get('/businesses/:id', auth, adminAuth, async (req, res) => {
 router.post('/businesses/:id/verify', auth, adminAuth, async (req, res) => {
   try {
     const Business = require('../models/Business');
-    const trialDays = parseInt(req.body.trialDays) || 30;
+    const rawTrialDays = parseInt(req.body.trialDays);
+    const trialDays = isNaN(rawTrialDays) ? 30 : Math.min(Math.max(rawTrialDays, 1), 365);
     const trialEndDate = new Date(Date.now() + trialDays * 24 * 60 * 60 * 1000);
 
     const business = await Business.findByIdAndUpdate(
@@ -393,7 +394,8 @@ router.post('/businesses/:id/unverify', auth, adminAuth, async (req, res) => {
 router.post('/businesses/:id/grant-trial', auth, adminAuth, async (req, res) => {
   try {
     const Business = require('../models/Business');
-    const trialDays = parseInt(req.body.trialDays) || 30;
+    const rawTrialDays = parseInt(req.body.trialDays);
+    const trialDays = isNaN(rawTrialDays) ? 30 : Math.min(Math.max(rawTrialDays, 1), 365);
     const trialEndDate = new Date(Date.now() + trialDays * 24 * 60 * 60 * 1000);
 
     const business = await Business.findByIdAndUpdate(
@@ -413,13 +415,15 @@ router.post('/businesses/:id/grant-trial', auth, adminAuth, async (req, res) => 
 router.post('/businesses/:id/apply-discount', auth, adminAuth, async (req, res) => {
   try {
     const Business = require('../models/Business');
-    const { percent = 0, code = null, durationDays = 30 } = req.body;
+    const { percent = 0, code = null, durationDays: rawDuration = 30 } = req.body;
+    const durationDays = Math.min(Math.max(parseInt(rawDuration) || 30, 1), 365);
     const discountExpiryDate = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000);
+    const parsedPercent = parseInt(percent);
 
     const business = await Business.findByIdAndUpdate(
       req.params.id,
       {
-        discountPercent: Math.min(Math.max(parseInt(percent), 0), 100),
+        discountPercent: isNaN(parsedPercent) ? 0 : Math.min(Math.max(parsedPercent, 0), 100),
         discountCode: code,
         discountExpiryDate,
       },
@@ -737,17 +741,25 @@ router.post('/admins', auth, adminAuth, async (req, res) => {
       return res.status(403).json({ success: false, message: 'Only super admins can assign admin roles' });
     }
     const User = require('../models/User');
-    const targetUser = await User.findOne({ userId: parseInt(userId) });
+    const parsedUserId = parseInt(userId);
+    if (isNaN(parsedUserId)) {
+      return res.status(400).json({ success: false, message: 'Valid userId is required' });
+    }
+    // Check target user exists and their current role
+    const targetUser = await User.findOne({ userId: parsedUserId }).select('-password');
     if (!targetUser) return res.status(404).json({ success: false, message: 'User not found' });
     // Cannot modify another admin unless you are super_admin
     if (targetUser.role === 'admin' && req.user.role !== 'super_admin') {
       return res.status(403).json({ success: false, message: 'Only super admins can modify admin users' });
     }
-    targetUser.role = assignRole;
-    await targetUser.save();
-    const result = targetUser.toJSON();
-    delete result.password;
-    res.json({ success: true, data: result, message: 'Admin role assigned' });
+    // Atomic role assignment to prevent race conditions between concurrent admin ops
+    const updated = await User.findOneAndUpdate(
+      { userId: parsedUserId },
+      { $set: { role: assignRole } },
+      { new: true }
+    ).select('-password -refreshToken');
+    if (!updated) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true, data: updated, message: 'Admin role assigned' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to assign admin role' });
   }
@@ -765,7 +777,7 @@ router.put('/admins/:id', auth, adminAuth, async (req, res) => {
       return res.status(403).json({ success: false, message: 'Only super admins can assign admin roles' });
     }
     const User = require('../models/User');
-    const targetUser = await User.findById(req.params.id);
+    const targetUser = await User.findById(req.params.id).select('-password -refreshToken');
     if (!targetUser) return res.status(404).json({ success: false, message: 'User not found' });
     if (targetUser.role === 'admin' && req.user.role !== 'super_admin') {
       return res.status(403).json({ success: false, message: 'Only super admins can modify admin users' });
@@ -774,11 +786,14 @@ router.put('/admins/:id', auth, adminAuth, async (req, res) => {
     if (String(targetUser._id) === String(req.user._id)) {
       return res.status(400).json({ success: false, message: 'Cannot modify your own role' });
     }
-    targetUser.role = newRole;
-    await targetUser.save();
-    const result = targetUser.toJSON();
-    delete result.password;
-    res.json({ success: true, data: result, message: 'Admin role updated' });
+    // Atomic role update
+    const updated = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: { role: newRole } },
+      { new: true }
+    ).select('-password -refreshToken');
+    if (!updated) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true, data: updated, message: 'Admin role updated' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to update admin' });
   }

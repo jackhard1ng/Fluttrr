@@ -95,7 +95,10 @@ router.post('/stripe/create-payment-intent', auth, async (req, res) => {
 
     // Determine price server-side based on plan
     const planPrices = { pro: 2900, enterprise: 9900 };
-    const amount = planPrices[planId] || 2900;
+    if (!planPrices[planId]) {
+      return res.status(400).json({ success: false, message: 'Invalid plan ID. Must be pro or enterprise' });
+    }
+    const amount = planPrices[planId];
 
     // Free mode
     if (!stripe) {
@@ -216,11 +219,11 @@ router.post('/upgrade-to-premium', auth, async (req, res) => {
       }
     }
 
-    // Update business subscription
+    // Atomic update to prevent race condition on concurrent upgrade requests
     const now = new Date();
     const expiryDate = new Date(now.getTime() + plan.durationDays * 24 * 60 * 60 * 1000);
 
-    business.subscriptionStatus = {
+    const newSubStatus = {
       planId: planId || 'basic',
       planName: plan.name,
       status: 'active',
@@ -228,13 +231,32 @@ router.post('/upgrade-to-premium', auth, async (req, res) => {
       expiryDate: expiryDate,
       paymentIntentId: paymentIntentId || null,
     };
-    await business.save();
+
+    // Use atomic update: only update if paymentIntentId hasn't been set to this value
+    const updateQuery = paymentIntentId
+      ? { userId: req.user.userId, 'subscriptionStatus.paymentIntentId': { $ne: paymentIntentId } }
+      : { userId: req.user.userId };
+
+    const updated = await Business.findOneAndUpdate(
+      updateQuery,
+      { $set: { subscriptionStatus: newSubStatus } },
+      { new: true }
+    );
+
+    if (!updated) {
+      // Already processed this paymentIntentId
+      return res.json({
+        success: true,
+        message: `Already upgraded to ${plan.name} plan`,
+        data: { subscriptionStatus: business.subscriptionStatus },
+      });
+    }
 
     res.json({
       success: true,
       message: `Upgraded to ${plan.name} plan`,
       data: {
-        subscriptionStatus: business.subscriptionStatus,
+        subscriptionStatus: updated.subscriptionStatus,
       },
     });
   } catch (error) {

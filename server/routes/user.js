@@ -213,6 +213,13 @@ router.put('/update', auth, async (req, res) => {
       if (trimmedName.length < 2 || trimmedName.length > 30) {
         return res.status(400).json({ success: false, message: 'Username must be 2-30 characters' });
       }
+      // Check uniqueness before saving (schema has unique constraint, but this gives a clean error)
+      if (trimmedName !== user.userName) {
+        const existing = await User.findOne({ userName: trimmedName, _id: { $ne: user._id } });
+        if (existing) {
+          return res.status(409).json({ success: false, message: 'Username already taken' });
+        }
+      }
       user.userName = trimmedName;
     }
     if (age !== undefined) {
@@ -734,11 +741,19 @@ router.get('/ranking', auth, async (req, res) => {
           ((currentUser.activities?.joined || 0) * 2) +
           ((currentUser.activities?.created || 0) * 3);
 
+        // Use $expr with composite score to match the leaderboard sort order
         const higherCount = await User.countDocuments({
           status: { $nin: ['suspended', 'banned', 'deleted'] },
-          $or: [
-            { averageRating: { $gt: currentUser.averageRating || 0 } },
-          ],
+          $expr: {
+            $gt: [
+              { $add: [
+                { $multiply: [{ $ifNull: ['$averageRating', 0] }, 10] },
+                { $multiply: [{ $ifNull: ['$activities.joined', 0] }, 2] },
+                { $multiply: [{ $ifNull: ['$activities.created', 0] }, 3] },
+              ] },
+              score,
+            ],
+          },
         });
 
         currentUserEntry = {
