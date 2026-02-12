@@ -383,6 +383,11 @@ router.post('/create-event', auth, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Business profile not found. Please set up your business profile first.' });
     }
 
+    // Suspended businesses cannot create events
+    if (business.isSuspended) {
+      return res.status(403).json({ success: false, message: 'Your business has been suspended. Please contact support.' });
+    }
+
     // Only verified businesses can create events (admin must verify)
     if (!business.isVerified) {
       return res.status(403).json({ success: false, message: 'Your business must be verified by an admin before you can create events. Please wait for verification.' });

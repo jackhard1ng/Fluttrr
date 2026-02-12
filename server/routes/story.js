@@ -86,8 +86,17 @@ router.post('/', auth, upload.single('media'), async (req, res) => {
     const { type, event_id, caption } = req.body;
     const mediaUrl = req.file ? `/uploads/${req.file.filename}` : '';
 
-    if (!mediaUrl && type !== 'text') {
+    // Validate type
+    const validTypes = ['text', 'image', 'video'];
+    const storyType = validTypes.includes(type) ? type : 'image';
+
+    if (!mediaUrl && storyType !== 'text') {
       return res.status(400).json({ success: false, message: 'Media file is required' });
+    }
+
+    // Validate caption
+    if (caption && (typeof caption !== 'string' || caption.length > 500)) {
+      return res.status(400).json({ success: false, message: 'Caption must be 500 characters or less' });
     }
 
     const story = await Story.create({
@@ -95,7 +104,7 @@ router.post('/', auth, upload.single('media'), async (req, res) => {
       userName: req.user.userName,
       userAvatar: req.user.profile?.images?.[0] || '',
       eventId: event_id || null,
-      type: type || 'image',
+      type: storyType,
       mediaUrl,
       thumbnailUrl: mediaUrl,
       caption: caption || '',

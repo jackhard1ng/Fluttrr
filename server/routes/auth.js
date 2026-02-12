@@ -43,9 +43,12 @@ router.post('/login', async (req, res) => {
     // Update online status
     user.onlineStatus = 'online';
     user.lastSeen = new Date();
-    await user.save();
 
     const tokens = generateTokens(user._id);
+
+    // Store refresh token in DB for validation/revocation
+    user.refreshToken = tokens.refreshToken;
+    await user.save();
 
     // Determine whether profile setup is still needed
     const requiresProfileSetup = !user.profile || !user.profile.gender;
@@ -184,6 +187,10 @@ router.post('/verify-otp', async (req, res) => {
 
     const tokens = generateTokens(user._id);
 
+    // Store refresh token in DB for validation/revocation
+    user.refreshToken = tokens.refreshToken;
+    await user.save();
+
     return res.json({
       success: true,
       message: 'Account created successfully',
@@ -267,6 +274,11 @@ router.post('/google-login', async (req, res) => {
     }
 
     const tokens = generateTokens(user._id);
+
+    // Store refresh token in DB for validation/revocation
+    user.refreshToken = tokens.refreshToken;
+    await user.save();
+
     const requiresProfileSetup = !user.profile || !user.profile.gender;
 
     return res.json({

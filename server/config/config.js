@@ -10,8 +10,8 @@ module.exports = {
   jwt: {
     secret: process.env.JWT_SECRET || 'fluttrr-dev-secret-DO-NOT-USE-IN-PROD',
     refreshSecret: process.env.JWT_REFRESH_SECRET || 'fluttrr-refresh-secret-DO-NOT-USE-IN-PROD',
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
-    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d',
+    expiresIn: process.env.JWT_EXPIRES_IN || '1h',
+    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   },
   email: {
     host: process.env.SMTP_HOST || 'smtp.gmail.com',

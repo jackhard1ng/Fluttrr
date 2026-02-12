@@ -671,7 +671,9 @@ router.get('/ranking', auth, async (req, res) => {
       status: { $nin: ['suspended', 'banned', 'deleted'] },
     };
     try {
-      const hiddenProfiles = await Privacy.find({ profileVisibility: 'nobody' }).select('userId').lean();
+      const hiddenProfiles = await Privacy.find({
+        profileVisibility: { $in: ['nobody', 'matchesOnly'] },
+      }).select('userId').lean();
       if (hiddenProfiles.length > 0) {
         leaderboardFilter.userId = { $nin: hiddenProfiles.map((p) => p.userId) };
       }

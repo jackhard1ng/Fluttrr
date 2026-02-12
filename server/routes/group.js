@@ -321,10 +321,18 @@ router.post('/join', auth, async (req, res) => {
         isActive: true,
       };
 
-      await Group.findByIdAndUpdate(group_id, {
-        $push: { members: newMember },
-        $inc: { memberCount: 1 },
-      });
+      // Atomic: only add if user not already a member (prevents race condition)
+      const updated = await Group.findOneAndUpdate(
+        { _id: group_id, 'members.userId': { $ne: userId } },
+        {
+          $push: { members: newMember },
+          $inc: { memberCount: 1 },
+        },
+        { new: true }
+      );
+      if (!updated) {
+        return res.status(400).json({ success: false, message: 'Already a member of this group' });
+      }
 
       res.json({
         success: true,
@@ -369,10 +377,23 @@ router.post('/leave', auth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Owner cannot leave the group. Transfer ownership or delete the group.' });
     }
 
-    await Group.findByIdAndUpdate(group_id, {
-      $pull: { members: { userId } },
-      $inc: { memberCount: -1 },
-    });
+    // Atomic: only decrement if member was actually removed
+    const updated = await Group.findOneAndUpdate(
+      { _id: group_id, 'members.userId': userId },
+      {
+        $pull: { members: { userId } },
+        $inc: { memberCount: -1 },
+      },
+      { new: true }
+    );
+    if (!updated) {
+      return res.status(400).json({ success: false, message: 'Not a member of this group' });
+    }
+
+    // Ensure memberCount doesn't go negative
+    if (updated.memberCount < 0) {
+      await Group.findByIdAndUpdate(group_id, { memberCount: (updated.members || []).length });
+    }
 
     res.json({ success: true, message: 'Left group successfully' });
   } catch (error) {

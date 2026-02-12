@@ -27,13 +27,43 @@ function validateSortField(sortBy, entity) {
 router.post('/complain', auth, async (req, res) => {
   try {
     const { subject, description, category } = req.body;
+
+    // Validate inputs
+    if (!subject || typeof subject !== 'string' || subject.trim().length === 0) {
+      return res.status(400).json({ success: false, message: 'subject is required' });
+    }
+    if (subject.length > 200) {
+      return res.status(400).json({ success: false, message: 'subject must be 200 characters or less' });
+    }
+    if (!description || typeof description !== 'string' || description.trim().length === 0) {
+      return res.status(400).json({ success: false, message: 'description is required' });
+    }
+    if (description.length > 5000) {
+      return res.status(400).json({ success: false, message: 'description must be 5000 characters or less' });
+    }
+    const validCategories = ['abuse', 'spam', 'fraud', 'inappropriate_content', 'harassment', 'safety', 'bug', 'other'];
+    const normalizedCategory = category && typeof category === 'string' ? category.toLowerCase() : 'other';
+    if (!validCategories.includes(normalizedCategory)) {
+      return res.status(400).json({ success: false, message: `category must be one of: ${validCategories.join(', ')}` });
+    }
+
+    // Prevent duplicate complaints within 1 hour
     const Complaint = require('../models/Complaint');
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const recentComplaint = await Complaint.findOne({
+      userId: req.user.userId,
+      subject: subject.trim(),
+      createdAt: { $gte: oneHourAgo },
+    });
+    if (recentComplaint) {
+      return res.status(409).json({ success: false, message: 'You already submitted a similar complaint recently' });
+    }
 
     const complaint = await Complaint.create({
       userId: req.user.userId,
-      subject,
-      description,
-      category,
+      subject: subject.trim(),
+      description: description.trim(),
+      category: normalizedCategory,
     });
 
     res.json({ success: true, message: 'Complaint submitted', data: complaint });
