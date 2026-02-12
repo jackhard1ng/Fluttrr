@@ -138,6 +138,9 @@ router.post('/verify-otp', async (req, res) => {
     if (!email || !otp) {
       return res.status(400).json({ success: false, message: 'Email and OTP are required' });
     }
+    if (typeof otp !== 'string' || !/^\d{4,6}$/.test(otp.trim())) {
+      return res.status(400).json({ success: false, message: 'OTP must be 4-6 digits' });
+    }
 
     const normalizedEmail = email.toLowerCase().trim();
 
@@ -354,6 +357,9 @@ router.post('/verify-reset-otp', async (req, res) => {
 
     if (!email || !otp) {
       return res.status(400).json({ success: false, message: 'Email and OTP are required' });
+    }
+    if (typeof otp !== 'string' || !/^\d{4,6}$/.test(otp.trim())) {
+      return res.status(400).json({ success: false, message: 'OTP must be 4-6 digits' });
     }
 
     const normalizedEmail = email.toLowerCase().trim();

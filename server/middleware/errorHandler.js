@@ -1,14 +1,20 @@
 const errorHandler = (err, req, res, _next) => {
-  console.error('Error:', err.message);
+  const isProd = process.env.NODE_ENV === 'production';
+
+  // Log error (keep minimal in production)
+  if (isProd) {
+    console.error('[ERROR]', err.message, req.method, req.path);
+  } else {
+    console.error('Error:', err.message, err.stack);
+  }
 
   if (err.name === 'ValidationError') {
     const messages = Object.values(err.errors).map((e) => e.message);
-    return res.status(400).json({ success: false, message: messages.join(', ') });
+    return res.status(400).json({ success: false, message: isProd ? 'Validation error' : messages.join(', ') });
   }
 
   if (err.code === 11000) {
-    const field = Object.keys(err.keyPattern)[0];
-    return res.status(409).json({ success: false, message: `${field} already exists` });
+    return res.status(409).json({ success: false, message: 'A record with this value already exists' });
   }
 
   if (err.name === 'CastError') {
@@ -16,14 +22,14 @@ const errorHandler = (err, req, res, _next) => {
   }
 
   if (err.message === 'Invalid file type') {
-    return res.status(400).json({ success: false, message: 'Invalid file type. Allowed: JPEG, PNG, GIF, WebP, MP4' });
+    return res.status(400).json({ success: false, message: 'Invalid file type' });
   }
 
   if (err.code === 'LIMIT_FILE_SIZE') {
-    return res.status(400).json({ success: false, message: 'File too large. Maximum size is 5MB' });
+    return res.status(400).json({ success: false, message: 'File too large' });
   }
 
-  const message = process.env.NODE_ENV === 'production'
+  const message = isProd
     ? 'Internal server error'
     : (err.message || 'Internal server error');
   res.status(err.status || 500).json({

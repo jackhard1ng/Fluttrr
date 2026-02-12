@@ -429,8 +429,20 @@ router.get('/match', auth, async (req, res) => {
 
     // Respect privacy settings: exclude users who set showInNearby = false
     const hiddenFromNearby = await getHiddenUserIds('showInNearby');
-    if (hiddenFromNearby.size > 0) {
-      filter.userId = { $nin: Array.from(hiddenFromNearby) };
+    const hiddenUserIds = new Set(hiddenFromNearby);
+
+    // Also exclude users with profileVisibility set to 'nobody'
+    try {
+      const hiddenProfiles = await Privacy.find({
+        profileVisibility: 'nobody',
+      }).select('userId').lean();
+      hiddenProfiles.forEach((p) => hiddenUserIds.add(p.userId));
+    } catch (_) {
+      // Privacy check failure shouldn't block matching
+    }
+
+    if (hiddenUserIds.size > 0) {
+      filter.userId = { $nin: Array.from(hiddenUserIds) };
     }
 
     // If the current user has a location, try to find nearby users
@@ -499,8 +511,20 @@ router.get('/search', auth, async (req, res) => {
 
     // Respect privacy settings: exclude users who set showInSearch = false
     const hiddenFromSearch = await getHiddenUserIds('showInSearch');
-    if (hiddenFromSearch.size > 0) {
-      filter.userId = { $nin: Array.from(hiddenFromSearch) };
+    const hiddenSearchIds = new Set(hiddenFromSearch);
+
+    // Also exclude profiles hidden from discovery
+    try {
+      const hiddenProfiles = await Privacy.find({
+        profileVisibility: 'nobody',
+      }).select('userId').lean();
+      hiddenProfiles.forEach((p) => hiddenSearchIds.add(p.userId));
+    } catch (_) {
+      // Privacy check failure shouldn't block search
+    }
+
+    if (hiddenSearchIds.size > 0) {
+      filter.userId = { $nin: Array.from(hiddenSearchIds) };
     }
 
     const users = await User.find(filter)
