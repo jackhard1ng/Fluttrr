@@ -26,18 +26,20 @@ class CreateActivityScreen extends StatelessWidget {
     final hasSlotLimit = true.obs;
 
     final List<String> eventTypes = [
-      'Sports',
-      'Music',
-      'Food',
-      'Art',
       'Social',
-      'Gaming',
-      'Fitness',
-      'Travel',
+      'Food & Drinks',
       'Outdoor',
+      'Sports',
+      'Nightlife',
+      'Live Music',
+      'Fitness',
+      'Arts & Culture',
+      'Networking',
+      'Community',
       'Wellness',
-      'Learning',
-      'Other',
+      'Comedy',
+      'Markets & Fairs',
+      'Family',
     ];
 
     return Scaffold(

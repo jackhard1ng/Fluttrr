@@ -56,12 +56,16 @@ enum EventCategory {
   food('🍕', 'Food & Drinks', AppColors.friendlyOrange),
   outdoor('🌳', 'Outdoor', AppColors.success),
   sports('⚽', 'Sports', AppColors.primaryBlue),
-  games('🎮', 'Games', AppColors.friendlyTeal),
-  arts('🎨', 'Arts', AppColors.warmYellow),
-  music('🎵', 'Music', Color(0xFFE91E63)),
-  learning('📚', 'Learning', Color(0xFF795548)),
+  nightlife('🌙', 'Nightlife', Color(0xFF6A1B9A)),
+  liveMusic('🎵', 'Live Music', Color(0xFFE91E63)),
+  fitness('💪', 'Fitness', AppColors.friendlyTeal),
+  arts('🎨', 'Arts & Culture', AppColors.warmYellow),
+  networking('🤝', 'Networking', Color(0xFF0288D1)),
+  community('🏘️', 'Community', Color(0xFF795548)),
   wellness('🧘', 'Wellness', Color(0xFF00BCD4)),
-  movies('🎬', 'Movies', Color(0xFF9C27B0));
+  comedy('😂', 'Comedy', Color(0xFFFF6F00)),
+  markets('🛍️', 'Markets & Fairs', Color(0xFF9C27B0)),
+  family('👨‍👩‍👧', 'Family', Color(0xFF2E7D32));
 
   final String emoji;
   final String label;

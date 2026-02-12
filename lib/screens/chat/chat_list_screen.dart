@@ -24,7 +24,7 @@ class _ChatListScreenState extends State<ChatListScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _loadChats();
   }
 
@@ -37,7 +37,6 @@ class _ChatListScreenState extends State<ChatListScreen>
     await Future.wait([
       controller.loadChatList(),
       controller.loadGroupChats(),
-      controller.loadBusinessChats(),
     ], eagerError: false).catchError((e) {
       debugPrint('Error loading chats: $e');
       return <void>[];
@@ -156,9 +155,8 @@ class _ChatListScreenState extends State<ChatListScreen>
               unselectedLabelColor: AppColors.grey,
               indicatorColor: AppColors.primaryBlue,
               tabs: const [
-                Tab(text: 'Direct'),
-                Tab(text: 'Groups'),
-                Tab(text: 'Business'),
+                Tab(text: 'Direct Messages'),
+                Tab(text: 'Events'),
               ],
             ),
 
@@ -169,7 +167,6 @@ class _ChatListScreenState extends State<ChatListScreen>
                 children: [
                   const _DirectChatsTab(),
                   const _GroupChatsTab(),
-                  const _BusinessChatsTab(),
                 ],
               ),
             ),
@@ -200,8 +197,8 @@ class _DirectChatsTab extends StatelessWidget {
       if (chatController.conversations.isEmpty) {
         return const EmptyState(
           icon: Icons.chat_bubble_outline,
-          title: 'No Messages',
-          subtitle: 'Chat with people you meet at events!',
+          title: 'No Messages Yet',
+          subtitle: 'Your conversations will appear here',
         );
       }
 
@@ -232,9 +229,9 @@ class _GroupChatsTab extends StatelessWidget {
     return Obx(() {
       if (chatController.groupChats.isEmpty) {
         return const EmptyState(
-          icon: Icons.groups_outlined,
-          title: 'No Group Chats',
-          subtitle: 'Join activities to access group chats',
+          icon: Icons.event_outlined,
+          title: 'No Event Chats',
+          subtitle: 'Join events to access event group chats',
         );
       }
 

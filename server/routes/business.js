@@ -356,10 +356,6 @@ router.post('/create-event', auth, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Business profile not found. Please set up your business profile first.' });
     }
 
-    if (!business.isVerified) {
-      return res.status(403).json({ success: false, message: 'Your business must be verified before you can create events. Please contact support or wait for admin verification.' });
-    }
-
     const {
       name,
       description,
@@ -390,7 +386,7 @@ router.post('/create-event', auth, async (req, res) => {
       longitude: longitude != null ? parseFloat(longitude) : undefined,
       startDate: startTime ? new Date(startTime) : new Date(),
       endDate: endTime ? new Date(endTime) : undefined,
-      eventType: eventType || 'Free',
+      eventType: eventType || 'Social',
       totalSlots: parsedSlots,
       maxAttendees: parsedSlots,
       remainingSlots: parsedSlots,
@@ -401,6 +397,27 @@ router.post('/create-event', auth, async (req, res) => {
       views: 0,
       clicks: 0,
     });
+
+    // Auto-create a group chat for this event
+    try {
+      const Message = require('../models/Message');
+      const eventGroupId = `event_${event._id}`;
+      await Message.create({
+        senderId: req.user.userId,
+        senderName: business.businessName || 'Business',
+        content: `Welcome to the "${name}" event chat! Connect with other attendees here.`,
+        type: 'system',
+        isRead: false,
+        isGroup: true,
+        groupId: eventGroupId,
+        groupName: name,
+        groupImage: '',
+        groupMembers: [req.user.userId],
+        timestamp: new Date(),
+      });
+    } catch (groupErr) {
+      console.error('Auto-create group chat error (non-fatal):', groupErr);
+    }
 
     res.status(201).json({ success: true, data: formatBusinessEvent(event, req.user.userId) });
   } catch (error) {
@@ -513,6 +530,32 @@ router.post('/join-event', auth, async (req, res) => {
       $addToSet: { attendees: userId },
       $inc: { attendeesCount: 1, remainingSlots: event.remainingSlots != null ? -1 : 0 },
     });
+
+    // Auto-add user to the event group chat
+    try {
+      const Message = require('../models/Message');
+      const User = require('../models/User');
+      const eventGroupId = `event_${eventId}`;
+      const user = await User.findOne({ userId });
+      const userName = user?.userName || 'Someone';
+
+      // Add user as a group member by adding a system message
+      await Message.create({
+        senderId: userId,
+        senderName: userName,
+        content: `${userName} joined the event!`,
+        type: 'system',
+        isRead: false,
+        isGroup: true,
+        groupId: eventGroupId,
+        groupName: event.name,
+        groupImage: '',
+        groupMembers: [...(event.attendees || []), userId],
+        timestamp: new Date(),
+      });
+    } catch (groupErr) {
+      console.error('Auto-add to group chat error (non-fatal):', groupErr);
+    }
 
     res.json({ success: true, message: 'Joined event successfully' });
   } catch (error) {

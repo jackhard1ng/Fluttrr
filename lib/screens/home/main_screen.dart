@@ -125,7 +125,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                 BottomNavigationBarItem(
                   icon: _buildChatIcon(false),
                   activeIcon: _buildChatIcon(true),
-                  label: 'Chat',
+                  label: 'Messages',
                 ),
                 const BottomNavigationBarItem(
                   icon: Icon(Icons.person_outline),

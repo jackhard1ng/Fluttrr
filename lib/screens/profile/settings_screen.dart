@@ -46,7 +46,6 @@ class SettingsScreen extends StatelessWidget {
 
           // Privacy section
           _SectionHeader(title: 'Privacy'),
-          _LowProfileTile(),
           _SettingsTile(
             icon: Icons.visibility_outlined,
             title: 'Visibility & Preferences',

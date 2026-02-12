@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -9,8 +10,14 @@ import '../../controllers/profile_controller.dart';
 import '../../widgets/common_widgets.dart';
 
 /// Edit profile screen
-class EditProfileScreen extends StatelessWidget {
+class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
+
+  @override
+  State<EditProfileScreen> createState() => _EditProfileScreenState();
+}
+
+class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _pickAndUploadPhoto(ImageSource source) async {
     if (!Get.isRegistered<ProfileController>()) {
@@ -117,6 +124,8 @@ class EditProfileScreen extends StatelessWidget {
     );
   }
 
+  final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     final profileController = Get.find<ProfileController>();
@@ -148,6 +157,9 @@ class EditProfileScreen extends StatelessWidget {
                 onPressed: profileController.isUpdating.value
                     ? null
                     : () async {
+                        if (!(_formKey.currentState?.validate() ?? false)) {
+                          return;
+                        }
                         final success =
                             await profileController.updateProfile();
                         if (success) {
@@ -184,7 +196,9 @@ class EditProfileScreen extends StatelessWidget {
               )),
         ],
       ),
-      body: SingleChildScrollView(
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -260,9 +274,23 @@ class EditProfileScreen extends StatelessWidget {
             CustomTextField(
               controller: profileController.ageController,
               labelText: 'Age',
-              hintText: 'Enter your age',
+              hintText: 'Must be 18 or older',
               keyboardType: TextInputType.number,
               prefixIcon: const Icon(Icons.cake_outlined),
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(3),
+              ],
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your age';
+                }
+                final age = int.tryParse(value);
+                if (age == null) return 'Please enter a valid number';
+                if (age < 18) return 'You must be at least 18 years old';
+                if (age > 120) return 'Please enter a valid age';
+                return null;
+              },
             ),
 
             const SizedBox(height: AppSpacing.lg),
@@ -358,6 +386,7 @@ class EditProfileScreen extends StatelessWidget {
             }),
           ],
         ),
+      ),
       ),
     );
   }
@@ -487,9 +516,17 @@ class _BrowseLocationSection extends StatelessWidget {
 
         // Popular cities
         Text(
-          'Popular Cities',
+          'Available Cities',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 fontWeight: FontWeight.w600,
+              ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          'More cities coming soon!',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppColors.mediumGrey,
+                fontSize: 11,
               ),
         ),
         const SizedBox(height: AppSpacing.sm),
@@ -497,14 +534,7 @@ class _BrowseLocationSection extends StatelessWidget {
           spacing: AppSpacing.sm,
           runSpacing: AppSpacing.sm,
           children: [
-            'New York',
-            'Los Angeles',
-            'Chicago',
-            'Houston',
-            'Miami',
-            'Seattle',
-            'Denver',
-            'Austin',
+            'Kansas City',
           ].map((city) {
             return GestureDetector(
               onTap: () => controller.setBrowseLocation(city),

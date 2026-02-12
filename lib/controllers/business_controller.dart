@@ -182,6 +182,7 @@ class BusinessController extends GetxController {
     String? email,
     String? phone,
     String? location,
+    String? address,
     String? website,
     String? facebook,
     String? instagram,
@@ -193,7 +194,8 @@ class BusinessController extends GetxController {
     final businessEmail = email ?? businessEmailController.text.trim();
     final businessPhone = phone ?? businessPhoneController.text.trim();
     final businessDescription = description ?? businessDescriptionController.text.trim();
-    final businessAddress = location ?? businessAddressController.text.trim();
+    final businessLocation = location ?? businessAddressController.text.trim();
+    final businessAddress = address ?? '';
     final businessWebsite = website ?? businessWebsiteController.text.trim();
 
     // Validate
@@ -212,7 +214,8 @@ class BusinessController extends GetxController {
         phone: businessPhone,
         description: businessDescription,
         category: selectedCategory.value,
-        address: businessAddress,
+        address: businessAddress.isNotEmpty ? businessAddress : businessLocation,
+        location: businessLocation,
         latitude: businessLatitude.value != 0 ? businessLatitude.value : null,
         longitude: businessLongitude.value != 0 ? businessLongitude.value : null,
         website: businessWebsite.isNotEmpty ? businessWebsite : null,

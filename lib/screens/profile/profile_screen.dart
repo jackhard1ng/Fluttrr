@@ -71,6 +71,9 @@ class ProfileScreen extends StatelessWidget {
 
                   const SizedBox(height: AppSpacing.lg),
 
+                  // Profile details (age, gender, location)
+                  _ProfileDetails(controller: profileController),
+
                   // Business Dashboard Card (for business accounts)
                   if (profileController.currentUser.value?.isBusinessAccount == true)
                     const _BusinessDashboardCard(),
@@ -293,15 +296,33 @@ class _ProfileHeader extends StatelessWidget {
   }
 }
 
-/// Profile completion widget
+/// Profile completion widget with guidance on what's missing
 class _ProfileCompletion extends StatelessWidget {
   final ProfileController controller;
 
   const _ProfileCompletion({required this.controller});
 
+  List<String> _getMissingItems() {
+    final missing = <String>[];
+    final user = controller.currentUser.value;
+    if (user == null) return missing;
+
+    if (user.userName == null || user.userName!.isEmpty) missing.add('Username');
+    if (user.profile?.age == null) missing.add('Age');
+    if (user.profile?.gender == null || user.profile!.gender!.isEmpty) missing.add('Gender');
+    if (user.profile?.bio == null || user.profile!.bio!.isEmpty) missing.add('Bio');
+    if (user.profile?.interests == null || user.profile!.interests!.isEmpty) missing.add('Interests');
+    if (user.profile?.images == null || user.profile!.images!.isEmpty) missing.add('Profile photo');
+    if (user.profile?.location == null || user.profile!.location!.isEmpty) missing.add('Location');
+    if (user.profile?.languages == null || user.profile!.languages!.isEmpty) missing.add('Languages');
+
+    return missing;
+  }
+
   @override
   Widget build(BuildContext context) {
     final percentage = controller.profileCompletion.value / 100;
+    final missing = _getMissingItems();
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -309,55 +330,82 @@ class _ProfileCompletion extends StatelessWidget {
         gradient: AppGradients.primaryHorizontal,
         borderRadius: BorderRadius.circular(AppRadius.md),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircularPercentIndicator(
-            radius: 30,
-            lineWidth: 5,
-            percent: percentage,
-            center: Text(
-              '${controller.profileCompletion.value}%',
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
-            ),
-            progressColor: Colors.white,
-            backgroundColor: Colors.white30,
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Profile Completion',
-                  style: TextStyle(
+          Row(
+            children: [
+              CircularPercentIndicator(
+                radius: 30,
+                lineWidth: 5,
+                percent: percentage,
+                center: Text(
+                  '${controller.profileCompletion.value}%',
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  percentage < 1
-                      ? 'Complete your profile to make more connections!'
-                      : 'Your profile is complete!',
-                  style: TextStyle(
-                    color: Colors.white.withAlpha(204),
                     fontSize: 12,
                   ),
                 ),
-              ],
-            ),
+                progressColor: Colors.white,
+                backgroundColor: Colors.white30,
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Profile Completion',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      percentage >= 1
+                          ? 'Your profile is complete!'
+                          : 'Tap to complete your profile',
+                      style: TextStyle(
+                        color: Colors.white.withAlpha(204),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
+          if (missing.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: missing.map((item) => Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: Colors.white.withAlpha(38),
+                  borderRadius: BorderRadius.circular(AppRadius.circular),
+                ),
+                child: Text(
+                  '+ $item',
+                  style: TextStyle(
+                    color: Colors.white.withAlpha(230),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              )).toList(),
+            ),
+          ],
         ],
       ),
     );
   }
 }
 
-/// Stats section widget
+/// Stats section widget - shows events attended
 class _StatsSection extends StatelessWidget {
   final ProfileController controller;
 
@@ -368,13 +416,7 @@ class _StatsSection extends StatelessWidget {
     return Row(
       children: [
         _StatCard(
-          label: 'Created',
-          value: controller.totalActivities.value.toString(),
-          icon: Icons.event,
-        ),
-        const SizedBox(width: AppSpacing.md),
-        _StatCard(
-          label: 'Attended',
+          label: 'Events Attended',
           value: controller.joinedActivities.value.toString(),
           icon: Icons.check_circle,
         ),
@@ -438,6 +480,80 @@ class _StatCard extends StatelessWidget {
             ),
           ],
         ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Profile details section - shows age, gender, location
+class _ProfileDetails extends StatelessWidget {
+  final ProfileController controller;
+
+  const _ProfileDetails({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    final age = controller.age;
+    final gender = controller.gender;
+    final location = controller.location;
+
+    // Don't show section if no details are available
+    if (age == null && (gender == null || gender.isEmpty) && (location == null || location.isEmpty)) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          boxShadow: AppShadows.small,
+        ),
+        child: Wrap(
+          spacing: AppSpacing.lg,
+          runSpacing: AppSpacing.sm,
+          children: [
+            if (age != null)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.cake_outlined, size: 18, color: AppColors.primaryBlue),
+                  const SizedBox(width: 6),
+                  Text(
+                    '$age years old',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            if (gender != null && gender.isNotEmpty)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.person_outlined, size: 18, color: AppColors.primaryBlue),
+                  const SizedBox(width: 6),
+                  Text(
+                    gender,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            if (location != null && location.isNotEmpty)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.location_on_outlined, size: 18, color: AppColors.primaryBlue),
+                  const SizedBox(width: 6),
+                  Text(
+                    location,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+          ],
         ),
       ),
     );

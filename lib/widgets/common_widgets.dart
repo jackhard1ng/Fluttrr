@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../constants/api_endpoints.dart';
@@ -219,6 +220,7 @@ class CustomTextField extends StatelessWidget {
   final FocusNode? focusNode;
   final TextInputAction? textInputAction;
   final void Function(String)? onSubmitted;
+  final List<TextInputFormatter>? inputFormatters;
 
   const CustomTextField({
     super.key,
@@ -236,6 +238,7 @@ class CustomTextField extends StatelessWidget {
     this.focusNode,
     this.textInputAction,
     this.onSubmitted,
+    this.inputFormatters,
   });
 
   @override
@@ -262,6 +265,7 @@ class CustomTextField extends StatelessWidget {
           focusNode: focusNode,
           textInputAction: textInputAction,
           onFieldSubmitted: onSubmitted,
+          inputFormatters: inputFormatters,
           decoration: InputDecoration(
             hintText: hintText,
             prefixIcon: prefixIcon,

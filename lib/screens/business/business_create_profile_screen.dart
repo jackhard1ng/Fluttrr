@@ -33,6 +33,7 @@ class _BusinessCreateProfileScreenState
   final _emailController = TextEditingController();
   final _otpController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _addressController = TextEditingController();
   final _locationController = TextEditingController();
   final _websiteController = TextEditingController();
   final _facebookController = TextEditingController();
@@ -54,6 +55,7 @@ class _BusinessCreateProfileScreenState
     _emailController.dispose();
     _otpController.dispose();
     _phoneController.dispose();
+    _addressController.dispose();
     _locationController.dispose();
     _websiteController.dispose();
     _facebookController.dispose();
@@ -219,6 +221,7 @@ class _BusinessCreateProfileScreenState
       email: _emailController.text,
       phone: _phoneController.text,
       location: _locationController.text,
+      address: _addressController.text,
       website: _websiteController.text,
       facebook: _facebookController.text,
       instagram: _instagramController.text,
@@ -314,17 +317,27 @@ class _BusinessCreateProfileScreenState
                     const SizedBox(height: AppSpacing.lg),
 
                     // Location
-                    _buildLabel('Location'),
+                    _buildLabel('City'),
                     CustomTextField(
                       controller: _locationController,
-                      hintText: 'Enter business location',
+                      hintText: 'e.g. Kansas City',
                       prefixIcon: const Icon(Icons.location_on),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter location';
+                          return 'Please enter city';
                         }
                         return null;
                       },
+                    ),
+
+                    const SizedBox(height: AppSpacing.lg),
+
+                    // Address
+                    _buildLabel('Business Address'),
+                    CustomTextField(
+                      controller: _addressController,
+                      hintText: 'Enter full street address',
+                      prefixIcon: const Icon(Icons.home),
                     ),
 
                     const SizedBox(height: AppSpacing.lg),

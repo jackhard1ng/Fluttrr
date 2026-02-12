@@ -42,7 +42,8 @@ class ProfileController extends GetxController {
   final RxList<String> selectedLanguages = <String>[].obs;
 
   /// Browse location for finding events in different cities (travel mode)
-  final RxString browseLocation = ''.obs;
+  /// Defaults to Kansas City for now
+  final RxString browseLocation = 'Kansas City'.obs;
 
   @override
   void onInit() {

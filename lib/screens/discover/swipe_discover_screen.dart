@@ -204,7 +204,26 @@ class _SwipeDiscoverScreenState extends State<SwipeDiscoverScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Discover'),
+        title: Column(
+          children: [
+            const Text('Discover'),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.location_on, size: 12, color: AppColors.primaryBlue),
+                const SizedBox(width: 2),
+                Text(
+                  'Kansas City',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppColors.mediumGrey,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -670,32 +689,40 @@ class _ActivityCard extends StatelessWidget {
 
   IconData _getEventIcon(String? eventType) {
     final icons = {
-      'Coffee': Icons.coffee,
-      'Hiking': Icons.terrain,
-      'Games': Icons.casino,
+      'Social': Icons.celebration,
+      'Food & Drinks': Icons.restaurant,
+      'Outdoor': Icons.park,
       'Sports': Icons.sports_basketball,
-      'Food': Icons.restaurant,
-      'Arts': Icons.palette,
-      'Music': Icons.music_note,
-      'Movies': Icons.movie,
-      'Outdoors': Icons.park,
+      'Nightlife': Icons.nightlife,
+      'Live Music': Icons.music_note,
       'Fitness': Icons.fitness_center,
+      'Arts & Culture': Icons.palette,
+      'Networking': Icons.handshake,
+      'Community': Icons.groups,
+      'Wellness': Icons.spa,
+      'Comedy': Icons.sentiment_very_satisfied,
+      'Markets & Fairs': Icons.storefront,
+      'Family': Icons.family_restroom,
     };
     return icons[eventType] ?? Icons.event;
   }
 
   Color _getEventColor(String? eventType) {
     final colors = {
-      'Coffee': AppColors.friendlyOrange,
-      'Hiking': AppColors.friendlyTeal,
-      'Games': AppColors.friendlyPurple,
+      'Social': AppColors.friendlyPurple,
+      'Food & Drinks': AppColors.friendlyOrange,
+      'Outdoor': AppColors.success,
       'Sports': AppColors.primaryBlue,
-      'Food': AppColors.warmYellow,
-      'Arts': const Color(0xFFE91E63),
-      'Music': const Color(0xFF9C27B0),
-      'Movies': const Color(0xFF795548),
-      'Outdoors': const Color(0xFF4CAF50),
-      'Fitness': const Color(0xFFFF5722),
+      'Nightlife': const Color(0xFF6A1B9A),
+      'Live Music': const Color(0xFFE91E63),
+      'Fitness': AppColors.friendlyTeal,
+      'Arts & Culture': AppColors.warmYellow,
+      'Networking': const Color(0xFF0288D1),
+      'Community': const Color(0xFF795548),
+      'Wellness': const Color(0xFF00BCD4),
+      'Comedy': const Color(0xFFFF6F00),
+      'Markets & Fairs': const Color(0xFF9C27B0),
+      'Family': const Color(0xFF2E7D32),
     };
     return colors[eventType] ?? AppColors.primaryBlue;
   }
@@ -1028,8 +1055,10 @@ class _FiltersSheetState extends State<_FiltersSheet> {
   @override
   Widget build(BuildContext context) {
     final eventTypes = [
-      'Coffee', 'Hiking', 'Games', 'Sports', 'Food',
-      'Arts', 'Music', 'Movies', 'Outdoors', 'Fitness',
+      'Social', 'Food & Drinks', 'Outdoor', 'Sports',
+      'Nightlife', 'Live Music', 'Fitness', 'Arts & Culture',
+      'Networking', 'Community', 'Wellness', 'Comedy',
+      'Markets & Fairs', 'Family',
     ];
 
     return Container(

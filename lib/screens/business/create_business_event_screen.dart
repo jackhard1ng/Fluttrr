@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -36,10 +37,15 @@ class _CreateBusinessEventScreenState extends State<CreateBusinessEventScreen> {
   File? _eventImage;
   DateTime? _startDate;
   DateTime? _endDate;
-  String _eventType = 'Free';
+  String _eventType = 'Social';
   String _privacy = 'Public';
 
-  final List<String> _eventTypes = ['Free', 'Paid'];
+  final List<String> _eventTypes = [
+    'Social', 'Food & Drinks', 'Outdoor', 'Sports',
+    'Nightlife', 'Live Music', 'Fitness', 'Arts & Culture',
+    'Networking', 'Community', 'Wellness', 'Comedy',
+    'Markets & Fairs', 'Family',
+  ];
   final List<String> _privacyOptions = ['Public', 'Followers Only', 'Private'];
 
   @override
@@ -306,11 +312,16 @@ class _CreateBusinessEventScreenState extends State<CreateBusinessEventScreen> {
                       hintText: 'Enter max number of attendees',
                       prefixIcon: const Icon(Icons.people),
                       keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(6),
+                      ],
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter max attendees';
                         }
-                        if (int.tryParse(value) == null) {
+                        final num = int.tryParse(value);
+                        if (num == null || num <= 0) {
                           return 'Please enter a valid number';
                         }
                         return null;

@@ -618,12 +618,14 @@ class _FilterChips extends StatelessWidget {
 
   static const List<String> _eventTypes = [
     'All',
-    'Sports',
-    'Music',
-    'Food',
-    'Art',
     'Social',
-    'Other',
+    'Food & Drinks',
+    'Sports',
+    'Nightlife',
+    'Live Music',
+    'Outdoor',
+    'Fitness',
+    'Networking',
   ];
 
   @override

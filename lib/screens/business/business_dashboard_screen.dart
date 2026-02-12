@@ -366,14 +366,14 @@ class _QuickActionsGrid extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: AppSpacing.md,
       crossAxisSpacing: AppSpacing.md,
-      childAspectRatio: 0.95,
+      childAspectRatio: 0.85,
       children: [
         _QuickActionTile(
-          icon: Icons.chat_outlined,
-          label: 'Messages',
-          subtitle: 'Chat with users',
+          icon: Icons.notifications_outlined,
+          label: 'Notifications',
+          subtitle: 'View updates',
           color: AppColors.primaryBlue,
-          onTap: () => Nav.toChatList(),
+          onTap: () => Nav.toNotifications(),
         ),
         _QuickActionTile(
           icon: Icons.store_outlined,
