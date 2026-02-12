@@ -382,6 +382,33 @@ router.post('/create-event', auth, async (req, res) => {
       return res.status(403).json({ success: false, message: 'Your business must be verified by an admin before you can create events. Please wait for verification.' });
     }
 
+    // ---------- Payment / subscription / trial gate ----------
+    // Determine if this business can post for free or needs to pay.
+    const config = require('../config/config');
+    const stripeConfigured = !!config.stripe.secretKey;
+    const now = new Date();
+
+    const hasActiveSub = business.subscriptionStatus &&
+      business.subscriptionStatus.status === 'active' &&
+      business.subscriptionStatus.expiryDate &&
+      business.subscriptionStatus.expiryDate > now;
+
+    const hasActiveTrial = business.trialEndDate && business.trialEndDate > now;
+
+    // When Stripe is configured, require payment unless covered
+    if (stripeConfigured && !hasActiveSub && !hasActiveTrial) {
+      return res.status(402).json({
+        success: false,
+        message: 'A subscription or active trial is required to post events. Please subscribe to continue.',
+        code: 'PAYMENT_REQUIRED',
+        data: {
+          hasSubscription: false,
+          hasTrial: false,
+          trialExpired: business.trialEndDate ? business.trialEndDate <= now : false,
+        },
+      });
+    }
+
     const {
       name,
       description,

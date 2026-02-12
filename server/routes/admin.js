@@ -315,12 +315,21 @@ router.get('/businesses/:id', auth, adminAuth, async (req, res) => {
 });
 
 // POST /api/admin/businesses/:id/verify
+// Verifies a business and auto-grants a 30-day free trial for event posting.
+// Optional body: { trialDays: 60 } to set a custom trial length.
 router.post('/businesses/:id/verify', auth, adminAuth, async (req, res) => {
   try {
     const Business = require('../models/Business');
-    const business = await Business.findByIdAndUpdate(req.params.id, { isVerified: true }, { new: true });
+    const trialDays = parseInt(req.body.trialDays) || 30;
+    const trialEndDate = new Date(Date.now() + trialDays * 24 * 60 * 60 * 1000);
+
+    const business = await Business.findByIdAndUpdate(
+      req.params.id,
+      { isVerified: true, trialEndDate },
+      { new: true },
+    );
     if (!business) return res.status(404).json({ success: false, message: 'Business not found' });
-    res.json({ success: true, data: business, message: 'Business verified' });
+    res.json({ success: true, data: business, message: `Business verified with ${trialDays}-day free trial` });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to verify business' });
   }
@@ -335,6 +344,51 @@ router.post('/businesses/:id/unverify', auth, adminAuth, async (req, res) => {
     res.json({ success: true, data: business, message: 'Business verification removed' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to unverify business' });
+  }
+});
+
+// POST /api/admin/businesses/:id/grant-trial
+// Extend or grant a free trial period.
+// Body: { trialDays: 30 }
+router.post('/businesses/:id/grant-trial', auth, adminAuth, async (req, res) => {
+  try {
+    const Business = require('../models/Business');
+    const trialDays = parseInt(req.body.trialDays) || 30;
+    const trialEndDate = new Date(Date.now() + trialDays * 24 * 60 * 60 * 1000);
+
+    const business = await Business.findByIdAndUpdate(
+      req.params.id,
+      { trialEndDate },
+      { new: true },
+    );
+    if (!business) return res.status(404).json({ success: false, message: 'Business not found' });
+    res.json({ success: true, data: business, message: `${trialDays}-day trial granted` });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to grant trial' });
+  }
+});
+
+// POST /api/admin/businesses/:id/apply-discount
+// Apply a discount to a business. Body: { percent: 50, code: 'LAUNCH50', durationDays: 90 }
+router.post('/businesses/:id/apply-discount', auth, adminAuth, async (req, res) => {
+  try {
+    const Business = require('../models/Business');
+    const { percent = 0, code = null, durationDays = 30 } = req.body;
+    const discountExpiryDate = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000);
+
+    const business = await Business.findByIdAndUpdate(
+      req.params.id,
+      {
+        discountPercent: Math.min(Math.max(parseInt(percent), 0), 100),
+        discountCode: code,
+        discountExpiryDate,
+      },
+      { new: true },
+    );
+    if (!business) return res.status(404).json({ success: false, message: 'Business not found' });
+    res.json({ success: true, data: business, message: `${percent}% discount applied for ${durationDays} days` });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to apply discount' });
   }
 });
 

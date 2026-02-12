@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../config/routes.dart';
 import '../models/business_model.dart';
 import '../repositories/business_repository.dart';
 import '../services/location_service.dart';
@@ -478,6 +479,17 @@ class BusinessController extends GetxController {
         await loadMyBusinessEvents();
         return true;
       } else {
+        // 402 = payment required - redirect to subscription screen
+        if (response.statusCode == 402) {
+          errorMessage.value = '';
+          Get.snackbar(
+            'Subscription Required',
+            'Subscribe to a plan to start posting events.',
+            snackPosition: SnackPosition.BOTTOM,
+          );
+          Nav.toSubscription();
+          return false;
+        }
         errorMessage.value = response.displayMessage;
         return false;
       }
@@ -543,6 +555,17 @@ class BusinessController extends GetxController {
         await loadMyBusinessEvents();
         return true;
       } else {
+        // 402 = payment required - redirect to subscription screen
+        if (response.statusCode == 402) {
+          errorMessage.value = '';
+          Get.snackbar(
+            'Subscription Required',
+            'Subscribe to a plan to start posting events.',
+            snackPosition: SnackPosition.BOTTOM,
+          );
+          Nav.toSubscription();
+          return false;
+        }
         errorMessage.value = response.displayMessage;
         return false;
       }

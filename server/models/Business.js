@@ -61,6 +61,13 @@ const businessSchema = new mongoose.Schema(
       type: subscriptionStatusSchema,
       default: () => ({}),
     },
+    // Free trial: businesses get a trial period after verification.
+    // During trial they can post events without payment.
+    trialEndDate: { type: Date, default: null },
+    // Discount: percentage off event-posting fees (0-100), set by admin.
+    discountPercent: { type: Number, default: 0, min: 0, max: 100 },
+    discountCode: { type: String, default: null },
+    discountExpiryDate: { type: Date, default: null },
     averageRating: { type: Number, default: 0, min: 0, max: 5 },
     reviewCount: { type: Number, default: 0, min: 0 },
   },
@@ -137,6 +144,14 @@ businessSchema.set('toJSON', {
         is_active: sub.isActive,
         isActive: sub.isActive,
       },
+      trial_end_date: ret.trialEndDate,
+      trialEndDate: ret.trialEndDate,
+      discount_percent: ret.discountPercent,
+      discountPercent: ret.discountPercent,
+      discount_code: ret.discountCode,
+      discountCode: ret.discountCode,
+      discount_expiry_date: ret.discountExpiryDate,
+      discountExpiryDate: ret.discountExpiryDate,
       average_rating: ret.averageRating,
       averageRating: ret.averageRating,
       rating: ret.averageRating,
