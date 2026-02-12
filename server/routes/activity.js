@@ -321,6 +321,9 @@ router.put('/update/:activityId', auth, async (req, res) => {
     if (event_type !== undefined) activity.eventType = event_type;
     if (total_slots !== undefined) {
       const newTotal = parseInt(total_slots);
+      if (isNaN(newTotal) || newTotal < 1) {
+        return res.status(400).json({ success: false, message: 'total_slots must be a valid positive number' });
+      }
       const currentAttendees = activity.attendees ? activity.attendees.length : 0;
       if (newTotal < currentAttendees) {
         return res.status(400).json({
@@ -1518,8 +1521,12 @@ router.put('/recurring/update', auth, async (req, res) => {
     if (longitude !== undefined) series.longitude = parseFloat(longitude);
     if (event_type !== undefined) series.eventType = event_type;
     if (total_slots !== undefined) {
-      series.totalSlots = parseInt(total_slots);
-      series.remainingSlots = parseInt(total_slots);
+      const newTotal = parseInt(total_slots);
+      if (isNaN(newTotal) || newTotal < 1) {
+        return res.status(400).json({ success: false, message: 'total_slots must be a valid positive number' });
+      }
+      series.totalSlots = newTotal;
+      series.remainingSlots = newTotal;
     }
 
     // Update recurrence rule fields
