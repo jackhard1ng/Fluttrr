@@ -55,8 +55,7 @@ class BusinessDashboardScreen extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Obx(() => Text(
-                            profileController.currentUser.value?.businessName ??
-                                profileController.userName,
+                            profileController.displayName,
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,

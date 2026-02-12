@@ -126,7 +126,12 @@ class UserModel {
 
   bool get canCreateEvents => isBusinessAccount;
 
-  String get displayName => userName ?? 'User';
+  String get displayName {
+    if (isBusinessAccount && businessName != null && businessName!.isNotEmpty) {
+      return businessName!;
+    }
+    return userName ?? 'User';
+  }
 
   String? get profileImage {
     final images = profile?.images;

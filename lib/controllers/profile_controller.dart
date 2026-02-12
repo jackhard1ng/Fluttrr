@@ -186,6 +186,7 @@ class ProfileController extends GetxController {
       if (response.success) {
         if (response.data != null) {
           currentUser.value = response.data;
+          _populateEditControllers();
         }
         return true;
       } else {
@@ -455,6 +456,7 @@ class ProfileController extends GetxController {
 
   // Getters for convenience
   String get userName => currentUser.value?.userName ?? 'User';
+  String get displayName => currentUser.value?.displayName ?? 'User';
   String? get profileImage => currentUser.value?.profileImage;
   String? get bio => currentUser.value?.profile?.bio;
   int? get age => currentUser.value?.profile?.age;

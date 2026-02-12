@@ -246,7 +246,7 @@ class _ProfileHeader extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              controller.userName,
+              controller.displayName,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             if (isBusinessAccount) ...[
@@ -307,7 +307,7 @@ class _ProfileCompletion extends StatelessWidget {
     final user = controller.currentUser.value;
     if (user == null) return missing;
 
-    if (user.userName == null || user.userName!.isEmpty) missing.add('Username');
+    if (user.userName == null || user.userName!.isEmpty) missing.add('Name');
     if (user.profile?.age == null) missing.add('Age');
     if (user.profile?.gender == null || user.profile!.gender!.isEmpty) missing.add('Gender');
     if (user.profile?.bio == null || user.profile!.bio!.isEmpty) missing.add('Bio');

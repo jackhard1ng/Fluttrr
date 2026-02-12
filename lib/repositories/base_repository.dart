@@ -676,7 +676,14 @@ abstract class BaseRepository {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         T? parsedData;
         if (fromJson != null) {
-          parsedData = fromJson(data);
+          // Server wraps response data under a 'data' key:
+          // { "success": true, "data": { ...actual model fields... } }
+          // Unwrap it before passing to fromJson, but only when 'data' is a Map
+          // (list responses and models that read 'data' themselves are unaffected)
+          final jsonForModel = data.containsKey('data') && data['data'] is Map<String, dynamic>
+              ? data['data'] as Map<String, dynamic>
+              : data;
+          parsedData = fromJson(jsonForModel);
         } else {
           // When no fromJson provided, pass through raw data map
           // so callers can access response fields directly

@@ -260,11 +260,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
             const SizedBox(height: AppSpacing.xl),
 
-            // Username
+            // Name
             CustomTextField(
               controller: profileController.userNameController,
-              labelText: 'Username',
-              hintText: 'Enter your username',
+              labelText: 'Name',
+              hintText: 'Enter your name',
               prefixIcon: const Icon(Icons.person_outlined),
             ),
 
