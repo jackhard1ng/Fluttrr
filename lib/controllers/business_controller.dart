@@ -429,6 +429,8 @@ class BusinessController extends GetxController {
 
   /// Create business event using internal form controllers
   Future<bool> createBusinessEvent() async {
+    if (isCreating.value) return false; // Prevent double-tap
+
     if (!isBusinessVerified) {
       errorMessage.value = 'Your business must be verified by an admin before you can create events.';
       return false;
@@ -519,6 +521,8 @@ class BusinessController extends GetxController {
     String? ticketUrl,
     File? image,
   }) async {
+    if (isCreating.value) return false; // Prevent double-tap
+
     if (!isBusinessVerified) {
       errorMessage.value = 'Your business must be verified by an admin before you can create events.';
       return false;

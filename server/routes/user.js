@@ -206,10 +206,14 @@ router.put('/update', auth, async (req, res) => {
     }
 
     if (userName !== undefined) {
-      if (typeof userName !== 'string' || userName.length > 50) {
-        return res.status(400).json({ success: false, message: 'Username must be 50 characters or less' });
+      if (typeof userName !== 'string') {
+        return res.status(400).json({ success: false, message: 'Username must be a string' });
       }
-      user.userName = userName;
+      const trimmedName = userName.trim();
+      if (trimmedName.length < 2 || trimmedName.length > 30) {
+        return res.status(400).json({ success: false, message: 'Username must be 2-30 characters' });
+      }
+      user.userName = trimmedName;
     }
     if (age !== undefined) {
       const ageNum = parseInt(age, 10);
@@ -1002,11 +1006,27 @@ router.put('/reminder-preferences', auth, async (req, res) => {
   try {
     const { activityReminders, messageNotifications, promotionalEmails, reminderTime } = req.body;
 
+    // Validate boolean fields
+    const booleanFields = { activityReminders, messageNotifications, promotionalEmails };
+    for (const [key, value] of Object.entries(booleanFields)) {
+      if (value !== undefined && typeof value !== 'boolean') {
+        return res.status(400).json({ success: false, message: `${key} must be a boolean` });
+      }
+    }
+
+    // Validate reminderTime
+    if (reminderTime !== undefined) {
+      const time = parseInt(reminderTime, 10);
+      if (isNaN(time) || time < 0 || time > 1440) {
+        return res.status(400).json({ success: false, message: 'reminderTime must be 0-1440 minutes' });
+      }
+    }
+
     const update = {};
     if (activityReminders !== undefined) update['reminderPreferences.activityReminders'] = activityReminders;
     if (messageNotifications !== undefined) update['reminderPreferences.messageNotifications'] = messageNotifications;
     if (promotionalEmails !== undefined) update['reminderPreferences.promotionalEmails'] = promotionalEmails;
-    if (reminderTime !== undefined) update['reminderPreferences.reminderTime'] = reminderTime;
+    if (reminderTime !== undefined) update['reminderPreferences.reminderTime'] = parseInt(reminderTime, 10);
 
     const user = await User.findByIdAndUpdate(
       req.userId,

@@ -358,6 +358,15 @@ router.delete('/delete/:activityId', auth, async (req, res) => {
       return res.status(403).json({ success: false, message: 'Only the creator can delete this activity' });
     }
 
+    // Update all attendees' joined count before deleting
+    const attendeeUserIds = (activity.attendees || []).map((a) => a.userId);
+    if (attendeeUserIds.length > 0) {
+      await User.updateMany(
+        { userId: { $in: attendeeUserIds }, 'activities.joined': { $gt: 0 } },
+        { $inc: { 'activities.joined': -1 } }
+      );
+    }
+
     await Activity.deleteOne({ _id: activity._id });
     res.json({ success: true });
   } catch (error) {
@@ -537,17 +546,6 @@ router.post('/feedback', auth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'comment must not exceed 1000 characters' });
     }
 
-    const activity = await Activity.findOne({ activityId: parseInt(event_id) });
-    if (!activity) {
-      return res.status(404).json({ success: false, message: 'Activity not found' });
-    }
-
-    if (!activity.feedback) activity.feedback = [];
-
-    // Check if user already submitted feedback
-    const existingIndex = activity.feedback.findIndex(
-      (f) => String(f.userId) === String(req.user.userId)
-    );
     const feedbackEntry = {
       userId: req.user.userId,
       userName: req.user.userName || 'Unknown',
@@ -556,13 +554,42 @@ router.post('/feedback', auth, async (req, res) => {
       createdAt: new Date(),
     };
 
-    if (existingIndex !== -1) {
-      activity.feedback[existingIndex] = feedbackEntry;
-    } else {
-      activity.feedback.push(feedbackEntry);
+    // Atomic: try to update existing feedback first
+    const updated = await Activity.findOneAndUpdate(
+      {
+        activityId: parseInt(event_id),
+        'feedback.userId': req.user.userId,
+      },
+      {
+        $set: { 'feedback.$[elem]': feedbackEntry },
+      },
+      {
+        arrayFilters: [{ 'elem.userId': req.user.userId }],
+        new: true,
+      }
+    );
+
+    if (!updated) {
+      // No existing feedback — atomically push new entry (only if not already present)
+      const inserted = await Activity.findOneAndUpdate(
+        {
+          activityId: parseInt(event_id),
+          'feedback.userId': { $ne: req.user.userId },
+        },
+        { $push: { feedback: feedbackEntry } },
+        { new: true }
+      );
+      if (!inserted) {
+        // Either activity doesn't exist, or concurrent insert happened
+        const activity = await Activity.findOne({ activityId: parseInt(event_id) });
+        if (!activity) {
+          return res.status(404).json({ success: false, message: 'Activity not found' });
+        }
+        // Concurrent insert — treat as success (idempotent)
+        return res.json({ success: true, data: feedbackEntry });
+      }
     }
 
-    await activity.save();
     res.json({ success: true, data: feedbackEntry });
   } catch (error) {
     console.error('Submit feedback error:', error);
@@ -604,37 +631,53 @@ router.post('/rate-attendee', auth, async (req, res) => {
   try {
     const { event_id, rated_user_id, rating, tags, comment } = req.body;
 
-    const activity = await Activity.findOne({ activityId: parseInt(event_id) });
-    if (!activity) {
-      return res.status(404).json({ success: false, message: 'Activity not found' });
+    const parsedRatedUserId = parseInt(rated_user_id);
+    if (isNaN(parsedRatedUserId)) {
+      return res.status(400).json({ success: false, message: 'rated_user_id must be a valid number' });
     }
-
-    if (!activity.attendeeRatings) activity.attendeeRatings = [];
-
-    // Check for existing rating by this user for this attendee on this event
-    const existingIndex = activity.attendeeRatings.findIndex(
-      (r) =>
-        String(r.raterId) === String(req.user.userId) &&
-        String(r.ratedUserId) === String(rated_user_id)
-    );
 
     const ratingEntry = {
       raterId: req.user.userId,
       raterName: req.user.userName || 'Unknown',
-      ratedUserId: parseInt(rated_user_id),
+      ratedUserId: parsedRatedUserId,
       rating: parseInt(rating),
-      tags: tags || [],
+      tags: Array.isArray(tags) ? tags.slice(0, 10) : [],
       comment: comment || '',
       createdAt: new Date(),
     };
 
-    if (existingIndex !== -1) {
-      activity.attendeeRatings[existingIndex] = ratingEntry;
-    } else {
-      activity.attendeeRatings.push(ratingEntry);
+    // Atomic: try to update existing rating first
+    const updated = await Activity.findOneAndUpdate(
+      {
+        activityId: parseInt(event_id),
+        'attendeeRatings.raterId': req.user.userId,
+        'attendeeRatings.ratedUserId': parsedRatedUserId,
+      },
+      {
+        $set: {
+          'attendeeRatings.$[elem]': ratingEntry,
+        },
+      },
+      {
+        arrayFilters: [
+          { 'elem.raterId': req.user.userId, 'elem.ratedUserId': parsedRatedUserId },
+        ],
+        new: true,
+      }
+    );
+
+    if (!updated) {
+      // No existing rating — atomically push new entry
+      const inserted = await Activity.findOneAndUpdate(
+        { activityId: parseInt(event_id) },
+        { $push: { attendeeRatings: ratingEntry } },
+        { new: true }
+      );
+      if (!inserted) {
+        return res.status(404).json({ success: false, message: 'Activity not found' });
+      }
     }
 
-    await activity.save();
     res.json({ success: true, data: ratingEntry });
   } catch (error) {
     console.error('Rate attendee error:', error);
@@ -834,21 +877,36 @@ router.put('/guest-status', auth, async (req, res) => {
   try {
     const { guest_id, status } = req.body;
 
-    const activity = await Activity.findOne({ 'guests.guestId': guest_id });
-    if (!activity) {
+    if (!guest_id || !status || typeof status !== 'string') {
+      return res.status(400).json({ success: false, message: 'guest_id and status are required' });
+    }
+
+    const validStatuses = ['pending', 'invited', 'accepted', 'declined', 'cancelled'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ success: false, message: `status must be one of: ${validStatuses.join(', ')}` });
+    }
+
+    // Atomic update
+    const result = await Activity.findOneAndUpdate(
+      { 'guests.guestId': guest_id },
+      {
+        $set: {
+          'guests.$[elem].status': status,
+          'guests.$[elem].respondedAt': new Date(),
+        },
+      },
+      {
+        arrayFilters: [{ 'elem.guestId': guest_id }],
+        new: true,
+      }
+    );
+
+    if (!result) {
       return res.status(404).json({ success: false, message: 'Guest not found' });
     }
 
-    const guest = activity.guests.find((g) => g.guestId === guest_id);
-    if (!guest) {
-      return res.status(404).json({ success: false, message: 'Guest not found' });
-    }
-
-    guest.status = status;
-    guest.respondedAt = new Date();
-    await activity.save();
-
-    res.json({ success: true, data: guest });
+    const updatedGuest = result.guests.find((g) => g.guestId === guest_id);
+    res.json({ success: true, data: updatedGuest });
   } catch (error) {
     console.error('Update guest status error:', error);
     res.status(500).json({ success: false, message: 'Failed to update guest status' });
@@ -892,28 +950,41 @@ router.post('/guest-rsvp', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Valid invite code is required' });
     }
 
-    const activity = await Activity.findOne({ 'guests.inviteCode': invite_code });
-    if (!activity) {
-      return res.status(404).json({ success: false, message: 'Invalid invite code' });
+    // Atomic: update guest status only if still pending/invited
+    const updateFields = {
+      'guests.$[elem].status': accept ? 'accepted' : 'declined',
+      'guests.$[elem].respondedAt': new Date(),
+    };
+    if (guest_name && typeof guest_name === 'string') {
+      updateFields['guests.$[elem].guestName'] = guest_name.slice(0, 100);
+    }
+    if (guest_email && typeof guest_email === 'string') {
+      updateFields['guests.$[elem].guestEmail'] = guest_email.slice(0, 200);
     }
 
-    const guest = activity.guests.find((g) => g.inviteCode === invite_code);
-    if (!guest) {
-      return res.status(404).json({ success: false, message: 'Invalid invite code' });
-    }
+    const result = await Activity.findOneAndUpdate(
+      {
+        'guests.inviteCode': invite_code,
+        'guests.status': { $nin: ['accepted', 'declined'] },
+      },
+      { $set: updateFields },
+      {
+        arrayFilters: [{ 'elem.inviteCode': invite_code }],
+        new: true,
+      }
+    );
 
-    // Prevent re-responding to already finalized RSVPs
-    if (guest.status === 'accepted' || guest.status === 'declined') {
+    if (!result) {
+      // Check if already responded or invalid code
+      const activity = await Activity.findOne({ 'guests.inviteCode': invite_code });
+      if (!activity) {
+        return res.status(404).json({ success: false, message: 'Invalid invite code' });
+      }
       return res.status(409).json({ success: false, message: 'This invite has already been responded to' });
     }
 
-    guest.status = accept ? 'accepted' : 'declined';
-    guest.respondedAt = new Date();
-    if (guest_name) guest.guestName = guest_name;
-    if (guest_email) guest.guestEmail = guest_email;
-
-    await activity.save();
-    res.json({ success: true, data: guest });
+    const updatedGuest = result.guests.find((g) => g.inviteCode === invite_code);
+    res.json({ success: true, data: updatedGuest });
   } catch (error) {
     console.error('Guest RSVP error:', error);
     res.status(500).json({ success: false, message: 'Failed to process RSVP' });
@@ -1183,21 +1254,30 @@ router.post('/waitlist/join', auth, async (req, res) => {
 // ============================================================
 router.delete('/waitlist/leave/:eventId', auth, async (req, res) => {
   try {
-    const activity = await Activity.findOne({ activityId: parseInt(req.params.eventId) });
-    if (!activity) {
-      return res.status(404).json({ success: false, message: 'Activity not found' });
-    }
-
-    const waitlist = activity.waitlist || [];
-    const entryIndex = waitlist.findIndex(
-      (w) => String(w.userId) === String(req.user.userId) && w.status === 'waiting'
+    const result = await Activity.findOneAndUpdate(
+      {
+        activityId: parseInt(req.params.eventId),
+        'waitlist.userId': req.user.userId,
+        'waitlist.status': 'waiting',
+      },
+      {
+        $set: {
+          'waitlist.$[elem].status': 'cancelled',
+        },
+      },
+      {
+        arrayFilters: [{ 'elem.userId': req.user.userId, 'elem.status': 'waiting' }],
+        new: true,
+      }
     );
-    if (entryIndex === -1) {
+
+    if (!result) {
+      const activity = await Activity.findOne({ activityId: parseInt(req.params.eventId) });
+      if (!activity) {
+        return res.status(404).json({ success: false, message: 'Activity not found' });
+      }
       return res.status(404).json({ success: false, message: 'Not on waitlist' });
     }
-
-    waitlist[entryIndex].status = 'cancelled';
-    await activity.save();
 
     res.json({ success: true });
   } catch (error) {
@@ -1241,6 +1321,7 @@ router.post('/waitlist/respond', auth, async (req, res) => {
   try {
     const { waitlist_id, accept } = req.body;
 
+    // Verify entry exists and user owns it (read-only check)
     const activity = await Activity.findOne({ 'waitlist.waitlistId': waitlist_id });
     if (!activity) {
       return res.status(404).json({ success: false, message: 'Waitlist entry not found' });
@@ -1255,40 +1336,61 @@ router.post('/waitlist/respond', auth, async (req, res) => {
       return res.status(403).json({ success: false, message: 'Not authorized' });
     }
 
-    entry.status = accept ? 'accepted' : 'declined';
-    entry.respondedAt = new Date();
-    await activity.save();
-
-    // If accepted, atomically add to attendees and decrement remaining slots
-    if (accept) {
-      const updated = await Activity.findOneAndUpdate(
-        {
-          _id: activity._id,
-          'attendees.userId': { $ne: req.user.userId },
-          remainingSlots: { $gt: 0 },
-        },
-        {
-          $push: {
-            attendees: {
-              userId: req.user.userId,
-              name: req.user.userName || 'Unknown',
-              images: req.user.profile?.images || [],
-            },
-          },
-          $inc: { remainingSlots: -1 },
-        },
-        { new: true }
-      );
-      if (!updated) {
-        // Revert acceptance if couldn't add to attendees
-        entry.status = 'declined';
-        entry.respondedAt = new Date();
-        await activity.save();
-        return res.status(400).json({ success: false, message: 'Event is full or already joined' });
-      }
+    if (entry.status !== 'offered') {
+      return res.status(409).json({ success: false, message: 'Waitlist entry is no longer in offered state' });
     }
 
-    res.json({ success: true, data: entry });
+    if (!accept) {
+      // Decline: atomic update of waitlist status only
+      const declined = await Activity.findOneAndUpdate(
+        { 'waitlist.waitlistId': waitlist_id, 'waitlist.status': 'offered' },
+        {
+          $set: {
+            'waitlist.$[elem].status': 'declined',
+            'waitlist.$[elem].respondedAt': new Date(),
+          },
+        },
+        { arrayFilters: [{ 'elem.waitlistId': waitlist_id }], new: true }
+      );
+      if (!declined) {
+        return res.status(409).json({ success: false, message: 'Waitlist entry already responded to' });
+      }
+      const updatedEntry = declined.waitlist.find((w) => w.waitlistId === waitlist_id);
+      return res.json({ success: true, data: updatedEntry });
+    }
+
+    // Accept: atomic update of waitlist status + add to attendees + decrement slots
+    const accepted = await Activity.findOneAndUpdate(
+      {
+        _id: activity._id,
+        'waitlist.waitlistId': waitlist_id,
+        'waitlist.status': 'offered',
+        'attendees.userId': { $ne: req.user.userId },
+        remainingSlots: { $gt: 0 },
+      },
+      {
+        $set: {
+          'waitlist.$[elem].status': 'accepted',
+          'waitlist.$[elem].respondedAt': new Date(),
+        },
+        $push: {
+          attendees: {
+            userId: req.user.userId,
+            name: req.user.userName || 'Unknown',
+            images: req.user.profile?.images || [],
+          },
+        },
+        $inc: { remainingSlots: -1 },
+      },
+      { arrayFilters: [{ 'elem.waitlistId': waitlist_id }], new: true }
+    );
+
+    if (!accepted) {
+      return res.status(400).json({ success: false, message: 'Event is full, already joined, or offer expired' });
+    }
+
+    const updatedEntry = accepted.waitlist.find((w) => w.waitlistId === waitlist_id);
+    res.json({ success: true, data: updatedEntry });
   } catch (error) {
     console.error('Respond to waitlist error:', error);
     res.status(500).json({ success: false, message: 'Failed to respond to waitlist' });
