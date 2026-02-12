@@ -24,6 +24,12 @@ router.post('/upload', auth, upload.single('image'), async (req, res) => {
     const imageUrl = `/uploads/${req.file.filename}`;
     const User = require('../models/User');
 
+    // Limit gallery to 20 images to prevent abuse
+    const user = await User.findById(req.userId);
+    if (user && (user.profile?.images || []).length >= 20) {
+      return res.status(400).json({ success: false, message: 'Maximum 20 gallery images allowed' });
+    }
+
     await User.findByIdAndUpdate(req.userId, {
       $push: { 'profile.images': imageUrl },
     });

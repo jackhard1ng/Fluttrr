@@ -46,6 +46,9 @@ const guestSchema = new mongoose.Schema({
 guestSchema.index({ eventId: 1, invitedByUserId: 1 });
 guestSchema.index({ inviteCode: 1 });
 guestSchema.index({ eventId: 1, status: 1 });
+// Prevent duplicate invites: same guest (by email or phone) for same event
+guestSchema.index({ eventId: 1, guestEmail: 1 }, { unique: true, sparse: true });
+guestSchema.index({ eventId: 1, appUserId: 1 }, { unique: true, sparse: true });
 
 // ---------------------------------------------------------------------------
 // toJSON – convert to snake_case matching Flutter GuestModel.fromJson

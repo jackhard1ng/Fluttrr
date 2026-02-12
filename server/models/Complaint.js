@@ -5,7 +5,11 @@ const complaintSchema = new mongoose.Schema(
     userId: { type: Number, required: true },
     subject: { type: String, required: true },
     description: { type: String, required: true },
-    category: String,
+    category: {
+      type: String,
+      enum: ['abuse', 'spam', 'fraud', 'inappropriate_content', 'harassment', 'safety', 'other'],
+      default: 'other',
+    },
     status: {
       type: String,
       enum: ['pending', 'open', 'reviewing', 'resolved', 'dismissed'],

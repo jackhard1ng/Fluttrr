@@ -311,8 +311,8 @@ router.post('/:memoryId/comments', auth, async (req, res) => {
 
     if (!memory) return res.status(404).json({ success: false, message: 'Memory not found' });
 
-    const saved = memory.comments[memory.comments.length - 1];
-    res.json({ success: true, data: saved });
+    // Return the comment data we constructed, not array lookup (avoids race condition)
+    res.json({ success: true, data: comment });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to add comment' });
   }
