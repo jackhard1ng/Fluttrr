@@ -24,6 +24,10 @@ const messageSchema = new mongoose.Schema(
       default: 'text',
     },
     groupId: { type: String, default: null, index: true },
+    isGroup: { type: Boolean, default: false },
+    groupName: { type: String, default: null },
+    groupImage: { type: String, default: null },
+    groupMembers: { type: [Number], default: [] },
   },
   { timestamps: false }
 );
@@ -51,6 +55,15 @@ messageSchema.set('toJSON', {
       is_read: ret.isRead,
       type: ret.type,
       group_id: ret.groupId,
+      groupId: ret.groupId,
+      is_group: ret.isGroup,
+      isGroup: ret.isGroup,
+      group_name: ret.groupName,
+      groupName: ret.groupName,
+      group_image: ret.groupImage,
+      groupImage: ret.groupImage,
+      group_members: ret.groupMembers,
+      groupMembers: ret.groupMembers,
     };
   },
 });

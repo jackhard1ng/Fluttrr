@@ -356,7 +356,7 @@ router.get('/event-list', auth, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Business not found' });
     }
 
-    const events = await BusinessEvent.find({ businessId: business._id })
+    const events = await BusinessEvent.find({ businessId: business.businessId })
       .sort({ startDate: -1 });
 
     const userId = req.user.userId;
@@ -431,7 +431,7 @@ router.post('/create-event', auth, async (req, res) => {
     const parsedSlots = totalSlots != null ? parseInt(totalSlots) : undefined;
 
     const event = await BusinessEvent.create({
-      businessId: business._id,
+      businessId: business.businessId,
       name,
       description: description || '',
       location,
@@ -447,14 +447,16 @@ router.post('/create-event', auth, async (req, res) => {
       currency: currency || 'USD',
       attendees: [],
       savedBy: [],
+      attendeesCount: 0,
       views: 0,
       clicks: 0,
+      saves: 0,
     });
 
     // Auto-create a group chat for this event
     try {
       const Message = require('../models/Message');
-      const eventGroupId = `event_${event._id}`;
+      const eventGroupId = `event_${event.eventId}`;
       await Message.create({
         senderId: req.user.userId,
         senderName: business.businessName || 'Business',
@@ -508,7 +510,7 @@ router.put('/update-event/:eventId', auth, async (req, res) => {
     }
 
     const event = await BusinessEvent.findOneAndUpdate(
-      { _id: req.params.eventId, businessId: business._id },
+      { eventId: parseInt(req.params.eventId), businessId: business.businessId },
       { $set: updateData },
       { new: true }
     );
@@ -527,7 +529,7 @@ router.put('/update-event/:eventId', auth, async (req, res) => {
 // GET /api/business/event/:eventId - Get business event details
 router.get('/event/:eventId', auth, async (req, res) => {
   try {
-    const event = await BusinessEvent.findById(req.params.eventId);
+    const event = await BusinessEvent.findOne({ eventId: parseInt(req.params.eventId) });
     if (!event) {
       return res.status(404).json({ success: false, message: 'Event not found' });
     }
@@ -548,8 +550,8 @@ router.delete('/delete-event/:eventId', auth, async (req, res) => {
     }
 
     const event = await BusinessEvent.findOneAndDelete({
-      _id: req.params.eventId,
-      businessId: business._id,
+      eventId: parseInt(req.params.eventId),
+      businessId: business.businessId,
     });
 
     if (!event) {
@@ -575,24 +577,36 @@ router.post('/join-event', auth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Event ID is required' });
     }
 
-    const event = await BusinessEvent.findById(eventId);
-    if (!event) {
-      return res.status(404).json({ success: false, message: 'Event not found' });
-    }
-
     const userId = req.user.userId;
-    if (event.attendees && event.attendees.includes(userId)) {
-      return res.status(400).json({ success: false, message: 'Already joined this event' });
-    }
 
-    if (event.remainingSlots !== undefined && event.remainingSlots !== null && event.remainingSlots <= 0) {
+    // Atomic: only match if user is NOT already in attendees and slots remain
+    const updated = await BusinessEvent.findOneAndUpdate(
+      {
+        eventId: parseInt(eventId),
+        attendees: { $ne: userId },
+        $or: [
+          { remainingSlots: null },
+          { remainingSlots: { $gt: 0 } },
+        ],
+      },
+      {
+        $addToSet: { attendees: userId, joinedBy: userId },
+        $inc: { attendeesCount: 1, remainingSlots: -1 },
+      },
+      { new: true }
+    );
+
+    if (!updated) {
+      // Determine why: event doesn't exist, already joined, or full
+      const event = await BusinessEvent.findOne({ eventId: parseInt(eventId) });
+      if (!event) {
+        return res.status(404).json({ success: false, message: 'Event not found' });
+      }
+      if (event.attendees && event.attendees.includes(userId)) {
+        return res.status(400).json({ success: false, message: 'Already joined this event' });
+      }
       return res.status(400).json({ success: false, message: 'Event is full' });
     }
-
-    await BusinessEvent.findByIdAndUpdate(eventId, {
-      $addToSet: { attendees: userId },
-      $inc: { attendeesCount: 1, remainingSlots: event.remainingSlots != null ? -1 : 0 },
-    });
 
     // Auto-add user to the event group chat
     try {
@@ -602,7 +616,6 @@ router.post('/join-event', auth, async (req, res) => {
       const user = await User.findOne({ userId });
       const userName = user?.userName || 'Someone';
 
-      // Add user as a group member by adding a system message
       await Message.create({
         senderId: userId,
         senderName: userName,
@@ -611,9 +624,9 @@ router.post('/join-event', auth, async (req, res) => {
         isRead: false,
         isGroup: true,
         groupId: eventGroupId,
-        groupName: event.name,
+        groupName: updated.name,
         groupImage: '',
-        groupMembers: [...(event.attendees || []), userId],
+        groupMembers: updated.attendees,
         timestamp: new Date(),
       });
     } catch (groupErr) {
@@ -635,20 +648,25 @@ router.post('/leave-event', auth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Event ID is required' });
     }
 
-    const event = await BusinessEvent.findById(eventId);
-    if (!event) {
-      return res.status(404).json({ success: false, message: 'Event not found' });
-    }
-
     const userId = req.user.userId;
-    if (!event.attendees || !event.attendees.includes(userId)) {
+
+    // Atomic: only match if user IS in attendees
+    const updated = await BusinessEvent.findOneAndUpdate(
+      { eventId: parseInt(eventId), attendees: userId },
+      {
+        $pull: { attendees: userId, joinedBy: userId },
+        $inc: { attendeesCount: -1, remainingSlots: 1 },
+      },
+      { new: true }
+    );
+
+    if (!updated) {
+      const event = await BusinessEvent.findOne({ eventId: parseInt(eventId) });
+      if (!event) {
+        return res.status(404).json({ success: false, message: 'Event not found' });
+      }
       return res.status(400).json({ success: false, message: 'You have not joined this event' });
     }
-
-    await BusinessEvent.findByIdAndUpdate(eventId, {
-      $pull: { attendees: userId },
-      $inc: { attendeesCount: -1, remainingSlots: event.remainingSlots != null ? 1 : 0 },
-    });
 
     res.json({ success: true, message: 'Left event successfully' });
   } catch (error) {
@@ -665,27 +683,32 @@ router.post('/save-event', auth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Event ID is required' });
     }
 
-    const event = await BusinessEvent.findById(eventId);
-    if (!event) {
+    const userId = req.user.userId;
+    const eid = parseInt(eventId);
+
+    // Atomic toggle: try unsave first (user is in savedBy)
+    let result = await BusinessEvent.findOneAndUpdate(
+      { eventId: eid, savedBy: userId },
+      { $pull: { savedBy: userId }, $inc: { saves: -1 } },
+      { new: true }
+    );
+    let action = 'unsaved';
+
+    if (!result) {
+      // Not currently saved - save it
+      result = await BusinessEvent.findOneAndUpdate(
+        { eventId: eid },
+        { $addToSet: { savedBy: userId }, $inc: { saves: 1 } },
+        { new: true }
+      );
+      action = 'saved';
+    }
+
+    if (!result) {
       return res.status(404).json({ success: false, message: 'Event not found' });
     }
 
-    const userId = req.user.userId;
-    const isSaved = event.savedBy && event.savedBy.includes(userId);
-
-    if (isSaved) {
-      await BusinessEvent.findByIdAndUpdate(eventId, {
-        $pull: { savedBy: userId },
-        $inc: { saves: -1 },
-      });
-    } else {
-      await BusinessEvent.findByIdAndUpdate(eventId, {
-        $addToSet: { savedBy: userId },
-        $inc: { saves: 1 },
-      });
-    }
-
-    res.json({ success: true, message: isSaved ? 'Event unsaved' : 'Event saved' });
+    res.json({ success: true, message: `Event ${action}` });
   } catch (error) {
     console.error('Save business event error:', error);
     res.status(500).json({ success: false, message: 'Failed to save event' });
@@ -726,9 +749,10 @@ router.get('/top-events', auth, async (req, res) => {
 // POST /api/business/events/:eventId/click - Record event click
 router.post('/events/:eventId/click', auth, async (req, res) => {
   try {
-    await BusinessEvent.findByIdAndUpdate(req.params.eventId, {
-      $inc: { clicks: 1 },
-    });
+    await BusinessEvent.findOneAndUpdate(
+      { eventId: parseInt(req.params.eventId) },
+      { $inc: { clicks: 1 } }
+    );
 
     res.json({ success: true, message: 'Click recorded' });
   } catch (error) {
@@ -740,9 +764,10 @@ router.post('/events/:eventId/click', auth, async (req, res) => {
 // POST /api/business/events/:eventId/view - Record event view
 router.post('/events/:eventId/view', auth, async (req, res) => {
   try {
-    await BusinessEvent.findByIdAndUpdate(req.params.eventId, {
-      $inc: { views: 1 },
-    });
+    await BusinessEvent.findOneAndUpdate(
+      { eventId: parseInt(req.params.eventId) },
+      { $inc: { views: 1 } }
+    );
 
     res.json({ success: true, message: 'View recorded' });
   } catch (error) {
@@ -763,20 +788,22 @@ router.post('/follow', auth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Business ID is required' });
     }
 
-    const business = await Business.findById(businessId);
-    if (!business) {
-      return res.status(404).json({ success: false, message: 'Business not found' });
-    }
-
     const userId = req.user.userId;
-    if (business.followers && business.followers.includes(userId)) {
+
+    // Atomic: only match if user is NOT already a follower
+    const updated = await Business.findOneAndUpdate(
+      { businessId: parseInt(businessId), followers: { $ne: userId } },
+      { $addToSet: { followers: userId }, $inc: { followerCount: 1 } },
+      { new: true }
+    );
+
+    if (!updated) {
+      const business = await Business.findOne({ businessId: parseInt(businessId) });
+      if (!business) {
+        return res.status(404).json({ success: false, message: 'Business not found' });
+      }
       return res.status(400).json({ success: false, message: 'Already following this business' });
     }
-
-    await Business.findByIdAndUpdate(businessId, {
-      $addToSet: { followers: userId },
-      $inc: { followerCount: 1 },
-    });
 
     res.json({ success: true, message: 'Now following business' });
   } catch (error) {
@@ -794,20 +821,21 @@ router.post('/unfollow', auth, async (req, res) => {
     }
 
     const userId = req.user.userId;
-    const business = await Business.findById(businessId);
-    if (!business) {
-      return res.status(404).json({ success: false, message: 'Business not found' });
-    }
 
-    const isFollowing = business.followers && business.followers.includes(userId);
-    if (!isFollowing) {
+    // Atomic: only match if user IS a follower
+    const updated = await Business.findOneAndUpdate(
+      { businessId: parseInt(businessId), followers: userId },
+      { $pull: { followers: userId }, $inc: { followerCount: -1 } },
+      { new: true }
+    );
+
+    if (!updated) {
+      const business = await Business.findOne({ businessId: parseInt(businessId) });
+      if (!business) {
+        return res.status(404).json({ success: false, message: 'Business not found' });
+      }
       return res.status(400).json({ success: false, message: 'Not following this business' });
     }
-
-    await Business.findByIdAndUpdate(businessId, {
-      $pull: { followers: userId },
-      $inc: { followerCount: -1 },
-    });
 
     res.json({ success: true, message: 'Unfollowed business' });
   } catch (error) {
@@ -936,13 +964,13 @@ router.get('/analytics', auth, async (req, res) => {
     }
 
     // Build event query with optional date filter
-    const eventQuery = { businessId: business._id };
+    const eventQuery = { businessId: business.businessId };
     if (periodStart) {
       eventQuery.createdAt = { $gte: periodStart };
     }
 
     const events = await BusinessEvent.find(eventQuery);
-    const allEvents = await BusinessEvent.find({ businessId: business._id });
+    const allEvents = await BusinessEvent.find({ businessId: business.businessId });
 
     const totalViews = events.reduce((sum, e) => sum + (e.views || 0), 0);
     const totalClicks = events.reduce((sum, e) => sum + (e.clicks || 0), 0);
