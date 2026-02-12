@@ -391,10 +391,10 @@ class BusinessRepository extends BaseRepository {
     return post(ApiEndpoints.cancelSubscription);
   }
 
-  /// Get business analytics
-  Future<ApiResponse<BusinessAnalytics>> getBusinessAnalytics() async {
+  /// Get business analytics with optional period filter (7d, 30d, 90d, all)
+  Future<ApiResponse<BusinessAnalytics>> getBusinessAnalytics({String period = 'all'}) async {
     return get<BusinessAnalytics>(
-      ApiEndpoints.businessAnalytics,
+      '${ApiEndpoints.businessAnalytics}?period=$period',
       fromJson: BusinessAnalytics.fromJson,
     );
   }

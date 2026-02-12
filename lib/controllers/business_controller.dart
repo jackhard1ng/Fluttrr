@@ -762,10 +762,10 @@ class BusinessController extends GetxController {
     }
   }
 
-  /// Load business analytics
-  Future<void> loadBusinessAnalytics() async {
+  /// Load business analytics with optional period filter (7d, 30d, 90d, all)
+  Future<void> loadBusinessAnalytics({String period = 'all'}) async {
     try {
-      final response = await _businessRepository.getBusinessAnalytics();
+      final response = await _businessRepository.getBusinessAnalytics(period: period);
       if (response.success && response.data != null) {
         analytics.value = response.data;
       }

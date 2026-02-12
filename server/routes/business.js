@@ -989,8 +989,11 @@ router.get('/analytics', auth, async (req, res) => {
         total_followers: totalFollowers,
         total_events: allEvents.length,
         total_attendees: totalAttendees,
-        view_rate: totalViews > 0 ? parseFloat(((totalClicks / totalViews) * 100).toFixed(2)) : 0,
+        // view_rate = avg views per event
+        view_rate: totalEvents > 0 ? parseFloat((totalViews / totalEvents).toFixed(2)) : 0,
+        // click_rate = % of viewers who clicked (click-through rate)
         click_rate: totalViews > 0 ? parseFloat(((totalClicks / totalViews) * 100).toFixed(2)) : 0,
+        // conversion_rate = % of clickers who joined
         conversion_rate: totalClicks > 0 ? parseFloat(((totalAttendees / totalClicks) * 100).toFixed(2)) : 0,
         followers: totalFollowers,
         followers_growth: 0,

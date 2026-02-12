@@ -28,8 +28,21 @@ class _BusinessAnalyticsScreenState extends State<BusinessAnalyticsScreen> {
     _loadAnalytics();
   }
 
+  String get _apiPeriod {
+    switch (_selectedPeriod) {
+      case '7 days':
+        return '7d';
+      case '30 days':
+        return '30d';
+      case '90 days':
+        return '90d';
+      default:
+        return 'all';
+    }
+  }
+
   void _loadAnalytics() {
-    _businessController.loadBusinessAnalytics();
+    _businessController.loadBusinessAnalytics(period: _apiPeriod);
   }
 
   @override
