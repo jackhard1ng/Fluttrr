@@ -229,6 +229,11 @@ router.post('/google-login', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Could not extract email from Google token' });
     }
 
+    // Verify that Google has confirmed the email address
+    if (!googlePayload.email_verified) {
+      return res.status(400).json({ success: false, message: 'Google email is not verified' });
+    }
+
     const normalizedEmail = googleEmail.toLowerCase().trim();
 
     // Try to find an existing user by email

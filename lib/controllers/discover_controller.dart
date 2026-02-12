@@ -104,6 +104,10 @@ class DiscoverController extends GetxController {
       ).toList();
     }
 
+    // Hide expired events
+    final now = DateTime.now();
+    result = result.where((e) => e.date.isAfter(now)).toList();
+
     // Full events filter
     if (!showFullEvents.value) {
       result = result.where((e) => !e.isFull).toList();

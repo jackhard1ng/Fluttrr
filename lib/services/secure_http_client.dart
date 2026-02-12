@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 
 import '../config/environment.dart';
+import 'token_manager.dart';
 
 /// HTTP response wrapper for consistent API responses
 class HttpResponse {
@@ -290,11 +291,10 @@ class SecureHttpClient {
     };
 
     // Add auth token if available
-    // TODO: Get token from secure storage
-    // final token = await SecureStorage.getToken();
-    // if (token != null) {
-    //   headers['Authorization'] = 'Bearer $token';
-    // }
+    final token = await TokenManager.getToken();
+    if (token != null) {
+      headers['Authorization'] = 'Bearer $token';
+    }
 
     return headers;
   }
