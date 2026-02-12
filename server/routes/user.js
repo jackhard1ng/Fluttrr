@@ -308,10 +308,10 @@ router.get('/match', auth, async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    // Build a filter: exclude self, exclude banned/suspended, exclude low-profile users
+    // Build a filter: exclude self, exclude banned/suspended/deleted, exclude low-profile users
     const filter = {
       _id: { $ne: req.userId },
-      status: { $nin: ['suspended', 'banned'] },
+      status: { $nin: ['suspended', 'banned', 'deleted'] },
       isLowProfile: { $ne: true },
     };
 
@@ -371,7 +371,7 @@ router.get('/search', auth, async (req, res) => {
 
     const filter = {
       _id: { $ne: req.userId },
-      status: { $nin: ['suspended', 'banned'] },
+      status: { $nin: ['suspended', 'banned', 'deleted'] },
       $or: [
         { userName: searchRegex },
         { email: searchRegex },
@@ -416,7 +416,7 @@ router.get('/List', auth, async (req, res) => {
 
     const filter = {
       _id: { $ne: req.userId },
-      status: { $nin: ['suspended', 'banned'] },
+      status: { $nin: ['suspended', 'banned', 'deleted'] },
     };
 
     const users = await User.find(filter)
@@ -537,7 +537,7 @@ router.get('/ranking', auth, async (req, res) => {
   try {
     // Leaderboard: top users by a composite score (activities + rating)
     const topUsers = await User.find({
-      status: { $nin: ['suspended', 'banned'] },
+      status: { $nin: ['suspended', 'banned', 'deleted'] },
     })
       .select('-password')
       .sort({ averageRating: -1, 'activities.joined': -1 })
@@ -568,7 +568,7 @@ router.get('/ranking', auth, async (req, res) => {
           ((currentUser.activities?.created || 0) * 3);
 
         const higherCount = await User.countDocuments({
-          status: { $nin: ['suspended', 'banned'] },
+          status: { $nin: ['suspended', 'banned', 'deleted'] },
           $or: [
             { averageRating: { $gt: currentUser.averageRating || 0 } },
           ],
@@ -749,6 +749,10 @@ router.post('/verify-phone-otp', auth, async (req, res) => {
     // Track attempts
     pv.otp_attempts = (pv.otp_attempts || 0) + 1;
     if (pv.otp_attempts > 5) {
+      // Clear the OTP to force requesting a new one
+      pv.otp = null;
+      pv.status = 'expired';
+      await user.save();
       return res.status(429).json({ success: false, message: 'Too many attempts. Please request a new OTP' });
     }
 
@@ -1075,9 +1079,11 @@ router.post('/delete-account', auth, async (req, res) => {
 
     // Soft delete: mark as deleted, clear sensitive data
     user.status = 'deleted';
+    user.password = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10);
     user.fcmToken = null;
     user.refreshToken = null;
     user.onlineStatus = 'offline';
+    user.phoneVerification = null;
     await user.save();
 
     return res.json({

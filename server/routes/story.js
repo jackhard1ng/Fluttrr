@@ -172,6 +172,10 @@ router.get('/:storyId/viewers', auth, async (req, res) => {
   try {
     const story = await Story.findOne({ storyId: req.params.storyId });
     if (!story) return res.status(404).json({ success: false, message: 'Story not found' });
+    // Only the story owner can see who viewed their story
+    if (story.userId !== req.user.userId) {
+      return res.status(403).json({ success: false, message: 'Only the story owner can view this' });
+    }
     res.json({ success: true, data: story.viewerIds || [] });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to get viewers' });

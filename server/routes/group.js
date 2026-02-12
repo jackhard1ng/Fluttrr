@@ -98,8 +98,8 @@ router.get('/list', auth, async (req, res) => {
       radius,
     } = req.query;
 
-    const pageNum = parseInt(page);
-    const limitNum = parseInt(limit);
+    const pageNum = Math.max(parseInt(page) || 1, 1);
+    const limitNum = Math.min(Math.max(parseInt(limit) || 20, 1), 100);
     const skip = (pageNum - 1) * limitNum;
 
     const filter = { isActive: true };
@@ -363,8 +363,8 @@ router.post('/leave', auth, async (req, res) => {
 router.get('/members/:groupId', auth, async (req, res) => {
   try {
     const { page = 1, limit = 20 } = req.query;
-    const pageNum = parseInt(page);
-    const limitNum = parseInt(limit);
+    const pageNum = Math.max(parseInt(page) || 1, 1);
+    const limitNum = Math.min(Math.max(parseInt(limit) || 20, 1), 100);
 
     const group = await Group.findById(req.params.groupId);
     if (!group) {
@@ -397,8 +397,8 @@ router.get('/members/:groupId', auth, async (req, res) => {
 router.get('/events/:groupId', auth, async (req, res) => {
   try {
     const { page = 1, limit = 20, upcoming_only } = req.query;
-    const pageNum = parseInt(page);
-    const limitNum = parseInt(limit);
+    const pageNum = Math.max(parseInt(page) || 1, 1);
+    const limitNum = Math.min(Math.max(parseInt(limit) || 20, 1), 100);
 
     const group = await Group.findById(req.params.groupId);
     if (!group) {
@@ -560,8 +560,8 @@ router.post('/respond-request', auth, async (req, res) => {
 router.get('/search', auth, async (req, res) => {
   try {
     const { query, page = 1, limit = 20 } = req.query;
-    const pageNum = parseInt(page);
-    const limitNum = parseInt(limit);
+    const pageNum = Math.max(parseInt(page) || 1, 1);
+    const limitNum = Math.min(Math.max(parseInt(limit) || 20, 1), 100);
 
     if (!query) {
       return res.status(400).json({ success: false, message: 'Search query is required' });
@@ -598,7 +598,7 @@ router.get('/search', auth, async (req, res) => {
 router.get('/suggested', auth, async (req, res) => {
   try {
     const { limit = 10 } = req.query;
-    const limitNum = parseInt(limit);
+    const limitNum = Math.min(Math.max(parseInt(limit) || 10, 1), 100);
     const userId = req.user.userId;
 
     // Get user interests from profile
@@ -636,8 +636,8 @@ router.get('/suggested', auth, async (req, res) => {
 router.get('/my-groups', auth, async (req, res) => {
   try {
     const { page = 1, limit = 20 } = req.query;
-    const pageNum = parseInt(page);
-    const limitNum = parseInt(limit);
+    const pageNum = Math.max(parseInt(page) || 1, 1);
+    const limitNum = Math.min(Math.max(parseInt(limit) || 20, 1), 100);
 
     const userId = req.user.userId;
 
@@ -662,8 +662,8 @@ router.get('/my-groups', auth, async (req, res) => {
 router.get('/by-interest', auth, async (req, res) => {
   try {
     const { interest, page = 1, limit = 20 } = req.query;
-    const pageNum = parseInt(page);
-    const limitNum = parseInt(limit);
+    const pageNum = Math.max(parseInt(page) || 1, 1);
+    const limitNum = Math.min(Math.max(parseInt(limit) || 20, 1), 100);
 
     if (!interest) {
       return res.status(400).json({ success: false, message: 'Interest parameter is required' });

@@ -183,10 +183,12 @@ router.post('/search', auth, async (req, res) => {
     const filter = {};
 
     if (query) {
+      // Escape special regex chars to prevent ReDoS attacks
+      const escapedQuery = String(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       filter.$or = [
-        { name: { $regex: query, $options: 'i' } },
-        { description: { $regex: query, $options: 'i' } },
-        { location: { $regex: query, $options: 'i' } },
+        { name: { $regex: escapedQuery, $options: 'i' } },
+        { description: { $regex: escapedQuery, $options: 'i' } },
+        { location: { $regex: escapedQuery, $options: 'i' } },
       ];
     }
 
@@ -235,8 +237,8 @@ router.post('/create-activity', auth, async (req, res) => {
       dateTime: new Date(date_time),
       eventType: event_type,
       images: [],
-      totalSlots: parseInt(total_slots) || 0,
-      remainingSlots: parseInt(total_slots) || 0,
+      totalSlots: parseInt(total_slots) || 20,
+      remainingSlots: parseInt(total_slots) || 20,
       attendees: [],
       savedBy: [],
       creatorId: req.user.userId,
@@ -245,6 +247,13 @@ router.post('/create-activity', auth, async (req, res) => {
     });
 
     await activity.save();
+
+    // Update creator's activity count
+    await User.findOneAndUpdate(
+      { userId: req.user.userId },
+      { $inc: { 'activities.created': 1 } }
+    );
+
     const data = formatActivity(activity, req.user.userId);
     res.status(201).json({ success: true, data });
   } catch (error) {
@@ -261,6 +270,10 @@ router.post('/images/:activityId', auth, upload.array('images', 10), async (req,
     const activity = await Activity.findOne({ activityId: parseInt(req.params.activityId) });
     if (!activity) {
       return res.status(404).json({ success: false, message: 'Activity not found' });
+    }
+
+    if (String(activity.creatorId) !== String(req.user.userId)) {
+      return res.status(403).json({ success: false, message: 'Only the creator can upload images' });
     }
 
     const imageUrls = req.files.map((file) => `/uploads/${file.filename}`);
@@ -383,6 +396,12 @@ router.post('/join', auth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'No remaining slots' });
     }
 
+    // Update user's joined activity count
+    await User.findOneAndUpdate(
+      { userId: req.user.userId },
+      { $inc: { 'activities.joined': 1 } }
+    );
+
     res.json({ success: true });
   } catch (error) {
     console.error('Join activity error:', error);
@@ -418,6 +437,12 @@ router.post('/leave', auth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'You have not joined this activity' });
     }
 
+    // Update user's joined activity count
+    await User.findOneAndUpdate(
+      { userId: req.user.userId, 'activities.joined': { $gt: 0 } },
+      { $inc: { 'activities.joined': -1 } }
+    );
+
     res.json({ success: true });
   } catch (error) {
     console.error('Leave activity error:', error);
@@ -431,27 +456,27 @@ router.post('/leave', auth, async (req, res) => {
 router.post('/save', auth, async (req, res) => {
   try {
     const { activityId } = req.body;
-    const activity = await Activity.findOne({ activityId: parseInt(activityId) });
-    if (!activity) {
-      return res.status(404).json({ success: false, message: 'Activity not found' });
-    }
+    const userId = req.user.userId;
+    const aid = parseInt(activityId);
 
-    const isSaved = activity.savedBy.some(
-      (id) => String(id) === String(req.user.userId)
+    // Atomic toggle: try unsave first (user is in savedBy)
+    let result = await Activity.findOneAndUpdate(
+      { activityId: aid, savedBy: userId },
+      { $pull: { savedBy: userId } },
+      { new: true }
     );
 
-    if (isSaved) {
-      // Atomic remove
-      await Activity.updateOne(
-        { activityId: parseInt(activityId) },
-        { $pull: { savedBy: req.user.userId } }
+    if (!result) {
+      // Not currently saved - try to save it
+      result = await Activity.findOneAndUpdate(
+        { activityId: aid },
+        { $addToSet: { savedBy: userId } },
+        { new: true }
       );
-    } else {
-      // Atomic add (no duplicates)
-      await Activity.updateOne(
-        { activityId: parseInt(activityId) },
-        { $addToSet: { savedBy: req.user.userId } }
-      );
+    }
+
+    if (!result) {
+      return res.status(404).json({ success: false, message: 'Activity not found' });
     }
 
     res.json({ success: true });
@@ -1179,23 +1204,37 @@ router.post('/waitlist/respond', auth, async (req, res) => {
 
     entry.status = accept ? 'accepted' : 'declined';
     entry.respondedAt = new Date();
+    await activity.save();
 
-    // If accepted, add to attendees and decrement remaining slots
+    // If accepted, atomically add to attendees and decrement remaining slots
     if (accept) {
-      const alreadyJoined = activity.attendees.some(
-        (a) => String(a.userId) === String(req.user.userId)
+      const updated = await Activity.findOneAndUpdate(
+        {
+          _id: activity._id,
+          'attendees.userId': { $ne: req.user.userId },
+          remainingSlots: { $gt: 0 },
+        },
+        {
+          $push: {
+            attendees: {
+              userId: req.user.userId,
+              name: req.user.userName || 'Unknown',
+              images: req.user.profile?.images || [],
+            },
+          },
+          $inc: { remainingSlots: -1 },
+        },
+        { new: true }
       );
-      if (!alreadyJoined && activity.remainingSlots > 0) {
-        activity.attendees.push({
-          userId: req.user.userId,
-          name: req.user.userName || 'Unknown',
-          images: req.user.profile?.images || [],
-        });
-        activity.remainingSlots -= 1;
+      if (!updated) {
+        // Revert acceptance if couldn't add to attendees
+        entry.status = 'declined';
+        entry.respondedAt = new Date();
+        await activity.save();
+        return res.status(400).json({ success: false, message: 'Event is full or already joined' });
       }
     }
 
-    await activity.save();
     res.json({ success: true, data: entry });
   } catch (error) {
     console.error('Respond to waitlist error:', error);

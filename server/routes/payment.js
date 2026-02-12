@@ -53,11 +53,12 @@ router.post('/create-event-payment-intent', auth, async (req, res) => {
     }
 
     // Create a Stripe payment intent for per-event posting
-    const { amount = 999, currency = 'usd' } = req.body; // default $9.99
+    // Price is enforced server-side to prevent tampering
+    const EVENT_POSTING_PRICE = 999; // $9.99
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount,
-      currency,
+      amount: EVENT_POSTING_PRICE,
+      currency: 'usd',
       metadata: {
         businessId: business.businessId.toString(),
         userId: req.user.userId.toString(),
@@ -84,7 +85,11 @@ router.post('/create-event-payment-intent', auth, async (req, res) => {
 // Generic payment intent creation for subscriptions
 router.post('/stripe/create-payment-intent', auth, async (req, res) => {
   try {
-    const { amount = 2900, currency = 'usd' } = req.body;
+    const { planId } = req.body;
+
+    // Determine price server-side based on plan
+    const planPrices = { pro: 2900, enterprise: 9900 };
+    const amount = planPrices[planId] || 2900;
 
     // Free mode
     if (!stripe) {
@@ -100,7 +105,7 @@ router.post('/stripe/create-payment-intent', auth, async (req, res) => {
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
-      currency,
+      currency: 'usd',
       metadata: {
         userId: req.user.userId.toString(),
         type: 'subscription',
@@ -175,13 +180,23 @@ router.post('/upgrade-to-premium', auth, async (req, res) => {
       enterprise: { name: 'Enterprise', price: 9900, durationDays: 30 },
     };
 
-    const plan = plans[planId] || plans.basic;
+    const plan = plans[planId];
+    if (!plan) {
+      return res.status(400).json({ success: false, message: 'Invalid plan ID. Must be basic, pro, or enterprise' });
+    }
 
     // If Stripe is configured and plan is paid, verify the payment
-    if (stripe && plan.price > 0 && paymentIntentId) {
+    if (stripe && plan.price > 0) {
+      if (!paymentIntentId) {
+        return res.status(400).json({ success: false, message: 'Payment required for this plan' });
+      }
       const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
       if (paymentIntent.status !== 'succeeded') {
         return res.status(400).json({ success: false, message: 'Payment not completed' });
+      }
+      // Verify the payment amount matches the plan price
+      if (paymentIntent.amount < plan.price) {
+        return res.status(400).json({ success: false, message: 'Payment amount does not match plan price' });
       }
     }
 
