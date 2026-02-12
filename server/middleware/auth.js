@@ -18,7 +18,7 @@ const auth = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'User not found' });
     }
 
-    if (user.status === 'suspended' || user.status === 'banned') {
+    if (user.status === 'suspended' || user.status === 'banned' || user.status === 'deleted') {
       return res.status(403).json({ success: false, message: `Account ${user.status}` });
     }
 

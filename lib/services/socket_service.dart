@@ -208,14 +208,14 @@ class SocketService {
       }
     });
 
-    // Listen for typing indicators
-    _socket?.on('typing', (data) {
+    // Listen for typing indicators (server emits 'user_typing' / 'user_stop_typing')
+    _socket?.on('user_typing', (data) {
       if (data is Map<String, dynamic>) {
         _safeAdd(_typingController, data);
       }
     });
 
-    _socket?.on('stop_typing', (data) {
+    _socket?.on('user_stop_typing', (data) {
       if (data is Map<String, dynamic>) {
         _safeAdd(_typingController, {...data, 'isTyping': false});
       }
@@ -234,8 +234,8 @@ class SocketService {
       }
     });
 
-    // Listen for message read receipts
-    _socket?.on('message_read', (data) {
+    // Listen for message read receipts (server emits 'messages_read')
+    _socket?.on('messages_read', (data) {
       if (data is Map<String, dynamic>) {
         _safeAdd(_messageController, {...data, 'type': 'read_receipt'});
       }

@@ -50,9 +50,10 @@ const activitySchema = new mongoose.Schema(
     creatorImages: { type: [String], default: [] },
     status: {
       type: String,
-      enum: ['active', 'cancelled', 'completed'],
+      enum: ['active', 'cancelled', 'completed', 'rejected', 'pending'],
       default: 'active',
     },
+    isFeatured: { type: Boolean, default: false },
 
     // Event feedback
     feedback: { type: [mongoose.Schema.Types.Mixed], default: [] },

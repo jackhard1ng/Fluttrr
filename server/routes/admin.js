@@ -431,10 +431,13 @@ router.delete('/businesses/:id', auth, adminAuth, async (req, res) => {
 router.post('/businesses/:id/toggle-featured', auth, adminAuth, async (req, res) => {
   try {
     const Business = require('../models/Business');
-    const business = await Business.findById(req.params.id);
+    // Atomic toggle using aggregation pipeline update
+    const business = await Business.findByIdAndUpdate(
+      req.params.id,
+      [{ $set: { isFeatured: { $not: '$isFeatured' } } }],
+      { new: true }
+    );
     if (!business) return res.status(404).json({ success: false, message: 'Business not found' });
-    business.isFeatured = !business.isFeatured;
-    await business.save();
     res.json({ success: true, data: business, message: business.isFeatured ? 'Business featured' : 'Business unfeatured' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to toggle featured' });
@@ -550,10 +553,13 @@ router.delete('/events/:id', auth, adminAuth, async (req, res) => {
 router.post('/events/:id/toggle-featured', auth, adminAuth, async (req, res) => {
   try {
     const Activity = require('../models/Activity');
-    const event = await Activity.findById(req.params.id);
+    // Atomic toggle using aggregation pipeline update
+    const event = await Activity.findByIdAndUpdate(
+      req.params.id,
+      [{ $set: { isFeatured: { $not: '$isFeatured' } } }],
+      { new: true }
+    );
     if (!event) return res.status(404).json({ success: false, message: 'Event not found' });
-    event.isFeatured = !event.isFeatured;
-    await event.save();
     res.json({ success: true, data: event, message: event.isFeatured ? 'Event featured' : 'Event unfeatured' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to toggle featured' });

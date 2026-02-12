@@ -218,17 +218,8 @@ router.post('/google-login', async (req, res) => {
       });
       googlePayload = ticket.getPayload();
     } catch (verifyErr) {
-      // Fallback: decode without verification if google-auth-library is not available
-      // TODO: Remove this fallback once google-auth-library is confirmed installed
-      try {
-        const parts = idToken.split('.');
-        if (parts.length === 3) {
-          const payloadBase64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-          googlePayload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString('utf8'));
-        }
-      } catch (_) {
-        // If decoding also fails, fall through
-      }
+      console.error('Google token verification failed:', verifyErr.message);
+      return res.status(401).json({ success: false, message: 'Invalid Google token' });
     }
 
     const googleEmail = googlePayload?.email;
@@ -257,6 +248,9 @@ router.post('/google-login', async (req, res) => {
       });
       isNewUser = true;
     } else {
+      if (user.status === 'suspended' || user.status === 'banned' || user.status === 'deleted') {
+        return res.status(403).json({ success: false, message: `Account ${user.status}` });
+      }
       user.onlineStatus = 'online';
       user.lastSeen = new Date();
       await user.save();
