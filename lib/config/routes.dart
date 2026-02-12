@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../controllers/main_screen_controller.dart';
 import '../models/chat_model.dart';
 import '../models/business_model.dart';
 import '../screens/auth/splash_screen.dart';
@@ -518,6 +519,19 @@ class AppPages {
 
 /// Navigation helper
 class Nav {
+  /// Switch to a tab in the MainScreen's bottom navigation.
+  /// If we're on a pushed route on top of MainScreen, pop back first.
+  static void _switchTab(int tabIndex) {
+    if (Get.isRegistered<MainScreenController>()) {
+      // Pop any routes on top of MainScreen (/home)
+      Get.until((route) => route.settings.name == AppRoutes.home);
+      Get.find<MainScreenController>().switchTab(tabIndex);
+    } else {
+      // Fallback: if MainScreen isn't alive yet, navigate to /home
+      Get.offAllNamed(AppRoutes.home);
+    }
+  }
+
   // Auth
   static void toHome() => Get.offAllNamed(AppRoutes.home);
   static void toLogin() => Get.offAllNamed(AppRoutes.login);
@@ -545,7 +559,7 @@ class Nav {
   static void toSwipeDiscover() => Get.toNamed(AppRoutes.swipeDiscover);
 
   // Profile
-  static void toProfile() => Get.toNamed(AppRoutes.profile);
+  static void toProfile() => _switchTab(MainScreenController.profileTab);
   static void toEditProfile() => Get.toNamed(AppRoutes.editProfile);
   static void toProfileSetup() => Get.toNamed(AppRoutes.profileSetup);
   static void toSettings() => Get.toNamed(AppRoutes.settings);
@@ -553,7 +567,7 @@ class Nav {
   static void toBlockedUsers() => Get.toNamed(AppRoutes.blockedUsers);
 
   // Chat
-  static void toChatList() => Get.toNamed(AppRoutes.chatList);
+  static void toChatList() => _switchTab(MainScreenController.messagesTab);
   static void toChat(ChatConversation conversation, {bool isBusiness = false}) =>
       Get.toNamed(
         AppRoutes.chat,
@@ -575,13 +589,13 @@ class Nav {
   static void toCreateActivity() => Get.toNamed(AppRoutes.createActivity);
 
   // Aliases for common navigation
-  static void toActivities() => Get.toNamed(AppRoutes.home);
-  static void toDiscover() => Get.toNamed(AppRoutes.swipeDiscover);
+  static void toActivities() => _switchTab(MainScreenController.exploreTab);
+  static void toDiscover() => _switchTab(MainScreenController.exploreTab);
   static void toEventDetails({required String eventId}) => Get.toNamed(
         AppRoutes.activityDetails,
         arguments: int.tryParse(eventId) ?? 0,
       );
-  static void toMessages() => Get.toNamed(AppRoutes.chatList);
+  static void toMessages() => _switchTab(MainScreenController.messagesTab);
   static void toSavedData() => Get.toNamed(AppRoutes.savedEvents);
 
   // Support

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../constants/utils.dart';
+import '../../controllers/main_screen_controller.dart';
 import '../../controllers/profile_controller.dart';
 import '../../controllers/activity_controller.dart';
 import '../../controllers/chat_controller.dart';
@@ -20,7 +21,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
-  int _currentIndex = 0;
+  late final MainScreenController _tabController;
 
   final List<Widget> _screens = [
     const HomeScreen(),
@@ -33,6 +34,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _tabController = Get.put(MainScreenController());
     _initControllers();
   }
 
@@ -79,65 +81,68 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(26),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
-            ),
-          ],
+    return Obx(() {
+      final currentIndex = _tabController.currentIndex.value;
+      return Scaffold(
+        body: IndexedStack(
+          index: currentIndex,
+          children: _screens,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Gradient divider
-            Container(
-              height: 2,
-              decoration: const BoxDecoration(
-                gradient: AppGradients.primaryHorizontal,
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(26),
+                blurRadius: 10,
+                offset: const Offset(0, -5),
               ),
-            ),
-            // Bottom navigation bar
-            BottomNavigationBar(
-              currentIndex: _currentIndex,
-              onTap: (index) => setState(() => _currentIndex = index),
-              type: BottomNavigationBarType.fixed,
-              selectedItemColor: AppColors.primaryBlue,
-              unselectedItemColor: AppColors.grey,
-              items: [
-                const BottomNavigationBarItem(
-                  icon: Icon(Icons.home_outlined),
-                  activeIcon: Icon(Icons.home),
-                  label: 'Home',
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Gradient divider
+              Container(
+                height: 2,
+                decoration: const BoxDecoration(
+                  gradient: AppGradients.primaryHorizontal,
                 ),
-                const BottomNavigationBarItem(
-                  icon: Icon(Icons.explore_outlined),
-                  activeIcon: Icon(Icons.explore),
-                  label: 'Explore',
-                ),
-                BottomNavigationBarItem(
-                  icon: _buildChatIcon(false),
-                  activeIcon: _buildChatIcon(true),
-                  label: 'Messages',
-                ),
-                const BottomNavigationBarItem(
-                  icon: Icon(Icons.person_outline),
-                  activeIcon: Icon(Icons.person),
-                  label: 'Profile',
-                ),
-              ],
-            ),
-          ],
+              ),
+              // Bottom navigation bar
+              BottomNavigationBar(
+                currentIndex: currentIndex,
+                onTap: (index) => _tabController.switchTab(index),
+                type: BottomNavigationBarType.fixed,
+                selectedItemColor: AppColors.primaryBlue,
+                unselectedItemColor: AppColors.grey,
+                items: [
+                  const BottomNavigationBarItem(
+                    icon: Icon(Icons.home_outlined),
+                    activeIcon: Icon(Icons.home),
+                    label: 'Home',
+                  ),
+                  const BottomNavigationBarItem(
+                    icon: Icon(Icons.explore_outlined),
+                    activeIcon: Icon(Icons.explore),
+                    label: 'Explore',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: _buildChatIcon(false),
+                    activeIcon: _buildChatIcon(true),
+                    label: 'Messages',
+                  ),
+                  const BottomNavigationBarItem(
+                    icon: Icon(Icons.person_outline),
+                    activeIcon: Icon(Icons.person),
+                    label: 'Profile',
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildChatIcon(bool isActive) {
