@@ -43,7 +43,7 @@ class LocationData {
         state: json['state'] as String?,
         country: json['country'] as String?,
         timestamp: json['timestamp'] != null
-            ? DateTime.parse(json['timestamp'] as String)
+            ? DateTime.tryParse(json['timestamp'] as String)
             : null,
       );
 }

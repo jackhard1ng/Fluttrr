@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { auth } = require('../middleware/auth');
 const Message = require('../models/Message');
+const User = require('../models/User');
 const mongoose = require('mongoose');
 const { isUserOnline } = require('../services/socketService');
 
@@ -17,6 +18,12 @@ router.post('/send', auth, async (req, res) => {
     }
     if (!content && !imageUrl) {
       return res.status(400).json({ success: false, message: 'content or imageUrl is required' });
+    }
+
+    // Verify receiver exists
+    const receiver = await User.findOne({ userId: parseInt(receiverId), status: { $ne: 'deleted' } });
+    if (!receiver) {
+      return res.status(404).json({ success: false, message: 'Receiver not found' });
     }
 
     const message = new Message({
@@ -91,6 +98,7 @@ router.get('/chatlist', auth, async (req, res) => {
       },
       {
         // Group by other user to get last message per conversation
+        // Count unread inline instead of collecting all messages (avoids unbounded memory)
         $group: {
           _id: '$otherUserId',
           lastMessage: { $first: '$content' },
@@ -98,24 +106,13 @@ router.get('/chatlist', auth, async (req, res) => {
           lastMessageType: { $first: '$type' },
           otherUserId: { $first: '$otherUserId' },
           otherUserName: { $first: '$senderName' },
-          // Count unread messages from the other user to current user
-          messages: { $push: '$$ROOT' },
-        },
-      },
-      {
-        $addFields: {
           unreadCount: {
-            $size: {
-              $filter: {
-                input: '$messages',
-                as: 'msg',
-                cond: {
-                  $and: [
-                    { $eq: ['$$msg.receiverId', userId] },
-                    { $eq: ['$$msg.isRead', false] },
-                  ],
-                },
-              },
+            $sum: {
+              $cond: [
+                { $and: [{ $eq: ['$receiverId', userId] }, { $eq: ['$isRead', false] }] },
+                1,
+                0,
+              ],
             },
           },
         },
@@ -186,33 +183,25 @@ router.get('/grouplist', auth, async (req, res) => {
         $sort: { timestamp: -1 },
       },
       {
+        // Count unread inline instead of collecting all messages (avoids unbounded memory)
         $group: {
           _id: '$groupId',
           lastMessage: { $first: '$content' },
           lastMessageTime: { $first: '$timestamp' },
           groupName: { $first: '$groupName' },
           groupImage: { $first: '$groupImage' },
-          messages: { $push: '$$ROOT' },
-        },
-      },
-      {
-        $addFields: {
           unreadCount: {
-            $size: {
-              $filter: {
-                input: '$messages',
-                as: 'msg',
-                cond: {
+            $sum: {
+              $cond: [
+                {
                   $and: [
-                    { $ne: ['$$msg.senderId', userId] },
-                    {
-                      $not: {
-                        $in: [userId, { $ifNull: ['$$msg.readBy', []] }],
-                      },
-                    },
+                    { $ne: ['$senderId', userId] },
+                    { $not: { $in: [userId, { $ifNull: ['$readBy', []] }] } },
                   ],
                 },
-              },
+                1,
+                0,
+              ],
             },
           },
         },
@@ -307,29 +296,20 @@ router.get('/getChatList', auth, async (req, res) => {
         $sort: { timestamp: -1 },
       },
       {
+        // Count unread inline instead of collecting all messages (avoids unbounded memory)
         $group: {
           _id: '$otherUserId',
           lastMessage: { $first: '$content' },
           lastMessageTime: { $first: '$timestamp' },
           otherUserId: { $first: '$otherUserId' },
           otherUserName: { $first: '$senderName' },
-          messages: { $push: '$$ROOT' },
-        },
-      },
-      {
-        $addFields: {
           unreadCount: {
-            $size: {
-              $filter: {
-                input: '$messages',
-                as: 'msg',
-                cond: {
-                  $and: [
-                    { $eq: ['$$msg.receiverId', userId] },
-                    { $eq: ['$$msg.isRead', false] },
-                  ],
-                },
-              },
+            $sum: {
+              $cond: [
+                { $and: [{ $eq: ['$receiverId', userId] }, { $eq: ['$isRead', false] }] },
+                1,
+                0,
+              ],
             },
           },
         },
@@ -373,11 +353,18 @@ router.post('/sendB', auth, async (req, res) => {
   try {
     const { businessId, content, imageUrl } = req.body;
 
-    if (!businessId) {
-      return res.status(400).json({ success: false, message: 'businessId is required' });
+    if (!businessId || isNaN(parseInt(businessId))) {
+      return res.status(400).json({ success: false, message: 'businessId must be a valid number' });
     }
     if (!content && !imageUrl) {
       return res.status(400).json({ success: false, message: 'content or imageUrl is required' });
+    }
+
+    // Verify business receiver exists
+    const Business = require('../models/Business');
+    const business = await Business.findOne({ businessId: parseInt(businessId) });
+    if (!business) {
+      return res.status(404).json({ success: false, message: 'Business not found' });
     }
 
     const message = new Message({

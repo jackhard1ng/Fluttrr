@@ -57,10 +57,10 @@ class EventMemoryModel {
           [],
       commentCount: json['comment_count'] as int? ?? 0,
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
+          ? (DateTime.tryParse(json['created_at'] as String) ?? DateTime.now())
           : DateTime.now(),
       eventDate: json['event_date'] != null
-          ? DateTime.parse(json['event_date'] as String)
+          ? (DateTime.tryParse(json['event_date'] as String) ?? DateTime.now())
           : DateTime.now(),
       isApproved: json['is_approved'] as bool? ?? true,
       isFeatured: json['is_featured'] as bool? ?? false,
@@ -180,7 +180,7 @@ class MemoryPhotoModel {
               .toList() ??
           [],
       uploadedAt: json['uploaded_at'] != null
-          ? DateTime.parse(json['uploaded_at'] as String)
+          ? (DateTime.tryParse(json['uploaded_at'] as String) ?? DateTime.now())
           : DateTime.now(),
     );
   }
@@ -279,7 +279,7 @@ class MemoryCommentModel {
       userAvatar: json['user_avatar'] as String?,
       content: json['content'] as String? ?? '',
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
+          ? (DateTime.tryParse(json['created_at'] as String) ?? DateTime.now())
           : DateTime.now(),
       likeCount: json['like_count'] as int? ?? 0,
       isLikedByMe: json['is_liked_by_me'] as bool? ?? false,
@@ -346,7 +346,7 @@ class EventWithMemoriesModel {
       eventName: json['event_name'] as String? ?? json['name'] as String? ?? '',
       eventImage: json['event_image'] as String?,
       eventDate: json['event_date'] != null
-          ? DateTime.parse(json['event_date'] as String)
+          ? (DateTime.tryParse(json['event_date'] as String) ?? DateTime.now())
           : DateTime.now(),
       memoryCount: json['memory_count'] as int? ?? 0,
       photoCount: json['photo_count'] as int? ?? 0,

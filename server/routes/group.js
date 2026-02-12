@@ -102,7 +102,15 @@ router.get('/list', auth, async (req, res) => {
     const limitNum = Math.min(Math.max(parseInt(limit) || 20, 1), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const filter = { isActive: true };
+    const userId = req.user.userId;
+    // Exclude secret groups unless user is a member
+    const filter = {
+      isActive: true,
+      $or: [
+        { privacy: { $ne: 'secret' } },
+        { 'members.userId': userId },
+      ],
+    };
 
     if (type) {
       filter.type = type;
@@ -115,11 +123,13 @@ router.get('/list', auth, async (req, res) => {
     if (query) {
       // Escape special regex chars to prevent ReDoS
       const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      filter.$or = [
-        { name: { $regex: escapedQuery, $options: 'i' } },
-        { description: { $regex: escapedQuery, $options: 'i' } },
-        { tags: { $elemMatch: { $regex: escapedQuery, $options: 'i' } } },
-      ];
+      filter.$and = (filter.$and || []).concat({
+        $or: [
+          { name: { $regex: escapedQuery, $options: 'i' } },
+          { description: { $regex: escapedQuery, $options: 'i' } },
+          { tags: { $elemMatch: { $regex: escapedQuery, $options: 'i' } } },
+        ],
+      });
     }
 
     if (latitude && longitude && radius) {
@@ -138,7 +148,6 @@ router.get('/list', auth, async (req, res) => {
       .skip(skip)
       .limit(limitNum);
 
-    const userId = req.user.userId;
     const data = groups.map((group) => formatGroup(group, userId));
 
     res.json({ success: true, data });
@@ -157,6 +166,13 @@ router.get('/details/:groupId', auth, async (req, res) => {
     }
 
     const userId = req.user.userId;
+    const isMember = (group.members || []).some((m) => m.userId === userId);
+
+    // Secret groups are only visible to members
+    if (group.privacy === 'secret' && !isMember) {
+      return res.status(404).json({ success: false, message: 'Group not found' });
+    }
+
     res.json({ success: true, data: formatGroup(group, userId) });
   } catch (error) {
     console.error('Get group details error:', error);
@@ -253,8 +269,14 @@ router.post('/join', auth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Already a member of this group' });
     }
 
+    // Secret groups cannot be joined without an invite
+    if (group.privacy === 'secret') {
+      return res.status(403).json({ success: false, message: 'This group requires an invitation to join' });
+    }
+
     const settings = group.settings || {};
-    const requireApproval = settings.require_approval || settings.requireApproval || false;
+    // Private groups always require approval regardless of settings
+    const requireApproval = group.privacy === 'private' || settings.require_approval || settings.requireApproval || false;
 
     if (requireApproval) {
       const existingRequest = (group.joinRequests || []).find((r) => r.userId === userId);
@@ -369,6 +391,14 @@ router.get('/members/:groupId', auth, async (req, res) => {
     const group = await Group.findById(req.params.groupId);
     if (!group) {
       return res.status(404).json({ success: false, message: 'Group not found' });
+    }
+
+    const userId = req.user.userId;
+    const isMember = (group.members || []).some((m) => m.userId === userId);
+
+    // Private/secret group member lists are only visible to members
+    if ((group.privacy === 'private' || group.privacy === 'secret') && !isMember) {
+      return res.status(403).json({ success: false, message: 'Only members can view the member list' });
     }
 
     const members = (group.members || [])
@@ -567,15 +597,26 @@ router.get('/search', auth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Search query is required' });
     }
 
+    const userId = req.user.userId;
+
     // Escape special regex chars to prevent ReDoS
     const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const filter = {
       isActive: true,
+      // Exclude secret groups unless user is a member
       $or: [
-        { name: { $regex: escapedQuery, $options: 'i' } },
-        { description: { $regex: escapedQuery, $options: 'i' } },
-        { tags: { $elemMatch: { $regex: escapedQuery, $options: 'i' } } },
-        { interests: { $elemMatch: { $regex: escapedQuery, $options: 'i' } } },
+        { privacy: { $ne: 'secret' } },
+        { 'members.userId': userId },
+      ],
+      $and: [
+        {
+          $or: [
+            { name: { $regex: escapedQuery, $options: 'i' } },
+            { description: { $regex: escapedQuery, $options: 'i' } },
+            { tags: { $elemMatch: { $regex: escapedQuery, $options: 'i' } } },
+            { interests: { $elemMatch: { $regex: escapedQuery, $options: 'i' } } },
+          ],
+        },
       ],
     };
 
@@ -583,8 +624,6 @@ router.get('/search', auth, async (req, res) => {
       .sort({ memberCount: -1 })
       .skip((pageNum - 1) * limitNum)
       .limit(limitNum);
-
-    const userId = req.user.userId;
     const data = groups.map((group) => formatGroup(group, userId));
 
     res.json({ success: true, data });
@@ -608,6 +647,7 @@ router.get('/suggested', auth, async (req, res) => {
     if (userInterests.length > 0) {
       groups = await Group.find({
         isActive: true,
+        privacy: { $ne: 'secret' },
         interests: { $in: userInterests },
         'members.userId': { $ne: userId },
       })
@@ -617,6 +657,7 @@ router.get('/suggested', auth, async (req, res) => {
       // Fallback: return popular groups the user is not a member of
       groups = await Group.find({
         isActive: true,
+        privacy: { $ne: 'secret' },
         'members.userId': { $ne: userId },
       })
         .sort({ memberCount: -1 })
@@ -669,15 +710,19 @@ router.get('/by-interest', auth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Interest parameter is required' });
     }
 
+    const userId = req.user.userId;
     const groups = await Group.find({
       isActive: true,
       interests: { $in: [interest] },
+      // Exclude secret groups unless user is a member
+      $or: [
+        { privacy: { $ne: 'secret' } },
+        { 'members.userId': userId },
+      ],
     })
       .sort({ memberCount: -1 })
       .skip((pageNum - 1) * limitNum)
       .limit(limitNum);
-
-    const userId = req.user.userId;
     const data = groups.map((group) => formatGroup(group, userId));
 
     res.json({ success: true, data });

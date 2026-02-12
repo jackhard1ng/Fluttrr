@@ -1,46 +1,31 @@
 const express = require('express');
 const router = express.Router();
 const { auth } = require('../middleware/auth');
+const Icebreaker = require('../models/Icebreaker');
 const { v4: uuidv4 } = require('uuid');
 
-// In-memory default icebreakers (will be seeded to DB later)
-const defaultIcebreakers = [
-  { question: "What's a hobby you've always wanted to try?", type: 'question', category: 'gettingToKnow' },
-  { question: "If you could have dinner with anyone, who would it be?", type: 'question', category: 'funAndSilly' },
-  { question: "What's the best trip you've ever taken?", type: 'question', category: 'gettingToKnow' },
-  { question: "Would you rather travel to the past or the future?", type: 'wouldYouRather', category: 'funAndSilly', options: ['Past', 'Future'] },
-  { question: "What's your go-to comfort food?", type: 'question', category: 'gettingToKnow' },
-  { question: "Coffee or tea?", type: 'thisOrThat', category: 'funAndSilly', options: ['Coffee', 'Tea'] },
-  { question: "What's a skill you're proud of?", type: 'question', category: 'gettingToKnow' },
-  { question: "What's your favorite way to spend a weekend?", type: 'question', category: 'gettingToKnow' },
-  { question: "Would you rather have the ability to fly or be invisible?", type: 'wouldYouRather', category: 'funAndSilly', options: ['Fly', 'Be invisible'] },
-  { question: "What's something on your bucket list?", type: 'question', category: 'deep' },
-];
+// Seed defaults on first load
+Icebreaker.seedDefaults().catch((err) => console.error('Icebreaker seed error:', err));
 
 // GET /api/icebreaker/list
 router.get('/list', auth, async (req, res) => {
   try {
     const { page = 1, limit = 20, type, category } = req.query;
-    let filtered = [...defaultIcebreakers];
-    if (type) filtered = filtered.filter((i) => i.type === type);
-    if (category) filtered = filtered.filter((i) => i.category === category);
+    const pageNum = Math.max(parseInt(page) || 1, 1);
+    const limitNum = Math.min(Math.max(parseInt(limit) || 20, 1), 100);
 
-    const data = filtered.slice(0, parseInt(limit)).map((ib, idx) => ({
-      icebreakerId: `ib_${idx}`,
-      question: ib.question,
-      prompt: ib.question,
-      type: ib.type,
-      category: ib.category,
-      options: ib.options || [],
-      timeLimit: 60,
-      isCustom: false,
-      creatorId: null,
-      usageCount: Math.floor(Math.random() * 100),
-      rating: 4.0 + Math.random(),
-    }));
+    const filter = {};
+    if (type) filter.type = type;
+    if (category) filter.category = category;
 
-    res.json({ success: true, data });
+    const icebreakers = await Icebreaker.find(filter)
+      .sort({ usageCount: -1, createdAt: -1 })
+      .skip((pageNum - 1) * limitNum)
+      .limit(limitNum);
+
+    res.json({ success: true, data: icebreakers });
   } catch (error) {
+    console.error('Get icebreakers error:', error);
     res.status(500).json({ success: false, message: 'Failed to get icebreakers' });
   }
 });
@@ -48,23 +33,34 @@ router.get('/list', auth, async (req, res) => {
 // GET /api/icebreaker/random
 router.get('/random', auth, async (req, res) => {
   try {
-    const ib = defaultIcebreakers[Math.floor(Math.random() * defaultIcebreakers.length)];
+    const { category } = req.query;
+    const match = category ? { category } : {};
+    const results = await Icebreaker.aggregate([{ $match: match }, { $sample: { size: 1 } }]);
+
+    if (results.length === 0) {
+      return res.status(404).json({ success: false, message: 'No icebreakers found' });
+    }
+
+    // Apply toJSON-like transform for the aggregation result
+    const ib = results[0];
     res.json({
       success: true,
       data: {
-        icebreakerId: `ib_${uuidv4()}`,
+        icebreaker_id: ib.icebreakerId,
         question: ib.question,
-        prompt: ib.question,
+        prompt: ib.prompt,
         type: ib.type,
         category: ib.category,
         options: ib.options || [],
-        timeLimit: 60,
-        isCustom: false,
-        usageCount: 0,
-        rating: 4.5,
+        time_limit: ib.timeLimit,
+        is_custom: ib.isCustom,
+        creator_id: ib.creatorId,
+        usage_count: ib.usageCount,
+        rating: ib.rating,
       },
     });
   } catch (error) {
+    console.error('Get random icebreaker error:', error);
     res.status(500).json({ success: false, message: 'Failed to get random icebreaker' });
   }
 });
@@ -73,8 +69,12 @@ router.get('/random', auth, async (req, res) => {
 router.post('/create', auth, async (req, res) => {
   try {
     const { question, prompt, type, category, options, time_limit } = req.body;
-    const icebreaker = {
-      icebreakerId: uuidv4(),
+
+    if (!question && !prompt) {
+      return res.status(400).json({ success: false, message: 'question or prompt is required' });
+    }
+
+    const icebreaker = await Icebreaker.create({
       question: question || prompt,
       prompt: prompt || question,
       type: type || 'question',
@@ -83,36 +83,82 @@ router.post('/create', auth, async (req, res) => {
       timeLimit: time_limit || 60,
       isCustom: true,
       creatorId: req.user.userId,
-      usageCount: 0,
-      rating: 0,
-    };
+    });
+
     res.json({ success: true, data: icebreaker });
   } catch (error) {
+    console.error('Create icebreaker error:', error);
     res.status(500).json({ success: false, message: 'Failed to create icebreaker' });
   }
 });
 
-// Session routes
+// Session routes - these return stub data for now since icebreaker sessions
+// are real-time features that would typically use Socket.io
 router.get('/session/:eventId', auth, async (req, res) => {
-  res.json({ success: true, data: { sessionId: null, eventId: req.params.eventId, currentIcebreaker: null, queue: [], responses: [], isActive: false, participantCount: 0 } });
+  res.json({
+    success: true,
+    data: {
+      sessionId: null,
+      eventId: req.params.eventId,
+      currentIcebreaker: null,
+      queue: [],
+      responses: [],
+      isActive: false,
+      participantCount: 0,
+    },
+  });
 });
 
 router.post('/session/start', auth, async (req, res) => {
   const { event_id, count = 5 } = req.body;
-  const queue = defaultIcebreakers.slice(0, count).map((ib, idx) => ({
-    icebreakerId: `ib_${idx}`,
+  const safeCount = Math.min(Math.max(parseInt(count) || 5, 1), 20);
+
+  const icebreakers = await Icebreaker.aggregate([{ $sample: { size: safeCount } }]);
+  const queue = icebreakers.map((ib) => ({
+    icebreaker_id: ib.icebreakerId,
     question: ib.question,
-    prompt: ib.question,
+    prompt: ib.prompt,
     type: ib.type,
     category: ib.category,
     options: ib.options || [],
   }));
-  res.json({ success: true, data: { sessionId: uuidv4(), eventId: event_id, currentIcebreaker: queue[0] || null, queue, responses: [], isActive: true, startedAt: new Date(), participantCount: 1 } });
+
+  res.json({
+    success: true,
+    data: {
+      sessionId: uuidv4(),
+      eventId: event_id,
+      currentIcebreaker: queue[0] || null,
+      queue,
+      responses: [],
+      isActive: true,
+      startedAt: new Date(),
+      participantCount: 1,
+    },
+  });
 });
 
 router.post('/respond', auth, async (req, res) => {
   const { icebreaker_id, event_id, answer, selected_option_index } = req.body;
-  res.json({ success: true, data: { responseId: uuidv4(), icebreakerId: icebreaker_id, eventId: event_id, userId: req.user.userId, userName: req.user.userName, answer, selectedOptionIndex: selected_option_index, votes: [], respondedAt: new Date(), reactions: [] } });
+  // Increment usage count for this icebreaker
+  if (icebreaker_id) {
+    await Icebreaker.findOneAndUpdate({ icebreakerId: icebreaker_id }, { $inc: { usageCount: 1 } }).catch(() => {});
+  }
+  res.json({
+    success: true,
+    data: {
+      responseId: uuidv4(),
+      icebreakerId: icebreaker_id,
+      eventId: event_id,
+      userId: req.user.userId,
+      userName: req.user.userName,
+      answer,
+      selectedOptionIndex: selected_option_index,
+      votes: [],
+      respondedAt: new Date(),
+      reactions: [],
+    },
+  });
 });
 
 router.get('/responses', auth, async (req, res) => {
