@@ -86,6 +86,9 @@ router.post('/create', auth, async (req, res) => {
     if (options && (!Array.isArray(options) || options.length > 10)) {
       return res.status(400).json({ success: false, message: 'Options must be an array with max 10 items' });
     }
+    if (options && options.some((opt) => typeof opt !== 'string' || opt.length > 500)) {
+      return res.status(400).json({ success: false, message: 'Each option must be a string, max 500 characters' });
+    }
     const safeTimeLimit = parseInt(time_limit) || 60;
     if (safeTimeLimit < 10 || safeTimeLimit > 3600) {
       return res.status(400).json({ success: false, message: 'Time limit must be between 10 and 3600 seconds' });

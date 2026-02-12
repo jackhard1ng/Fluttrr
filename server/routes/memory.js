@@ -207,7 +207,14 @@ router.post('/', auth, upload.array('photos', 10), async (req, res) => {
 // GET /api/memory/:memoryId
 router.get('/:memoryId', auth, async (req, res) => {
   try {
-    const memory = await Memory.findOne({ memoryId: req.params.memoryId });
+    // Only return memory if user owns it or it's approved (public)
+    const memory = await Memory.findOne({
+      memoryId: req.params.memoryId,
+      $or: [
+        { uploaderId: req.user.userId },
+        { isApproved: true },
+      ],
+    });
     if (!memory) return res.status(404).json({ success: false, message: 'Memory not found' });
     res.json({ success: true, data: memory.toApiResponse(req.user.userId) });
   } catch (error) {
@@ -297,7 +304,14 @@ router.delete('/:memoryId/like', auth, async (req, res) => {
 // GET /api/memory/:memoryId/comments
 router.get('/:memoryId/comments', auth, async (req, res) => {
   try {
-    const memory = await Memory.findOne({ memoryId: req.params.memoryId });
+    // Only return comments if user owns memory or it's approved
+    const memory = await Memory.findOne({
+      memoryId: req.params.memoryId,
+      $or: [
+        { uploaderId: req.user.userId },
+        { isApproved: true },
+      ],
+    });
     if (!memory) return res.status(404).json({ success: false, message: 'Memory not found' });
     res.json({ success: true, data: memory.comments || [] });
   } catch (error) {
@@ -309,7 +323,12 @@ router.get('/:memoryId/comments', auth, async (req, res) => {
 router.post('/:memoryId/comments', auth, async (req, res) => {
   try {
     const { content } = req.body;
-    if (!content) return res.status(400).json({ success: false, message: 'content is required' });
+    if (!content || typeof content !== 'string' || !content.trim()) {
+      return res.status(400).json({ success: false, message: 'content is required' });
+    }
+    if (content.length > 1000) {
+      return res.status(400).json({ success: false, message: 'Comment must be 1000 characters or less' });
+    }
 
     const comment = {
       userId: String(req.user.userId),
