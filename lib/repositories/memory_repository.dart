@@ -58,7 +58,7 @@ class MemoryRepository extends BaseRepository {
   Future<ApiResponse<EventMemoryModel>> getMemoryDetails(String memoryId) async {
     return await get<EventMemoryModel>(
       '${ApiEndpoints.apiBase}/memory/$memoryId',
-      fromJson: (data) => EventMemoryModel.fromJson(data['data'] ?? data),
+      fromJson: EventMemoryModel.fromJson,
     );
   }
 
@@ -98,7 +98,7 @@ class MemoryRepository extends BaseRepository {
       fileList: photos,
       fileListFieldName: 'photos',
       fields: fields,
-      fromJson: (data) => EventMemoryModel.fromJson(data['data'] ?? data),
+      fromJson: EventMemoryModel.fromJson,
     );
   }
 
@@ -111,7 +111,7 @@ class MemoryRepository extends BaseRepository {
       '${ApiEndpoints.apiBase}/memory/$memoryId/photos',
       fileList: photos,
       fileListFieldName: 'photos',
-      fromJson: (data) => EventMemoryModel.fromJson(data['data'] ?? data),
+      fromJson: EventMemoryModel.fromJson,
     );
   }
 
@@ -154,7 +154,7 @@ class MemoryRepository extends BaseRepository {
       body: {
         if (caption != null) 'caption': caption,
       },
-      fromJson: (data) => EventMemoryModel.fromJson(data['data'] ?? data),
+      fromJson: EventMemoryModel.fromJson,
     );
   }
 
@@ -164,7 +164,7 @@ class MemoryRepository extends BaseRepository {
   Future<ApiResponse<EventMemoryModel>> likeMemory(String memoryId) async {
     return await post<EventMemoryModel>(
       '${ApiEndpoints.apiBase}/memory/$memoryId/like',
-      fromJson: (data) => EventMemoryModel.fromJson(data['data'] ?? data),
+      fromJson: EventMemoryModel.fromJson,
     );
   }
 
@@ -219,7 +219,7 @@ class MemoryRepository extends BaseRepository {
     return await post<MemoryCommentModel>(
       '${ApiEndpoints.apiBase}/memory/$memoryId/comments',
       body: {'content': content},
-      fromJson: (data) => MemoryCommentModel.fromJson(data['data'] ?? data),
+      fromJson: MemoryCommentModel.fromJson,
     );
   }
 
@@ -246,7 +246,7 @@ class MemoryRepository extends BaseRepository {
   }) async {
     return await post<MemoryCommentModel>(
       '${ApiEndpoints.apiBase}/memory/$memoryId/comments/$commentId/like',
-      fromJson: (data) => MemoryCommentModel.fromJson(data['data'] ?? data),
+      fromJson: MemoryCommentModel.fromJson,
     );
   }
 
@@ -267,7 +267,7 @@ class MemoryRepository extends BaseRepository {
         'x_position': xPosition,
         'y_position': yPosition,
       },
-      fromJson: (data) => PhotoTagModel.fromJson(data['data'] ?? data),
+      fromJson: PhotoTagModel.fromJson,
     );
   }
 

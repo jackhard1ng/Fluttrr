@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import '../models/activity_model.dart';
 import '../repositories/activity_repository.dart';
+import '../services/location_service.dart';
 
 /// Activity controller for managing activities/events
 class ActivityController extends GetxController {
@@ -268,6 +269,22 @@ class ActivityController extends GetxController {
     errorMessage.value = '';
 
     try {
+      // Geocode location if no coordinates were set
+      if (selectedLatitude.value == 0 && selectedLongitude.value == 0 &&
+          locationController.text.trim().isNotEmpty) {
+        try {
+          final locationData = await LocationService().getCoordinatesFromAddress(
+            locationController.text.trim(),
+          );
+          if (locationData != null) {
+            selectedLatitude.value = locationData.latitude;
+            selectedLongitude.value = locationData.longitude;
+          }
+        } catch (e) {
+          debugPrint('Geocoding failed: $e');
+        }
+      }
+
       // Route to recurring or single event creation
       if (isRecurring.value) {
         return await _createRecurringActivity(requestHash);

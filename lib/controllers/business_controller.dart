@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 
 import '../models/business_model.dart';
 import '../repositories/business_repository.dart';
+import '../services/location_service.dart';
 
 /// Business controller
 class BusinessController extends GetxController {
@@ -402,12 +403,29 @@ class BusinessController extends GetxController {
     errorMessage.value = '';
 
     try {
+      // Geocode location if no coordinates were set
+      double lat = eventLatitude.value;
+      double lng = eventLongitude.value;
+      if (lat == 0 && lng == 0 && eventLocationController.text.trim().isNotEmpty) {
+        try {
+          final locationData = await LocationService().getCoordinatesFromAddress(
+            eventLocationController.text.trim(),
+          );
+          if (locationData != null) {
+            lat = locationData.latitude;
+            lng = locationData.longitude;
+          }
+        } catch (e) {
+          debugPrint('Geocoding failed: $e');
+        }
+      }
+
       final response = await _businessRepository.createBusinessEvent(
         name: eventNameController.text.trim(),
         description: eventDescriptionController.text.trim(),
         location: eventLocationController.text.trim(),
-        latitude: eventLatitude.value,
-        longitude: eventLongitude.value,
+        latitude: lat,
+        longitude: lng,
         startTime: startTime,
         endTime: eventEndTime.value,
         eventType: eventType.value,
@@ -452,12 +470,27 @@ class BusinessController extends GetxController {
     errorMessage.value = '';
 
     try {
+      // Geocode the location text to get coordinates for map display
+      double lat = 0;
+      double lng = 0;
+      if (location.isNotEmpty) {
+        try {
+          final locationData = await LocationService().getCoordinatesFromAddress(location);
+          if (locationData != null) {
+            lat = locationData.latitude;
+            lng = locationData.longitude;
+          }
+        } catch (e) {
+          debugPrint('Geocoding failed for "$location": $e');
+        }
+      }
+
       final response = await _businessRepository.createBusinessEvent(
         name: name,
         description: description,
         location: location,
-        latitude: 0, // Default - can be enhanced to geocode the location
-        longitude: 0,
+        latitude: lat,
+        longitude: lng,
         startTime: startDate,
         endTime: endDate,
         eventType: eventType,

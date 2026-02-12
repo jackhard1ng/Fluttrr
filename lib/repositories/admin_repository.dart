@@ -9,7 +9,7 @@ class AdminRepository extends BaseRepository {
   Future<ApiResponse<AdminUserModel>> checkAdminStatus() async {
     return await get<AdminUserModel>(
       '${ApiEndpoints.apiBase}/admin/status',
-      fromJson: (data) => AdminUserModel.fromJson(data['data'] ?? data),
+      fromJson: AdminUserModel.fromJson,
     );
   }
 
@@ -17,7 +17,7 @@ class AdminRepository extends BaseRepository {
   Future<ApiResponse<AdminStatsModel>> getDashboardStats() async {
     return await get<AdminStatsModel>(
       '${ApiEndpoints.apiBase}/admin/stats',
-      fromJson: (data) => AdminStatsModel.fromJson(data['data'] ?? data),
+      fromJson: AdminStatsModel.fromJson,
     );
   }
 
@@ -79,7 +79,7 @@ class AdminRepository extends BaseRepository {
   Future<ApiResponse<ManagedBusinessModel>> getBusinessDetails(String businessId) async {
     return await get<ManagedBusinessModel>(
       '${ApiEndpoints.apiBase}/admin/businesses/$businessId',
-      fromJson: (data) => ManagedBusinessModel.fromJson(data['data'] ?? data),
+      fromJson: ManagedBusinessModel.fromJson,
     );
   }
 
@@ -95,7 +95,7 @@ class AdminRepository extends BaseRepository {
         'approved': approve,
         if (!approve && rejectionReason != null) 'reason': rejectionReason,
       },
-      fromJson: (data) => ManagedBusinessModel.fromJson(data['data'] ?? data),
+      fromJson: ManagedBusinessModel.fromJson,
     );
   }
 
@@ -111,7 +111,7 @@ class AdminRepository extends BaseRepository {
         'reason': reason,
         if (durationDays != null) 'duration_days': durationDays,
       },
-      fromJson: (data) => ManagedBusinessModel.fromJson(data['data'] ?? data),
+      fromJson: ManagedBusinessModel.fromJson,
     );
   }
 
@@ -119,7 +119,7 @@ class AdminRepository extends BaseRepository {
   Future<ApiResponse<ManagedBusinessModel>> unsuspendBusiness(String businessId) async {
     return await post<ManagedBusinessModel>(
       '${ApiEndpoints.apiBase}/admin/businesses/$businessId/unsuspend',
-      fromJson: (data) => ManagedBusinessModel.fromJson(data['data'] ?? data),
+      fromJson: ManagedBusinessModel.fromJson,
     );
   }
 
@@ -143,7 +143,7 @@ class AdminRepository extends BaseRepository {
   Future<ApiResponse<ManagedBusinessModel>> toggleBusinessFeatured(String businessId) async {
     return await post<ManagedBusinessModel>(
       '${ApiEndpoints.apiBase}/admin/businesses/$businessId/toggle-featured',
-      fromJson: (data) => ManagedBusinessModel.fromJson(data['data'] ?? data),
+      fromJson: ManagedBusinessModel.fromJson,
     );
   }
 
@@ -166,7 +166,7 @@ class AdminRepository extends BaseRepository {
         if (ownerId != null) 'owner_id': ownerId,
         'auto_verify': autoVerify,
       },
-      fromJson: (data) => ManagedBusinessModel.fromJson(data['data'] ?? data),
+      fromJson: ManagedBusinessModel.fromJson,
     );
   }
 
@@ -207,7 +207,7 @@ class AdminRepository extends BaseRepository {
   Future<ApiResponse<ManagedEventModel>> getEventDetails(String eventId) async {
     return await get<ManagedEventModel>(
       '${ApiEndpoints.apiBase}/admin/events/$eventId',
-      fromJson: (data) => ManagedEventModel.fromJson(data['data'] ?? data),
+      fromJson: ManagedEventModel.fromJson,
     );
   }
 
@@ -215,7 +215,7 @@ class AdminRepository extends BaseRepository {
   Future<ApiResponse<ManagedEventModel>> approveEvent(String eventId) async {
     return await post<ManagedEventModel>(
       '${ApiEndpoints.apiBase}/admin/events/$eventId/approve',
-      fromJson: (data) => ManagedEventModel.fromJson(data['data'] ?? data),
+      fromJson: ManagedEventModel.fromJson,
     );
   }
 
@@ -227,7 +227,7 @@ class AdminRepository extends BaseRepository {
     return await post<ManagedEventModel>(
       '${ApiEndpoints.apiBase}/admin/events/$eventId/reject',
       body: {'reason': reason},
-      fromJson: (data) => ManagedEventModel.fromJson(data['data'] ?? data),
+      fromJson: ManagedEventModel.fromJson,
     );
   }
 
@@ -252,7 +252,7 @@ class AdminRepository extends BaseRepository {
   Future<ApiResponse<ManagedEventModel>> toggleEventFeatured(String eventId) async {
     return await post<ManagedEventModel>(
       '${ApiEndpoints.apiBase}/admin/events/$eventId/toggle-featured',
-      fromJson: (data) => ManagedEventModel.fromJson(data['data'] ?? data),
+      fromJson: ManagedEventModel.fromJson,
     );
   }
 
@@ -277,7 +277,7 @@ class AdminRepository extends BaseRepository {
         if (businessId != null) 'business_id': businessId,
         if (maxAttendees != null) 'max_attendees': maxAttendees,
       },
-      fromJson: (data) => ManagedEventModel.fromJson(data['data'] ?? data),
+      fromJson: ManagedEventModel.fromJson,
     );
   }
 
@@ -316,7 +316,7 @@ class AdminRepository extends BaseRepository {
   Future<ApiResponse<ManagedUserModel>> getUserDetails(String userId) async {
     return await get<ManagedUserModel>(
       '${ApiEndpoints.apiBase}/admin/users/$userId',
-      fromJson: (data) => ManagedUserModel.fromJson(data['data'] ?? data),
+      fromJson: ManagedUserModel.fromJson,
     );
   }
 
@@ -332,7 +332,7 @@ class AdminRepository extends BaseRepository {
         'reason': reason,
         if (durationDays != null) 'duration_days': durationDays,
       },
-      fromJson: (data) => ManagedUserModel.fromJson(data['data'] ?? data),
+      fromJson: ManagedUserModel.fromJson,
     );
   }
 
@@ -340,7 +340,7 @@ class AdminRepository extends BaseRepository {
   Future<ApiResponse<ManagedUserModel>> unsuspendUser(String userId) async {
     return await post<ManagedUserModel>(
       '${ApiEndpoints.apiBase}/admin/users/$userId/unsuspend',
-      fromJson: (data) => ManagedUserModel.fromJson(data['data'] ?? data),
+      fromJson: ManagedUserModel.fromJson,
     );
   }
 
@@ -352,7 +352,7 @@ class AdminRepository extends BaseRepository {
     return await post<ManagedUserModel>(
       '${ApiEndpoints.apiBase}/admin/users/$userId/ban',
       body: {'reason': reason},
-      fromJson: (data) => ManagedUserModel.fromJson(data['data'] ?? data),
+      fromJson: ManagedUserModel.fromJson,
     );
   }
 
@@ -360,7 +360,7 @@ class AdminRepository extends BaseRepository {
   Future<ApiResponse<ManagedUserModel>> unbanUser(String userId) async {
     return await post<ManagedUserModel>(
       '${ApiEndpoints.apiBase}/admin/users/$userId/unban',
-      fromJson: (data) => ManagedUserModel.fromJson(data['data'] ?? data),
+      fromJson: ManagedUserModel.fromJson,
     );
   }
 
@@ -438,7 +438,7 @@ class AdminRepository extends BaseRepository {
   Future<ApiResponse<ContentReportModel>> getReportDetails(String reportId) async {
     return await get<ContentReportModel>(
       '${ApiEndpoints.apiBase}/admin/reports/$reportId',
-      fromJson: (data) => ContentReportModel.fromJson(data['data'] ?? data),
+      fromJson: ContentReportModel.fromJson,
     );
   }
 
@@ -450,7 +450,7 @@ class AdminRepository extends BaseRepository {
     return await post<ContentReportModel>(
       '${ApiEndpoints.apiBase}/admin/reports/$reportId/assign',
       body: {'admin_id': adminId},
-      fromJson: (data) => ContentReportModel.fromJson(data['data'] ?? data),
+      fromJson: ContentReportModel.fromJson,
     );
   }
 
@@ -466,7 +466,7 @@ class AdminRepository extends BaseRepository {
         'resolution': resolution,
         if (actionTaken != null) 'action_taken': actionTaken,
       },
-      fromJson: (data) => ContentReportModel.fromJson(data['data'] ?? data),
+      fromJson: ContentReportModel.fromJson,
     );
   }
 
@@ -480,7 +480,7 @@ class AdminRepository extends BaseRepository {
       body: {
         if (reason != null) 'reason': reason,
       },
-      fromJson: (data) => ContentReportModel.fromJson(data['data'] ?? data),
+      fromJson: ContentReportModel.fromJson,
     );
   }
 
@@ -507,7 +507,7 @@ class AdminRepository extends BaseRepository {
         'role': role.name,
         if (permissions != null) 'permissions': permissions,
       },
-      fromJson: (data) => AdminUserModel.fromJson(data['data'] ?? data),
+      fromJson: AdminUserModel.fromJson,
     );
   }
 
@@ -523,7 +523,7 @@ class AdminRepository extends BaseRepository {
         'role': role.name,
         if (permissions != null) 'permissions': permissions,
       },
-      fromJson: (data) => AdminUserModel.fromJson(data['data'] ?? data),
+      fromJson: AdminUserModel.fromJson,
     );
   }
 
