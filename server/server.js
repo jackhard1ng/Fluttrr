@@ -56,8 +56,15 @@ const apiLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Serve uploaded files (rate-limited to prevent abuse)
+const uploadsLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 200, // 200 file requests per minute
+  message: { success: false, message: 'Too many requests. Please slow down.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/uploads', uploadsLimiter, express.static(path.join(__dirname, 'uploads')));
 
 // Health check
 app.get('/', (req, res) => {

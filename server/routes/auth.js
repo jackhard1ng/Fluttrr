@@ -173,7 +173,10 @@ router.post('/verify-otp', async (req, res) => {
       return res.status(400).json({ success: false, message: 'OTP has expired. Please request a new one' });
     }
 
-    if (otpRecord.otp !== otp.toString()) {
+    // Constant-time comparison to prevent timing attacks on OTP
+    const otpMatch = otpRecord.otp.length === otp.toString().length &&
+      crypto.timingSafeEqual(Buffer.from(otpRecord.otp), Buffer.from(otp.toString()));
+    if (!otpMatch) {
       // Increment attempts and delete OTP if max reached
       otpRecord.attempts = (otpRecord.attempts || 0) + 1;
       if (otpRecord.attempts >= 5) {
@@ -393,7 +396,10 @@ router.post('/verify-reset-otp', async (req, res) => {
       return res.status(400).json({ success: false, message: 'OTP has expired. Please request a new one' });
     }
 
-    if (otpRecord.otp !== otp.toString()) {
+    // Constant-time comparison to prevent timing attacks on OTP
+    const resetOtpMatch = otpRecord.otp.length === otp.toString().length &&
+      crypto.timingSafeEqual(Buffer.from(otpRecord.otp), Buffer.from(otp.toString()));
+    if (!resetOtpMatch) {
       // Increment attempts and delete OTP if max reached
       otpRecord.attempts = (otpRecord.attempts || 0) + 1;
       if (otpRecord.attempts >= 5) {

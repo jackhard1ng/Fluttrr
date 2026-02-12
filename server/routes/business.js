@@ -319,7 +319,13 @@ router.post('/verify', auth, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Business not found' });
     }
 
-    if (business.verificationOtp !== otp) {
+    // Constant-time comparison to prevent timing attacks
+    const storedOtp = String(business.verificationOtp || '');
+    const providedOtp = String(otp || '');
+    const otpValid = storedOtp.length === providedOtp.length &&
+      storedOtp.length > 0 &&
+      crypto.timingSafeEqual(Buffer.from(storedOtp), Buffer.from(providedOtp));
+    if (!otpValid) {
       return res.status(400).json({ success: false, message: 'Invalid OTP' });
     }
 
