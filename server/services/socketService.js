@@ -9,7 +9,17 @@ const onlineUsers = new Map(); // numeric userId -> socketId
 
 const initSocket = (server) => {
   io = new Server(server, {
-    cors: { origin: '*', methods: ['GET', 'POST'] },
+    cors: {
+      origin: function (origin, callback) {
+        // Allow requests with no origin (mobile apps, curl, etc.)
+        if (!origin) return callback(null, true);
+        const allowedOrigins = (process.env.CORS_ORIGINS || 'https://fluttrr.com,https://www.fluttrr.com,https://api.fluttrr.com').split(',');
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        callback(new Error('Origin not allowed by CORS'));
+      },
+      methods: ['GET', 'POST'],
+      credentials: true,
+    },
     pingTimeout: 60000,
     pingInterval: 25000,
   });
@@ -46,20 +56,35 @@ const initSocket = (server) => {
 
     // Handle sending messages
     socket.on('send_message', (data) => {
+      if (!data || typeof data !== 'object') return;
       const { receiverId, content, imageUrl, type } = data;
+
+      // Validate receiverId
+      if (receiverId == null || (typeof receiverId !== 'number' && typeof receiverId !== 'string')) return;
+      const numReceiverId = typeof receiverId === 'string' ? parseInt(receiverId) : receiverId;
+      if (isNaN(numReceiverId) || numReceiverId === userId) return;
+
+      // Validate content
+      if (!content && !imageUrl) return;
+      if (content && (typeof content !== 'string' || content.length > 5000)) return;
+      if (imageUrl && (typeof imageUrl !== 'string' || imageUrl.length > 2000)) return;
+
+      // Validate type
+      const allowedTypes = ['text', 'image', 'audio', 'video', 'file'];
+      const msgType = allowedTypes.includes(type) ? type : 'text';
 
       const message = {
         messageId: uuidv4(),
         senderId: userId,
-        receiverId,
-        content,
+        receiverId: numReceiverId,
+        content: content ? content.trim() : content,
         imageUrl,
-        type: type || 'text',
+        type: msgType,
         timestamp: new Date().toISOString(),
       };
 
       // Send to receiver's room (handles single and multiple connections)
-      io.to(`user_${receiverId}`).emit('new_message', message);
+      io.to(`user_${numReceiverId}`).emit('new_message', message);
     });
 
     // Typing indicators

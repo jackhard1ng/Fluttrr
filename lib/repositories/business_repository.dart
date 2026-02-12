@@ -144,7 +144,7 @@ class BusinessRepository extends BaseRepository {
 
   /// Update business profile
   Future<ApiResponse<BusinessModel>> updateBusinessProfile({
-    int? businessId,
+    required int businessId,
     String? businessName,
     String? email,
     String? phone,

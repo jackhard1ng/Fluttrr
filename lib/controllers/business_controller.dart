@@ -274,12 +274,18 @@ class BusinessController extends GetxController {
 
   /// Update business profile
   Future<bool> updateBusinessProfile() async {
+    final currentBusinessId = businessProfile.value?.businessId;
+    if (currentBusinessId == null) {
+      errorMessage.value = 'No business profile found to update';
+      return false;
+    }
+
     isCreating.value = true;
     errorMessage.value = '';
 
     try {
       final response = await _businessRepository.updateBusinessProfile(
-        businessId: businessProfile.value?.businessId,
+        businessId: currentBusinessId,
         businessName: businessNameController.text.trim().isNotEmpty
             ? businessNameController.text.trim()
             : null,

@@ -96,6 +96,22 @@ router.get('/mine', auth, async (req, res) => {
   }
 });
 
+// GET /api/memory/user/:userId - Get memories uploaded by a specific user
+router.get('/user/:userId', auth, async (req, res) => {
+  try {
+    const targetUserId = parseInt(req.params.userId);
+    if (isNaN(targetUserId)) {
+      return res.status(400).json({ success: false, message: 'Invalid user ID' });
+    }
+    const memories = await Memory.find({ uploaderId: String(targetUserId), isApproved: true })
+      .sort({ createdAt: -1 });
+    const data = memories.map((m) => m.toApiResponse(req.user.userId));
+    res.json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to get user memories' });
+  }
+});
+
 // GET /api/memory/events - Memories grouped by event
 router.get('/events', auth, async (req, res) => {
   try {

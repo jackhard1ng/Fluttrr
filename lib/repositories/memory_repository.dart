@@ -335,7 +335,7 @@ class MemoryRepository extends BaseRepository {
     int limit = 20,
   }) async {
     final response = await get<dynamic>(
-      '${ApiEndpoints.apiBase}/memory/my',
+      '${ApiEndpoints.apiBase}/memory/user/$userId',
       queryParams: {
         'page': page.toString(),
         'limit': limit.toString(),

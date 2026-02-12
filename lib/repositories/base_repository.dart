@@ -522,6 +522,40 @@ abstract class BaseRepository {
         final streamedResponse = await request.send().timeout(uploadConfig.timeout);
         final response = await http.Response.fromStream(streamedResponse);
 
+        // Handle 401 with token refresh and retry
+        if (response.statusCode == 401 && requiresAuth) {
+          final refreshed = await _handleTokenRefresh();
+          if (refreshed) {
+            // Retry with new token
+            final retryRequest = http.MultipartRequest('POST', Uri.parse(url));
+            final newToken = await getToken();
+            if (newToken != null) {
+              retryRequest.headers['Authorization'] = 'Bearer $newToken';
+            }
+            if (files != null) {
+              for (final entry in files.entries) {
+                retryRequest.files.add(
+                  await http.MultipartFile.fromPath(entry.key, entry.value.path),
+                );
+              }
+            }
+            if (fileList != null) {
+              for (int i = 0; i < fileList.length; i++) {
+                retryRequest.files.add(
+                  await http.MultipartFile.fromPath(
+                    '$fileListFieldName[$i]',
+                    fileList[i].path,
+                  ),
+                );
+              }
+            }
+            if (fields != null) retryRequest.fields.addAll(fields);
+            final retryStreamedResponse = await retryRequest.send().timeout(uploadConfig.timeout);
+            final retryResponse = await http.Response.fromStream(retryStreamedResponse);
+            return _handleResponse(retryResponse, fromJson);
+          }
+        }
+
         // Check if we should retry based on status code
         if (response.statusCode >= 500 || response.statusCode == 429) {
           attempt++;
