@@ -93,6 +93,10 @@ router.post('/send-otp', async (req, res) => {
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     // Upsert: create or replace existing OTP record for this email
+    // Preserve attempts counter across re-requests to prevent brute-force bypass
+    const existingOtp = await Otp.findOne({ email: normalizedEmail, type: 'registration' });
+    const carriedAttempts = existingOtp ? (existingOtp.attempts || 0) : 0;
+
     await Otp.findOneAndUpdate(
       { email: normalizedEmail },
       {
@@ -100,6 +104,7 @@ router.post('/send-otp', async (req, res) => {
         otp,
         type: 'registration',
         expiresAt,
+        attempts: carriedAttempts,
         // Store temporary registration data alongside the OTP
         userData: {
           userName,
@@ -302,6 +307,10 @@ router.post('/request-otp', async (req, res) => {
     const otp = generateOtp();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
+    // Preserve attempts counter across re-requests to prevent brute-force bypass
+    const existingResetOtp = await Otp.findOne({ email: normalizedEmail, type: 'passwordReset' });
+    const carriedResetAttempts = existingResetOtp ? (existingResetOtp.attempts || 0) : 0;
+
     await Otp.findOneAndUpdate(
       { email: normalizedEmail, type: 'passwordReset' },
       {
@@ -309,6 +318,7 @@ router.post('/request-otp', async (req, res) => {
         otp,
         type: 'passwordReset',
         expiresAt,
+        attempts: carriedResetAttempts,
       },
       { upsert: true, new: true },
     );

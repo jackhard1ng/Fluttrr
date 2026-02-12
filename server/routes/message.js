@@ -19,6 +19,9 @@ router.post('/send', auth, async (req, res) => {
     if (!content && !imageUrl) {
       return res.status(400).json({ success: false, message: 'content or imageUrl is required' });
     }
+    if (content && content.length > 5000) {
+      return res.status(400).json({ success: false, message: 'Message content exceeds 5000 character limit' });
+    }
 
     // Verify receiver exists
     const receiver = await User.findOne({ userId: parseInt(receiverId), status: { $ne: 'deleted' } });
@@ -358,6 +361,9 @@ router.post('/sendB', auth, async (req, res) => {
     }
     if (!content && !imageUrl) {
       return res.status(400).json({ success: false, message: 'content or imageUrl is required' });
+    }
+    if (content && content.length > 5000) {
+      return res.status(400).json({ success: false, message: 'Message content exceeds 5000 character limit' });
     }
 
     // Verify business receiver exists

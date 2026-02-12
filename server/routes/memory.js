@@ -327,7 +327,7 @@ router.post('/:memoryId/report', auth, async (req, res) => {
       userId: req.user.userId,
       subject: `Memory report: ${req.params.memoryId}`,
       description: reason || 'Reported by user',
-      category: 'memory_report',
+      category: 'inappropriate_content',
     });
     res.json({ success: true });
   } catch (error) {

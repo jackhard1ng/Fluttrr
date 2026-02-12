@@ -194,8 +194,8 @@ router.post('/upgrade-to-premium', auth, async (req, res) => {
       if (paymentIntent.status !== 'succeeded') {
         return res.status(400).json({ success: false, message: 'Payment not completed' });
       }
-      // Verify the payment amount matches the plan price
-      if (paymentIntent.amount < plan.price) {
+      // Verify the payment amount exactly matches the plan price
+      if (paymentIntent.amount !== plan.price) {
         return res.status(400).json({ success: false, message: 'Payment amount does not match plan price' });
       }
     }

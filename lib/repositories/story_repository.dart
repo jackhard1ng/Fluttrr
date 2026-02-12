@@ -48,7 +48,7 @@ class StoryRepository {
 
       if (response.statusCode == 200 && response.data != null) {
         final stories = (response.data['stories'] as List<dynamic>?)
-            ?.map((s) => StoryModel.fromJson(s))
+            ?.map((s) => StoryModel.fromJson(s as Map<String, dynamic>))
             .toList() ?? [];
         return stories;
       }
@@ -67,7 +67,7 @@ class StoryRepository {
 
       if (response.statusCode == 200 && response.data != null) {
         final stories = (response.data['stories'] as List<dynamic>?)
-            ?.map((s) => StoryModel.fromJson(s))
+            ?.map((s) => StoryModel.fromJson(s as Map<String, dynamic>))
             .toList() ?? [];
         return stories;
       }
@@ -86,7 +86,7 @@ class StoryRepository {
 
       if (response.statusCode == 200 && response.data != null) {
         final stories = (response.data['stories'] as List<dynamic>?)
-            ?.map((s) => StoryModel.fromJson(s))
+            ?.map((s) => StoryModel.fromJson(s as Map<String, dynamic>))
             .toList() ?? [];
         return stories;
       }

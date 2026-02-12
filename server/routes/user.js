@@ -4,8 +4,23 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const User = require('../models/User');
 const Activity = require('../models/Activity');
+const Privacy = require('../models/Privacy');
 const { auth } = require('../middleware/auth');
 const upload = require('../middleware/upload');
+
+// ============================================================
+// Helper: get user IDs hidden by privacy settings
+// Returns a Set of numeric userIds that should be excluded
+// ============================================================
+const getHiddenUserIds = async (setting) => {
+  try {
+    const hidden = await Privacy.find({ [setting]: false }).select('userId').lean();
+    return new Set(hidden.map((p) => p.userId));
+  } catch (_) {
+    // If Privacy model query fails, don't block the request
+    return new Set();
+  }
+};
 
 // ============================================================
 // Helper: format a user document into the shape the Flutter app expects
@@ -315,6 +330,12 @@ router.get('/match', auth, async (req, res) => {
       isLowProfile: { $ne: true },
     };
 
+    // Respect privacy settings: exclude users who set showInNearby = false
+    const hiddenFromNearby = await getHiddenUserIds('showInNearby');
+    if (hiddenFromNearby.size > 0) {
+      filter.userId = { $nin: Array.from(hiddenFromNearby) };
+    }
+
     // If the current user has a location, try to find nearby users
     // For now this is a simple query; a production system would use $geoNear
     if (currentUser.profile?.latitude && currentUser.profile?.longitude) {
@@ -379,6 +400,12 @@ router.get('/search', auth, async (req, res) => {
       ],
     };
 
+    // Respect privacy settings: exclude users who set showInSearch = false
+    const hiddenFromSearch = await getHiddenUserIds('showInSearch');
+    if (hiddenFromSearch.size > 0) {
+      filter.userId = { $nin: Array.from(hiddenFromSearch) };
+    }
+
     const users = await User.find(filter)
       .select('-password')
       .skip(skip)
@@ -418,6 +445,12 @@ router.get('/List', auth, async (req, res) => {
       _id: { $ne: req.userId },
       status: { $nin: ['suspended', 'banned', 'deleted'] },
     };
+
+    // Respect privacy settings: exclude users who opted out of search visibility
+    const hiddenFromSearch = await getHiddenUserIds('showInSearch');
+    if (hiddenFromSearch.size > 0) {
+      filter.userId = { $nin: Array.from(hiddenFromSearch) };
+    }
 
     const users = await User.find(filter)
       .select('-password')
@@ -536,9 +569,20 @@ router.post('/claimed', auth, async (req, res) => {
 router.get('/ranking', auth, async (req, res) => {
   try {
     // Leaderboard: top users by a composite score (activities + rating)
-    const topUsers = await User.find({
+    // Respect privacy: exclude users who set profileVisibility to 'nobody'
+    const leaderboardFilter = {
       status: { $nin: ['suspended', 'banned', 'deleted'] },
-    })
+    };
+    try {
+      const hiddenProfiles = await Privacy.find({ profileVisibility: 'nobody' }).select('userId').lean();
+      if (hiddenProfiles.length > 0) {
+        leaderboardFilter.userId = { $nin: hiddenProfiles.map((p) => p.userId) };
+      }
+    } catch (_) {
+      // Privacy check failure shouldn't block leaderboard
+    }
+
+    const topUsers = await User.find(leaderboardFilter)
       .select('-password')
       .sort({ averageRating: -1, 'activities.joined': -1 })
       .limit(50);

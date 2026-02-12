@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
 const { auth } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const Activity = require('../models/Activity');
@@ -507,6 +508,20 @@ router.post('/feedback', auth, async (req, res) => {
   try {
     const { event_id, rating, comment } = req.body;
 
+    if (!event_id || isNaN(parseInt(event_id))) {
+      return res.status(400).json({ success: false, message: 'event_id must be a valid number' });
+    }
+    if (rating === undefined || rating === null || isNaN(parseInt(rating))) {
+      return res.status(400).json({ success: false, message: 'rating is required and must be a number' });
+    }
+    const parsedRating = parseInt(rating);
+    if (parsedRating < 1 || parsedRating > 5) {
+      return res.status(400).json({ success: false, message: 'rating must be between 1 and 5' });
+    }
+    if (comment && comment.length > 1000) {
+      return res.status(400).json({ success: false, message: 'comment must not exceed 1000 characters' });
+    }
+
     const activity = await Activity.findOne({ activityId: parseInt(event_id) });
     if (!activity) {
       return res.status(404).json({ success: false, message: 'Activity not found' });
@@ -521,7 +536,7 @@ router.post('/feedback', auth, async (req, res) => {
     const feedbackEntry = {
       userId: req.user.userId,
       userName: req.user.userName || 'Unknown',
-      rating: parseInt(rating),
+      rating: parsedRating,
       comment: comment || '',
       createdAt: new Date(),
     };
@@ -741,10 +756,8 @@ router.post('/invite-guest', auth, async (req, res) => {
 
     if (!activity.guests) activity.guests = [];
 
-    // Generate a unique invite code
-    const inviteCode =
-      Math.random().toString(36).substring(2, 8).toUpperCase() +
-      Date.now().toString(36).toUpperCase();
+    // Generate a cryptographically secure invite code
+    const inviteCode = crypto.randomBytes(12).toString('hex').toUpperCase();
 
     const guest = {
       guestId: Date.now(),
@@ -860,6 +873,10 @@ router.post('/guest-rsvp', async (req, res) => {
   try {
     const { invite_code, accept, guest_name, guest_email } = req.body;
 
+    if (!invite_code || typeof invite_code !== 'string' || invite_code.length < 10) {
+      return res.status(400).json({ success: false, message: 'Valid invite code is required' });
+    }
+
     const activity = await Activity.findOne({ 'guests.inviteCode': invite_code });
     if (!activity) {
       return res.status(404).json({ success: false, message: 'Invalid invite code' });
@@ -868,6 +885,11 @@ router.post('/guest-rsvp', async (req, res) => {
     const guest = activity.guests.find((g) => g.inviteCode === invite_code);
     if (!guest) {
       return res.status(404).json({ success: false, message: 'Invalid invite code' });
+    }
+
+    // Prevent re-responding to already finalized RSVPs
+    if (guest.status === 'accepted' || guest.status === 'declined') {
+      return res.status(409).json({ success: false, message: 'This invite has already been responded to' });
     }
 
     guest.status = accept ? 'accepted' : 'declined';

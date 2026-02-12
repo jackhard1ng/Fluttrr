@@ -43,19 +43,26 @@ router.post('/complain', auth, async (req, res) => {
   }
 });
 
-// GET /api/admin/status - Get admin status (any authenticated user)
+// GET /api/admin/status - Check if current user is admin
+// Only expose admin-specific fields to actual admins
 router.get('/status', auth, async (req, res) => {
   try {
+    const role = req.user.role || 'user';
+    const isAdmin = role === 'admin' || role === 'super_admin' || role === 'moderator';
+
     res.json({
       success: true,
       data: {
-        adminId: req.user._id,
         userId: req.user.userId,
-        email: req.user.email,
         name: req.user.userName,
-        role: req.user.role || 'user',
-        permissions: [],
-        isActive: true,
+        role,
+        isAdmin,
+        ...(isAdmin && {
+          adminId: req.user._id,
+          email: req.user.email,
+          permissions: [],
+          isActive: true,
+        }),
       },
     });
   } catch (error) {
@@ -140,7 +147,9 @@ router.get('/users', auth, adminAuth, async (req, res) => {
     if (status) filter.status = status;
     if (is_business_owner === 'true') filter.accountType = 'business';
     if (search) {
-      const regex = new RegExp(search.trim(), 'i');
+      // Escape special regex chars to prevent ReDoS attacks
+      const escapedSearch = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(escapedSearch, 'i');
       filter.$or = [{ userName: regex }, { email: regex }];
     }
 
@@ -270,7 +279,8 @@ router.get('/businesses', auth, adminAuth, async (req, res) => {
     if (status === 'verified') filter.isVerified = true;
     if (status === 'unverified') filter.isVerified = { $ne: true };
     if (search) {
-      const regex = new RegExp(search.trim(), 'i');
+      const escapedSearch = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(escapedSearch, 'i');
       filter.$or = [{ businessName: regex }, { email: regex }];
     }
 
@@ -468,7 +478,8 @@ router.get('/events', auth, adminAuth, async (req, res) => {
     if (is_past === 'true') filter.dateTime = { $lt: new Date() };
     if (is_past === 'false') filter.dateTime = { $gte: new Date() };
     if (search) {
-      const regex = new RegExp(search.trim(), 'i');
+      const escapedSearch = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(escapedSearch, 'i');
       filter.$or = [{ name: regex }, { description: regex }, { location: regex }];
     }
 

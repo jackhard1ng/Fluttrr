@@ -7,6 +7,7 @@ import '../constants/api_endpoints.dart';
 import '../models/chat_model.dart';
 import '../repositories/chat_repository.dart';
 import '../services/storage_service.dart';
+import '../services/token_manager.dart';
 
 /// Chat controller with Socket.IO support
 class ChatController extends GetxController {
