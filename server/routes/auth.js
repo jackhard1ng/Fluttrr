@@ -80,6 +80,21 @@ router.post('/send-otp', async (req, res) => {
       return res.status(400).json({ success: false, message: 'userName, email and password are required' });
     }
 
+    // Validate password strength
+    if (typeof password !== 'string' || password.length < 6) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
+    }
+
+    // Validate userName
+    if (typeof userName !== 'string' || userName.trim().length < 2 || userName.trim().length > 30) {
+      return res.status(400).json({ success: false, message: 'Username must be 2-30 characters' });
+    }
+
+    // Validate email format
+    if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      return res.status(400).json({ success: false, message: 'Invalid email format' });
+    }
+
     const normalizedEmail = email.toLowerCase().trim();
 
     // Check if the email is already registered
