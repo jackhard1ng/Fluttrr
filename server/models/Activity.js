@@ -89,6 +89,9 @@ activitySchema.index({ 'attendees.userId': 1 });
 activitySchema.index({ 'reminders.userId': 1 });
 activitySchema.index({ 'waitlist.userId': 1 });
 activitySchema.index({ seriesId: 1 }, { sparse: true });
+activitySchema.index({ savedBy: 1 });
+activitySchema.index({ 'feedback.userId': 1 });
+activitySchema.index({ 'guests.inviteCode': 1 });
 
 // ---------------------------------------------------------------------------
 // Pre-save: auto-increment activityId

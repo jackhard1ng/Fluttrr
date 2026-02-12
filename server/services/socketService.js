@@ -7,6 +7,19 @@ const User = require('../models/User');
 let io;
 const onlineUsers = new Map(); // numeric userId -> socketId
 
+// Simple per-socket rate limiter: max N events per window
+const socketRateLimits = new Map(); // socketId -> { count, resetAt }
+function checkSocketRate(socketId, maxPerMinute = 60) {
+  const now = Date.now();
+  const entry = socketRateLimits.get(socketId);
+  if (!entry || now > entry.resetAt) {
+    socketRateLimits.set(socketId, { count: 1, resetAt: now + 60000 });
+    return true;
+  }
+  entry.count++;
+  return entry.count <= maxPerMinute;
+}
+
 const initSocket = (server) => {
   io = new Server(server, {
     cors: {
@@ -57,6 +70,7 @@ const initSocket = (server) => {
     // Handle sending messages
     socket.on('send_message', (data) => {
       if (!data || typeof data !== 'object') return;
+      if (!checkSocketRate(socket.id, 60)) return; // max 60 msgs/min
       const { receiverId, content, imageUrl, type } = data;
 
       // Validate receiverId
@@ -139,11 +153,21 @@ const initSocket = (server) => {
       socket.leave(roomId);
     });
 
-    // Group messages (with membership check)
+    // Group messages (with membership check + validation matching send_message)
     socket.on('group_message', async (data) => {
+      if (!data || typeof data !== 'object') return;
+      if (!checkSocketRate(socket.id, 60)) return; // max 60 msgs/min
       const { roomId, content, imageUrl, type } = data;
       if (!roomId || typeof roomId !== 'string' || roomId.length > 200) return;
       if (!content && !imageUrl) return;
+
+      // Validate content and imageUrl (same rules as send_message)
+      if (content && (typeof content !== 'string' || content.length > 5000)) return;
+      if (imageUrl && (typeof imageUrl !== 'string' || imageUrl.length > 2000)) return;
+
+      // Validate type against allowed values
+      const allowedTypes = ['text', 'image', 'audio', 'video', 'file'];
+      const msgType = allowedTypes.includes(type) ? type : 'text';
 
       // Verify sender is in the room before broadcasting
       if (!socket.rooms.has(roomId)) {
@@ -155,9 +179,9 @@ const initSocket = (server) => {
         messageId: uuidv4(),
         senderId: userId,
         roomId,
-        content,
-        imageUrl,
-        type: type || 'text',
+        content: content ? content.trim() : content,
+        imageUrl: imageUrl ? imageUrl.trim() : imageUrl,
+        type: msgType,
         timestamp: new Date().toISOString(),
       };
       socket.to(roomId).emit('new_group_message', message);
@@ -165,6 +189,7 @@ const initSocket = (server) => {
 
     socket.on('disconnect', () => {
       onlineUsers.delete(userId);
+      socketRateLimits.delete(socket.id);
       socket.broadcast.emit('user_offline', { userId });
       console.log(`User disconnected: ${userId}`);
     });
