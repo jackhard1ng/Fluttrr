@@ -635,6 +635,15 @@ router.post('/rate-attendee', auth, async (req, res) => {
     if (isNaN(parsedRatedUserId)) {
       return res.status(400).json({ success: false, message: 'rated_user_id must be a valid number' });
     }
+    if (parsedRatedUserId === req.user.userId) {
+      return res.status(400).json({ success: false, message: 'Cannot rate yourself' });
+    }
+
+    // Validate rating range
+    const parsedRating = parseInt(rating);
+    if (isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) {
+      return res.status(400).json({ success: false, message: 'Rating must be between 1 and 5' });
+    }
 
     const ratingEntry = {
       raterId: req.user.userId,

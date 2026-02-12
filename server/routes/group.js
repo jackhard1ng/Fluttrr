@@ -201,14 +201,48 @@ router.put('/update', auth, async (req, res) => {
     }
 
     const updateFields = {};
-    if (name !== undefined) updateFields.name = name;
-    if (description !== undefined) updateFields.description = description;
-    if (privacy !== undefined) updateFields.privacy = privacy;
+    if (name !== undefined) {
+      if (typeof name !== 'string' || name.trim().length === 0 || name.length > 100) {
+        return res.status(400).json({ success: false, message: 'Group name must be 1-100 characters' });
+      }
+      updateFields.name = name.trim();
+    }
+    if (description !== undefined) {
+      if (typeof description !== 'string' || description.length > 2000) {
+        return res.status(400).json({ success: false, message: 'Description must be 2000 characters or less' });
+      }
+      updateFields.description = description;
+    }
+    if (privacy !== undefined) {
+      const validPrivacy = ['public', 'private', 'secret'];
+      if (!validPrivacy.includes(privacy)) {
+        return res.status(400).json({ success: false, message: `privacy must be one of: ${validPrivacy.join(', ')}` });
+      }
+      updateFields.privacy = privacy;
+    }
     if (image !== undefined) updateFields.image = image;
     if (cover_image !== undefined) updateFields.coverImage = cover_image;
-    if (interests !== undefined) updateFields.interests = interests;
-    if (tags !== undefined) updateFields.tags = tags;
-    if (settings !== undefined) updateFields.settings = settings;
+    if (interests !== undefined) {
+      if (!Array.isArray(interests) || interests.length > 20) {
+        return res.status(400).json({ success: false, message: 'interests must be an array of max 20 items' });
+      }
+      updateFields.interests = interests;
+    }
+    if (tags !== undefined) {
+      if (!Array.isArray(tags) || tags.length > 20) {
+        return res.status(400).json({ success: false, message: 'tags must be an array of max 20 items' });
+      }
+      updateFields.tags = tags;
+    }
+    if (settings !== undefined && typeof settings === 'object' && settings !== null) {
+      // Whitelist allowed settings fields
+      const allowedSettings = ['allowMemberPosts', 'allowMemberEvents', 'requireApproval', 'showMemberList', 'allowInvites', 'maxMembers'];
+      const sanitizedSettings = {};
+      for (const key of allowedSettings) {
+        if (settings[key] !== undefined) sanitizedSettings[key] = settings[key];
+      }
+      updateFields.settings = sanitizedSettings;
+    }
 
     const updatedGroup = await Group.findByIdAndUpdate(
       group_id,
@@ -557,11 +591,23 @@ router.post('/respond-request', auth, async (req, res) => {
         isActive: true,
       };
 
-      await Group.findByIdAndUpdate(group._id, {
-        $push: { members: newMember },
-        $pull: { joinRequests: { _id: request._id } },
-        $inc: { memberCount: 1 },
-      });
+      // Atomic: only add if user not already a member (prevents duplicate via race)
+      const updated = await Group.findOneAndUpdate(
+        { _id: group._id, 'members.userId': { $ne: request.userId } },
+        {
+          $push: { members: newMember },
+          $pull: { joinRequests: { _id: request._id } },
+          $inc: { memberCount: 1 },
+        },
+        { new: true }
+      );
+      if (!updated) {
+        // User already a member — just remove the request
+        await Group.findByIdAndUpdate(group._id, {
+          $pull: { joinRequests: { _id: request._id } },
+        });
+        return res.status(400).json({ success: false, message: 'User is already a member' });
+      }
 
       res.json({
         success: true,

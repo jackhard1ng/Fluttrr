@@ -84,6 +84,7 @@ const businessSchema = new mongoose.Schema(
 businessSchema.index({ latitude: 1, longitude: 1 });
 businessSchema.index({ category: 1 });
 businessSchema.index({ isVerified: 1 });
+businessSchema.index({ followers: 1 });
 
 // ---------------------------------------------------------------------------
 // Pre-save: auto-increment businessId
