@@ -18,12 +18,25 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
+  late final ProfileController _profileController;
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    if (!Get.isRegistered<ProfileController>()) {
+      Get.put(ProfileController(), permanent: true);
+    }
+    _profileController = Get.find<ProfileController>();
+
+    // Refresh profile data to ensure form fields are populated
+    // with the latest data from the server
+    if (_profileController.currentUser.value == null) {
+      _profileController.loadProfile();
+    }
+  }
 
   Future<void> _pickAndUploadPhoto(ImageSource source) async {
-    if (!Get.isRegistered<ProfileController>()) {
-      Get.put(ProfileController());
-    }
-    final profileController = Get.find<ProfileController>();
     final picker = ImagePicker();
 
     try {
@@ -37,7 +50,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (pickedFile == null) return;
 
       final file = File(pickedFile.path);
-      final success = await profileController.uploadProfilePhoto(file);
+      final success = await _profileController.uploadProfilePhoto(file);
 
       if (success) {
         Get.snackbar(
@@ -69,10 +82,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   void _showPhotoOptions(BuildContext context) {
-    // Check if context is still mounted before showing bottom sheet (#72)
     if (!context.mounted) return;
-
-    final profileController = Get.find<ProfileController>();
 
     Get.bottomSheet(
       Container(
@@ -105,7 +115,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               title: Text('Remove Photo', style: TextStyle(color: AppColors.error)),
               onTap: () async {
                 Get.back();
-                final success = await profileController.removeProfilePhoto();
+                final success = await _profileController.removeProfilePhoto();
                 if (success) {
                   Get.snackbar(
                     'Photo Removed',
@@ -124,12 +134,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  final _formKey = GlobalKey<FormState>();
+  Future<void> _saveProfile() async {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+    final success = await _profileController.updateProfile();
+    if (success) {
+      Get.snackbar(
+        'Saved',
+        'Profile updated successfully',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.success,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
+      await Future.delayed(const Duration(milliseconds: 500));
+      Get.back();
+    } else {
+      Get.snackbar(
+        'Error',
+        _profileController.errorMessage.value.isNotEmpty
+            ? _profileController.errorMessage.value
+            : 'Failed to update profile. Please try again.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.error,
+        colorText: Colors.white,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final profileController = Get.find<ProfileController>();
-
     final List<String> genders = ['Male', 'Female', 'Non-binary', 'Other'];
     final List<String> interests = [
       'Sports',
@@ -152,242 +187,220 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Profile'),
-        actions: [
-          Obx(() => TextButton(
-                onPressed: profileController.isUpdating.value
-                    ? null
-                    : () async {
-                        if (!(_formKey.currentState?.validate() ?? false)) {
-                          return;
-                        }
-                        final success =
-                            await profileController.updateProfile();
-                        if (success) {
-                          Get.snackbar(
-                            'Saved',
-                            'Profile updated successfully',
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: AppColors.success,
-                            colorText: Colors.white,
-                            duration: const Duration(seconds: 2),
-                          );
-                          await Future.delayed(
-                              const Duration(milliseconds: 500));
-                          Get.back();
-                        } else {
-                          Get.snackbar(
-                            'Error',
-                            profileController.errorMessage.value.isNotEmpty
-                                ? profileController.errorMessage.value
-                                : 'Failed to update profile. Please try again.',
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: AppColors.error,
-                            colorText: Colors.white,
-                          );
-                        }
-                      },
-                child: profileController.isUpdating.value
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Save'),
-              )),
-        ],
       ),
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Profile photo
-            Center(
-              child: Stack(
-                children: [
-                  Obx(() => Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          UserAvatar(
-                            imageUrl: profileController.profileImage,
-                            size: 100,
-                          ),
-                          if (profileController.isUploadingImage.value)
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                color: Colors.black.withAlpha(128),
-                                shape: BoxShape.circle,
+      body: Obx(() {
+        // Show loading indicator while profile data is being loaded
+        if (_profileController.isLoading.value &&
+            _profileController.currentUser.value == null) {
+          return const LoadingIndicator();
+        }
+
+        return Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Profile photo
+                Center(
+                  child: Stack(
+                    children: [
+                      Obx(() => Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              UserAvatar(
+                                imageUrl: _profileController.profileImage,
+                                size: 100,
                               ),
-                              child: const Center(
-                                child: SizedBox(
-                                  width: 30,
-                                  height: 30,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 3,
-                                    color: Colors.white,
+                              if (_profileController.isUploadingImage.value)
+                                Container(
+                                  width: 100,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withAlpha(128),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Center(
+                                    child: SizedBox(
+                                      width: 30,
+                                      height: 30,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 3,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
+                            ],
+                          )),
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: GestureDetector(
+                          onTap: () => _showPhotoOptions(context),
+                          child: Container(
+                            padding: const EdgeInsets.all(AppSpacing.sm),
+                            decoration: const BoxDecoration(
+                              color: AppColors.primaryBlue,
+                              shape: BoxShape.circle,
                             ),
-                        ],
-                      )),
-                  Positioned(
-                    right: 0,
-                    bottom: 0,
-                    child: GestureDetector(
-                      onTap: () => _showPhotoOptions(context),
-                      child: Container(
-                        padding: const EdgeInsets.all(AppSpacing.sm),
-                        decoration: const BoxDecoration(
-                          color: AppColors.primaryBlue,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.camera_alt,
-                          color: Colors.white,
-                          size: 20,
+                            child: const Icon(
+                              Icons.camera_alt,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
 
-            const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.xl),
 
-            // Name
-            CustomTextField(
-              controller: profileController.userNameController,
-              labelText: 'Name',
-              hintText: 'Enter your name',
-              prefixIcon: const Icon(Icons.person_outlined),
-            ),
+                // Name
+                CustomTextField(
+                  controller: _profileController.userNameController,
+                  labelText: 'Name',
+                  hintText: 'Enter your name',
+                  prefixIcon: const Icon(Icons.person_outlined),
+                ),
 
-            const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: AppSpacing.lg),
 
-            // Age
-            CustomTextField(
-              controller: profileController.ageController,
-              labelText: 'Age',
-              hintText: 'Must be 18 or older',
-              keyboardType: TextInputType.number,
-              prefixIcon: const Icon(Icons.cake_outlined),
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(3),
+                // Age
+                CustomTextField(
+                  controller: _profileController.ageController,
+                  labelText: 'Age',
+                  hintText: 'Must be 18 or older',
+                  keyboardType: TextInputType.number,
+                  prefixIcon: const Icon(Icons.cake_outlined),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(3),
+                  ],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your age';
+                    }
+                    final age = int.tryParse(value);
+                    if (age == null) return 'Please enter a valid number';
+                    if (age < 18) return 'You must be at least 18 years old';
+                    if (age > 120) return 'Please enter a valid age';
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: AppSpacing.lg),
+
+                // Gender
+                Text(
+                  'Gender',
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Obx(() => Wrap(
+                      spacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.sm,
+                      children: genders.map((gender) {
+                        final isSelected =
+                            _profileController.selectedGender.value == gender;
+                        return ChoiceChip(
+                          label: Text(gender),
+                          selected: isSelected,
+                          onSelected: (_) =>
+                              _profileController.setGender(gender),
+                          selectedColor: AppColors.primaryBlue,
+                          labelStyle: TextStyle(
+                            color:
+                                isSelected ? Colors.white : AppColors.darkGrey,
+                          ),
+                        );
+                      }).toList(),
+                    )),
+
+                const SizedBox(height: AppSpacing.lg),
+
+                // Home Location
+                CustomTextField(
+                  controller: _profileController.locationController,
+                  labelText: 'Home Location',
+                  hintText: 'Enter your home city',
+                  prefixIcon: const Icon(Icons.home_outlined),
+                ),
+
+                const SizedBox(height: AppSpacing.lg),
+
+                // Browse Location (for events)
+                _BrowseLocationSection(controller: _profileController),
+
+                const SizedBox(height: AppSpacing.lg),
+
+                // Bio
+                CustomTextField(
+                  controller: _profileController.bioController,
+                  labelText: 'Bio',
+                  hintText: 'Tell others about yourself...',
+                  maxLines: 4,
+                ),
+
+                const SizedBox(height: AppSpacing.lg),
+
+                // Interests
+                Text(
+                  'Interests',
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Obx(() => Wrap(
+                      spacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.sm,
+                      children: interests.map((interest) {
+                        final isSelected = _profileController
+                            .selectedInterests
+                            .contains(interest);
+                        return TagChip(
+                          label: interest,
+                          selected: isSelected,
+                          onTap: () =>
+                              _profileController.toggleInterest(interest),
+                        );
+                      }).toList(),
+                    )),
+
+                const SizedBox(height: AppSpacing.xl),
+
+                // Error message
+                Obx(() {
+                  if (_profileController.errorMessage.value.isNotEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                      child: Text(
+                        _profileController.errorMessage.value,
+                        style: const TextStyle(
+                          color: AppColors.error,
+                          fontSize: 14,
+                        ),
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                }),
+
+                // Save Profile button
+                Obx(() => GradientButton(
+                      text: 'Save Profile',
+                      isLoading: _profileController.isUpdating.value,
+                      onPressed: _saveProfile,
+                    )),
+
+                const SizedBox(height: AppSpacing.xl),
               ],
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your age';
-                }
-                final age = int.tryParse(value);
-                if (age == null) return 'Please enter a valid number';
-                if (age < 18) return 'You must be at least 18 years old';
-                if (age > 120) return 'Please enter a valid age';
-                return null;
-              },
             ),
-
-            const SizedBox(height: AppSpacing.lg),
-
-            // Gender
-            Text(
-              'Gender',
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Obx(() => Wrap(
-                  spacing: AppSpacing.sm,
-                  runSpacing: AppSpacing.sm,
-                  children: genders.map((gender) {
-                    final isSelected =
-                        profileController.selectedGender.value == gender;
-                    return ChoiceChip(
-                      label: Text(gender),
-                      selected: isSelected,
-                      onSelected: (_) => profileController.setGender(gender),
-                      selectedColor: AppColors.primaryBlue,
-                      labelStyle: TextStyle(
-                        color: isSelected ? Colors.white : AppColors.darkGrey,
-                      ),
-                    );
-                  }).toList(),
-                )),
-
-            const SizedBox(height: AppSpacing.lg),
-
-            // Home Location
-            CustomTextField(
-              controller: profileController.locationController,
-              labelText: 'Home Location',
-              hintText: 'Enter your home city',
-              prefixIcon: const Icon(Icons.home_outlined),
-            ),
-
-            const SizedBox(height: AppSpacing.lg),
-
-            // Browse Location (for events)
-            _BrowseLocationSection(controller: profileController),
-
-            const SizedBox(height: AppSpacing.lg),
-
-            // Bio
-            CustomTextField(
-              controller: profileController.bioController,
-              labelText: 'Bio',
-              hintText: 'Tell others about yourself...',
-              maxLines: 4,
-            ),
-
-            const SizedBox(height: AppSpacing.lg),
-
-            // Interests
-            Text(
-              'Interests',
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Obx(() => Wrap(
-                  spacing: AppSpacing.sm,
-                  runSpacing: AppSpacing.sm,
-                  children: interests.map((interest) {
-                    final isSelected =
-                        profileController.selectedInterests.contains(interest);
-                    return TagChip(
-                      label: interest,
-                      selected: isSelected,
-                      onTap: () => profileController.toggleInterest(interest),
-                    );
-                  }).toList(),
-                )),
-
-            const SizedBox(height: AppSpacing.xl),
-
-            // Error message
-            Obx(() {
-              if (profileController.errorMessage.value.isNotEmpty) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                  child: Text(
-                    profileController.errorMessage.value,
-                    style: const TextStyle(
-                      color: AppColors.error,
-                      fontSize: 14,
-                    ),
-                  ),
-                );
-              }
-              return const SizedBox.shrink();
-            }),
-          ],
-        ),
-      ),
-      ),
+          ),
+        );
+      }),
     );
   }
 }

@@ -83,19 +83,36 @@ class ProfileController extends GetxController {
     }
   }
 
-  /// Populate edit controllers with current data
+  /// Populate edit controllers with current data from server.
+  /// Only overwrites controllers that have non-empty server values, so we
+  /// don't clear fields a user is actively typing into (e.g., during setup
+  /// when loadProfile returns an empty profile for a new user).
   void _populateEditControllers() {
     final user = currentUser.value;
-    if (user != null) {
-      userNameController.text = user.userName ?? '';
-      bioController.text = user.profile?.bio ?? '';
-      ageController.text = user.profile?.age?.toString() ?? '';
-      locationController.text = user.profile?.location ?? '';
-      selectedGender.value = user.profile?.gender ?? '';
-      selectedInterests.value = user.profile?.interests ?? [];
-      selectedLanguages.value = user.profile?.languages ?? [];
-      isLowProfile.value = user.isLowProfile;
+    if (user == null) return;
+
+    if (user.userName != null && user.userName!.isNotEmpty) {
+      userNameController.text = user.userName!;
     }
+    if (user.profile?.bio != null && user.profile!.bio!.isNotEmpty) {
+      bioController.text = user.profile!.bio!;
+    }
+    if (user.profile?.age != null) {
+      ageController.text = user.profile!.age!.toString();
+    }
+    if (user.profile?.location != null && user.profile!.location!.isNotEmpty) {
+      locationController.text = user.profile!.location!;
+    }
+    if (user.profile?.gender != null && user.profile!.gender!.isNotEmpty) {
+      selectedGender.value = user.profile!.gender!;
+    }
+    if (user.profile?.interests != null && user.profile!.interests!.isNotEmpty) {
+      selectedInterests.value = user.profile!.interests!;
+    }
+    if (user.profile?.languages != null && user.profile!.languages!.isNotEmpty) {
+      selectedLanguages.value = user.profile!.languages!;
+    }
+    isLowProfile.value = user.isLowProfile;
   }
 
   /// Load additional profile data with individual error handling
