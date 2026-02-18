@@ -165,7 +165,22 @@ class AuthRepository extends BaseRepository {
 
       return response;
     } catch (e) {
-      return ApiResponse.failure(error: 'Google Sign-In failed: $e');
+      final errorStr = e.toString();
+      String userMessage;
+      if (errorStr.contains('ApiException: 10') || errorStr.contains('DEVELOPER_ERROR')) {
+        userMessage = 'Google Sign-In is not configured for this build. '
+            'Please check SHA-1 fingerprint in Google Cloud Console.';
+        debugPrint('Google Sign-In DEVELOPER_ERROR: SHA-1 fingerprint mismatch. '
+            'Run: cd android && ./gradlew signingReport');
+      } else if (errorStr.contains('network_error') || errorStr.contains('ApiException: 7')) {
+        userMessage = 'Network error during Google Sign-In. Please check your connection.';
+      } else if (errorStr.contains('sign_in_canceled') || errorStr.contains('ApiException: 12')) {
+        userMessage = 'Google Sign-In was cancelled.';
+      } else {
+        userMessage = 'Google Sign-In failed. Please try again.';
+      }
+      debugPrint('Google Sign-In error: $e');
+      return ApiResponse.failure(error: userMessage);
     }
   }
 

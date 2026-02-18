@@ -22,8 +22,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void initState() {
     super.initState();
-    // Clear fields once when entering registration
-    authController.clearFields();
+    // Clear fields after the current frame to avoid triggering rebuilds
+    // on the previous screen's Obx widgets during navigation
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      authController.clearFields();
+    });
   }
 
   @override

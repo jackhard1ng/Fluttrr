@@ -68,12 +68,23 @@ class AuthResponse {
   });
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
+    // Parse userId defensively — server may return int, double, or String
+    final rawUserId = json['userId'] ?? json['user_id'];
+    int? userId;
+    if (rawUserId is int) {
+      userId = rawUserId;
+    } else if (rawUserId is double) {
+      userId = rawUserId.toInt();
+    } else if (rawUserId is String) {
+      userId = int.tryParse(rawUserId);
+    }
+
     return AuthResponse(
       success: json['success'] == true || json['token'] != null,
-      message: json['message'] as String?,
-      token: json['token'] as String?,
-      refreshToken: (json['refreshToken'] ?? json['refresh_token']) as String?,
-      userId: (json['userId'] ?? json['user_id']) as int?,
+      message: json['message']?.toString(),
+      token: json['token']?.toString(),
+      refreshToken: (json['refreshToken'] ?? json['refresh_token'])?.toString(),
+      userId: userId,
       isNewUser: json['is_new_user'] == true || json['isNewUser'] == true,
       requiresProfileSetup: json['requires_profile_setup'] == true ||
           json['requiresProfileSetup'] == true,

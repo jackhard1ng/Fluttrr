@@ -742,8 +742,21 @@ abstract class BaseRepository {
       }
     } catch (e) {
       debugPrint('Response parsing error: $e');
+      debugPrint('Response body (first 500 chars): ${response.body.length > 500 ? response.body.substring(0, 500) : response.body}');
+
+      // Provide a more helpful error message based on the type of failure
+      String errorMsg;
+      if (response.body.trimLeft().startsWith('<')) {
+        // Server returned HTML (e.g. Nginx error page, 502/503)
+        errorMsg = 'Server returned an unexpected response. Please try again later.';
+      } else if (response.body.isEmpty) {
+        errorMsg = 'Server returned an empty response.';
+      } else {
+        errorMsg = 'Failed to process server response. Please try again.';
+      }
+
       return ApiResponse.failure(
-        error: 'Failed to parse response',
+        error: errorMsg,
         statusCode: response.statusCode,
       );
     }
